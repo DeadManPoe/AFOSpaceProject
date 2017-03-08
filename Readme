@@ -1,0 +1,27 @@
+README
+------------------
+Group 19
+Andrea Sessa
+Giorgio Pea
+------------------
+
+MainServer -> Start the server
+MainCLI -> Start the CLI
+MainGUI -> Start the GUI
+
+Instructions for the CLI
+Start the server
+Start at least two client
+Follow the instructions on the console
+NB: the game id is 1 for the first game, 2 for the second and so on...
+
+Instructions for the GUI
+Start the server
+Start at least two client
+Connect -> Connects to the server
+New -> Create a new game
+Join -> Select the game from the table, then click join
+StartGame -> To start the game without waiting the timeout(2min)
+
+To play left click on the sector to interact with the map
+If needed to interact with the card left click on the card
