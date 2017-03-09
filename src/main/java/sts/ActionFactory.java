@@ -9,12 +9,23 @@ import java.util.NoSuchElementException;
  */
 public class ActionFactory {
 
-    private List<String> actionTypes;
+    private static ActionFactory instance = new ActionFactory();
 
-    public ActionFactory(List<String> actionTypes) {
-        this.actionTypes = actionTypes;
+    public static ActionFactory getInstance(){
+        if(instance == null){
+            instance = new ActionFactory();
+        }
+        return instance;
     }
 
+    private ActionFactory() {}
+
+    private List<String> actionTypes;
+
+
+    public void init(List<String> actionTypes){
+        this.actionTypes = actionTypes;
+    }
     public Action getAction(String type, Object payload){
         if(actionTypes.contains(type)){
             return new Action(type,payload);

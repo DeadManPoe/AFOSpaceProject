@@ -26,9 +26,6 @@ public class Store {
 
     private Store() {}
 
-    public void init(Map<String, Object> state){
-        this.observableState = new ObservableState(state);
-    }
 
     public Map<String,Object> getState(){
         return this.observableState.getState();
@@ -62,5 +59,8 @@ public class Store {
     }
     public void observeState(Observer observer){
         this.observableState.addObserver(observer);
+    }
+    public void init(Map<String,Object> initialState){
+        this.observableState = new ObservableState(initialState);
     }
 }
