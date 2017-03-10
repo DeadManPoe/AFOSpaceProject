@@ -169,7 +169,7 @@ public class Game extends Observable {
 	/**
 	 * Adds a player to the game
 	 *
-	 * @param subHandler
+	 * @param playerName
 	 *            the thread that will handle the pub/sub communication with the
 	 *            client
 	 * @return the unique identifier(token) of the player inserted

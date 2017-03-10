@@ -73,7 +73,7 @@ public interface ClientRemoteServicesInterface extends Remote {
 	/**
 	 * A service that shows to the client a chat message
 	 * 
-	 * @param msg
+	 * @param message
 	 *            the chat message to be shown to the client
 	 * @throws RemoteException
 	 *             signals a rmi com. error

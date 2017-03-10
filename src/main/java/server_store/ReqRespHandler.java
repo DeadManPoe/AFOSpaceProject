@@ -1,4 +1,8 @@
-package server;
+package server_store;
+
+import server.MainServer;
+import server.ServerLogger;
+import server.SocketRemoteDataExchange;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -13,9 +17,7 @@ import java.util.logging.Level;
  * @author Giorgio Pea
  * @version 1.0
  */
-public class SocketThread extends Thread {
-	// The server this thread refers to
-	private MainServer server;
+public class ReqRespHandler extends Thread {
 	// The socket used to handle the client's request
 	private Socket socket;
 
@@ -24,15 +26,13 @@ public class SocketThread extends Thread {
 	 * the client server pattern. This thread is constructed from a server and a
 	 * socket that represents the client itself and that will be used to handle
 	 * the client's request
-	 * 
-	 * @param server
+	 *
 	 *            the server this thread refers to
 	 * @param socket
 	 *            the socket this thread uses to handle the client's request and
 	 *            that represents the client itself
 	 */
-	public SocketThread(MainServer server, Socket socket) {
-		this.server = server;
+	public ReqRespHandler(Socket socket) {
 		this.socket = socket;
 	}
 
@@ -47,8 +47,8 @@ public class SocketThread extends Thread {
 		SocketRemoteDataExchange dataExchange;
 		try {
 			// Client's request handling
-			dataExchange = new SocketRemoteDataExchange(server, socket);
-			server.setSocketDataExchange(dataExchange);
+			dataExchange = new SocketRemoteDataExchange(null, socket);
+			//server.setSocketDataExchange(dataExchange);
 			dataExchange.receiveData();
 		} catch (ClassNotFoundException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
