@@ -1,12 +1,15 @@
 package server_store;
 
+import common.RemoteMethodCall;
 import server.MainServer;
 import server.ServerLogger;
 import server.SocketRemoteDataExchange;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.logging.Level;
 
 /**
@@ -61,4 +64,31 @@ public class ReqRespHandler extends Thread {
 		}
 
 	}
+	private RemoteMethodCall receiveData() throws IOException, ClassNotFoundException {
+        ObjectInputStream objectInputStream = new ObjectInputStream(this.socket.getInputStream());
+        RemoteMethodCall remoteMethodCall = (RemoteMethodCall) objectInputStream.readObject();
+        return remoteMethodCall;
+    }
+	private void performReceivedMethodCall(RemoteMethodCall remoteMethodCall) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String methodName = remoteMethodCall.getMethodName();
+        ArrayList<Object> parameters = remoteMethodCall
+                .getMethodParameters();
+        Class<?>[] parametersClasses = new Class[parameters.size()];
+        for (int i = 0; i < parameters.size(); i++) {
+            if (parameters.get(i).getClass().getName().contains("Action")
+                    || parameters.get(i).getClass().getName()
+                    .contains("ClientNotification")) {
+                parametersClasses[i] = parameters.get(i).getClass()
+                        .getSuperclass();
+            } else {
+                parametersClasses[i] = parameters.get(i).getClass();
+            }
+
+        }
+        this.getClass().getDeclaredMethod(methodName, parametersClasses)
+                .invoke(this, parameters.toArray());
+    }
+    private void closeDataFlow(){
+
+    }
 }
