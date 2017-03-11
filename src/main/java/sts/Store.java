@@ -1,5 +1,8 @@
 package sts;
 
+import server_store.ObservableServerState;
+import server_store.ServerState;
+
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +22,7 @@ public class Store {
         return ourInstance;
     }
 
-    private ObservableState observableState;
+    private ObservableServerState observableState;
     private final Map<String, Reducer> actionTypeToReducer = new HashMap<String, Reducer>();
     private final Map<String, Effect> actionTypeToEffect = new HashMap<String,Effect>();
     private final static Logger storeLogger = Logger.getLogger("Store Logger");
@@ -27,8 +30,8 @@ public class Store {
     private Store() {}
 
 
-    public Map<String,Object> getState(){
-        return this.observableState.getState();
+    public ServerState getState(){
+        return this.observableState.getServerState();
     }
     public void registerReducer(Reducer reducer, String actionType){
         this.actionTypeToReducer.put(actionType, reducer);
@@ -43,7 +46,7 @@ public class Store {
             storeLogger.info((new Timestamp(System.currentTimeMillis())).toString());
             storeLogger.info("| STATE BEFORE |\n"+this.observableState.toString());
             storeLogger.info("| ACTION |\n"+action.toString());
-            this.observableState.setState(reducer.reduce(action, this.observableState.getState()), reducer.getWritableStateKeys());
+            this.observableState.setServerState(reducer.reduce(action, this.observableState.getServerState()),action.type);
             storeLogger.info("| STATE AFTER |\n"+this.observableState.toString());
             this.dispatchSideEffect(action);
         }
@@ -60,7 +63,7 @@ public class Store {
     public void observeState(Observer observer){
         this.observableState.addObserver(observer);
     }
-    public void init(Map<String,Object> initialState){
-        this.observableState = new ObservableState(initialState);
+    public void init(ServerState initialState){
+        this.observableState = new ObservableServerState(initialState);
     }
 }

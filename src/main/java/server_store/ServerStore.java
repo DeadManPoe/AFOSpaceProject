@@ -30,25 +30,7 @@ public class ServerStore {
     }
 
     private void produceInitialState(){
-        Map<String,Object> initialState = new HashMap<String,Object>();
-        //Games by Id
-        Map<String, Game> gamesById = new HashMap<String, Game>();
-        //Games by PlayerToken
-        Map<PlayerToken, Game> gamesByPlayerToken = new HashMap<PlayerToken, Game>();
-        //Server connection
-        ServerConnection connection = null;
-        List<Socket> reqRespSockets = new ArrayList<Socket>();
-        List<Socket> pubSubSockets = new ArrayList<Socket>();
-
-
-
-        initialState.put("games_by_id",gamesById);
-        initialState.put("games_by_player", gamesByPlayerToken);
-        initialState.put("@COMMUNICATION_CONNECTION_INFO",connection);
-        initialState.put("@COMMUNICATION_REQRESPONSE_SOCKETS",reqRespSockets);
-        initialState.put("@COMMUNICATION_PUBSUB_SOCKETS",pubSubSockets);
-
-
+        ServerState initialState = new ServerState(null,null,null,null);
         this.serverStore.init(initialState);
     }
     private void produceActions(){
@@ -57,6 +39,7 @@ public class ServerStore {
         actions.add("@COMMUNICATION_SET_CONNECTION");
         actions.add("@COMMUNICATION_ADD_SOCKET");
         actions.add("@COMMUNICATION_REMOVE_SOCKET");
+        actions.add("@COMMUNICATION_MOVE_SOCKET_TO_PUBSUB");
         actions.add("@GAMES_ADD_GAME");
         actions.add("@GLOBAL_REMOVE_GAME");
         //Debatable

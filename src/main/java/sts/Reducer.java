@@ -1,5 +1,7 @@
 package sts;
 
+import server_store.ServerState;
+
 import java.util.List;
 import java.util.Map;
 
@@ -19,5 +21,5 @@ public abstract class Reducer {
         return writableStateKeys;
     }
 
-    public abstract Map<String,Object> reduce(Action action, Map<String, Object> state);
+    public abstract ServerState reduce(Action action, ServerState state);
 }

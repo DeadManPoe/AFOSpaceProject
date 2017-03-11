@@ -1,5 +1,7 @@
 package sts;
 
+import contracts.StateChangedNotification;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -29,10 +31,11 @@ public class ObservableState extends Observable {
      * @param state The new state
      * @param keysWithChangedValue The list of keys of the state whose associated value will be changed
      */
-    public void setState(Map<String, Object> state, List<String> keysWithChangedValue) {
+    public void setState(Map<String, Object> state, List<String> keysWithChangedValue, Action lastAction) {
         this.state = state;
+        StateChangedNotification notification = new StateChangedNotification(keysWithChangedValue, lastAction);
         setChanged();
-        notifyObservers(keysWithChangedValue);
+        notifyObservers(notification);
     }
 
     @Override
