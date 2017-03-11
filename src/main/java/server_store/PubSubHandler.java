@@ -6,7 +6,6 @@ import server.ServerLogger;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Observable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
@@ -15,13 +14,14 @@ import java.util.logging.Level;
  *
  */
 public class PubSubHandler extends Thread {
+
     // The socket associated to the handler
-    private final Socket socket;
+    private Socket socket;
     // A queue of messages to send to the subscriber
     private ConcurrentLinkedQueue<RemoteMethodCall> buffer;
     // The object output stream used to perform the remote method call on the
     // subscriber
-    private ObjectOutputStream output;
+    private ObjectOutputStream objectOutputStream;
 
     /**
      * Constructs a subscriber handler from the socket used to perform remote
@@ -35,8 +35,8 @@ public class PubSubHandler extends Thread {
     public PubSubHandler(Socket socket) throws IOException {
         this.socket = socket;
         this.buffer = new ConcurrentLinkedQueue<RemoteMethodCall>();
-        output = new ObjectOutputStream(this.socket.getOutputStream());
-        output.flush();
+        this.objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
+        this.objectOutputStream.flush();
     }
 
     /**
@@ -47,9 +47,11 @@ public class PubSubHandler extends Thread {
      * @throws IOException
      */
     private void perform(RemoteMethodCall remoteMethodCall) throws IOException {
-        output.writeObject(remoteMethodCall);
-        output.flush();
+        this.objectOutputStream.writeObject(remoteMethodCall);
+        this.objectOutputStream.flush();
     }
+
+
     /**
      * Runs the thread defined in this class. The thread waits until the
      * handler's associated queue of remote method calls has a remote method
@@ -82,4 +84,5 @@ public class PubSubHandler extends Thread {
             }
         }
     }
+
 }

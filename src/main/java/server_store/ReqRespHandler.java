@@ -1,15 +1,24 @@
 package server_store;
 
-import common.RemoteMethodCall;
+import common.*;
+import it.polimi.ingsw.cg_19.Game;
+import it.polimi.ingsw.cg_19.Player;
 import server.MainServer;
 import server.ServerLogger;
 import server.SocketRemoteDataExchange;
+import server.SubscriberHandler;
+import sts.ActionFactory;
+import sts.Store;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -21,55 +30,42 @@ import java.util.logging.Level;
  * @version 1.0
  */
 public class ReqRespHandler extends Thread {
-	// The socket used to handle the client's request
-	private Socket socket;
 
-	/**
-	 * Constructs a thread that handles a request by a client in the logic of
-	 * the client server pattern. This thread is constructed from a server and a
-	 * socket that represents the client itself and that will be used to handle
-	 * the client's request
-	 *
-	 *            the server this thread refers to
-	 * @param socket
-	 *            the socket this thread uses to handle the client's request and
-	 *            that represents the client itself
-	 */
-	public ReqRespHandler(Socket socket) {
-		this.socket = socket;
-	}
+    private Socket socket;
+    private ObjectInputStream objectInputStream;
+    private ObjectOutputStream objectOutputStream;
+    private Store store;
+    private ActionFactory actionFactory;
 
-	/**
-	 * Runs the thread. The thread handles the client's request by receiving the
-	 * client data, processing it and invoking on the client a remote method,
-	 * all is done through a {@link SocketRemoteDataExchange}
-	 * 
-	 * @see SocketRemoteDataExchange
-	 */
-	public void run() {
-		SocketRemoteDataExchange dataExchange;
-		try {
-			// Client's request handling
-			dataExchange = new SocketRemoteDataExchange(null, socket);
-			//server.setSocketDataExchange(dataExchange);
-			dataExchange.receiveData();
-		} catch (ClassNotFoundException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			ServerLogger.getLogger().log(Level.SEVERE,
-					"Could not perform action | ReqRespHandler", e);
-		} catch (IOException e) {
-			ServerLogger.getLogger().log(Level.SEVERE,
-					"Could not communicate with the client | ReqRespHandler", e);
-		}
+    public ReqRespHandler(Socket socket) {
+        this.store = Store.getInstance();
+        this.actionFactory = ActionFactory.getInstance();
+        this.socket = socket;
+        try {
+            this.objectInputStream = new ObjectInputStream(socket.getInputStream());
+            this.objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            this.objectOutputStream.flush();
 
-	}
-	private RemoteMethodCall receiveData() throws IOException, ClassNotFoundException {
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private RemoteMethodCall receiveData() throws IOException, ClassNotFoundException {
         ObjectInputStream objectInputStream = new ObjectInputStream(this.socket.getInputStream());
         RemoteMethodCall remoteMethodCall = (RemoteMethodCall) objectInputStream.readObject();
         return remoteMethodCall;
     }
-	private void performReceivedMethodCall(RemoteMethodCall remoteMethodCall) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private void sendData(RemoteMethodCall remoteMethodCall) throws IOException {
+        this.objectOutputStream.writeObject(remoteMethodCall);
+        this.objectOutputStream.flush();
+        // sendPubNotification and sendToken
+        if (!remoteMethodCall.getMethodName().equals("sendPubNotification")
+                && !remoteMethodCall.getMethodName().equals("sendToken")) {
+            this.closeDataFlow();
+        }
+    }
+    private void performReceivedMethodCall(RemoteMethodCall remoteMethodCall) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String methodName = remoteMethodCall.getMethodName();
         ArrayList<Object> parameters = remoteMethodCall
                 .getMethodParameters();
@@ -89,6 +85,184 @@ public class ReqRespHandler extends Thread {
                 .invoke(this, parameters.toArray());
     }
     private void closeDataFlow(){
+        try {
+            this.objectOutputStream.close();
+            this.objectInputStream.close();
+            this.socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * A service that sends to the client/player the list of all available games
+     *
+     * @throws IOException
+     */
+    private void getGames() throws IOException {
+        Map<String,Game> games = ( Map<String, Game>) this.store.getState().get("games_by_id");
+        List<GamePublicData> gamesList = new ArrayList<GamePublicData>();
+        for (Map.Entry<String, Game> game : games.entrySet()) {
+            gamesList.add(game.getValue().getPublicData());
+        }
+        ArrayList<Object> parameters = new ArrayList<Object>();
+        parameters.add(gamesList);
+        this.sendData(
+                new RemoteMethodCall("sendAvailableGames", parameters));
+    }
 
+    /**
+     * A service that creates a new game upon a map and associates that game to
+     * the client/player. A notification is sent to the client/player as well.
+     *
+     * @param gameMapName
+     *            the name of map to be associated with the new game
+     * @param playerToken
+     *            the client/player unique identifier
+     * @throws IOException
+     */
+    public void joinNewGame(String gameMapName, String playerName)
+            throws IOException {
+        Game game = new Game(gameMapName);
+        PlayerToken playerToken = game.addPlayer(playerName);
+        //When a game is created create also the pubsub handler
+        this.store.dispatchAction(this.actionFactory.getAction("@GAMES_NEW_GAME", new Game(gameMapName)));
+        Map<String, Object> gamePlayer = new HashMap<String,Object>();
+        gamePlayer.put("player_token", playerToken );
+        gamePlayer.put("game_id", game.getId());
+        this.store.dispatchAction(this.actionFactory.getAction("@GAMES_ADD_PLAYER_TO_GAME",gamePlayer));
+        ArrayList<Object> parameters = new ArrayList<Object>();
+        parameters.add(playerToken);
+        this.sendData(
+                new RemoteMethodCall("sendToken", parameters));
+        //parameters.clear();
+        //parameters.add("You've joined a new game");
+        //game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
+
+    }
+
+    /**
+     * A service that associates the client/player to the specified existing
+     * game. A notification is sent to the client/player as well
+     *
+     * @param gameId
+     *            the id of game the client wants to join
+     * @param playerToken
+     *            the client/player unique identifier
+     * @throws IOException
+     */
+    public void joinGame(Integer gameId, String playerName) throws IOException {
+        Map<String,Game> games = ( Map<String, Game>) this.store.getState().get("games_by_id");
+        Game game = games.get(gameId);
+        PlayerToken playerToken = game.addPlayer(playerName);
+        Map<String, Object> gamePlayer = new HashMap<String,Object>();
+        gamePlayer.put("player_token", playerToken );
+        gamePlayer.put("game_id", game.getId());
+        this.store.dispatchAction(this.actionFactory.getAction("@GAMES_ADD_PLAYER_TO_GAME",gamePlayer));
+        ArrayList<Object> parameters = new ArrayList<Object>();
+        parameters.add(playerToken);
+        this.sendData(
+                new RemoteMethodCall("sendToken", parameters));
+        //parameters.clear();
+        //parameters.add("A new player joined the game");
+        //game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
+        // game.startGame();
+    }
+
+    /**
+     * A service that processes the specified action sent by the client/player
+     * and notifies the client/player
+     *
+     * @param action
+     *            the action sent by the client/player to be performed on the
+     *            game
+     * @param playerToken
+     *            the client/player unique identifier
+     * @throws IOException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     */
+    public void makeAction(Action action, PlayerToken playerToken)
+            throws IOException, InstantiationException, IllegalAccessException {
+        Map<String,Game> games = ( Map<String, Game>) this.store.getState().get("games_by_player");
+        Game game = games.get(playerToken);
+        ArrayList<Object> parameters = new ArrayList<Object>();
+        ClientNotification[] notification = game.makeAction(action,
+                playerToken, false);
+        parameters.add(notification[0]);
+        this.sendData(
+                new RemoteMethodCall("sendNotification", parameters));
+        //parameters.clear();
+        //parameters.add(notification[1]);
+        //game.notifyListeners(new RemoteMethodCall("sendPubNotification",
+                //parameters));
+    }
+
+    /**
+     * A service that delivers a text message to all the subscribers of a
+     * specific topic in the logic of the pub/sub pattern
+     *
+     * @param message
+     *            the text message to be delivered to all the subscribers of a
+     *            specific topic in the logic of the pub/sub pattern
+     * @param token
+     *            the token of the player who wants to send the text message.
+     *            From this token the topic(a game), whose subscribers have to
+     *            be delivered the text message, is derived.
+     * @throws IOException
+     */
+    public void publishGlobalMessage(String message,
+                                                  PlayerToken token) throws IOException {
+        Map<String,Game> games = ( Map<String, Game>) this.store.getState().get("games_by_player");
+        Game game = games.get(token);
+        Player player = game.fromTokenToPlayer(token);
+        ArrayList<Object> parameters = new ArrayList<Object>();
+        parameters.add("[" + player.getName() + "]: " + message);
+        this.sendData(
+                new RemoteMethodCall("ackMessage"));
+        //game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
+    }
+
+    /**
+     * A services that allows a client to force(without waiting the timeout) the
+     * start of the game only if there are at least two player
+     *
+     * @param token
+     *            The token of the player who wants to start the game
+     * @throws IOException
+     */
+    public void forceGameStart(PlayerToken token) {
+        Map<String,Game> games = ( Map<String, Game>) this.store.getState().get("games_by_player");
+        Game game = games.get(token);
+        if (game.getPublicData().getPlayersCount() > 1) {
+            game.startGame();
+        }
+        try {
+            this.sendData(
+                    new RemoteMethodCall("ackMessage"));
+        } catch (IOException e) {
+            ServerLogger.getLogger().log(Level.SEVERE,
+                    "Error in sending ackMessage rmethodcall", e);
+        }
+    }
+
+
+
+
+
+    @Override
+    public void run(){
+        try {
+            this.performReceivedMethodCall(this.receiveData());
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

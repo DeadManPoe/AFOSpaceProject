@@ -57,10 +57,10 @@ public class ServerStore {
         actions.add("@COMMUNICATION_SET_CONNECTION");
         actions.add("@COMMUNICATION_ADD_SOCKET");
         actions.add("@COMMUNICATION_REMOVE_SOCKET");
-        actions.add("@GLOBAL_ADD_GAME");
+        actions.add("@GAMES_ADD_GAME");
         actions.add("@GLOBAL_REMOVE_GAME");
         //Debatable
-        actions.add("@GLOBAL_ADD_PLAYER_TO_GAME");
+        actions.add("@GAMES_ADD_PLAYER_TO_GAME");
         //
         //Game level actions
         actions.add("@GAME_ADD_PLAYER");
