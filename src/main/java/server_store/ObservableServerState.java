@@ -6,6 +6,7 @@ import java.util.Observable;
 
 /**
  * Created by giorgiopea on 11/03/17.
+ *
  */
 public class ObservableServerState extends Observable {
 

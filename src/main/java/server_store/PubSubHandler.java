@@ -24,6 +24,7 @@ public class PubSubHandler extends Thread implements Observer {
     // A queue of messages to send to the subscriber
     private ConcurrentLinkedQueue<RemoteMethodCall> buffer;
     private PlayerToken playerToken;
+    private Integer gameId;
     // The object output stream used to perform the remote method call on the
     // subscriber
     private ObjectOutputStream objectOutputStream;
@@ -37,8 +38,9 @@ public class PubSubHandler extends Thread implements Observer {
      *            the socket used perform remote method calls on the subscriber
      * @throws IOException
      */
-    public PubSubHandler(Socket socket, PlayerToken playerToken) throws IOException {
+    public PubSubHandler(Socket socket, Integer gameId, PlayerToken playerToken) throws IOException {
         this.playerToken = playerToken;
+        this.gameId = gameId;
         this.socket = socket;
         this.buffer = new ConcurrentLinkedQueue<RemoteMethodCall>();
         this.objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
@@ -96,9 +98,11 @@ public class PubSubHandler extends Thread implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         Action lastAction = (Action) arg;
-        String prefix = lastAction.type.substring(0, lastAction.type.indexOf("_"));
         if(lastAction.type.equals("@GAME")){
-
+            SubscriberNotification notification = (SubscriberNotification) lastAction.payload;
+            if((notification.isGlobal || notification.playerToken.equals(this.playerToken)) && notification.gameId == this.gameId){
+                buffer.add(notification.remoteMethodCall);
+            }
         }
     }
 }

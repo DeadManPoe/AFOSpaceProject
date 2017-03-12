@@ -1,5 +1,6 @@
 package server_store;
 
+import common.PlayerToken;
 import sts.Action;
 import sts.ActionFactory;
 import sts.Store;
@@ -56,9 +57,11 @@ public class CommunicationHandler implements Observer {
         Action lastAction = (Action) arg;
         if(lastAction.type.equals("@GAMES_ADD_PLAYER_TO_GAME")){
             Map<String,Object> map = (Map<String,Object>) lastAction.payload;
+            Integer gameId = (Integer) map.get("game_id");
+            PlayerToken token = (PlayerToken) map.get("player_token");
             Socket socket = (Socket) map.get("socket");
             try {
-                this.pubSubThreadPool.submit(new PubSubHandler(socket));
+                this.pubSubThreadPool.submit(new PubSubHandler(socket,gameId,token));
             } catch (IOException e) {
                 e.printStackTrace();
             }
