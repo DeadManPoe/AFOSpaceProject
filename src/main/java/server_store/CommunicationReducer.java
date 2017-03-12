@@ -1,5 +1,6 @@
 package server_store;
 
+import org.apache.commons.lang.SerializationUtils;
 import server.SocketThread;
 import sts.Action;
 import sts.Reducer;
@@ -19,14 +20,14 @@ public class CommunicationReducer extends Reducer {
     }
 
     @Override
-    public Map<String, Object> reduce(Action action, Map<String, Object> state) {
-        Map<String,Object> newState = new HashMap<String,Object>(state);
-        if(action.type.equals("@COMMUNICATION_SET_CONNECTION")){
-            newState.put("@COMMUNICATION_CONNECTION_INFO", action.payload);
+    public ServerState reduce(Action action, ServerState state) {
+        if(action.type.equals("@COMMUNICATION_SET_TCPORT")){
+            ServerState newState = new ServerState(state);
+            newState.TCP_PORT = (Integer )action.payload;
+            return newState;
         }
-        else if(action.type.equals("@COMMUNICATION_ADD_SOCKET")){
-            newState.put("@COMMUNICATION_ACTIVE_SOCKETS",action.payload);
-        }
-        return newState;
+        return state;
     }
+
+
 }

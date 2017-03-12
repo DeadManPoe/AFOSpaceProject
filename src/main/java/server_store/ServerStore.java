@@ -2,17 +2,16 @@ package server_store;
 
 import common.PlayerToken;
 import it.polimi.ingsw.cg_19.Game;
+import it.polimi.ingsw.cg_19.Player;
 import server.ServerConnection;
 import server.SocketRemoteDataExchange;
 import server.SocketSubscriberHandler;
 import sts.ActionFactory;
 import sts.Store;
 
+import java.lang.reflect.Array;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by giorgiopea on 09/03/17.
@@ -20,23 +19,18 @@ import java.util.Map;
  */
 public class ServerStore {
 
-    private Store serverStore = Store.getInstance();
-    private ActionFactory actionFactory = ActionFactory.getInstance();
+    public static Store serverStore = Store.getInstance();
+    public static ActionFactory actionFactory = ActionFactory.getInstance();
 
-    public ServerStore() {
 
-        this.produceInitialState();
-        this.produceActions();
+    public static void produceInitialState(){
+        ServerState initialState = new ServerState(null,new HashMap<PlayerToken,Game>(),new HashMap<Integer, Game>(),null);
+        serverStore.init(initialState);
     }
-
-    private void produceInitialState(){
-        ServerState initialState = new ServerState(null,null,null,null);
-        this.serverStore.init(initialState);
-    }
-    private void produceActions(){
+    public static void produceActions(){
         List<String> actions = new ArrayList<String>();
         //Games level actions
-        actions.add("@COMMUNICATION_SET_CONNECTION");
+        actions.add("@COMMUNICATION_SET_TCPORT");
         actions.add("@COMMUNICATION_ADD_SOCKET");
         actions.add("@COMMUNICATION_REMOVE_SOCKET");
         actions.add("@COMMUNICATION_MOVE_SOCKET_TO_PUBSUB");
@@ -52,9 +46,14 @@ public class ServerStore {
 
         actionFactory.init(actions);
     }
-
-    public Store getServerStore() {
-        return serverStore;
+    public static void registerReducers(){
+        serverStore.registerReducer(new GamesReducer(new ArrayList<String>(Arrays.asList(new String[]{
+                "GAMES_BY_ID","GAMES_BY_PLAYERTOKEN"
+        }))),"@GAMES");
+        serverStore.registerReducer(new CommunicationReducer(new ArrayList<String>(Arrays.asList(
+                new String[]{"TCP_PORT"}
+        ))),"@COMMUNICATION");
     }
+
 }
 

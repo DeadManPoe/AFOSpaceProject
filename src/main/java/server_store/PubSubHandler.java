@@ -1,11 +1,15 @@
 package server_store;
 
+import common.PlayerToken;
 import common.RemoteMethodCall;
 import server.ServerLogger;
+import sts.Action;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
@@ -13,12 +17,13 @@ import java.util.logging.Level;
  * Created by giorgiopea on 10/03/17.
  *
  */
-public class PubSubHandler extends Thread {
+public class PubSubHandler extends Thread implements Observer {
 
     // The socket associated to the handler
     private Socket socket;
     // A queue of messages to send to the subscriber
     private ConcurrentLinkedQueue<RemoteMethodCall> buffer;
+    private PlayerToken playerToken;
     // The object output stream used to perform the remote method call on the
     // subscriber
     private ObjectOutputStream objectOutputStream;
@@ -32,7 +37,8 @@ public class PubSubHandler extends Thread {
      *            the socket used perform remote method calls on the subscriber
      * @throws IOException
      */
-    public PubSubHandler(Socket socket) throws IOException {
+    public PubSubHandler(Socket socket, PlayerToken playerToken) throws IOException {
+        this.playerToken = playerToken;
         this.socket = socket;
         this.buffer = new ConcurrentLinkedQueue<RemoteMethodCall>();
         this.objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
@@ -50,6 +56,8 @@ public class PubSubHandler extends Thread {
         this.objectOutputStream.writeObject(remoteMethodCall);
         this.objectOutputStream.flush();
     }
+
+
 
 
     /**
@@ -85,4 +93,12 @@ public class PubSubHandler extends Thread {
         }
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        Action lastAction = (Action) arg;
+        String prefix = lastAction.type.substring(0, lastAction.type.indexOf("_"));
+        if(lastAction.type.equals("@GAME")){
+
+        }
+    }
 }

@@ -3,10 +3,7 @@ package server_store;
 import common.*;
 import it.polimi.ingsw.cg_19.Game;
 import it.polimi.ingsw.cg_19.Player;
-import server.MainServer;
 import server.ServerLogger;
-import server.SocketRemoteDataExchange;
-import server.SubscriberHandler;
 import sts.ActionFactory;
 import sts.Store;
 
@@ -52,9 +49,7 @@ public class ReqRespHandler extends Thread {
     }
 
     private RemoteMethodCall receiveData() throws IOException, ClassNotFoundException {
-        ObjectInputStream objectInputStream = new ObjectInputStream(this.socket.getInputStream());
-        RemoteMethodCall remoteMethodCall = (RemoteMethodCall) objectInputStream.readObject();
-        return remoteMethodCall;
+        return (RemoteMethodCall) this.objectInputStream.readObject();
     }
     private void sendData(RemoteMethodCall remoteMethodCall) throws IOException {
         this.objectOutputStream.writeObject(remoteMethodCall);
@@ -99,9 +94,9 @@ public class ReqRespHandler extends Thread {
      * @throws IOException
      */
     private void getGames() throws IOException {
-        Map<String,Game> games = ( Map<String, Game>) this.store.getState().get("games_by_id");
+        Map<Integer,Game> games = this.store.getState().GAMES_BY_ID;
         List<GamePublicData> gamesList = new ArrayList<GamePublicData>();
-        for (Map.Entry<String, Game> game : games.entrySet()) {
+        for (Map.Entry<Integer, Game> game : games.entrySet()) {
             gamesList.add(game.getValue().getPublicData());
         }
         ArrayList<Object> parameters = new ArrayList<Object>();
@@ -116,7 +111,7 @@ public class ReqRespHandler extends Thread {
      *
      * @param gameMapName
      *            the name of map to be associated with the new game
-     * @param playerToken
+     * @param playerName
      *            the client/player unique identifier
      * @throws IOException
      */
@@ -125,17 +120,17 @@ public class ReqRespHandler extends Thread {
         Game game = new Game(gameMapName);
         PlayerToken playerToken = game.addPlayer(playerName);
         //When a game is created create also the pubsub handler
-        this.store.dispatchAction(this.actionFactory.getAction("@GAMES_NEW_GAME", new Game(gameMapName)));
+        this.store.dispatchAction(this.actionFactory.getAction("@GAMES_ADD_GAME", game));
         Map<String, Object> gamePlayer = new HashMap<String,Object>();
         gamePlayer.put("player_token", playerToken );
         gamePlayer.put("game_id", game.getId());
-        this.store.dispatchAction(this.actionFactory.getAction("@GAMES_ADD_PLAYER_TO_GAME",gamePlayer));
+        gamePlayer.put("socket", socket);
         ArrayList<Object> parameters = new ArrayList<Object>();
         parameters.add(playerToken);
         this.sendData(
                 new RemoteMethodCall("sendToken", parameters));
-        //parameters.clear();
-        //parameters.add("You've joined a new game");
+        parameters.clear();
+        this.store.dispatchAction(this.actionFactory.getAction("@GAMES_ADD_PLAYER_TO_GAME",gamePlayer));
         //game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
 
     }
@@ -146,26 +141,24 @@ public class ReqRespHandler extends Thread {
      *
      * @param gameId
      *            the id of game the client wants to join
-     * @param playerToken
+     * @param playerName
      *            the client/player unique identifier
      * @throws IOException
      */
     public void joinGame(Integer gameId, String playerName) throws IOException {
-        Map<String,Game> games = ( Map<String, Game>) this.store.getState().get("games_by_id");
+        Map<Integer,Game> games = this.store.getState().GAMES_BY_ID;
         Game game = games.get(gameId);
         PlayerToken playerToken = game.addPlayer(playerName);
         Map<String, Object> gamePlayer = new HashMap<String,Object>();
         gamePlayer.put("player_token", playerToken );
         gamePlayer.put("game_id", game.getId());
-        this.store.dispatchAction(this.actionFactory.getAction("@GAMES_ADD_PLAYER_TO_GAME",gamePlayer));
+        gamePlayer.put("socket", socket);
         ArrayList<Object> parameters = new ArrayList<Object>();
         parameters.add(playerToken);
         this.sendData(
                 new RemoteMethodCall("sendToken", parameters));
-        //parameters.clear();
-        //parameters.add("A new player joined the game");
-        //game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
-        // game.startGame();
+        this.store.dispatchAction(this.actionFactory.getAction("@GAMES_ADD_PLAYER_TO_GAME",gamePlayer));
+        game.startGame();
     }
 
     /**
@@ -183,7 +176,7 @@ public class ReqRespHandler extends Thread {
      */
     public void makeAction(Action action, PlayerToken playerToken)
             throws IOException, InstantiationException, IllegalAccessException {
-        Map<String,Game> games = ( Map<String, Game>) this.store.getState().get("games_by_player");
+        Map<PlayerToken,Game> games = this.store.getState().GAMES_BY_PLAYERTOKEN;
         Game game = games.get(playerToken);
         ArrayList<Object> parameters = new ArrayList<Object>();
         ClientNotification[] notification = game.makeAction(action,
@@ -212,7 +205,7 @@ public class ReqRespHandler extends Thread {
      */
     public void publishGlobalMessage(String message,
                                                   PlayerToken token) throws IOException {
-        Map<String,Game> games = ( Map<String, Game>) this.store.getState().get("games_by_player");
+        Map<PlayerToken,Game> games = this.store.getState().GAMES_BY_PLAYERTOKEN;
         Game game = games.get(token);
         Player player = game.fromTokenToPlayer(token);
         ArrayList<Object> parameters = new ArrayList<Object>();
@@ -231,7 +224,7 @@ public class ReqRespHandler extends Thread {
      * @throws IOException
      */
     public void forceGameStart(PlayerToken token) {
-        Map<String,Game> games = ( Map<String, Game>) this.store.getState().get("games_by_player");
+        Map<PlayerToken,Game> games = this.store.getState().GAMES_BY_PLAYERTOKEN;
         Game game = games.get(token);
         if (game.getPublicData().getPlayersCount() > 1) {
             game.startGame();
@@ -253,15 +246,7 @@ public class ReqRespHandler extends Thread {
     public void run(){
         try {
             this.performReceivedMethodCall(this.receiveData());
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassNotFoundException | IOException e) {
             e.printStackTrace();
         }
     }

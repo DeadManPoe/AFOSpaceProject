@@ -2,6 +2,7 @@ package server_store;
 
 import common.PlayerToken;
 import it.polimi.ingsw.cg_19.Game;
+import org.apache.commons.lang.SerializationUtils;
 import sts.Action;
 import sts.Reducer;
 
@@ -19,41 +20,57 @@ public class GamesReducer extends Reducer {
     }
 
     @Override
-    public Map<String, Object> reduce(Action action, Map<String, Object> state) {
+    public ServerState reduce(Action action, ServerState state) {
 
         if(action.type.equals("@GAMES_ADD_PLAYER_TO_GAME")){
             Map<String,Object> actionPayload = (Map<String, Object>) action.payload;
             PlayerToken token = (PlayerToken) actionPayload.get("player_token");
             Integer gameId = (Integer) actionPayload.get("game_id");
-            Map<String,Object> newState = new HashMap<String,Object>(state);
-            Map<Integer, Game> idGameMap = (Map<Integer, Game>) state.get("games_by_id");
-            Map<PlayerToken,Game> playerTokenGameMap = (Map<PlayerToken, Game>) state.get("games_by_player");
+            /**
+             * @TODO Implementing deep copy of hashmaps
+             */
+            //ServerState newState = (ServerState) SerializationUtils.clone(state);
+            ServerState newState = new ServerState(state);
+            Map<Integer, Game> idGameMap = state.GAMES_BY_ID;
+            Map<PlayerToken,Game> playerTokenGameMap = state.GAMES_BY_PLAYERTOKEN;
             playerTokenGameMap.put(token,idGameMap.get(gameId));
-            newState.put("games_by_player", new HashMap<PlayerToken,Game>(playerTokenGameMap));
+            newState.GAMES_BY_PLAYERTOKEN = playerTokenGameMap;
             return newState;
         }
         else if(action.type.equals("@GAMES_ADD_GAME")){
             Game game = (Game) action.payload;
-            Map<String,Object> newState = new HashMap<String,Object>(state);
-            Map<Integer, Game> idGameMap = (Map<Integer, Game>) state.get("games_by_id");
+            /**
+             * @TODO Implementing deep copy of hashmaps
+             */
+            //ServerState newState = (ServerState) SerializationUtils.clone(state);
+            ServerState newState = new ServerState(state);
+            Map<Integer, Game> idGameMap = state.GAMES_BY_ID;
             idGameMap.put(game.getId(),game);
-            newState.put("games_by_id", new HashMap<Integer,Game>(idGameMap));
+            newState.GAMES_BY_ID = idGameMap;
             return newState;
         }
         else if(action.type.equals("@GAMES_REMOVE_GAME")){
             Integer gameId = (Integer) action.payload;
-            Map<String,Object> newState = new HashMap<String,Object>(state);
-            Map<Integer, Game> idGameMap = (Map<Integer, Game>) state.get("games_by_id");
+            /**
+             * @TODO Implementing deep copy of hashmaps
+             */
+            //ServerState newState = (ServerState) SerializationUtils.clone(state);
+            ServerState newState = new ServerState(state);
+            Map<Integer, Game> idGameMap = state.GAMES_BY_ID;
             idGameMap.remove(gameId);
-            newState.put("games_by_id", new HashMap<Integer,Game>(idGameMap));
+            newState.GAMES_BY_ID = idGameMap;
             return newState;
         }
         else if(action.type.equals("@GAMES_REMOVE_PLAYER")){
             PlayerToken playerToken = (PlayerToken) action.payload;
-            Map<String,Object> newState = new HashMap<String,Object>(state);
-            Map<PlayerToken, Game> playerTokenGameMap = (Map<PlayerToken, Game>) state.get("games_by_player");
+            /**
+             * @TODO Implementing deep copy of hashmaps
+             */
+            //ServerState newState = (ServerState) SerializationUtils.clone(state);
+            ServerState newState = new ServerState(state);
+            Map<PlayerToken, Game> playerTokenGameMap = state.GAMES_BY_PLAYERTOKEN;
             playerTokenGameMap.remove(playerToken);
-            newState.put("games_by_player", new HashMap<PlayerToken,Game>(playerTokenGameMap));
+            newState.GAMES_BY_PLAYERTOKEN = playerTokenGameMap;
             return newState;
         }
         return state;
