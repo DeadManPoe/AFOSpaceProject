@@ -8,15 +8,11 @@ import common.RemoteMethodCall;
  */
 public class SubscriberNotification {
 
-    public PlayerToken playerToken;
     public RemoteMethodCall remoteMethodCall;
     public Integer gameId;
-    public boolean isGlobal;
 
-    public SubscriberNotification(PlayerToken playerToken, RemoteMethodCall remoteMethodCall, Integer gameId, boolean isGlobal) {
-        this.playerToken = playerToken;
+    public SubscriberNotification(RemoteMethodCall remoteMethodCall, Integer gameId) {
         this.remoteMethodCall = remoteMethodCall;
         this.gameId = gameId;
-        this.isGlobal = isGlobal;
     }
 }

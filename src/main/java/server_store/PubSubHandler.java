@@ -17,7 +17,7 @@ import java.util.logging.Level;
  * Created by giorgiopea on 10/03/17.
  *
  */
-public class PubSubHandler extends Thread implements Observer {
+public class PubSubHandler extends Thread {
 
     // The socket associated to the handler
     private Socket socket;
@@ -95,14 +95,7 @@ public class PubSubHandler extends Thread implements Observer {
         }
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        Action lastAction = (Action) arg;
-        if(lastAction.type.equals("@GAME")){
-            SubscriberNotification notification = (SubscriberNotification) lastAction.payload;
-            if((notification.isGlobal || notification.playerToken.equals(this.playerToken)) && notification.gameId == this.gameId){
-                buffer.add(notification.remoteMethodCall);
-            }
-        }
+    public void queueNotification(RemoteMethodCall remoteMethodCall) {
+        buffer.add(remoteMethodCall);
     }
 }
