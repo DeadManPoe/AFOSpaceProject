@@ -60,11 +60,9 @@ public class GameReducer extends Reducer {
     }
 
     private ServerState addPlayer(Action action, ServerState state) {
-        Map<String,Object> map = (Map<String, Object>) action.payload;
-        String playerName = (String) map.get("player_name");
-        Integer gameId = (Integer) map.get("game_id");
-        Game game = ServerStore.serverStore.getState().GAMES_BY_ID.get(gameId);
-        Player player = new Player(this.assignTypeToPlayer(game.players.size()),playerName);
+        GameIdPlayerName gameIdPlayerName = (GameIdPlayerName) action.payload;
+        Game game = ServerStore.serverStore.getState().GAMES_BY_ID.get(gameIdPlayerName.gameId);
+        Player player = new Player(this.assignTypeToPlayer(game.players.size()),gameIdPlayerName.playerName);
         PlayerToken playerToken = new PlayerToken(player.playerType);
         game.players.put(playerToken,player);
         return state;
@@ -98,29 +96,31 @@ public class GameReducer extends Reducer {
         //parameters.add(gameMap.getName());
         //parameters.add(this.fromPlayerToToken(currentPlayer));
         // Setting players' starting sector
-        for (Player player : game.players) {
-            if (player.getPlayerType().equals(PlayerType.HUMAN)) {
-                player.setSector(gameMap.getHumanSector());
-                gameMap.getHumanSector().addPlayer(player);
+        for (Map.Entry<PlayerToken, Player> entry: game.players.entrySet()) {
+            Player player = entry.getValue();
+            if (player.playerType.equals(PlayerType.HUMAN)) {
+                player.currentSector = game.gameMap.getHumanSector();
+                game.gameMap.getHumanSector().addPlayer(player);
             } else {
-                player.setSector(gameMap.getAlienSector());
-                gameMap.getAlienSector().addPlayer(player);
+                player.currentSector = game.gameMap.getAlienSector();
+                game.gameMap.getAlienSector().addPlayer(player);
             }
         }
+        Turn turn;
         // Init of the first game turn
-        if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
-            turn = new HumanTurn(this);
+        if (game.currentPlayer.playerType.equals(PlayerType.HUMAN)) {
+            turn = new HumanTurn();
         } else {
-            turn = new AlienTurn(this);
+            turn = new AlienTurn();
         }
-        nextActions = turn.getInitialActions();
-        this.gamePublicData.setStatus(GameStatus.CLOSED);
+        game.nextActions = turn.initialActions;
+        game.gamePublicData.setStatus(GameStatus.CLOSED);
 
-        timer = new Timer();
-        timeout = new TurnTimeout(this, timer);
-        timer.schedule(timeout, TURN_TIMEOUT);
+        //timer = new Timer();
+        //timeout = new TurnTimeout(this, timer);
+        //timer.schedule(timeout, TURN_TIMEOUT);
         // Notification to the subscribers
-        this.notifyListeners(new RemoteMethodCall("sendMap", parameters));
+        //this.notifyListeners(new RemoteMethodCall("sendMap", parameters));
     }
 
 
@@ -200,7 +200,6 @@ public class GameReducer extends Reducer {
         } else {
             return PlayerType.ALIEN;
         }
-
     }
 
 }

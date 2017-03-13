@@ -30,12 +30,13 @@ public class Game {
     public ObjectDeck objectDeck;
     public RescueDeck rescueDeck;
     public SectorDeck sectorDeck;
-    public Player currentPlayer;
+    public server_store.Player currentPlayer;
     public int turnNumber;
     public GamePublicData gamePublicData;
     public String mapName;
     public GameMap gameMap;
     public Action lastAction;
+    public List<Class<? extends Action>> nextActions;
 
 
     public Game(String gameMapName) {
