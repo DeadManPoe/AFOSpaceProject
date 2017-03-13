@@ -16,13 +16,13 @@ import java.util.Map;
 public class ServerState {
 
     public Integer TCP_PORT;
-    public Map<PlayerToken, Game> GAMES_BY_PLAYERTOKEN;
-    public Map<Integer, Game> GAMES_BY_ID;
+    public Map<PlayerToken, server_store.Game> GAMES_BY_PLAYERTOKEN;
+    public Map<Integer, server_store.Game> GAMES_BY_ID;
     public Map<PlayerToken, Socket> PUBSUBSOCKETS_BY_PLAYERTOKEN;
     public Map<Integer, PubSubHandler[]> GAME_TO_SUBSCRIBERS;
 
 
-    public ServerState(Integer TCP_PORT, Map<PlayerToken, Game> GAMES_BY_PLAYERTOKEN, Map<Integer, Game> GAMES_BY_ID, Map<PlayerToken, Socket> PUBSUBSOCKETS_BY_PLAYERTOKEN, Map<Integer, PubSubHandler[]> GAME_TO_SUBSCRIBERS) {
+    public ServerState(Integer TCP_PORT, Map<PlayerToken, server_store.Game> GAMES_BY_PLAYERTOKEN, Map<Integer, server_store.Game> GAMES_BY_ID, Map<PlayerToken, Socket> PUBSUBSOCKETS_BY_PLAYERTOKEN, Map<Integer, PubSubHandler[]> GAME_TO_SUBSCRIBERS) {
         this.TCP_PORT = TCP_PORT;
         this.GAMES_BY_PLAYERTOKEN = GAMES_BY_PLAYERTOKEN;
         this.GAMES_BY_ID = GAMES_BY_ID;

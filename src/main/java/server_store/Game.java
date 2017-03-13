@@ -16,6 +16,7 @@ import server.SubscriberHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by giorgiopea on 13/03/17.
@@ -25,7 +26,7 @@ public class Game {
     // Communication related stuff
     public static int counter = 0;
 
-    public List<Player> players;
+    public Map<PlayerToken, server_store.Player> players;
     public ObjectDeck objectDeck;
     public RescueDeck rescueDeck;
     public SectorDeck sectorDeck;
@@ -41,10 +42,9 @@ public class Game {
         counter++;
         this.mapName = gameMapName;
         this.gameMap = null;
-        this.players = new ArrayList<Player>();
+        this.players = new HashMap<PlayerToken, server_store.Player>();
         this.gamePublicData = new GamePublicData(counter, "Game_" + counter);
         this.turnNumber = 0;
-        this.players = new ArrayList<Player>();
         this.lastAction = null;
     }
 }

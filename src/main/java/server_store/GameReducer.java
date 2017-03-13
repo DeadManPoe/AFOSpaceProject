@@ -14,6 +14,7 @@ import sts.Reducer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 
 /**
@@ -50,9 +51,23 @@ public class GameReducer extends Reducer {
         else if(action.type.equals("@GAME_USE_SECTOR_CARD")){
 
         }
+        else if(action.type.equals("@GAME_ADD_PLAYER")){
+            this.addPlayer(action, state);
+        }
         else if(action.type.equals("@GAME_START_GAME")){
             this.startGame(action);
         }
+    }
+
+    private ServerState addPlayer(Action action, ServerState state) {
+        Map<String,Object> map = (Map<String, Object>) action.payload;
+        String playerName = (String) map.get("player_name");
+        Integer gameId = (Integer) map.get("game_id");
+        Game game = ServerStore.serverStore.getState().GAMES_BY_ID.get(gameId);
+        Player player = new Player(this.assignTypeToPlayer(game.players.size()),playerName);
+        PlayerToken playerToken = new PlayerToken(player.playerType);
+        game.players.put(playerToken,player);
+        return state;
     }
 
     private void startGame(Action action) {
@@ -179,4 +194,13 @@ public class GameReducer extends Reducer {
         ClientNotification[] toReturn = { clientNotification, psNotification };
         return toReturn;
     }
+    private PlayerType assignTypeToPlayer(int numberOfPlayers) {
+        if (numberOfPlayers % 2 == 0) {
+            return PlayerType.HUMAN;
+        } else {
+            return PlayerType.ALIEN;
+        }
+
+    }
+
 }
