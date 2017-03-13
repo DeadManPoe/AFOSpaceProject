@@ -1,16 +1,18 @@
 package server_store;
 
-import common.ClientNotification;
-import common.EndTurnAction;
-import common.PSClientNotification;
-import common.RRClientNotification;
+import common.*;
+import decks.ObjectDeck;
+import decks.RescueDeck;
+import decks.SectorDeck;
 import effects.ActionEffect;
-import it.polimi.ingsw.cg_19.Player;
-import it.polimi.ingsw.cg_19.PlayerType;
-import it.polimi.ingsw.cg_19.TurnTimeout;
+import effects.ActionMapper;
+import factories.*;
+import it.polimi.ingsw.cg_19.*;
+import server.GameStatus;
 import sts.Action;
 import sts.Reducer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
@@ -25,12 +27,85 @@ public class GameReducer extends Reducer {
     @Override
     public ServerState reduce(Action action, ServerState state) {
         if(action.type.equals("@GAME_DISCARD_OBJ_CARD")){
-            GameMakeAction gameMakeAction = (GameMakeAction) action.payload;
 
         }
         else if(action.type.equals("@GAME_DRAW_OBJ_CARD")){
 
         }
+        else if(action.type.equals("@GAME_DRAW_RESCUE_CARD")){
+
+        }
+        else if(action.type.equals("@GAME_DRAW_SECTOR_CARD")){
+
+        }
+        else if(action.type.equals("@GAME_MOVE")){
+
+        }
+        else if(action.type.equals("@GAME_MOVE_ATTACK")){
+
+        }
+        else if(action.type.equals("@GAME_USE_OBJ_CARD")){
+
+        }
+        else if(action.type.equals("@GAME_USE_SECTOR_CARD")){
+
+        }
+        else if(action.type.equals("@GAME_START_GAME")){
+            this.startGame(action);
+        }
+    }
+
+    private void startGame(Action action) {
+        Game game = (Game) action.payload;
+        DeckFactory deckFactory = new ObjectDeckFactory();
+        game.objectDeck = (ObjectDeck) deckFactory.makeDeck();
+        deckFactory = new SectorDeckFactory();
+        game.sectorDeck = (SectorDeck) deckFactory.makeDeck();
+        deckFactory = new RescueDeckFactory();
+        game.rescueDeck = (RescueDeck) deckFactory.makeDeck();
+
+        GameMapFactory gameMapFactory = null;
+
+        if(game.mapName.equals("GALILEI")){
+            gameMapFactory = new GalileiGameMapFactory();
+        }
+        else if(game.mapName.equals("FERMI")){
+            gameMapFactory = new FermiGameMapFactory();
+        }
+        else if(game.mapName.equals("GALVANI")){
+            gameMapFactory = new GalvaniGameMapFactory();
+        }
+        else {
+            //
+        }
+        game.gameMap = gameMapFactory.makeMap();
+        //ArrayList<Object> parameters = new ArrayList<Object>();
+        //parameters.add(gameMap.getName());
+        //parameters.add(this.fromPlayerToToken(currentPlayer));
+        // Setting players' starting sector
+        for (Player player : game.players) {
+            if (player.getPlayerType().equals(PlayerType.HUMAN)) {
+                player.setSector(gameMap.getHumanSector());
+                gameMap.getHumanSector().addPlayer(player);
+            } else {
+                player.setSector(gameMap.getAlienSector());
+                gameMap.getAlienSector().addPlayer(player);
+            }
+        }
+        // Init of the first game turn
+        if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
+            turn = new HumanTurn(this);
+        } else {
+            turn = new AlienTurn(this);
+        }
+        nextActions = turn.getInitialActions();
+        this.gamePublicData.setStatus(GameStatus.CLOSED);
+
+        timer = new Timer();
+        timeout = new TurnTimeout(this, timer);
+        timer.schedule(timeout, TURN_TIMEOUT);
+        // Notification to the subscribers
+        this.notifyListeners(new RemoteMethodCall("sendMap", parameters));
     }
 
 
