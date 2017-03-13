@@ -30,8 +30,7 @@ public class GamesReducer extends Reducer {
              * @TODO Implementing deep copy of hashmaps
              */
             //ServerState newState = (ServerState) SerializationUtils.clone(state);
-            ServerState newState = new ServerState(state);
-            Map<Integer, Game> idGameMap = state.GAMES_BY_ID;
+            Map<Integer, server_store.Game> idGameMap = state.GAMES_BY_ID;
             Map<PlayerToken,Game> playerTokenGameMap = state.GAMES_BY_PLAYERTOKEN;
             playerTokenGameMap.put(token,idGameMap.get(gameId));
             newState.GAMES_BY_PLAYERTOKEN = playerTokenGameMap;

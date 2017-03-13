@@ -6,6 +6,7 @@ import it.polimi.ingsw.cg_19.Player;
 import server.ServerLogger;
 import store_actions.GameAddPlayer;
 import store_actions.GameAddPlayerAction;
+import store_actions.GameMakeActionAction;
 import sts.ActionFactory;
 import sts.Store;
 
@@ -170,18 +171,13 @@ public class ReqRespHandler extends Thread {
      */
     public void makeAction(Action action,Integer gameId, PlayerToken playerToken)
             throws IOException, InstantiationException, IllegalAccessException {
+        this.store.dispatchAction(new GameMakeActionAction(gameId,action,playerToken));
         Map<Integer, server_store.Game> games = this.store.getState().GAMES_BY_ID;
         server_store.Game game = games.get(gameId);
         ArrayList<Object> parameters = new ArrayList<Object>();
-        ClientNotification[] notification = game.makeAction(action,
-                playerToken, false);
-        parameters.add(notification[0]);
+        parameters.add(game.lastResponseToClient);
         this.sendData(
                 new RemoteMethodCall("sendNotification", parameters));
-        //parameters.clear();
-        //parameters.add(notification[1]);
-        //game.notifyListeners(new RemoteMethodCall("sendPubNotification",
-                //parameters));
     }
 
     /**

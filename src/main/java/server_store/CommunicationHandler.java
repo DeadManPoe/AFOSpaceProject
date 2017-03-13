@@ -67,4 +67,10 @@ public class CommunicationHandler implements Observer {
             }
         }
     }
+
+    public PubSubHandler runPubSubThread(Socket socket, PlayerToken playerToken) throws IOException {
+        PubSubHandler pubSubHandler = new PubSubHandler(socket, playerToken);
+        this.pubSubThreadPool.submit(pubSubHandler);
+        return pubSubHandler;
+    }
 }

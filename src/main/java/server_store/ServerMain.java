@@ -14,7 +14,7 @@ public class ServerMain {
         ServerStore.produceActions();
         ServerStore.registerReducers();
         CommunicationHandler communicationHandler = new CommunicationHandler(TCP_PORT);
-        ServerStore.serverStore.observeState(communicationHandler);
+        //ServerStore.serverStore.observeState(communicationHandler);
         try {
             communicationHandler.runServer();
         } catch (IOException e) {

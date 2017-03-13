@@ -1,8 +1,6 @@
 package server_store;
 
-import common.Action;
-import common.GamePublicData;
-import common.PlayerToken;
+import common.*;
 import decks.ObjectDeck;
 import decks.RescueDeck;
 import decks.SectorDeck;
@@ -38,7 +36,9 @@ public class Game {
     public GameMap gameMap;
     public Action lastAction;
     public List<Class<? extends Action>> nextActions;
-
+    public List<PubSubHandler> pubSubHandlers;
+    public RRClientNotification lastResponseToClient;
+    public PSClientNotification lastNotificationToClient;
 
     public Game(String gameMapName) {
         counter++;
@@ -48,5 +48,6 @@ public class Game {
         this.gamePublicData = new GamePublicData(counter, "Game_" + counter);
         this.turnNumber = 0;
         this.lastAction = null;
+        this.pubSubHandlers = new ArrayList<>();
     }
 }

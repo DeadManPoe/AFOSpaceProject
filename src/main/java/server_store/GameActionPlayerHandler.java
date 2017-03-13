@@ -6,12 +6,12 @@ import common.PlayerToken;
 /**
  * Created by giorgiopea on 13/03/17.
  */
-public class GameActionPlayer {
+public class GameActionPlayerHandler {
     public Integer gameId;
     public PlayerToken playerToken;
     public Action action;
 
-    public GameActionPlayer(Integer gameId, PlayerToken playerToken, Action action) {
+    public GameActionPlayerHandler(Integer gameId, PlayerToken playerToken, Action action, ) {
         this.gameId = gameId;
         this.playerToken = playerToken;
         this.action = action;

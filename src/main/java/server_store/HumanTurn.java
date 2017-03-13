@@ -10,10 +10,14 @@ import java.util.List;
  */
 public class HumanTurn extends Turn {
 
-    public HumanTurn() {
-        this.initialActions = new ArrayList<Class<? extends Action>>();
-        initialActions.add(MoveAction.class);
-        initialActions.add(UseObjAction.class);
+    private static List<Class<? extends Action>> initialActions;
+    public static List<Class<? extends Action>> getInitialActions(){
+        if(initialActions == null){
+            initialActions = new ArrayList<Class<? extends Action>>();
+            initialActions.add(MoveAction.class);
+            initialActions.add(UseObjAction.class);
+        }
+        return initialActions;
     }
     public static List<Class<? extends Action>> nextAction(Action action, Player currentPlayer){
         List<Class<? extends Action>> nextActions = new ArrayList<Class<? extends Action>>();

@@ -10,10 +10,14 @@ import java.util.List;
  */
 public class AlienTurn extends Turn {
 
-    public AlienTurn() {
-        this.initialActions = new ArrayList<Class<? extends Action>>();
-        this.initialActions.add(MoveAction.class);
-        this.initialActions.add(MoveAttackAction.class);
+    private static List<Class<? extends Action>> initialActions;
+    public static List<Class<? extends Action>> getInitialActions(){
+        if(initialActions == null){
+            initialActions = new ArrayList<Class<? extends Action>>();
+            initialActions.add(MoveAction.class);
+            initialActions.add(MoveAttackAction.class);
+        }
+        return initialActions;
     }
 
     public static List<Class<? extends Action>> nextAction(Action action, Player currentPlayer) {
