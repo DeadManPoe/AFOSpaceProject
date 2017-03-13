@@ -5,14 +5,14 @@ import decks.ObjectDeck;
 import decks.RescueDeck;
 import decks.SectorDeck;
 import effects.ActionEffect;
-import effects.ActionMapper;
 import factories.*;
 import it.polimi.ingsw.cg_19.*;
 import server.GameStatus;
+import store_actions.GameAddPlayerAction;
+import store_actions.GameMakeActionAction;
 import sts.Action;
 import sts.Reducer;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -59,8 +59,8 @@ public class GameReducer extends Reducer {
         }
     }
 
-    private ServerState addPlayer(Action action, ServerState state) {
-        GameIdPlayerName gameIdPlayerName = (GameIdPlayerName) action.payload;
+    private ServerState addPlayer(GameAddPlayerAction action, ServerState state) {
+        GameIdPlayerName gameIdPlayerName = action.payload;
         Game game = ServerStore.serverStore.getState().GAMES_BY_ID.get(gameIdPlayerName.gameId);
         Player player = new Player(this.assignTypeToPlayer(game.players.size()),gameIdPlayerName.playerName);
         PlayerToken playerToken = new PlayerToken(player.playerType);
@@ -124,20 +124,23 @@ public class GameReducer extends Reducer {
     }
 
 
-    private ServerState makeAction(GameMakeAction gameMakeAction, ServerState state){
+    private ServerState makeAction(GameMakeActionAction gameMakeActionAction, ServerState state){
+        GameActionPlayer gameActionPlayer = gameMakeActionAction.payload;
+        Game game = ServerStore.serverStore.getState().GAMES_BY_ID.get(gameActionPlayer.gameId);
         //Prendiamoci il player e verifichiamo se è lui il player corrente
-        Player actualPlayer = playerTokenToPlayerMap.get(playerToken);
+        Player actualPlayer = game.players.get(gameActionPlayer.playerToken);
         // if(turn.getInitialAction().contains(action.class)) &&
-        if (!currentPlayer.equals(actualPlayer)) {
-            clientNotification.setActionResult(false);
+        if (!game.currentPlayer.equals(actualPlayer)) {
+            //clientNotification.setActionResult(false);
         } else {
+
             // If the player is ok then checks if the action is ok
-            if (nextActions.contains(action.getClass()) || forced) {
+            if (game.nextActions.contains(gameActionPlayer.action.getClass())) {
                 // Retrieve the related effect
                 ActionEffect effect = actionMapper.getEffect(action);
 
                 // Executes the effect and get the result
-                boolean actionResult = effect.executeEffect(this,
+                boolean actionResult = effect.executeEffect(game,
                         clientNotification, psNotification);
 
                 if (actionResult) {
@@ -145,8 +148,8 @@ public class GameReducer extends Reducer {
 					 * If the last action has been and an end turn action the
 					 * there is no need to update the nextAction field
 					 */
-                    if (!lastAction.getClass().equals(EndTurnAction.class)) {
-                        nextActions = turn.getNextActions(lastAction);
+                    if (!game.lastAction.getClass().equals(EndTurnAction.class)) {
+                        game.nextActions = turn.getNextActions(lastAction);
                     } else {
 
                         nextActions = turn.getInitialActions();

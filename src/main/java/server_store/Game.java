@@ -27,6 +27,7 @@ public class Game {
     public static int counter = 0;
 
     public Map<PlayerToken, server_store.Player> players;
+    public Map<String, PlayerToken> playerNameToToken;
     public ObjectDeck objectDeck;
     public RescueDeck rescueDeck;
     public SectorDeck sectorDeck;

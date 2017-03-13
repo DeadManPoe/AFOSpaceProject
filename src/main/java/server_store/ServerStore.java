@@ -24,7 +24,7 @@ public class ServerStore {
 
 
     public static void produceInitialState(){
-        ServerState initialState = new ServerState(null,new HashMap<PlayerToken,Game>(),new HashMap<Integer, Game>(),null);
+        ServerState initialState = new ServerState(null, new HashMap<Integer, server_store.Game>(), new HashMap<Integer, PubSubHandler[]>());
         serverStore.init(initialState);
     }
     public static void produceActions(){
@@ -36,9 +36,6 @@ public class ServerStore {
         actions.add("@COMMUNICATION_MOVE_SOCKET_TO_PUBSUB");
         actions.add("@GAMES_ADD_GAME");
         actions.add("@GLOBAL_REMOVE_GAME");
-        //Debatable
-        actions.add("@GAMES_ADD_PLAYER_TO_GAME");
-        //
         //Game level actions
         actions.add("@GAME_ADD_PLAYER");
         actions.add("@GAME_START_GAME");
