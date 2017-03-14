@@ -21,7 +21,7 @@ import common.RRClientNotification;
 import common.RemoteMethodCall;
 import decks.*;
 import effects.ActionEffect;
-import effects.ActionMapper;
+import effects.GameActionMapper;
 import factories.*;
 
 /**
@@ -59,7 +59,7 @@ public class Game extends Observable {
 	private volatile Map<PlayerToken, Player> playerTokenToPlayerMap;
 	private volatile GamePublicData gamePublicData;
 
-	private volatile ActionMapper actionMapper;
+	private volatile GameActionMapper actionMapper;
 
 	private volatile GameManager gameManager;
 
@@ -136,7 +136,7 @@ public class Game extends Observable {
 		this.rescueDeck = (RescueDeck) deckFactory.makeDeck();
 		this.gameMap = gameMapFactory.makeMap();
 		this.turnNumber = 0;
-		this.actionMapper = new ActionMapper();
+		this.actionMapper = new GameActionMapper();
 		ArrayList<Object> parameters = new ArrayList<Object>();
 		parameters.add(gameMap.getName());
 		parameters.add(this.fromPlayerToToken(currentPlayer));

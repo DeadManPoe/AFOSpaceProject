@@ -25,10 +25,17 @@ import common.UseSectorCardAction;
  * @author Giorgio Pea
  * @version 1.0
  */
-public class ActionMapper {
+public class GameActionMapper {
 
+	private static GameActionMapper instance = new GameActionMapper();
+
+    private Map<Class<? extends Action>, Class<? extends ActionEffect>> fromActionToActionEffect;
+
+    public static GameActionMapper getInstance(){
+        return instance;
+    }
 	// The mapper
-	private Map<Class<? extends Action>, Class<? extends ActionEffect>> fromActionToActionEffect;
+
 
 	/**
 	 * Constructs a action-effect mapper. This mapper is implemented as an hash
@@ -36,9 +43,9 @@ public class ActionMapper {
 	 * using reflection, from an action is possible to get an actual
 	 * action-effect object
 	 */
-	public ActionMapper() {
+	private GameActionMapper() {
 		// Mapper init
-		fromActionToActionEffect = new HashMap<Class<? extends Action>, Class<? extends ActionEffect>>();
+		fromActionToActionEffect = new HashMap<>();
 		// Mapper filling
 		fromActionToActionEffect.put(MoveAction.class, MoveActionEffect.class);
 		fromActionToActionEffect.put(DrawSectorCardAction.class,

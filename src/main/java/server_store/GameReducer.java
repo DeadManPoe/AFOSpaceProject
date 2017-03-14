@@ -4,7 +4,7 @@ import common.*;
 import decks.ObjectDeck;
 import decks.RescueDeck;
 import decks.SectorDeck;
-import effects.ActionMapper;
+import effects.GameActionMapper;
 import effects.DiscardObjCardEffect;
 import factories.*;
 import it.polimi.ingsw.cg_19.*;
@@ -125,7 +125,7 @@ public class GameReducer extends Reducer {
         //Update the next possibile actions
         //Check if the game is finished
         //Dispatch the effect
-        ActionMapper actionMapper = new ActionMapper();
+        GameActionMapper actionMapper = new GameActionMapper();
         GameActionPlayerHandler gameActionPlayer = gameMakeActionAction.payload;
         Game game = ServerStore.serverStore.getState().GAMES_BY_ID.get(gameActionPlayer.gameId);
         game.lastClientResponse = new RRClientNotification();

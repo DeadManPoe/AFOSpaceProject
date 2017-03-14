@@ -1,11 +1,8 @@
 package store_reducers;
 
-import com.sun.corba.se.spi.activation.Server;
-import server_store.Game;
 import server_store.ServerState;
-import server_store.ServerStore;
 import store_actions.GamesAddGameAction;
-import store_actions.GamesRemoveGameAction;
+import store_actions.GameEndGame;
 import store_actions.StoreAction;
 import sts.Reducer;
 
@@ -28,7 +25,7 @@ public class GamesReducer extends Reducer {
     }
 
     private ServerState removeGame(StoreAction action, ServerState state) {
-        GamesRemoveGameAction castedAction = (GamesRemoveGameAction) action;
+        GameEndGame castedAction = (GameEndGame) action;
         for(int i=0; i<state.getGames().size(); i++){
             if(state.getGames().get(i).gamePublicData.getId() == castedAction.getPayload()){
                 state.getGames().remove(i);

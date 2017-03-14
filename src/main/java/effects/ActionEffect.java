@@ -39,9 +39,9 @@ public abstract class ActionEffect {
 	 *            above mentioned(through Publisher/Subscriber protocol)
 	 * @return true if the action has been executed properly
 	 */
-	public abstract boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification);
+	public abstract boolean executeEffect(server_store.Game game,
+										  RRClientNotification rrNotification,
+										  PSClientNotification psNotification);
 
 	/**
 	 * Sets the action the effect refers to

@@ -23,7 +23,7 @@ public class PubSubHandler extends Thread {
     private Socket socket;
     // A queue of messages to send to the subscriber
     private ConcurrentLinkedQueue<RemoteMethodCall> buffer;
-    private PlayerToken playerToken;
+    private Integer gameId;
     // The object output stream used to perform the remote method call on the
     // subscriber
     private ObjectOutputStream objectOutputStream;
@@ -37,8 +37,8 @@ public class PubSubHandler extends Thread {
      *            the socket used perform remote method calls on the subscriber
      * @throws IOException
      */
-    public PubSubHandler(Socket socket) throws IOException {
-        this.playerToken = null;
+    public PubSubHandler(Socket socket, Integer gameId) throws IOException {
+        this.gameId = gameId;
         this.socket = socket;
         this.buffer = new ConcurrentLinkedQueue<RemoteMethodCall>();
         this.objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
@@ -91,6 +91,10 @@ public class PubSubHandler extends Thread {
                 }
             }
         }
+    }
+
+    public Integer getGameId() {
+        return gameId;
     }
 
     public void queueNotification(RemoteMethodCall remoteMethodCall) {

@@ -3,11 +3,11 @@ package store_actions;
 /**
  * Created by giorgiopea on 14/03/17.
  */
-public class GamesRemoveGameAction extends StoreAction {
+public class GameEndGame extends StoreAction {
 
     private Integer payload;
 
-    public GamesRemoveGameAction(Integer gameId) {
+    public GameEndGame(Integer gameId) {
         this.type = "@GAMES_REMOVE_GAME";
         this.payload = gameId;
     }

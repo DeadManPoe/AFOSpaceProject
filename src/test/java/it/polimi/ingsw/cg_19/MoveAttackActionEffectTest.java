@@ -14,7 +14,7 @@ import common.RRClientNotification;
 import common.Sector;
 import common.SectorType;
 import effects.ActionEffect;
-import effects.ActionMapper;
+import effects.GameActionMapper;
 import effects.MoveAttackActionEffect;
 
 /**
@@ -34,7 +34,7 @@ public class MoveAttackActionEffectTest {
 	@Test
 	public void testExecuteEffect() throws InstantiationException,
 			IllegalAccessException {
-		ActionMapper mapper = new ActionMapper();
+		GameActionMapper mapper = new GameActionMapper();
 
 		RRClientNotification clientNotification = new RRClientNotification();
 		PSClientNotification psNotification = new PSClientNotification();
@@ -91,7 +91,7 @@ public class MoveAttackActionEffectTest {
 	@Test
 	public void testExecuteEffect_2() throws InstantiationException,
 			IllegalAccessException {
-		ActionMapper mapper = new ActionMapper();
+		GameActionMapper mapper = new GameActionMapper();
 
 		RRClientNotification clientNotification = new RRClientNotification();
 		PSClientNotification psNotification = new PSClientNotification();
@@ -148,7 +148,7 @@ public class MoveAttackActionEffectTest {
 	@Test
 	public void testExecuteEffect_3() throws InstantiationException,
 			IllegalAccessException {
-		ActionMapper mapper = new ActionMapper();
+		GameActionMapper mapper = new GameActionMapper();
 
 		RRClientNotification clientNotification = new RRClientNotification();
 		PSClientNotification psNotification = new PSClientNotification();
