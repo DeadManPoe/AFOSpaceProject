@@ -5,6 +5,7 @@ import decks.ObjectDeck;
 import decks.RescueDeck;
 import decks.SectorDeck;
 import effects.ActionMapper;
+import effects.DiscardObjCardEffect;
 import factories.*;
 import it.polimi.ingsw.cg_19.*;
 import server.GameStatus;
@@ -27,45 +28,40 @@ public class GameReducer extends Reducer {
 
     @Override
     public ServerState reduce(Action action, ServerState state) {
-        if(action.type.equals("@GAME_DISCARD_OBJ_CARD")){
+        if (action.type.equals("@GAME_DISCARD_OBJ_CARD")) {
 
-        }
-        else if(action.type.equals("@GAME_DRAW_OBJ_CARD")){
+            new DiscardObjCardEffect();
+        } else if (action.type.equals("@GAME_DRAW_OBJ_CARD")) {
+            //Put here effect
+        } else if (action.type.equals("@GAME_DRAW_RESCUE_CARD")) {
+            //Put here effect
+        } else if (action.type.equals("@GAME_DRAW_SECTOR_CARD")) {
 
-        }
-        else if(action.type.equals("@GAME_DRAW_RESCUE_CARD")){
+        } else if (action.type.equals("@GAME_MOVE")) {
 
-        }
-        else if(action.type.equals("@GAME_DRAW_SECTOR_CARD")){
+        } else if (action.type.equals("@GAME_MOVE_ATTACK")) {
 
-        }
-        else if(action.type.equals("@GAME_MOVE")){
+        } else if (action.type.equals("@GAME_USE_OBJ_CARD")) {
 
-        }
-        else if(action.type.equals("@GAME_MOVE_ATTACK")){
+        } else if (action.type.equals("@GAME_USE_SECTOR_CARD")) {
 
-        }
-        else if(action.type.equals("@GAME_USE_OBJ_CARD")){
-
-        }
-        else if(action.type.equals("@GAME_USE_SECTOR_CARD")){
-
-        }
-        else if(action.type.equals("@GAME_ADD_PLAYER")){
+        } else if (action.type.equals("@GAME_ADD_PLAYER")) {
             this.addPlayer(action, state);
-        }
-        else if(action.type.equals("@GAME_START_GAME")){
+        } else if (action.type.equals("@GAME_START_GAME")) {
             this.startGame(action);
         }
     }
 
     private ServerState addPlayer(GameAddPlayerAction action, ServerState state) throws IOException {
-        GameIdPlayerNameHandler gameIdPlayerName = action.payload;
-        Game game = ServerStore.serverStore.getState().GAMES_BY_ID.get(gameIdPlayerName.gameId);
-        Player player = new Player(this.assignTypeToPlayer(game.players.size()),gameIdPlayerName.playerName);
+        GamePlayerCommunicationSocket gamePlayerCommunicationSocket = action.payload;
+        Game game = ServerStore.serverStore.getState().GAMES_BY_ID.get(gamePlayerCommunicationSocket.gameId);
+        Player player = new Player(this.assignTypeToPlayer(game.players.size()),
+                gamePlayerCommunicationSocket.playerName);
         PlayerToken playerToken = new PlayerToken(player.playerType);
-        game.players.put(playerToken,player);
-        game.pubSubHandlers.add(gameIdPlayerName.communicationHandler.runPubSubThread(gameIdPlayerName.socket, playerToken));
+        game.players.put(playerToken, player);
+        game.pubSubHandlers.add(
+                gamePlayerCommunicationSocket.communicationHandler.runPubSubThread(
+                        gamePlayerCommunicationSocket.socket, playerToken));
         return state;
     }
 
@@ -80,16 +76,13 @@ public class GameReducer extends Reducer {
 
         GameMapFactory gameMapFactory = null;
 
-        if(game.mapName.equals("GALILEI")){
+        if (game.mapName.equals("GALILEI")) {
             gameMapFactory = new GalileiGameMapFactory();
-        }
-        else if(game.mapName.equals("FERMI")){
+        } else if (game.mapName.equals("FERMI")) {
             gameMapFactory = new FermiGameMapFactory();
-        }
-        else if(game.mapName.equals("GALVANI")){
+        } else if (game.mapName.equals("GALVANI")) {
             gameMapFactory = new GalvaniGameMapFactory();
-        }
-        else {
+        } else {
             //
         }
         game.gameMap = gameMapFactory.makeMap();
@@ -97,7 +90,7 @@ public class GameReducer extends Reducer {
         //parameters.add(gameMap.getName());
         //parameters.add(this.fromPlayerToToken(currentPlayer));
         // Setting players' starting sector
-        for (Map.Entry<PlayerToken, Player> entry: game.players.entrySet()) {
+        for (Map.Entry<PlayerToken, Player> entry : game.players.entrySet()) {
             Player player = entry.getValue();
             if (player.playerType.equals(PlayerType.HUMAN)) {
                 player.currentSector = game.gameMap.getHumanSector();
@@ -155,7 +148,7 @@ public class GameReducer extends Reducer {
                 //        clientNotification, psNotification);
 
 					/*
-					 * If the last action has been and an end turn action the
+                     * If the last action has been and an end turn action the
 					 * there is no need to update the nextAction field
 					 */
                 if (!game.lastAction.getClass().equals(EndTurnAction.class)) {
@@ -185,29 +178,29 @@ public class GameReducer extends Reducer {
                 boolean winH = checkWinConditions(PlayerType.HUMAN, game);
                 boolean winA = checkWinConditions(PlayerType.ALIEN, game);
 
-                    if (winH) {
-                        game.lastClientNotification
-                                .setMessage(game.lastClientNotification.getMessage()
-                                        + "\n[GLOBAL MESSAGE]: The game has ended, HUMANS WIN!");
-                        game.lastClientNotification.setHumanWins(true);
-                    }
-                    if (winA) {
-                        game.lastClientNotification
-                                .setMessage(game.lastClientNotification.getMessage()
-                                        + "\n[GLOBAL MESSAGE]: The game has ended, ALIENS WIN!");
-                        game.lastClientNotification.setAlienWins(true);
+                if (winH) {
+                    game.lastClientNotification
+                            .setMessage(game.lastClientNotification.getMessage()
+                                    + "\n[GLOBAL MESSAGE]: The game has ended, HUMANS WIN!");
+                    game.lastClientNotification.setHumanWins(true);
+                }
+                if (winA) {
+                    game.lastClientNotification
+                            .setMessage(game.lastClientNotification.getMessage()
+                                    + "\n[GLOBAL MESSAGE]: The game has ended, ALIENS WIN!");
+                    game.lastClientNotification.setAlienWins(true);
 
-                    }
-                    game.lastClientResponse.setActionResult(true);
-                    //if (winH || winA) {
-                    //    //psNotification.setAlienWins(winA);
-                    //    psNotification.setHumanWins(winH);
-                    //    clientNotification.setActionResult(true);
-                    //    ClientNotification[] toReturn = { clientNotification,
-                    //            psNotification };
-                    //    this.gameManager.removeGame(this);
-                    //    return toReturn;
-                    //}
+                }
+                game.lastClientResponse.setActionResult(true);
+                //if (winH || winA) {
+                //    //psNotification.setAlienWins(winA);
+                //    psNotification.setHumanWins(winH);
+                //    clientNotification.setActionResult(true);
+                //    ClientNotification[] toReturn = { clientNotification,
+                //            psNotification };
+                //    this.gameManager.removeGame(this);
+                //    return toReturn;
+                //}
                 //Dispatch remove game
                 //clientNotification.setActionResult(true);
                 //}
@@ -221,39 +214,40 @@ public class GameReducer extends Reducer {
     private boolean checkWinConditions(PlayerType playerType, Game game) {
         if (playerType == PlayerType.HUMAN) {
             // If all human players are escaped then Human wins!
-            if (this.checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED,game.players))
+            if (this.checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED, game.players))
                 return true;
                 // Only one human player left with an escape possibility
-            else if (this.getNumOfAlivePlayer(PlayerType.ALIEN,game.players) == 0
-                    && this.getNumOfAlivePlayer(PlayerType.HUMAN,game.players) == 1
+            else if (this.getNumOfAlivePlayer(PlayerType.ALIEN, game.players) == 0
+                    && this.getNumOfAlivePlayer(PlayerType.HUMAN, game.players) == 1
                     && game.gameMap.existEscapes())
                 return true;
                 // All human player are dead or escaped
-            else if (!this.checkStateAll(PlayerType.HUMAN, PlayerState.DEAD,game.players)
-                    && this.getNumOfAlivePlayer(PlayerType.HUMAN,game.players) == 0)
+            else if (!this.checkStateAll(PlayerType.HUMAN, PlayerState.DEAD, game.players)
+                    && this.getNumOfAlivePlayer(PlayerType.HUMAN, game.players) == 0)
                 return true;
         } else {
             // If all human player are all dead, alien wins!
-            if (this.getNumOfAlivePlayer(PlayerType.HUMAN,game.players) == 0
-                    && !checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED,game.players))
+            if (this.getNumOfAlivePlayer(PlayerType.HUMAN, game.players) == 0
+                    && !checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED, game.players))
                 return true;
 
             if (game.turnNumber == 39) {
                 // Some human player is still alive, but turn = 39, so alien
                 // wins
-                if (this.getNumOfAlivePlayer(PlayerType.HUMAN,game.players) > 0)
+                if (this.getNumOfAlivePlayer(PlayerType.HUMAN, game.players) > 0)
                     return true;
                 return false;
             } else {
                 if (!game.gameMap.existEscapes()
-                        && this.getNumOfAlivePlayer(PlayerType.HUMAN,game.players) > 0)
+                        && this.getNumOfAlivePlayer(PlayerType.HUMAN, game.players) > 0)
                     return true;
             }
         }
         return false;
     }
-    private boolean checkStateAll(PlayerType playerType, PlayerState state, Map<PlayerToken,Player> players) {
-        for (Map.Entry<PlayerToken,Player> entry: players.entrySet()) {
+
+    private boolean checkStateAll(PlayerType playerType, PlayerState state, Map<PlayerToken, Player> players) {
+        for (Map.Entry<PlayerToken, Player> entry : players.entrySet()) {
             Player player = entry.getValue();
             if (!player.playerState.equals(state)
                     && player.playerType.equals(playerType))
@@ -261,7 +255,8 @@ public class GameReducer extends Reducer {
         }
         return true;
     }
-    private int getNumOfAlivePlayer(PlayerType type, Map<PlayerToken,Player> players) {
+
+    private int getNumOfAlivePlayer(PlayerType type, Map<PlayerToken, Player> players) {
         int count = 0;
         for (Map.Entry<PlayerToken, Player> entry : players.entrySet()) {
             Player player = entry.getValue();
@@ -271,6 +266,7 @@ public class GameReducer extends Reducer {
         }
         return count;
     }
+
     private PlayerType assignTypeToPlayer(int numberOfPlayers) {
         if (numberOfPlayers % 2 == 0) {
             return PlayerType.HUMAN;

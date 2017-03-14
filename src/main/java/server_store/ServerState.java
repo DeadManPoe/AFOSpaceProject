@@ -1,28 +1,57 @@
 package server_store;
 
-import common.PlayerToken;
-import it.polimi.ingsw.cg_19.Game;
-import server.ServerConnection;
-
 import java.io.Serializable;
-import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by giorgiopea on 11/03/17.
  *
  */
-public class ServerState {
+public class ServerState implements Serializable {
 
-    public Integer TCP_PORT;
-    public Map<Integer, server_store.Game> GAMES_BY_ID;
-    public Map<Integer, PubSubHandler[]> GAME_TO_SUBSCRIBERS;
+    private List<server_store.Game> games;
+    private List<ReqRespHandler> reqRespHandlers;
+    private List<PubSubHandler> pubSubHandlers;
+    private Integer tcp_port;
 
 
-    public ServerState(Integer TCP_PORT, Map<Integer, server_store.Game> GAMES_BY_ID, Map<Integer, PubSubHandler[]> GAME_TO_SUBSCRIBERS) {
-        this.TCP_PORT = TCP_PORT;
-        this.GAMES_BY_ID = GAMES_BY_ID;
-        this.GAME_TO_SUBSCRIBERS = GAME_TO_SUBSCRIBERS;
+    public ServerState() {
+        this.games = new ArrayList<>();
+        this.reqRespHandlers = new ArrayList<>();
+        this.pubSubHandlers = new ArrayList<>();
+        this.tcp_port = null;
+    }
+
+    public List<server_store.Game> getGames() {
+        return games;
+    }
+
+    public void setGames(List<server_store.Game> games) {
+        this.games = games;
+    }
+
+    public List<ReqRespHandler> getReqRespHandlers() {
+        return reqRespHandlers;
+    }
+
+    public void setReqRespHandlers(List<ReqRespHandler> reqRespHandlers) {
+        this.reqRespHandlers = reqRespHandlers;
+    }
+
+    public List<PubSubHandler> getPubSubHandlers() {
+        return pubSubHandlers;
+    }
+
+    public void setPubSubHandlers(List<PubSubHandler> pubSubHandlers) {
+        this.pubSubHandlers = pubSubHandlers;
+    }
+
+    public Integer getTcp_port() {
+        return tcp_port;
+    }
+
+    public void setTcp_port(Integer tcp_port) {
+        this.tcp_port = tcp_port;
     }
 }

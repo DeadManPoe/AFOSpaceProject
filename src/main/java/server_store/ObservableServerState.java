@@ -1,5 +1,6 @@
 package server_store;
 
+import store_actions.StoreAction;
 import sts.Action;
 
 import java.util.Observable;
@@ -20,7 +21,7 @@ public class ObservableServerState extends Observable {
         return serverState;
     }
 
-    public void setServerState(ServerState serverState, Action lastAction) {
+    public void setServerState(ServerState serverState, StoreAction lastAction) {
         this.serverState = serverState;
         this.setChanged();
         this.notifyObservers(lastAction);

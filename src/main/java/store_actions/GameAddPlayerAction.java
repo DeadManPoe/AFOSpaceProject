@@ -1,20 +1,25 @@
 package store_actions;
 
 import server_store.CommunicationHandler;
-import server_store.GameIdPlayerNameHandler;
+import server_store.GamePlayerCommunicationSocket;
 import sts.Action;
 
 import java.net.Socket;
+import java.util.UUID;
 
 /**
  * Created by giorgiopea on 13/03/17.
  */
-public class GameAddPlayerAction extends Action {
-    public GameIdPlayerNameHandler payload;
+public class GameAddPlayerAction extends StoreAction {
 
-    public GameAddPlayerAction(String playerName, Integer gameId, CommunicationHandler communicationHandler, Socket socket) {
-        super("@GAME_ADD_PLAYER");
-        this.payload = new GameIdPlayerNameHandler(gameId, playerName, communicationHandler, socket);
+    private GameAddPlayerActionPayload payload;
+
+    public GameAddPlayerAction(UUID reqRespHandlerUUID, Integer gameId) {
+        this.type = "@GAME_ADD_PLAYER";
+        this.payload = new GameAddPlayerActionPayload(reqRespHandlerUUID, gameId);
     }
 
+    public GameAddPlayerActionPayload getPayload() {
+        return payload;
+    }
 }

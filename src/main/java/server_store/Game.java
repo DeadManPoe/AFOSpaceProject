@@ -24,7 +24,7 @@ public class Game {
     // Communication related stuff
     public static int counter = 0;
 
-    public Map<PlayerToken, server_store.Player> players;
+    public List<server_store.Player> players;
     public Map<String, PlayerToken> playerNameToToken;
     public ObjectDeck objectDeck;
     public RescueDeck rescueDeck;
@@ -44,7 +44,7 @@ public class Game {
         counter++;
         this.mapName = gameMapName;
         this.gameMap = null;
-        this.players = new HashMap<PlayerToken, server_store.Player>();
+        this.players = new ArrayList<>();
         this.gamePublicData = new GamePublicData(counter, "Game_" + counter);
         this.turnNumber = 0;
         this.lastAction = null;

@@ -1,5 +1,6 @@
 package server_store;
 
+import common.PlayerToken;
 import common.PrivateDeck;
 import common.Sector;
 import it.polimi.ingsw.cg_19.PlayerState;
@@ -10,6 +11,7 @@ import it.polimi.ingsw.cg_19.PlayerType;
  */
 public class Player {
     public int speed;
+    public PlayerToken playerToken;
     // Player's type
     public PlayerType playerType;
     // Player's current sector
@@ -23,7 +25,7 @@ public class Player {
     public volatile boolean hasMoved;
     public volatile String name;
 
-    public Player(PlayerType playerType, String name) {
+    public Player(PlayerType playerType, String name, PlayerToken playerToken) {
         if (playerType == PlayerType.HUMAN) {
             this.speed = 1;
         } else {
@@ -37,5 +39,7 @@ public class Player {
         this.currentSector = null;
         this.name = name;
         this.hasMoved = false;
+        this.playerToken = playerToken;
+
     }
 }

@@ -1,6 +1,7 @@
 package sts;
 
 import server_store.ServerState;
+import store_actions.StoreAction;
 
 import java.util.List;
 import java.util.Map;
@@ -11,15 +12,5 @@ import java.util.Map;
  */
 public abstract class Reducer {
 
-    private List<String> writableStateKeys;
-
-    public Reducer(List<String> writableStateKeys) {
-        this.writableStateKeys = writableStateKeys;
-    }
-
-    public List<String> getWritableStateKeys() {
-        return writableStateKeys;
-    }
-
-    public abstract ServerState reduce(Action action, ServerState state);
+    public abstract ServerState reduce(StoreAction action, ServerState state);
 }

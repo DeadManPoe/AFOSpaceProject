@@ -6,12 +6,14 @@ import it.polimi.ingsw.cg_19.Player;
 import server.ServerConnection;
 import server.SocketRemoteDataExchange;
 import server.SocketSubscriberHandler;
-import sts.ActionFactory;
-import sts.Store;
+import store_actions.StoreAction;
+import sts.*;
 
 import java.lang.reflect.Array;
 import java.net.Socket;
+import java.sql.Timestamp;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Created by giorgiopea on 09/03/17.
@@ -19,15 +21,70 @@ import java.util.*;
  */
 public class ServerStore {
 
-    public static Store serverStore = Store.getInstance();
-    public static ActionFactory actionFactory = ActionFactory.getInstance();
+    private final static ServerStore instance = new ServerStore();
+    private final static Logger storeLogger = Logger.getLogger("Store Logger");
+
+    private ObservableServerState observableState;
+    private final Map<String, Reducer> actionTypeToReducer = new HashMap<String, Reducer>();
+    private final Map<String, Effect> actionTypeToEffect = new HashMap<String, Effect>();
 
 
-    public static void produceInitialState(){
-        ServerState initialState = new ServerState(null, new HashMap<Integer, server_store.Game>(), new HashMap<Integer, PubSubHandler[]>());
-        serverStore.init(initialState);
+    public static ServerStore getInstance(){
+        return instance;
     }
-    public static void produceActions(){
+
+    private ServerStore(){
+
+    }
+
+
+    public ServerState getState() {
+        return this.observableState.getServerState();
+    }
+
+    public void registerReducer(Reducer reducer, String actionType) {
+        this.actionTypeToReducer.put(actionType, reducer);
+    }
+
+    public void registerEffect(Effect effect, String actionType) {
+        this.actionTypeToEffect.put(actionType, effect);
+    }
+
+    public void dispatchAction(StoreAction action) {
+        String prefix = action.getType().substring(0, action.getType().indexOf("_"));
+        Reducer reducer = this.actionTypeToReducer.get(prefix);
+        if (reducer != null) {
+            storeLogger.info((new Timestamp(System.currentTimeMillis())).toString());
+            storeLogger.info("| STATE BEFORE |\n" + this.observableState.toString());
+            storeLogger.info("| ACTION |\n" + action.toString());
+            this.observableState.setServerState(reducer.reduce(action, this.observableState.getServerState()), action);
+            storeLogger.info("| STATE AFTER |\n" + this.observableState.toString());
+            this.dispatchEffect(action);
+        } else {
+            throw new NoSuchElementException("A reducer for the given action does not exist");
+        }
+
+    }
+    private void dispatchEffect(StoreAction action) {
+        Effect effect = this.actionTypeToEffect.get(action.getType());
+        if (effect != null) {
+            effect.apply(action);
+        }
+    }
+
+    public void observeState(Observer observer) {
+        this.observableState.addObserver(observer);
+    }
+
+    public void init(ServerState initialState) {
+        this.observableState = new ObservableServerState(initialState);
+    }
+
+    private void produceInitialState(){
+        ServerState initialState = new ServerState();
+        this.init(initialState);
+    }
+    private void produceActions(){
         List<String> actions = new ArrayList<String>();
         //Games level actions
         actions.add("@COMMUNICATION_SET_TCPORT");
@@ -40,17 +97,14 @@ public class ServerStore {
         actions.add("@GAME_ADD_PLAYER");
         actions.add("@GAME_START_GAME");
         actions.add("@GAME_MAKE_ACTION");
-
-        actionFactory.init(actions);
     }
-    public static void registerReducers(){
-        serverStore.registerReducer(new GamesReducer(new ArrayList<String>(Arrays.asList(new String[]{
+    private void registerReducers(){
+        this.registerReducer(new GamesReducer(new ArrayList<String>(Arrays.asList(new String[]{
                 "GAMES_BY_ID","GAMES_BY_PLAYERTOKEN"
         }))),"@GAMES");
-        serverStore.registerReducer(new CommunicationReducer(new ArrayList<String>(Arrays.asList(
+        this.registerReducer(new CommunicationReducer(new ArrayList<String>(Arrays.asList(
                 new String[]{"TCP_PORT"}
         ))),"@COMMUNICATION");
     }
-
 }
 

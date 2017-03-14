@@ -37,8 +37,8 @@ public class PubSubHandler extends Thread {
      *            the socket used perform remote method calls on the subscriber
      * @throws IOException
      */
-    public PubSubHandler(Socket socket,PlayerToken playerToken) throws IOException {
-        this.playerToken = playerToken;
+    public PubSubHandler(Socket socket) throws IOException {
+        this.playerToken = null;
         this.socket = socket;
         this.buffer = new ConcurrentLinkedQueue<RemoteMethodCall>();
         this.objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
