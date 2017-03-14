@@ -1,18 +1,25 @@
 package store_reducers;
 
 import common.*;
+import decks.ObjectDeck;
+import decks.RescueDeck;
+import decks.SectorDeck;
 import effects.GameActionMapper;
-import it.polimi.ingsw.cg_19.PlayerState;
-import it.polimi.ingsw.cg_19.PlayerType;
+import factories.*;
+import it.polimi.ingsw.cg_19.*;
+import server.GameStatus;
 import server_store.*;
-import store_actions.GameAddPlayerAction;
-import store_actions.GameMakeActionAction;
-import store_actions.GameEndGame;
-import store_actions.StoreAction;
+import server_store.AlienTurn;
+import server_store.Game;
+import server_store.HumanTurn;
+import server_store.Player;
+import server_store.Turn;
+import store_actions.*;
 import sts.Reducer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -23,19 +30,93 @@ public class GameReducer extends Reducer {
     public ServerState reduce(StoreAction action, ServerState state) {
 
         String actionType = action.getType();
-        if (actionType.equals("@GAME_ADD_PLAYER")) {
-            this.addPlayer(action, state);
-        } else if (actionType.equals("@GAME_MAKE_ACTION")) {
-            try {
-                this.makeAction(action, state);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            }
+        switch (actionType) {
+            case "@GAME_ADD_PLAYER":
+                this.addPlayer(action, state);
+                break;
+            case "@GAME_MAKE_ACTION":
+                try {
+                    this.makeAction(action, state);
+                } catch (IllegalAccessException | InstantiationException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "@GAME_END_GAME":
+                this.endGame(action, state);
+                break;
+            case "@GAME_START_GAME":
+                this.startGame(action, state);
+                break;
         }
         return state;
 
+    }
+
+    private ServerState startGame(StoreAction action, ServerState state) {
+
+        GameStartGameAction castedAction = (GameStartGameAction) action;
+        Integer gameId = castedAction.getPayload().getGameId();
+        for (Game game : state.getGames()){
+            if(game.gamePublicData.getId() == gameId ){
+                DeckFactory deckFactory = new ObjectDeckFactory();
+                game.objectDeck = (ObjectDeck) deckFactory.makeDeck();
+                deckFactory = new SectorDeckFactory();
+                game.sectorDeck = (SectorDeck) deckFactory.makeDeck();
+                deckFactory = new RescueDeckFactory();
+                game.rescueDeck = (RescueDeck) deckFactory.makeDeck();
+
+                GameMapFactory gameMapFactory = null;
+
+                if (game.mapName.equals("GALILEI")) {
+                    gameMapFactory = new GalileiGameMapFactory();
+                } else if (game.mapName.equals("FERMI")) {
+                    gameMapFactory = new FermiGameMapFactory();
+                } else if (game.mapName.equals("GALVANI")) {
+                    gameMapFactory = new GalvaniGameMapFactory();
+                } else {
+                    //
+                }
+                game.gameMap = gameMapFactory.makeMap();
+                for (Player player : game.players) {
+                    if (player.playerType.equals(PlayerType.HUMAN)) {
+                        player.currentSector = game.gameMap.getHumanSector();
+                        game.gameMap.getHumanSector().addPlayer(player);
+                    } else {
+                        player.currentSector = game.gameMap.getAlienSector();
+                        game.gameMap.getAlienSector().addPlayer(player);
+                    }
+                }
+                Turn turn;
+                // Init of the first game turn
+                if (game.currentPlayer.playerType.equals(PlayerType.HUMAN)) {
+                    game.nextActions = HumanTurn.getInitialActions();
+                } else {
+                    game.nextActions = AlienTurn.getInitialActions();
+                }
+                game.gamePublicData.setStatus(GameStatus.CLOSED);
+                ArrayList<Object> parameters = new ArrayList<Object>();
+                parameters.add(game.gameMap.getName());
+                parameters.add(game.currentPlayer.playerToken);
+                for (PubSubHandler handler : state.getPubSubHandlers()){
+                    if (handler.getGameId().equals(gameId)){
+                        handler.queueNotification(new RemoteMethodCall("sendMap",parameters));
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    private ServerState endGame(StoreAction action, ServerState state) {
+        GameEndGame castedAction = (GameEndGame) action;
+        Integer gameId = castedAction.getPayload();
+        for (int i=0; i<state.getGames().size(); i++){
+            if (state.getGames().get(i).gamePublicData.getId() == gameId){
+                state.getGames().remove(i);
+               break;
+            }
+        }
+        return state;
     }
 
     private ServerState makeAction(StoreAction action, ServerState state) throws IllegalAccessException, InstantiationException {
