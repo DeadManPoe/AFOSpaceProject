@@ -132,14 +132,9 @@ public class ReqRespHandler extends Thread {
     public void joinNewGame(String gameMapName, String playerName)
             throws IOException {
         server_store.Game game = new server_store.Game(gameMapName);
-        //When a game is created create also the pubsub handler
         this.serverStore.dispatchAction(new GamesAddGameAction(game));
-        this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, game.gamePublicData.getId()));
+        this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, game.gamePublicData.getId(),playerName));
         this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(socket)));
-        ArrayList<Object> parameters = new ArrayList<Object>();
-        parameters.add(playerToken);
-        this.sendData(
-                new RemoteMethodCall("sendToken", parameters));
         //parameters.clear();
         //this.serverStore.dispatchAction(this.actionFactory.getAction("@GAMES_ADD_PLAYER_TO_GAME",gamePlayer));
         //game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
@@ -155,15 +150,7 @@ public class ReqRespHandler extends Thread {
      * @throws IOException
      */
     public void joinGame(Integer gameId, String playerName) throws IOException {
-        Map<Integer, server_store.Game> games = this.serverStore.getState().GAMES_BY_ID;
-        server_store.Game game = games.get(gameId);
-        this.serverStore.dispatchAction(new GameAddPlayerAction(playerName, gameId, this, this.socket));
-        PlayerToken playerToken = game.playerNameToToken.get(playerName);
-        ArrayList<Object> parameters = new ArrayList<Object>();
-        parameters.add(playerToken);
-        this.sendData(
-                new RemoteMethodCall("sendToken", parameters));
-        this.serverStore.dispatchAction(new StartGameAction(gameId));
+        this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, gameId,playerName));
     }
 
     /**
@@ -179,13 +166,7 @@ public class ReqRespHandler extends Thread {
      */
     public void makeAction(Action action, Integer gameId, PlayerToken playerToken)
             throws IOException, InstantiationException, IllegalAccessException {
-        this.serverStore.dispatchAction(new GameMakeActionAction(gameId, action, playerToken));
-        Map<Integer, server_store.Game> games = this.serverStore.getState().GAMES_BY_ID;
-        server_store.Game game = games.get(gameId);
-        ArrayList<Object> parameters = new ArrayList<Object>();
-        parameters.add(game.lastResponseToClient);
-        this.sendData(
-                new RemoteMethodCall("sendNotification", parameters));
+        this.serverStore.dispatchAction(new GameMakeActionAction(gameId, playerToken, this.uuid, action));
     }
 
     /**

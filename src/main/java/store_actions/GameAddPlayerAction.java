@@ -14,9 +14,9 @@ public class GameAddPlayerAction extends StoreAction {
 
     private GameAddPlayerActionPayload payload;
 
-    public GameAddPlayerAction(UUID reqRespHandlerUUID, Integer gameId) {
+    public GameAddPlayerAction(UUID reqRespHandlerUUID, Integer gameId, String playerName) {
         this.type = "@GAME_ADD_PLAYER";
-        this.payload = new GameAddPlayerActionPayload(reqRespHandlerUUID, gameId);
+        this.payload = new GameAddPlayerActionPayload(reqRespHandlerUUID, gameId,playerName);
     }
 
     public GameAddPlayerActionPayload getPayload() {

@@ -2,18 +2,16 @@ package store_reducers;
 
 import common.PlayerToken;
 import common.RemoteMethodCall;
-import it.polimi.ingsw.cg_19.Player;
 import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.Game;
 import server_store.ReqRespHandler;
 import server_store.ServerState;
 import store_actions.GameAddPlayerAction;
-import store_actions.GameAddPlayerActionPayload;
+import store_actions.GameMakeActionAction;
 import store_actions.StoreAction;
 import sts.Reducer;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by giorgiopea on 14/03/17.
@@ -26,8 +24,20 @@ public class GameReducer extends Reducer {
         if(actionType.equals("@GAME_ADD_PLAYER")){
             this.addPlayer(action,state);
         }
+        else if(actionType.equals("@GAME_MAKE_ACTION")){
+            this.makeAction(action,state);
+        }
         return state;
 
+    }
+
+    private ServerState makeAction(StoreAction action, ServerState state) {
+        GameMakeActionAction castedAction = (GameMakeActionAction) action;
+        for(Game game : state.getGames()){
+            if(game.gamePublicData.getId() == castedAction.getPayload().getGameId()){
+
+            }
+        }
     }
 
     private ServerState addPlayer(StoreAction action, ServerState state) {
