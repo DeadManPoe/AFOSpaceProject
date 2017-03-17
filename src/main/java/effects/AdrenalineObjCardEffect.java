@@ -42,16 +42,16 @@ public class AdrenalineObjCardEffect extends ObjectCardEffect {
 	 * @see effects.ObjectCardEffect#executeEffect
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
-		Player currentPlayer = game.getCurrentPlayer();
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
+		server_store.Player currentPlayer = game.currentPlayer;
 		// Notifications setting
 		rrNotification.setMessage("You will move by two sector this turn\n");
 		psNotification.setMessage("[GLOBAL MESSAGE]: "
-				+ currentPlayer.getName()
+				+ currentPlayer.name
 				+ " has used an adrenaline object card\n");
-		currentPlayer.setAdrenaline(true);
+		currentPlayer.isAdrenalined = true;
 		return true;
 	}
 }

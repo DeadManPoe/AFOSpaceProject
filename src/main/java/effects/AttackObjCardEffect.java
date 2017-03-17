@@ -43,9 +43,9 @@ public class AttackObjCardEffect extends ObjectCardEffect {
 	 * @see ObjectCardEffect#executeEffect
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
 
 		AttackObjectCard card = (AttackObjectCard) objectCard;
 		Sector sectorToAttack = card.getAttackTarget();

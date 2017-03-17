@@ -43,11 +43,11 @@ public class GlobalNoiseSectorCardEffect extends SectorCardEffect {
 	 * @see SectorCardEffect#executeEffect(Game)
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
 		// Notify all the player
-		String name = game.getCurrentPlayer().getName();
+		String name = game.currentPlayer.name;
 		Sector target = ((GlobalNoiseSectorCard) sectorCard).getSector();
 		rrNotification.setMessage("You've indicated the sector: "
 				+ target.getCoordinate().toString());

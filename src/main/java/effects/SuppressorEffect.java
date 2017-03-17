@@ -41,11 +41,11 @@ public class SuppressorEffect extends ObjectCardEffect {
 	 * @see ObjectCardEffect#executeEffect(Game)
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
-		Player currentPlayer = game.getCurrentPlayer();
-		currentPlayer.setSedated(true);
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
+		server_store.Player currentPlayer = game.currentPlayer;
+		currentPlayer.isSedated = true;
 		rrNotification
 				.setMessage("You will not draw any sector card this turn");
 		psNotification

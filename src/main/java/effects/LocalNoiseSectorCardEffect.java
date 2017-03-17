@@ -39,18 +39,17 @@ public class LocalNoiseSectorCardEffect extends SectorCardEffect {
 	}
 
 	/**
-	 * @see SectorCardEffect#executeEffect(Game)
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
 		// The local noise effect could be seen as a global noise effect with a
 		// sector that is automatically
 		// indicated
 		// Notify all the player
-		String name = game.getCurrentPlayer().getName();
-		Sector target = game.getCurrentPlayer().getSector();
+		String name = game.currentPlayer.name;
+		Sector target = game.currentPlayer.currentSector;
 		psNotification.setMessage(psNotification.getMessage()
 				+ "\n[GLOBAL MESSAGE]: " + name
 				+ " has made noise in sector "

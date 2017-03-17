@@ -41,12 +41,12 @@ public class SilenceSectorCardEffect extends SectorCardEffect {
 	 * @see effects.SectorCardEffect#executeEffect
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
 		rrNotification.setMessage("You've said SILENCE");
 		psNotification.setMessage(psNotification.getMessage()
-				+ "\n[GLOBAL MESSAGE]: " + game.getCurrentPlayer().getName()
+				+ "\n[GLOBAL MESSAGE]: " + game.currentPlayer.name
 				+ " says SILENCE!");
 		return true;
 	}
