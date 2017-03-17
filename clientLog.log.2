@@ -1,4 +1,78 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
+<record>
+  <date>2017-03-17T14:17:00</date>
+  <millis>1489756620749</millis>
+  <sequence>0</sequence>
+  <logger>client.Client</logger>
+  <level>SEVERE</level>
+  <class>client.CliInteractionManager</class>
+  <method>joinNewGame</method>
+  <thread>1</thread>
+  <message>com error | joinNewGame </message>
+  <exception>
+    <message>java.io.EOFException</message>
+    <frame>
+      <class>java.io.ObjectInputStream$PeekInputStream</class>
+      <method>readFully</method>
+      <line>2624</line>
+    </frame>
+    <frame>
+      <class>java.io.ObjectInputStream$BlockDataInputStream</class>
+      <method>readShort</method>
+      <line>3099</line>
+    </frame>
+    <frame>
+      <class>java.io.ObjectInputStream</class>
+      <method>readStreamHeader</method>
+      <line>853</line>
+    </frame>
+    <frame>
+      <class>java.io.ObjectInputStream</class>
+      <method>&lt;init&gt;</method>
+      <line>349</line>
+    </frame>
+    <frame>
+      <class>client.PubSubHandler</class>
+      <method>&lt;init&gt;</method>
+      <line>44</line>
+    </frame>
+    <frame>
+      <class>client.Client</class>
+      <method>startPubSub</method>
+      <line>325</line>
+    </frame>
+    <frame>
+      <class>client.SocketRemoteDataExchange</class>
+      <method>keepAlive</method>
+      <line>101</line>
+    </frame>
+    <frame>
+      <class>client.ComSession</class>
+      <method>start</method>
+      <line>78</line>
+    </frame>
+    <frame>
+      <class>client.Client</class>
+      <method>joinNewGame</method>
+      <line>543</line>
+    </frame>
+    <frame>
+      <class>client.CliInteractionManager</class>
+      <method>joinNewGame</method>
+      <line>579</line>
+    </frame>
+    <frame>
+      <class>client.CliInteractionManager</class>
+      <method>showGames</method>
+      <line>641</line>
+    </frame>
+    <frame>
+      <class>client.MainCLI</class>
+      <method>main</method>
+      <line>26</line>
+    </frame>
+  </exception>
+</record>
 </log>

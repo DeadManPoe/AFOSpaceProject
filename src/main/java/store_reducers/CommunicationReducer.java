@@ -42,6 +42,7 @@ public class CommunicationReducer extends Reducer {
         state.setTcp_port(castedAction.getPayload());
         return state;
     }
+
     private ServerState addReqRespHandlerAction(StoreAction action, ServerState state){
         CommunicationAddReqRespHandlerAction castedAction = (CommunicationAddReqRespHandlerAction) action;
         state.getReqRespHandlers().add(castedAction.getPayload());

@@ -41,7 +41,6 @@ public class PubSubHandler extends Thread {
 			throws IOException {
 		this.socket = socket;
 		this.clientServices = clientServices;
-		input = new ObjectInputStream(socket.getInputStream());
 	}
 
 	/**
@@ -50,7 +49,11 @@ public class PubSubHandler extends Thread {
 	 */
 	public void run() {
 		RemoteMethodCall methodCall;
-
+		try {
+			input = new ObjectInputStream(socket.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		while (true) {
 			try {
 				methodCall = (RemoteMethodCall) input.readObject();

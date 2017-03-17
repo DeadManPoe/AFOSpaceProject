@@ -146,6 +146,7 @@ public class ReqRespHandler extends Thread {
      */
     public void joinGame(Integer gameId, String playerName) throws IOException {
         this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, gameId,playerName));
+        this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(objectOutputStream, gameId)));
         this.serverStore.dispatchAction(new GameStartGameAction(gameId));
     }
 

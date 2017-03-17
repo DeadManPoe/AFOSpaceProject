@@ -27,6 +27,7 @@ public class CommunicationHandler implements Observer {
         this.tcp_port = tcp_port;
         this.reqRespThreadPool = Executors.newCachedThreadPool();
         this.pubSubThreadPool = Executors.newCachedThreadPool();
+        this.serverStore.observeState(this);
     }
 
     private void setConnection(){

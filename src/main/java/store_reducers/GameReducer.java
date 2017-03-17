@@ -207,6 +207,7 @@ public class GameReducer extends Reducer {
                         ArrayList<Object> parameters = new ArrayList<>();
                         parameters.add(psClientNotification);
                         handler.queueNotification(new RemoteMethodCall("sendPubNotification", parameters));
+
                     }
                 }
                 break;

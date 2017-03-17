@@ -99,5 +99,8 @@ public class PubSubHandler extends Thread {
 
     public void queueNotification(RemoteMethodCall remoteMethodCall) {
         buffer.add(remoteMethodCall);
+        synchronized (buffer) {
+            buffer.notify();
+        }
     }
 }
