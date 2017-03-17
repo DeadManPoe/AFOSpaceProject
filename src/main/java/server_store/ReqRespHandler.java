@@ -212,6 +212,9 @@ public class ReqRespHandler extends Thread {
 
     public void addRemoteMethodCallToQueue(RemoteMethodCall remoteMethodCall){
         buffer.add(remoteMethodCall);
+        synchronized (buffer) {
+            buffer.notify();
+        }
     }
 
 
