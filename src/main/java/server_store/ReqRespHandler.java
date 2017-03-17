@@ -130,6 +130,7 @@ public class ReqRespHandler extends Thread {
         this.serverStore.dispatchAction(new GamesAddGameAction(game));
         this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, game.gamePublicData.getId(),playerName));
         this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(objectOutputStream, game.gamePublicData.getId())));
+        this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
         //parameters.clear();
         //this.serverStore.dispatchAction(this.actionFactory.getAction("@GAMES_ADD_PLAYER_TO_GAME",gamePlayer));
         //game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
@@ -148,6 +149,7 @@ public class ReqRespHandler extends Thread {
         this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, gameId,playerName));
         this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(objectOutputStream, gameId)));
         this.serverStore.dispatchAction(new GameStartGameAction(gameId));
+        this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
     }
 
     /**

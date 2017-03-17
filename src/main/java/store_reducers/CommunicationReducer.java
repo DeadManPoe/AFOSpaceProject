@@ -6,10 +6,7 @@ import server_store.PubSubHandler;
 import server_store.ReqRespHandler;
 import server_store.ServerState;
 import server_store.ServerStore;
-import store_actions.CommunicationAddPubSubHandlerAction;
-import store_actions.CommunicationAddReqRespHandlerAction;
-import store_actions.CommunicationSetTcpPortAction;
-import store_actions.StoreAction;
+import store_actions.*;
 import sts.Reducer;
 
 import java.io.Serializable;
@@ -33,6 +30,34 @@ public class CommunicationReducer extends Reducer {
         }
         else if(actionType.equals("@COMMUNICATION_ADD_PUBSUB_HANDLER")){
             this.addPubSubHandler(action,state);
+        }
+        else if(actionType.equals("@COMMUNICATION_REMOVE_PUBSUB_HANDLER")){
+            this.removePubSubHandler(action,state);
+        }
+        else if(actionType.equals("@COMMUNICATION_REMOVE_REQRESP_HANDLER")){
+            this.removeReqRespHandler(action,state);
+        }
+        return state;
+    }
+
+    private ServerState removeReqRespHandler(StoreAction action, ServerState state) {
+        CommunicationRemoveReqRespHandlerAction castedAction = (CommunicationRemoveReqRespHandlerAction) action;
+        for (int i=0; i<state.getReqRespHandlers().size(); i++){
+            if(state.getReqRespHandlers().get(i).getUuid().equals(castedAction.getPayload())){
+                state.getReqRespHandlers().remove(i);
+                return state;
+            }
+        }
+        return state;
+    }
+
+    private ServerState removePubSubHandler(StoreAction action, ServerState state) {
+        CommunicationRemovePubSubHandlerAction castedAction = (CommunicationRemovePubSubHandlerAction) action;
+        for (int i=0; i<state.getPubSubHandlers().size(); i++){
+            if(state.getPubSubHandlers().get(i).getGameId().equals(castedAction.getPayload())){
+                state.getPubSubHandlers().remove(i);
+                return state;
+            }
         }
         return state;
     }

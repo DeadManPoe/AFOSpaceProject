@@ -1,0 +1,20 @@
+package store_actions;
+
+import java.util.UUID;
+
+/**
+ * Created by giorgiopea on 17/03/17.
+ */
+public class CommunicationRemoveReqRespHandlerAction extends StoreAction {
+
+    private UUID payload;
+
+    public CommunicationRemoveReqRespHandlerAction(UUID handlerUUID) {
+        this.type = "@COMMUNICATION_REMOVE_REQRESP_HANDLER";
+        this.payload = handlerUUID;
+    }
+
+    public UUID getPayload() {
+        return payload;
+    }
+}
