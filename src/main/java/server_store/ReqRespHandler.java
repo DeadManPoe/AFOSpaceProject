@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
 /**
@@ -42,7 +43,7 @@ public class ReqRespHandler extends Thread {
         this.uuid = UUID.randomUUID();
         this.serverStore = ServerStore.getInstance();
         this.socket = socket;
-        this.buffer = new ArrayBlockingQueue<RemoteMethodCall>(1);
+        this.buffer = new ConcurrentLinkedQueue<>();
         try {
             this.objectInputStream = new ObjectInputStream(socket.getInputStream());
             this.objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -131,7 +132,7 @@ public class ReqRespHandler extends Thread {
         server_store.Game game = new server_store.Game(gameMapName);
         this.serverStore.dispatchAction(new GamesAddGameAction(game));
         this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, game.gamePublicData.getId(),playerName));
-        this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(socket, game.gamePublicData.getId())));
+        this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(objectOutputStream, game.gamePublicData.getId())));
         //parameters.clear();
         //this.serverStore.dispatchAction(this.actionFactory.getAction("@GAMES_ADD_PLAYER_TO_GAME",gamePlayer));
         //game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));

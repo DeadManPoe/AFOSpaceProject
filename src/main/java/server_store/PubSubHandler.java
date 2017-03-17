@@ -37,12 +37,12 @@ public class PubSubHandler extends Thread {
      *            the socket used perform remote method calls on the subscriber
      * @throws IOException
      */
-    public PubSubHandler(Socket socket, Integer gameId) throws IOException {
+    public PubSubHandler(ObjectOutputStream outputStream, Integer gameId) throws IOException {
         this.gameId = gameId;
         this.socket = socket;
         this.buffer = new ConcurrentLinkedQueue<RemoteMethodCall>();
-        this.objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
-        this.objectOutputStream.flush();
+        this.objectOutputStream = outputStream;
+        //this.objectOutputStream.flush();
     }
 
     /**

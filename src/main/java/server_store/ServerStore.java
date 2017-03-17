@@ -8,6 +8,7 @@ import server.SocketRemoteDataExchange;
 import server.SocketSubscriberHandler;
 import store_actions.StoreAction;
 import store_reducers.CommunicationReducer;
+import store_reducers.GameReducer;
 import store_reducers.GamesReducer;
 import sts.*;
 
@@ -90,7 +91,7 @@ public class ServerStore {
     private void registerReducers(){
         this.registerReducer(new CommunicationReducer(),"@COMMUNICATION");
         this.registerReducer(new GamesReducer(),"@GAMES");
-        this.registerReducer(new GamesReducer(),"@GAME");
+        this.registerReducer(new GameReducer(),"@GAME");
     }
 }
 

@@ -39,7 +39,7 @@ public class CommunicationHandler implements Observer {
             socket = serverSocket.accept();
             ReqRespHandler reqRespHandler = new ReqRespHandler(socket);
             this.serverStore.dispatchAction(new CommunicationAddReqRespHandlerAction(reqRespHandler));
-            this.reqRespThreadPool.submit(new ReqRespHandler(socket));
+            this.reqRespThreadPool.submit(reqRespHandler);
         }
     }
     public void runServer() throws IOException {

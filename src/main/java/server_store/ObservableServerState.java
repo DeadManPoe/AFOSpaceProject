@@ -26,4 +26,9 @@ public class ObservableServerState extends Observable {
         this.setChanged();
         this.notifyObservers(lastAction);
     }
+
+    @Override
+    public String toString() {
+        return serverState.toString();
+    }
 }

@@ -54,4 +54,14 @@ public class ServerState implements Serializable {
     public void setTcp_port(Integer tcp_port) {
         this.tcp_port = tcp_port;
     }
+
+    @Override
+    public String toString() {
+        return "ServerState{" +
+                "games=" + games +
+                ", reqRespHandlers=" + reqRespHandlers +
+                ", pubSubHandlers=" + pubSubHandlers +
+                ", tcp_port=" + tcp_port +
+                '}';
+    }
 }
