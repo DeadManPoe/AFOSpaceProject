@@ -8,6 +8,7 @@ import sts.Reducer;
 
 /**
  * Created by giorgiopea on 14/03/17.
+ *
  */
 public class GamesReducer extends Reducer {
     @Override
