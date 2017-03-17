@@ -98,7 +98,7 @@ public class SocketRemoteDataExchange extends RemoteDataExchange {
 	 */
 	@Override
 	public void keepAlive() throws IOException {
-		client.startPubSub(socket, clientServices);
+		client.startPubSub(inputStream, clientServices);
 	}
 
 	/**

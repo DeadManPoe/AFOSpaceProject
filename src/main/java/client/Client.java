@@ -3,6 +3,7 @@ package client;
 import it.polimi.ingsw.cg_19.GameMap;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.rmi.NotBoundException;
@@ -313,16 +314,15 @@ public class Client extends Observable {
 	 * server in the context of the pub/sub pattern
 	 *
 	 * @see PubSubHandler
-	 * @param inputStream
 	 *            the input stream from which the async notifications come
 	 * @param clientServices
 	 *            the services the client offers to the server to exchange data,
 	 *            in this case just notification related services will be used
 	 * @throws IOException
 	 */
-	public void startPubSub(Socket socket, ClientRemoteServices clientServices)
+	public void startPubSub(ObjectInputStream stream, ClientRemoteServices clientServices)
 			throws IOException {
-		this.pubSubHandler = new PubSubHandler(socket, clientServices);
+		this.pubSubHandler = new PubSubHandler(stream, clientServices);
 		pubSubHandler.start();
 	}
 

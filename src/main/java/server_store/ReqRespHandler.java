@@ -40,7 +40,7 @@ public class ReqRespHandler extends Thread {
         this.uuid = UUID.randomUUID();
         this.serverStore = ServerStore.getInstance();
         this.socket = socket;
-        this.buffer = new ConcurrentLinkedQueue<>();
+        this.buffer = new ArrayBlockingQueue<RemoteMethodCall>(1);
         try {
             this.objectInputStream = new ObjectInputStream(socket.getInputStream());
             this.objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -229,8 +229,8 @@ public class ReqRespHandler extends Thread {
                     this.sendData(remoteMethodCall);
                     if (!remoteMethodCall.getMethodName().equals("sendToken")) {
                         closeDataFlow();
-                        mustRun = false;
                     }
+                    mustRun = false;
                 } else {
                     // If there are no incoming remote method calls the thread
                     // waits

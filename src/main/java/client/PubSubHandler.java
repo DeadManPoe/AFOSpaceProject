@@ -37,9 +37,10 @@ public class PubSubHandler extends Thread {
 	 *            exchange data
 	 * @throws IOException
 	 */
-	public PubSubHandler(Socket socket, ClientRemoteServices clientServices)
+	public PubSubHandler(ObjectInputStream stream, ClientRemoteServices clientServices)
 			throws IOException {
 		this.socket = socket;
+		this.input = stream;
 		this.clientServices = clientServices;
 	}
 
@@ -49,11 +50,6 @@ public class PubSubHandler extends Thread {
 	 */
 	public void run() {
 		RemoteMethodCall methodCall;
-		try {
-			input = new ObjectInputStream(socket.getInputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		while (true) {
 			try {
 				methodCall = (RemoteMethodCall) input.readObject();
