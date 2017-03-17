@@ -4,9 +4,6 @@ import common.Action;
 import common.GamePublicData;
 import common.PlayerToken;
 import common.RemoteMethodCall;
-import it.polimi.ingsw.cg_19.Game;
-import it.polimi.ingsw.cg_19.Player;
-import server.ServerLogger;
 import store_actions.*;
 
 import java.io.IOException;
@@ -14,10 +11,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.logging.Level;
 
 /**
  * Represents a thread that handles a request by a client in the logic of the
@@ -114,6 +112,7 @@ public class ReqRespHandler extends Thread {
         parameters.add(gamesList);
         this.sendData(
                 new RemoteMethodCall("sendAvailableGames", parameters));
+        this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
     }
 
     /**
