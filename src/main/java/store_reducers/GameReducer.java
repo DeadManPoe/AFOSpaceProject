@@ -102,9 +102,10 @@ public class GameReducer extends Reducer {
                         handler.queueNotification(new RemoteMethodCall("sendMap",parameters));
                     }
                 }
-                break;
+                return state;
             }
         }
+        return null;
     }
 
     private ServerState endGame(StoreAction action, ServerState state) {

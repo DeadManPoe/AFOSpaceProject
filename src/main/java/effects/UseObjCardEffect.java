@@ -56,16 +56,15 @@ public class UseObjCardEffect extends ActionEffect {
 	}
 
 	/**
-	 * @see ActionEffect#executeEffect(Game, List)
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification clientNotification,
-			PSClientNotification psNotification) {
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification clientNotification,
+								 PSClientNotification psNotification) {
 		UseObjAction useAction = (UseObjAction) action;
 		ObjectCardsMapper mapper = new ObjectCardsMapper();
 		// Checks if the card can be played before move or after move
-		if (!game.getCurrentPlayer().hasMoved()) {
+		if (!game.currentPlayer.hasMoved) {
 			if (!beforeMoveCards.contains(useAction.getCard().getClass()))
 				return false;
 		} else {
@@ -77,7 +76,7 @@ public class UseObjCardEffect extends ActionEffect {
 			clientNotification.setMessage("You have used a"
 					+ useAction.getCard().toString());
 			psNotification.setMessage("[GLOBAL MESSAGE]: "
-					+ game.getCurrentPlayer().getName() + " has used a "
+					+ game.currentPlayer.name+ " has used a "
 					+ useAction.getCard().toString());
 			/*
 			 * ObjectCard card = useAction.getCard(); if(useAction.getCard()
@@ -85,10 +84,10 @@ public class UseObjCardEffect extends ActionEffect {
 			 * else if(useAction.getCard() instanceof AttackObjectCard){ card =
 			 * new AttackObjectCard(null); }
 			 */
-			game.getObjectDeck().addToDiscard(useAction.getCard());
-			game.getCurrentPlayer().getPrivateDeck()
+			game.objectDeck.addToDiscard(useAction.getCard());
+			game.currentPlayer.privateDeck
 					.removeCard(useAction.getCard());
-			game.setLastAction(action);
+			game.lastAction = action;
 			return mapper.getEffect(useAction.getCard()).executeEffect(game,
 					clientNotification, psNotification);
 		} catch (InstantiationException | IllegalAccessException e) {

@@ -46,17 +46,17 @@ public class LightObjectCardEffect extends ObjectCardEffect {
 	 * @see ObjectCardEffect#executeEffect
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
 		LightsObjectCard lightsObjectCard = (LightsObjectCard) objectCard;
-		List<Sector> neighboorSectors = game.getMap().getSearchableGraph()
+		List<Sector> neighboorSectors = game.gameMap.getSearchableGraph()
 				.neighborListOf(lightsObjectCard.getTarget());
 		String playerName;
 		String globalMessage = "\n[GLOBAL MESSAGE]: Players spotted:";
 		for (Sector sector : neighboorSectors) {
-			for (Player player : sector.getPlayers()) {
-				playerName = player.getName();
+			for (server_store.Player player : sector.getPlayers()) {
+				playerName = player.name;
 				globalMessage += " " + playerName;
 			}
 			rrNotification.addSector(sector);

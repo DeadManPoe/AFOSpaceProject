@@ -41,19 +41,18 @@ public class TeleportObjCardEffect extends ObjectCardEffect {
 	}
 
 	/**
-	 * @see ObjectCardEffect#executeEffect(Game)
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
-		GameMap map = game.getMap();
-		Player curr = game.getCurrentPlayer();
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
+		GameMap map = game.gameMap;
+		server_store.Player curr = game.currentPlayer;
 		Sector humanSector = map.getHumanSector();
 
 		// Move the player(can be only human) to the starting sector
-		curr.getSector().removePlayer(curr);
-		curr.setSector(humanSector);
+		curr.currentSector.removePlayer(curr);
+		curr.currentSector = humanSector;
 		humanSector.addPlayer(curr);
 		rrNotification.setMessage("You've teleported to the human sector");
 		psNotification

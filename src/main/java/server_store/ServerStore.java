@@ -7,6 +7,8 @@ import server.ServerConnection;
 import server.SocketRemoteDataExchange;
 import server.SocketSubscriberHandler;
 import store_actions.StoreAction;
+import store_reducers.CommunicationReducer;
+import store_reducers.GamesReducer;
 import sts.*;
 
 import java.lang.reflect.Array;
@@ -34,7 +36,8 @@ public class ServerStore {
     }
 
     private ServerStore(){
-
+        this.produceInitialState();
+        this.registerReducers();
     }
 
 
@@ -42,7 +45,7 @@ public class ServerStore {
         return this.observableState.getServerState();
     }
 
-    public void registerReducer(Reducer reducer, String actionType) {
+    private void registerReducer(Reducer reducer, String actionType) {
         this.actionTypeToReducer.put(actionType, reducer);
     }
 
@@ -84,27 +87,10 @@ public class ServerStore {
         ServerState initialState = new ServerState();
         this.init(initialState);
     }
-    private void produceActions(){
-        List<String> actions = new ArrayList<String>();
-        //Games level actions
-        actions.add("@COMMUNICATION_SET_TCPORT");
-        actions.add("@COMMUNICATION_ADD_SOCKET");
-        actions.add("@COMMUNICATION_REMOVE_SOCKET");
-        actions.add("@COMMUNICATION_MOVE_SOCKET_TO_PUBSUB");
-        actions.add("@GAMES_ADD_GAME");
-        actions.add("@GLOBAL_REMOVE_GAME");
-        //Game level actions
-        actions.add("@GAME_ADD_PLAYER");
-        actions.add("@GAME_START_GAME");
-        actions.add("@GAME_MAKE_ACTION");
-    }
     private void registerReducers(){
-        this.registerReducer(new GamesReducer(new ArrayList<String>(Arrays.asList(new String[]{
-                "GAMES_BY_ID","GAMES_BY_PLAYERTOKEN"
-        }))),"@GAMES");
-        this.registerReducer(new CommunicationReducer(new ArrayList<String>(Arrays.asList(
-                new String[]{"TCP_PORT"}
-        ))),"@COMMUNICATION");
+        this.registerReducer(new CommunicationReducer(),"@COMMUNICATION");
+        this.registerReducer(new GamesReducer(),"@GAMES");
+        this.registerReducer(new GamesReducer(),"@GAME");
     }
 }
 

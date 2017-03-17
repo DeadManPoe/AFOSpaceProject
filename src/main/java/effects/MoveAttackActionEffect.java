@@ -55,36 +55,36 @@ public class MoveAttackActionEffect extends ActionEffect {
 	 * @see ActionEffect#executeEffect
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
 		MoveAttackAction moveAttackAction = (MoveAttackAction) action;
-		Sector sourceSector = game.getCurrentPlayer().getSector();
-		Sector targetSector = game.getMap().getSectorByCoords(
+		Sector sourceSector = game.currentPlayer.currentSector;
+		Sector targetSector = game.gameMap.getSectorByCoords(
 				moveAttackAction.getTarget().getCoordinate());
-		Player currentPlayer = game.getCurrentPlayer();
+		server_store.Player currentPlayer = game.currentPlayer;
 		String rrMessage = "";
 		String psMessage = "";
 
 		if (!sourceSector.equals(moveAttackAction.getTarget())) {
-			if (game.getMap().checkSectorAdiacency(sourceSector, targetSector,
-					currentPlayer.getSpeed(), 0, currentPlayer.getPlayerType(),
-					sourceSector, currentPlayer.isAdrenaline())) {
+			if (game.gameMap.checkSectorAdiacency(sourceSector, targetSector,
+					currentPlayer.speed, 0, currentPlayer.playerType,
+					sourceSector, currentPlayer.isAdrenalined)) {
 				
 				// For each player contained in the target sector
-				for (Player player : targetSector.getPlayers()) {
+				for (server_store.Player player : targetSector.getPlayers()) {
 					/*
 					 * Checks if the player p has an defense card, if so then p
 					 * is safe and we removes the defense card from the private
 					 * deck of p
 					 */
-					PrivateDeck playerPrivateDeck = player.getPrivateDeck();
+					PrivateDeck playerPrivateDeck = player.privateDeck;
 					ArrayList<ObjectCard> privateDeckContent = new ArrayList<ObjectCard>(
 							playerPrivateDeck.getContent());
 					Iterator<ObjectCard> iterator = privateDeckContent
 							.iterator();
 					boolean defenseFound = false;
-					if (player.getPlayerType() == PlayerType.HUMAN) {
+					if (player.playerType == PlayerType.HUMAN) {
 						while (iterator.hasNext()) {
 							ObjectCard objectCard = iterator.next();
 							if (objectCard instanceof DefenseObjectCard) {
@@ -96,36 +96,35 @@ public class MoveAttackActionEffect extends ActionEffect {
 					// If no defense card has been found for p, then p is dead
 					if (!defenseFound) {
 						targetSector.removePlayer(player);
-						player.setPlayerState(PlayerState.DEAD);
-						player.setSector(null);
+						player.playerState = PlayerState.DEAD;
+						player.currentSector = null;
 						// Notify the rest of the players
-						psNotification.addDeadPlayers(game
-								.fromPlayerToToken(player));
+						psNotification.addDeadPlayers(player.playerToken);
 						rrMessage += "You have attacked sector "
 								+ targetSector.getCoordinate().toString()
-								+ " and so " + player.getName() + " is dead.";
+								+ " and so " + player.name + " is dead.";
 						psMessage += "[GLOBAL MESSAGE]: "
-								+ currentPlayer.getName()
+								+ currentPlayer.name
 								+ " has attacked sector "
 								+ targetSector.getCoordinate().toString()
-								+ " and so " + player.getName() + " is dead.";
+								+ " and so " + player.name + " is dead.";
 					} else {
-						if(game.getCurrentPlayer().getPlayerType() == PlayerType.ALIEN) {
-							game.getCurrentPlayer().setSpeed(3);
+						if(game.currentPlayer.playerType == PlayerType.ALIEN) {
+							game.currentPlayer.speed = 3;
 						}
 						// Otherwise p has been attacked
-						psNotification.addAttackedPlayers(game
-								.fromPlayerToToken(player));
+						psNotification.addAttackedPlayers(player.playerToken
+						);
 						rrMessage += "You have attacked sector "
 								+ targetSector.getCoordinate().toString()
-								+ " and so " + player.getName()
+								+ " and so " + player.name
 								+ " has defended.";
 
 						psMessage += "[GLOBAL MESSAGE]: "
-								+ currentPlayer.getName()
+								+ currentPlayer.name
 								+ " has attacked sector "
 								+ targetSector.getCoordinate().toString()
-								+ " and so " + player.getName()
+								+ " and so " + player.name
 								+ " has defended.";
 					}
 				}
@@ -133,7 +132,7 @@ public class MoveAttackActionEffect extends ActionEffect {
 					rrMessage += "You have attacked sector "
 							+ targetSector.getCoordinate().toString()
 							+ " but it contained no players.";
-					psMessage += "[GLOBAL MESSAGE]: " + currentPlayer.getName()
+					psMessage += "[GLOBAL MESSAGE]: " + currentPlayer.name
 							+ " has attacked sector "
 							+ targetSector.getCoordinate().toString()
 							+ " but it contained no players.";
@@ -142,11 +141,11 @@ public class MoveAttackActionEffect extends ActionEffect {
 				psNotification.setMessage(psMessage);
 				// Move the player that has attacked to the target sector
 				sourceSector.removePlayer(currentPlayer);
-				currentPlayer.setSector(targetSector);
+				currentPlayer.currentSector= targetSector;
 				targetSector.addPlayer(currentPlayer);
 
-				game.setLastAction(moveAttackAction);
-				currentPlayer.setHasMoved(true);
+				game.lastAction = moveAttackAction;
+				currentPlayer.hasMoved = true;
 				return true;
 			}
 		}

@@ -1,16 +1,16 @@
 package server_store;
 
-import common.*;
+import common.Action;
+import common.GamePublicData;
+import common.PlayerToken;
+import common.RemoteMethodCall;
 import it.polimi.ingsw.cg_19.Game;
 import it.polimi.ingsw.cg_19.Player;
 import server.ServerLogger;
 import store_actions.CommunicationAddPubSubHandlerAction;
-import store_actions.GameAddPlayer;
 import store_actions.GameAddPlayerAction;
 import store_actions.GameMakeActionAction;
 import store_actions.GamesAddGameAction;
-import sts.ActionFactory;
-import sts.Store;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -19,9 +19,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 
 /**
@@ -134,7 +131,7 @@ public class ReqRespHandler extends Thread {
         server_store.Game game = new server_store.Game(gameMapName);
         this.serverStore.dispatchAction(new GamesAddGameAction(game));
         this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, game.gamePublicData.getId(),playerName));
-        this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(socket)));
+        this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(socket, game.gamePublicData.getId())));
         //parameters.clear();
         //this.serverStore.dispatchAction(this.actionFactory.getAction("@GAMES_ADD_PLAYER_TO_GAME",gamePlayer));
         //game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
@@ -180,7 +177,7 @@ public class ReqRespHandler extends Thread {
      *                be delivered the text message, is derived.
      * @throws IOException
      */
-    public void publishGlobalMessage(String message,
+    /*public void publishGlobalMessage(String message,
                                      PlayerToken token) throws IOException {
         Map<PlayerToken, Game> games = this.serverStore.getState().GAMES_BY_PLAYERTOKEN;
         Game game = games.get(token);
@@ -190,16 +187,15 @@ public class ReqRespHandler extends Thread {
         this.sendData(
                 new RemoteMethodCall("ackMessage"));
         //game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
-    }
+    }*/
 
     /**
      * A services that allows a client to force(without waiting the timeout) the
      * start of the game only if there are at least two player
      *
-     * @param token The token of the player who wants to start the game
      * @throws IOException
      */
-    public void forceGameStart(PlayerToken token) {
+    /*public void forceGameStart(PlayerToken token) {
         Map<PlayerToken, Game> games = this.serverStore.getState().GAMES_BY_PLAYERTOKEN;
         Game game = games.get(token);
         if (game.getPublicData().getPlayersCount() > 1) {
@@ -212,7 +208,7 @@ public class ReqRespHandler extends Thread {
             ServerLogger.getLogger().log(Level.SEVERE,
                     "Error in sending ackMessage rmethodcall", e);
         }
-    }
+    }*/
 
     public void addRemoteMethodCallToQueue(RemoteMethodCall remoteMethodCall){
         buffer.add(remoteMethodCall);

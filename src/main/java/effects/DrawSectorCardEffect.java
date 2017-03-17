@@ -48,24 +48,24 @@ public class DrawSectorCardEffect extends ActionEffect {
 	 * Implements the abstract method defined in ActionEffect according to DrawActionFromSector
 	 * @param game A reference to Decks,map,...
 	 */
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
 		// Get the reference for the sector deck
-		SectorDeck sectorDeck = game.getSectorDeck();
+		SectorDeck sectorDeck = game.sectorDeck;
 		// Draws a new card from the deck
 		SectorCard sectorCard = (SectorCard) sectorDeck.popCard();
 		// Notify the client
 		rrNotification.addCard(sectorCard);
 
 		psNotification.setMessage(psNotification.getMessage()
-				+ "\n[GLOBAL MESSAGE]: " + game.getCurrentPlayer().getName()
+				+ "\n[GLOBAL MESSAGE]: " + game.currentPlayer.name
 				+ " has drawn a sector card");
 
 		sectorDeck.addToDiscard(sectorCard);
 		sectorDeck.refill();
 
-		game.setLastAction(action);
+		game.lastAction = action;
 
 		// Now i need to execute the effect of the sector card
 

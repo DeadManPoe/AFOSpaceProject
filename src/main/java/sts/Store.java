@@ -50,7 +50,7 @@ public class Store {
             storeLogger.info((new Timestamp(System.currentTimeMillis())).toString());
             storeLogger.info("| STATE BEFORE |\n" + this.observableState.toString());
             storeLogger.info("| ACTION |\n" + action.toString());
-            this.observableState.setServerState(reducer.reduce(action, this.observableState.getServerState()), action);
+            //this.observableState.setServerState(reducer.reduce(action, this.observableState.getServerState()), action);
             storeLogger.info("| STATE AFTER |\n" + this.observableState.toString());
             this.dispatchSideEffect(action);
         } else {
@@ -62,7 +62,7 @@ public class Store {
     private void dispatchSideEffect(Action action) {
         Effect effect = this.actionTypeToEffect.get(action.type);
         if (effect != null) {
-            effect.apply(action);
+            //effect.apply(action);
         }
     }
 

@@ -403,8 +403,8 @@ public class GuiInteractionManager implements Observer {
 		String nameList = "";
 		for (Sector s : sectors) {
 			nameList = "";
-			for (Player p : s.getPlayers()) {
-				nameList += " " + p.getName();
+			for (server_store.Player p : s.getPlayers()) {
+				nameList += " " + p.name;
 			}
 			GUIGamePane.getMapPane().lightSector(s.getCoordinate(), "P",
 					nameList);

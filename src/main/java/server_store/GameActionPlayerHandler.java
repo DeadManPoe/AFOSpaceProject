@@ -11,7 +11,7 @@ public class GameActionPlayerHandler {
     public PlayerToken playerToken;
     public Action action;
 
-    public GameActionPlayerHandler(Integer gameId, PlayerToken playerToken, Action action, ) {
+    public GameActionPlayerHandler(Integer gameId, PlayerToken playerToken, Action action) {
         this.gameId = gameId;
         this.playerToken = playerToken;
         this.action = action;

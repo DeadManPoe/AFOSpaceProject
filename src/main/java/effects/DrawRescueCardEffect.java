@@ -49,31 +49,31 @@ public class DrawRescueCardEffect extends ActionEffect {
 	 * @see ActionEffect#executeEffect
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
-		RescueCard card = (RescueCard) game.getRescueDeck().popCard();
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
+		RescueCard card = (RescueCard) game.rescueDeck.popCard();
 		if (card.getType() == RescueType.GREEN) {
-			game.getCurrentPlayer().setPlayerState(PlayerState.ESCAPED);
-			game.getCurrentPlayer().getSector()
+			game.currentPlayer.playerState = PlayerState.ESCAPED;
+			game.currentPlayer.currentSector
 					.setSectorType(SectorType.CLOSED_RESCUE);
 			psNotification.setMessage(psNotification.getMessage()
 					+ "\n[GLOBAL MESSAGE]: "
-					+ game.getCurrentPlayer().getName()
+					+ game.currentPlayer.name
 					+ " has escaped from aliens!");
 			rrNotification.addCard(card);
-			psNotification.setEscapedPlayer(game.fromPlayerToToken(game.getCurrentPlayer()));
+			psNotification.setEscapedPlayer(game.currentPlayer.playerToken);
 			EndTurnAction action = new EndTurnAction();
 			EndTurnEffect effect = new EndTurnEffect(action);
 			effect.executeEffect(game, rrNotification, psNotification);
 			return true;
 		} else {
 			rrNotification.addCard(card);
-			game.getCurrentPlayer().getSector()
+			game.currentPlayer.currentSector
 					.setSectorType(SectorType.CLOSED_RESCUE);
 			psNotification.setMessage(psNotification.getMessage()
 					+ "\n[GLOBAL MESSAGE]: "
-					+ game.getCurrentPlayer().getName()
+					+ game.currentPlayer.name
 					+ " has not escaped from aliens");
 			return false;
 		}

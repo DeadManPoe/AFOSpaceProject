@@ -43,9 +43,9 @@ public abstract class SectorCardEffect {
 	 *            above mentioned(through Publisher/Subscriber protocol)
 	 * @return true if the sector card effect has been executed properly
 	 */
-	public abstract boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification);
+	public abstract boolean executeEffect(server_store.Game game,
+										  RRClientNotification rrNotification,
+										  PSClientNotification psNotification);
 
 	/**
 	 * Sets the sectorCard the effect refers to

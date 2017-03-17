@@ -49,33 +49,39 @@ public class EndTurnEffect extends ActionEffect {
 	}
 
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification clientNotification,
-			PSClientNotification psNotification) {
-		Player currentPlayer = game.getCurrentPlayer();
-		currentPlayer.setAdrenaline(false);
-		currentPlayer.setSedated(false);
-		currentPlayer.setHasMoved(false);
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification clientNotification,
+								 PSClientNotification psNotification) {
+		server_store.Player currentPlayer = game.currentPlayer;
+		currentPlayer.isAdrenalined = false;
+		currentPlayer.isSedated = false;
+		currentPlayer.hasMoved = false;
 		// Set the new current player
-		game.shiftCurrentplayer();
+		shiftCurrentplayer(game);
 
-		if (game.getCurrentPlayer().getPlayerType() == PlayerType.HUMAN) {
-			game.setTurn(new HumanTurn(game));
-		} else {
-			game.setTurn(new AlienTurn(game));
-		}
 		// Notify the client
-		if(game.getCurrentPlayer().getPlayerState() != PlayerState.ESCAPED) 
+		if(game.currentPlayer.playerState != PlayerState.ESCAPED)
 			clientNotification.setMessage("You have ended your turn now wait until its your turn");
 		psNotification.setMessage(psNotification.getMessage()+"\n[GLOBAL MESSAGE]: "
-				+ currentPlayer.getName()
+				+ currentPlayer.name
 				+ " has ended its turn.\n[GLOBAL MESSAGE]: "
-				+ game.getCurrentPlayer().getName() + " now is your turn");
-		game.setLastAction(action);
+				+ game.currentPlayer.name + " now is your turn");
+		game.lastAction = action;
 		ArrayList<Object> parameters = new ArrayList<Object>();
-		parameters.add(game.fromPlayerToToken(game.getCurrentPlayer()));
-		game.notifyListeners(new RemoteMethodCall("allowTurn", parameters));
+		//parameters.add(game.fromPlayerToToken(game.currentPlayer));
+		//game.notifyListeners(new RemoteMethodCall("allowTurn", parameters));
 		return true;
+	}
+
+	private void shiftCurrentplayer(server_store.Game game) {
+		int currentPlayerIndex = game.players.indexOf(game.currentPlayer);
+		do {
+			currentPlayerIndex++;
+			if (currentPlayerIndex == game.players.size())
+				currentPlayerIndex = 0;
+		} while (game.players.get(currentPlayerIndex).playerState == PlayerState.DEAD);
+
+		game.currentPlayer = game.players.get(currentPlayerIndex);
 	}
 
 }

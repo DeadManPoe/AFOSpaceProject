@@ -41,39 +41,39 @@ public class MoveActionEffect extends ActionEffect {
 	 * @see ActionEffect#executeEffect
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
 		MoveAction moveAction = (MoveAction) action;
-		game.setLastAction(action);
+		game.lastAction = action;
 		// Retrieve a reference of the map
-		GameMap map = game.getMap();
-		Player currentPlayer = game.getCurrentPlayer();
+		GameMap map = game.gameMap;
+		server_store.Player currentPlayer = game.currentPlayer;
 		// Checks the source != target
-		if (!currentPlayer.getSector().equals(moveAction.getTarget())) {
+		if (!currentPlayer.currentSector.equals(moveAction.getTarget())) {
 			// Retrieve the "true" reference of source and target
 			Sector sourceSector = map.getSectorByCoords(currentPlayer
-					.getSector().getCoordinate());
+					.currentSector.getCoordinate());
 			Sector targetSector = map.getSectorByCoords(moveAction.getTarget()
 					.getCoordinate());
 			// Checks that source and target are adjacent according to the speed
 			// of the player
 			if (map.checkSectorAdiacency(sourceSector, targetSector,
-					currentPlayer.getSpeed(), 0, currentPlayer.getPlayerType(),
-					sourceSector, currentPlayer.isAdrenaline())) {
+					currentPlayer.speed, 0, currentPlayer.playerType,
+					sourceSector, currentPlayer.isAdrenalined)) {
 				// This two lines implements the move
 				sourceSector.removePlayer(currentPlayer);
-				currentPlayer.setSector(targetSector);
+				currentPlayer.currentSector = targetSector;
 				targetSector.addPlayer(currentPlayer);
 				rrNotification.setMessage("You have moved to sector "
 						+ targetSector.getCoordinate().toString());
 				psNotification.setMessage("[GLOBAL MESSAGE]: "
-						+ currentPlayer.getName() + " has moved.");
+						+ currentPlayer.name + " has moved.");
 				// If the target sector is a dangerous sector continue the
 				// execution
 				// of the action
 				if (targetSector.getSectorType() == SectorType.DANGEROUS
-						&& !currentPlayer.isSedated()) {
+						&& !currentPlayer.isSedated) {
 					DrawSectorCardEffect effect = new DrawSectorCardEffect(
 							new DrawSectorCardAction());
 					effect.executeEffect(game, rrNotification, psNotification);
@@ -82,7 +82,7 @@ public class MoveActionEffect extends ActionEffect {
 							new DrawRescueCardAction());
 					effect.executeEffect(game, rrNotification, psNotification);
 				}
-				game.getCurrentPlayer().setHasMoved(true);
+				game.currentPlayer.hasMoved = true;
 				return true;
 			}
 

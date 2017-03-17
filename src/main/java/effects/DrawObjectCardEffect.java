@@ -22,8 +22,7 @@ public class DrawObjectCardEffect extends ActionEffect {
 	 * Constructs the effect of drawing an object card from the deck containing
 	 * object cards. This effect is constructed from a
 	 * {@link common.DrawObjectCardAction}
-	 * 
-	 * @param action
+	 *
 	 *            the {@link common.DrawObjectCardAction} that needs to be
 	 *            enriched with its effect
 	 */
@@ -45,10 +44,10 @@ public class DrawObjectCardEffect extends ActionEffect {
 	/**
 	 * @see ActionEffect#executeEffect
 	 */
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
-		ObjectDeck objectDeck = game.getObjectDeck();
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
+		ObjectDeck objectDeck = game.objectDeck;
 		// Get a new card from the correct deck
 		ObjectCard objectCard = (ObjectCard) objectDeck.popCard();
 		// Notify the client
@@ -57,10 +56,10 @@ public class DrawObjectCardEffect extends ActionEffect {
 					+ "\n[GLOBAL MESSAGE]: No more object cards");
 		} else {
 			rrNotification.addCard(objectCard);
-			game.getCurrentPlayer().getPrivateDeck().addCard(objectCard);
+			game.currentPlayer.privateDeck.addCard(objectCard);
 			psNotification.setMessage(psNotification.getMessage()
 					+ "\n[GLOBAL MESSAGE]: "
-					+ game.getCurrentPlayer().getName()
+					+ game.currentPlayer.name
 					+ " has drawn a object card");
 		}
 

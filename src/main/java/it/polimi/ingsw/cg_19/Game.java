@@ -136,7 +136,7 @@ public class Game extends Observable {
 		this.rescueDeck = (RescueDeck) deckFactory.makeDeck();
 		this.gameMap = gameMapFactory.makeMap();
 		this.turnNumber = 0;
-		this.actionMapper = new GameActionMapper();
+		//this.actionMapper = new GameActionMapper();
 		ArrayList<Object> parameters = new ArrayList<Object>();
 		parameters.add(gameMap.getName());
 		parameters.add(this.fromPlayerToToken(currentPlayer));
@@ -144,10 +144,10 @@ public class Game extends Observable {
 		for (Player player : players) {
 			if (player.getPlayerType().equals(PlayerType.HUMAN)) {
 				player.setSector(gameMap.getHumanSector());
-				gameMap.getHumanSector().addPlayer(player);
+				//gameMap.getHumanSector().addPlayer(player);
 			} else {
 				player.setSector(gameMap.getAlienSector());
-				gameMap.getAlienSector().addPlayer(player);
+				//gameMap.getAlienSector().addPlayer(player);
 			}
 		}
 		// Init of the first game turn
@@ -344,7 +344,6 @@ public class Game extends Observable {
 	 * @see Action
 	 * @param action
 	 *            the action to be performed
-	 * @param token
 	 *            the token of the player that wants to perform the action
 	 * @return an array of two notifications to be sent to the game's
 	 *         subscribers. The first one is to be sent only to the player that
@@ -372,10 +371,10 @@ public class Game extends Observable {
 				ActionEffect effect = actionMapper.getEffect(action);
 
 				// Executes the effect and get the result
-				boolean actionResult = effect.executeEffect(this,
-						clientNotification, psNotification);
+				//boolean actionResult = effect.executeEffect(this,
+				//		clientNotification, psNotification);
 
-				if (actionResult) {
+				if (true) {
 					/*
 					 * If the last action has been and an end turn action the
 					 * there is no need to update the nextAction field
@@ -601,7 +600,6 @@ public class Game extends Observable {
 	 * 
 	 * @param playerType
 	 *            the player's type to be considered for the checking
-	 * @param playerState
 	 *            the state of a player to be consider for the checking
 	 * @return true if all the players of a given player type are in the given
 	 *         state

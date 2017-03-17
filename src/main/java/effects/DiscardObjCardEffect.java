@@ -40,26 +40,25 @@ public class DiscardObjCardEffect extends ActionEffect {
 	}
 
 	/**
-	 * @see effects.ActionEffect#executeEffect(it.polimi.ingsw.cg_19.Game)
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
-		Player currentPlayer = game.getCurrentPlayer();
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
+		server_store.Player currentPlayer = game.currentPlayer;
 		DiscardAction discardAction = (DiscardAction) this.action;
-		ObjectDeck objectDeck = game.getObjectDeck();
+		ObjectDeck objectDeck = game.objectDeck;
 		ObjectCard discardedCard = discardAction.getObjectCard();
-		currentPlayer.getPrivateDeck().removeCard(discardedCard);
+		currentPlayer.privateDeck.removeCard(discardedCard);
 		objectDeck.addToDiscard(discardedCard);
 		objectDeck.refill();
 		// Notifications setting
 		rrNotification.setMessage("You have discarded a "
 				+ discardedCard.toString() + " object card");
 		psNotification.setMessage("[GLOBAL MESSAGE]: "
-				+ currentPlayer.getName() + " has discarded an object card\n");
+				+ currentPlayer.name + " has discarded an object card\n");
 		//
-		game.setLastAction(action);
+		game.lastAction = action;
 		return true;
 	}
 }

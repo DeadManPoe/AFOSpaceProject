@@ -33,7 +33,6 @@ public abstract class ObjectCardEffect {
 	 * 
 	 * @param game
 	 *            the game this object card effect refers to
-	 * @param rrNotification
 	 *            the notification to be sent to the client (through
 	 *            Request/Response protocol) as a response to its request
 	 * @param psNotification
@@ -41,9 +40,9 @@ public abstract class ObjectCardEffect {
 	 *            above mentioned(through Publisher/Subscriber protocol)
 	 * @return true if the object card effect has been executed properly
 	 */
-	public abstract boolean executeEffect(Game game,
-			RRClientNotification clientNotification,
-			PSClientNotification psNotification);
+	public abstract boolean executeEffect(server_store.Game game,
+										  RRClientNotification clientNotification,
+										  PSClientNotification psNotification);
 
 	/**
 	 * Sets the object card the effect refers to

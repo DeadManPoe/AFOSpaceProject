@@ -41,15 +41,14 @@ public class UseSectorCardEffect extends ActionEffect {
 	}
 
 	/**
-	 * @see ActionEffect#executeEffect(Game, List)
 	 */
 	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
+	public boolean executeEffect(server_store.Game game,
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification) {
 		UseSectorCardAction useAction = (UseSectorCardAction) action;
 		SectorCardsMapper mapper = new SectorCardsMapper();
-		game.setLastAction(action);
+		game.lastAction = action;
 		try {
 			// Resolve and get the result of the sector card effect
 			return mapper.getEffect(useAction.getCard()).executeEffect(game,
