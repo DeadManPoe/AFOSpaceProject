@@ -1,6 +1,5 @@
 package common;
 
-import it.polimi.ingsw.cg_19.Player;
 import it.polimi.ingsw.cg_19.SectorLegality;
 
 import java.io.Serializable;
@@ -24,7 +23,7 @@ public class Sector implements Serializable {
 	// The Legality of the sector(only for human, only for alien, ...)
 	private volatile SectorLegality legality;
 	// The list of player in this sector
-	private volatile ArrayList<Player> players;
+	private volatile ArrayList<server_store.Player> players;
 
 	/**
 	 * Constructs a sector from a coordinate and from and a sector type.The
@@ -41,7 +40,7 @@ public class Sector implements Serializable {
 	public Sector(Coordinate coordinate, SectorType sectorType) {
 		this.coordinate = coordinate;
 		this.sectorType = sectorType;
-		players = new ArrayList<Player>();
+		players = new ArrayList<server_store.Player>();
 
 		switch (this.sectorType.toString()) {
 		case "DANGEROUS":
@@ -106,8 +105,8 @@ public class Sector implements Serializable {
 	/**
 	 * @return The set of the players in the sector
 	 */
-	public List<Player> getPlayers() {
-		return new ArrayList<Player>(players);
+	public List<server_store.Player> getPlayers() {
+		return this.players;
 	}
 
 	/**
@@ -118,7 +117,7 @@ public class Sector implements Serializable {
 	 * @throws IllegalArgumentException
 	 *             if player is null
 	 */
-	public void addPlayer(Player player) {
+	public void addPlayer(server_store.Player player) {
 		if (player == null)
 			throw new IllegalArgumentException("player must not be null");
 		this.players.add(player);
@@ -132,7 +131,7 @@ public class Sector implements Serializable {
 	 * @throws IllegalArgumentException
 	 *             if player is null, or the player is not in this sector
 	 */
-	public void removePlayer(Player player) {
+	public void removePlayer(server_store.Player player) {
 		if (!this.players.remove(player))
 			throw new IllegalArgumentException();
 	}
@@ -140,7 +139,7 @@ public class Sector implements Serializable {
 	/**
 	 * @return True if the specified player is in this sector
 	 */
-	public boolean containsPlayer(Player player) {
+	public boolean containsPlayer(server_store.Player player) {
 		return this.players.contains(player);
 	}
 
