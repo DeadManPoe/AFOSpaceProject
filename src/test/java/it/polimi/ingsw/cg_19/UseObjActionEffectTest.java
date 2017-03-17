@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -17,17 +18,21 @@ import common.SuppressorObjectCard;
 import common.UseObjAction;
 import effects.UseObjCardEffect;
 
+*/
 /**
  * Some tests for the UseObjActionEffect class
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class UseObjActionEffectTest {
 
-	/**
+	*/
+/**
 	 * Checks that the executeEffect method is executed correctly
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() {
 		RRClientNotification n1 = new RRClientNotification();
@@ -63,9 +68,11 @@ public class UseObjActionEffectTest {
 		assertFalse(effect.executeEffect(game, n1, n2));
 	}
 
-	/**
+	*/
+/**
 	 * Tests that the getAction returns the action passed to the constructor
-	 */
+	 *//*
+
 	@Test
 	public void testUseObjActionEffect() {
 		UseObjAction action = new UseObjAction(new AdrenalineObjectCard());
@@ -73,3 +80,4 @@ public class UseObjActionEffectTest {
 		assertEquals(action, effect.getAction());
 	}
 }
+*/

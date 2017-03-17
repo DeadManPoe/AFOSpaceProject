@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -9,17 +10,21 @@ import common.PSClientNotification;
 import common.RRClientNotification;
 import effects.DefenseObjCardEffect;
 
+*/
 /**
  * Some tests for the DefenseObjCardEffect
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class DefenseObjCardEffectTest {
 
-	/**
+	*/
+/**
 	 * Checks that the executeEffect of the card return true
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() {
 		RRClientNotification n1 = new RRClientNotification();
@@ -31,9 +36,11 @@ public class DefenseObjCardEffectTest {
 		assertTrue(effect.executeEffect(game, n1, n2));
 	}
 
-	/**
+	*/
+/**
 	 * Checks that the getObjectCard method return the DefenseObjectCard
-	 */
+	 *//*
+
 	@Test
 	public void testDefenseEffectDefenseObjectCard() {
 		DefenseObjectCard card = new DefenseObjectCard();
@@ -42,3 +49,4 @@ public class DefenseObjCardEffectTest {
 	}
 
 }
+*/

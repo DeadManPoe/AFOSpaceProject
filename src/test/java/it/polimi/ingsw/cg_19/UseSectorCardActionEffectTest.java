@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -16,17 +17,21 @@ import common.SilenceSectorCard;
 import common.UseSectorCardAction;
 import effects.UseSectorCardEffect;
 
+*/
 /**
  * Some tests for the UseSectorCardActionEffect
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class UseSectorCardActionEffectTest {
 
-	/**
+	*/
+/**
 	 * Checks that the executeEffect method is executed correctly
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() {
 		RRClientNotification clientNotification = new RRClientNotification();
@@ -65,18 +70,22 @@ public class UseSectorCardActionEffectTest {
 				psNotification));
 	}
 
-	/**
+	*/
+/**
 	 * Checks that the getAction returns the action passed to the constructor
-	 */
+	 *//*
+
 	@Test
 	public void testUseSectorCardActionEffect_1() {
 		UseSectorCardEffect effect = new UseSectorCardEffect();
 		assertEquals(null, effect.getAction());
 	}
 
-	/**
+	*/
+/**
 	 * Checks that the getAction returns the action passed to the constructor
-	 */
+	 *//*
+
 	@Test
 	public void testUseSectorCardActionEffect_2() {
 		UseSectorCardAction action = new UseSectorCardAction(null);
@@ -85,3 +94,4 @@ public class UseSectorCardActionEffectTest {
 	}
 
 }
+*/

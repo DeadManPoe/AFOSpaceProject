@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -17,19 +18,23 @@ import common.SectorType;
 import common.SuppressorObjectCard;
 import effects.DiscardObjCardEffect;
 
+*/
 /**
  * Some tests for the DiscardActionEffect class
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class DiscardActionEffectTest {
 
-	/**
+	*/
+/**
 	 * Test for the executeEffect method It simulates the action of discarding
 	 * an object card on a "small" game The game has two safe sector connected
 	 * to each other
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() {
 		RRClientNotification n1 = new RRClientNotification();
@@ -43,9 +48,11 @@ public class DiscardActionEffectTest {
 
 		Player player1 = new Player(PlayerType.HUMAN, "Andrea");
 
-		/*
+		*/
+/*
 		 * Alien in source Human in target
-		 */
+		 *//*
+
 		player1.setSector(target);
 		target.addPlayer(player1);
 
@@ -65,11 +72,13 @@ public class DiscardActionEffectTest {
 		assertTrue(effect.executeEffect(game, n1, n2));
 	}
 
-	/**
+	*/
+/**
 	 * Test for the getAction() method It checks that given an
 	 * DiscardActionEffect initialized with a DiscardAction(action) the
 	 * getAction returns it correctly
-	 */
+	 *//*
+
 	@Test
 	public void testDiscardActionEffect() {
 		DiscardAction action = new DiscardAction(new AdrenalineObjectCard());
@@ -78,3 +87,4 @@ public class DiscardActionEffectTest {
 	}
 
 }
+*/

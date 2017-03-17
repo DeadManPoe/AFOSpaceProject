@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -15,19 +16,23 @@ import common.Sector;
 import common.SectorType;
 import effects.EndTurnEffect;
 
+*/
 /**
  * Some tests for the EndTurnEffect
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class EndTurnEffectTest {
 
-	/**
+	*/
+/**
 	 * Test for the executeEffect test It checks that in "small" game with two
 	 * safe sector connected to each other the effect of the end turn is
 	 * executed correctly
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() {
 		RRClientNotification clientNotification = new RRClientNotification();
@@ -66,21 +71,25 @@ public class EndTurnEffectTest {
 				psNotification));
 	}
 
-	/**
+	*/
+/**
 	 * Test for the getAction method It checks that given an EndTurnEffect
 	 * initialized with a null action, the getAction method returns null
-	 */
+	 *//*
+
 	@Test
 	public void testEndTurnEffect_1() {
 		EndTurnEffect effect = new EndTurnEffect();
 		assertEquals(null, effect.getAction());
 	}
 
-	/**
+	*/
+/**
 	 * Test for the getAction method It checks that given an EndTurnEffect
 	 * initialized with a not null action, the getAction method returns it
 	 * correctly
-	 */
+	 *//*
+
 	@Test
 	public void testEndTurnEffect_2() {
 		EndTurnAction action = new EndTurnAction();
@@ -89,3 +98,4 @@ public class EndTurnEffectTest {
 	}
 
 }
+*/

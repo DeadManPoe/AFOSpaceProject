@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -17,20 +18,24 @@ import effects.ActionEffect;
 import effects.GameActionMapper;
 import effects.MoveAttackActionEffect;
 
+*/
 /**
  * Some tests for the MoveAttackActionEffect class
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class MoveAttackActionEffectTest {
 
-	/**
+	*/
+/**
 	 * Test for executeEffect with target sector a safe sector
 	 * 
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() throws InstantiationException,
 			IllegalAccessException {
@@ -45,9 +50,11 @@ public class MoveAttackActionEffectTest {
 		Player player1 = new Player(PlayerType.HUMAN, "");
 		Player player2 = new Player(PlayerType.ALIEN, "");
 
-		/*
+		*/
+/*
 		 * Alien in source Human in target
-		 */
+		 *//*
+
 		player1.setSector(target);
 		target.addPlayer(player1);
 		player2.setSector(source);
@@ -82,12 +89,14 @@ public class MoveAttackActionEffectTest {
 				psNotification));
 	}
 
-	/**
+	*/
+/**
 	 * Test the executeEffect with a target sector as a dangerous sector
 	 * 
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect_2() throws InstantiationException,
 			IllegalAccessException {
@@ -102,9 +111,11 @@ public class MoveAttackActionEffectTest {
 		Player player1 = new Player(PlayerType.HUMAN, "");
 		Player player2 = new Player(PlayerType.ALIEN, "");
 
-		/*
+		*/
+/*
 		 * Alien in source Human in target
-		 */
+		 *//*
+
 		player1.setSector(target);
 		target.addPlayer(player1);
 		player2.setSector(source);
@@ -139,12 +150,14 @@ public class MoveAttackActionEffectTest {
 				psNotification));
 	}
 
-	/**
+	*/
+/**
 	 * Test the executeEffect with the target sector as a Rescue sector
 	 * 
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect_3() throws InstantiationException,
 			IllegalAccessException {
@@ -160,9 +173,11 @@ public class MoveAttackActionEffectTest {
 		Player player1 = new Player(PlayerType.HUMAN, "");
 		Player player2 = new Player(PlayerType.ALIEN, "");
 
-		/*
+		*/
+/*
 		 * Alien in source Human in target
-		 */
+		 *//*
+
 		player1.setSector(target);
 		target.addPlayer(player1);
 		player2.setSector(source);
@@ -197,9 +212,11 @@ public class MoveAttackActionEffectTest {
 				psNotification));
 	}
 
-	/**
+	*/
+/**
 	 * Checks that the setAction field updates the action field correctly
-	 */
+	 *//*
+
 	@Test
 	public void testSetAction() {
 		Action action = new MoveAttackAction(null);
@@ -209,3 +226,4 @@ public class MoveAttackActionEffectTest {
 	}
 
 }
+*/

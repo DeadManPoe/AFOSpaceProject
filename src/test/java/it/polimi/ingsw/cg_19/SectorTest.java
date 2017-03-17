@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -10,17 +11,21 @@ import common.SectorType;
 
 public class SectorTest {
 
-	/**
+	*/
+/**
 	 * @author Andrea Sessa
 	 * @see Sector Some tests for the sector class
-	 */
+	 *//*
+
 
 	private Sector s;
 
-	/**
+	*/
+/**
 	 * This test checks the constructor of the Sector Class verifying that
 	 * legality is set according to the type of sector
-	 */
+	 *//*
+
 	@Test
 	public void testSector() {
 		Sector s1 = new Sector(new Coordinate('A', 1), SectorType.ALIEN);
@@ -39,10 +44,12 @@ public class SectorTest {
 
 	}
 
-	/**
+	*/
+/**
 	 * This test checks if getCoordinate returns the correct coordinate
 	 * according to the coordinates of the sector
-	 */
+	 *//*
+
 	@Test
 	public void testGetCoordinate() {
 		s = new Sector(new Coordinate('A', 1), SectorType.SAFE);
@@ -50,10 +57,12 @@ public class SectorTest {
 		assertNotEquals(new Coordinate('A', 2), s.getCoordinate());
 	}
 
-	/**
+	*/
+/**
 	 * @see SectorType This test checks if getSectorType returns the correct
 	 *      sectorType according to the type of the sector
-	 */
+	 *//*
+
 	@Test
 	public void testGetSectorType() {
 		s = new Sector(new Coordinate('A', 1), SectorType.SAFE);
@@ -61,10 +70,12 @@ public class SectorTest {
 		assertNotEquals(SectorType.ALIEN, s.getSectorType());
 	}
 
-	/**
+	*/
+/**
 	 * This test checks if equals(override of equals() Object) returns a correct
 	 * boolean value true if equals, false if not
-	 */
+	 *//*
+
 	@Test
 	public void testEqualsObject() {
 		s = new Sector(new Coordinate('A', 1), SectorType.ALIEN);
@@ -76,9 +87,11 @@ public class SectorTest {
 		assertFalse(s.equals(new String("s")));
 	}
 
-	/**
+	*/
+/**
 	 * Checks that the contains method correctly spots the players in the sector
-	 */
+	 *//*
+
 	@Test
 	public void testContains() {
 		Player p = new Player(PlayerType.HUMAN, "");
@@ -89,3 +102,4 @@ public class SectorTest {
 	}
 
 }
+*/

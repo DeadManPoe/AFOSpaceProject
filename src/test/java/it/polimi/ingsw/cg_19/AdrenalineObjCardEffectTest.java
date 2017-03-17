@@ -8,6 +8,9 @@ import common.AdrenalineObjectCard;
 import common.PSClientNotification;
 import common.RRClientNotification;
 import effects.AdrenalineObjCardEffect;
+import server_store.*;
+import server_store.Game;
+import server_store.Player;
 
 /**
  * Some tests for the AdrenalineObjCardEffect class
@@ -28,10 +31,10 @@ public class AdrenalineObjCardEffectTest {
 		AdrenalineObjCardEffect effect = new AdrenalineObjCardEffect(card);
 
 		Game game = new Game("GALILEI");
-		Player p = new Player(PlayerType.HUMAN, "Andrea");
-		game.addPlayer(p);
+		server_store.Player p = new Player(PlayerType.HUMAN, "Andrea",null);
+		game.players.add(p);
 		assertTrue(effect.executeEffect(game, n1, n2));
-		assertTrue(p.isAdrenaline());
+		assertTrue(p.isAdrenalined);
 	}
 
 	/**

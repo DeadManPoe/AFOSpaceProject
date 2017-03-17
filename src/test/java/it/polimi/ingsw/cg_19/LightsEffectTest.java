@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -13,19 +14,23 @@ import common.Sector;
 import common.SectorType;
 import effects.LightObjectCardEffect;
 
+*/
 /**
  * Some tests for the LightEffect class
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class LightsEffectTest {
 
-	/**
+	*/
+/**
 	 * Test for the executeEffect method It checks that in a "small" game with
 	 * two safe secotr connected to each other the target sector is contained in
 	 * the group of lighted sectors
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() {
 		RRClientNotification n1 = new RRClientNotification();
@@ -36,9 +41,11 @@ public class LightsEffectTest {
 
 		Player player1 = new Player(PlayerType.HUMAN, "Andrea");
 
-		/*
+		*/
+/*
 		 * Alien in source Human in target
-		 */
+		 *//*
+
 		player1.setSector(target);
 		target.addPlayer(player1);
 
@@ -60,11 +67,13 @@ public class LightsEffectTest {
 		assertTrue(n1.getLightedSectors().contains(target));
 	}
 
-	/**
+	*/
+/**
 	 * Test for the getObjectCard method It checks that given an LightEffect
 	 * initialized with a not null action the getObjectCard method returns it
 	 * correctly
-	 */
+	 *//*
+
 	@Test
 	public void testLightsEffectLight() {
 		LightsObjectCard card = new LightsObjectCard(new Sector(new Coordinate(
@@ -74,3 +83,4 @@ public class LightsEffectTest {
 	}
 
 }
+*/
