@@ -7,14 +7,14 @@ import java.util.UUID;
  */
 public class GameStartGameAction extends StoreAction {
 
-    private GameStartGameActionPayload payload;
+    private Integer payload;
 
-    public GameStartGameAction(Integer gameId, UUID handlerUUID) {
+    public GameStartGameAction(Integer gameId) {
         this.type = "@GAME_START_GAME";
-        this.payload = new GameStartGameActionPayload(gameId,handlerUUID);
+        this.payload = gameId;
     }
 
-    public GameStartGameActionPayload getPayload() {
+    public Integer getPayload() {
         return payload;
     }
 }

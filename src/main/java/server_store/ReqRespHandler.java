@@ -7,10 +7,7 @@ import common.RemoteMethodCall;
 import it.polimi.ingsw.cg_19.Game;
 import it.polimi.ingsw.cg_19.Player;
 import server.ServerLogger;
-import store_actions.CommunicationAddPubSubHandlerAction;
-import store_actions.GameAddPlayerAction;
-import store_actions.GameMakeActionAction;
-import store_actions.GamesAddGameAction;
+import store_actions.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -149,6 +146,7 @@ public class ReqRespHandler extends Thread {
      */
     public void joinGame(Integer gameId, String playerName) throws IOException {
         this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, gameId,playerName));
+        this.serverStore.dispatchAction(new GameStartGameAction(gameId));
     }
 
     /**

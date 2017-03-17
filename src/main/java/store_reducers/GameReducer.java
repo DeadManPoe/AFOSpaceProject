@@ -55,7 +55,7 @@ public class GameReducer extends Reducer {
     private ServerState startGame(StoreAction action, ServerState state) {
 
         GameStartGameAction castedAction = (GameStartGameAction) action;
-        Integer gameId = castedAction.getPayload().getGameId();
+        Integer gameId = castedAction.getPayload();
         for (Game game : state.getGames()){
             if(game.gamePublicData.getId() == gameId ){
                 DeckFactory deckFactory = new ObjectDeckFactory();
@@ -224,6 +224,10 @@ public class GameReducer extends Reducer {
                 playerToken = new PlayerToken(playerType);
                 server_store.Player player = new server_store.Player(playerType, castedAction.getPayload().getPlayerName(), playerToken);
                 game.players.add(player);
+                game.gamePublicData.addPlayer();
+                if(game.currentPlayer == null){
+                    game.currentPlayer = player;
+                }
                 break;
             }
         }
