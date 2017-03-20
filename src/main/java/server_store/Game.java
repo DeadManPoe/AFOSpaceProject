@@ -37,8 +37,6 @@ public class Game {
     public Action lastAction;
     public List<Class<? extends Action>> nextActions;
     public List<PubSubHandler> pubSubHandlers;
-    public RRClientNotification lastResponseToClient;
-    public PSClientNotification lastNotificationToClient;
 
     public Game(String gameMapName) {
         counter++;

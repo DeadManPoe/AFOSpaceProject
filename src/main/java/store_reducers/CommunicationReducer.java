@@ -1,17 +1,8 @@
 package store_reducers;
 
-import com.sun.corba.se.spi.activation.Server;
-import org.apache.commons.lang.SerializationUtils;
-import server_store.PubSubHandler;
-import server_store.ReqRespHandler;
-import server_store.ServerState;
-import server_store.ServerStore;
+import server_store.*;
 import store_actions.*;
-import sts.Reducer;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import server_store.Reducer;
 
 /**
  * Created by giorgiopea on 14/03/17.

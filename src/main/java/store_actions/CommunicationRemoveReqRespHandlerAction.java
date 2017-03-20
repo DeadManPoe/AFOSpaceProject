@@ -1,5 +1,7 @@
 package store_actions;
 
+import server_store.StoreAction;
+
 import java.util.UUID;
 
 /**

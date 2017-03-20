@@ -1,8 +1,5 @@
 package server_store;
 
-import store_actions.StoreAction;
-import sts.Action;
-
 import java.util.Observable;
 
 /**

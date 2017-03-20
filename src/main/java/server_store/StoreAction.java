@@ -1,4 +1,4 @@
-package store_actions;
+package server_store;
 
 /**
  * Created by giorgiopea on 14/03/17.

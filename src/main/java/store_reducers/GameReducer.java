@@ -15,11 +15,10 @@ import server_store.HumanTurn;
 import server_store.Player;
 import server_store.Turn;
 import store_actions.*;
-import sts.Reducer;
+import server_store.Reducer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -35,14 +34,7 @@ public class GameReducer extends Reducer {
                 this.addPlayer(action, state);
                 break;
             case "@GAME_MAKE_ACTION":
-                try {
-                    this.makeAction(action, state);
-                } catch (IllegalAccessException | InstantiationException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case "@GAME_END_GAME":
-                this.endGame(action, state);
+                this.makeAction(action, state);
                 break;
             case "@GAME_START_GAME":
                 this.startGame(action, state);
@@ -108,19 +100,7 @@ public class GameReducer extends Reducer {
         return null;
     }
 
-    private ServerState endGame(StoreAction action, ServerState state) {
-        GameEndGame castedAction = (GameEndGame) action;
-        Integer gameId = castedAction.getPayload();
-        for (int i=0; i<state.getGames().size(); i++){
-            if (state.getGames().get(i).gamePublicData.getId() == gameId){
-                state.getGames().remove(i);
-               break;
-            }
-        }
-        return state;
-    }
-
-    private ServerState makeAction(StoreAction action, ServerState state) throws IllegalAccessException, InstantiationException {
+    private ServerState makeAction(StoreAction action, ServerState state) {
         GameMakeActionAction castedAction = (GameMakeActionAction) action;
         Action gameAction = castedAction.getPayload().getAction();
         UUID handlerUUID = castedAction.getPayload().getReqRespHandlerUUID();
@@ -150,7 +130,11 @@ public class GameReducer extends Reducer {
                     if (game.nextActions.contains(gameAction.getClass())) {
 
                         // Executes the effect and get the result
-                        gameActionResult = GameActionMapper.getInstance().getEffect(gameAction).executeEffect(game, rrClientNotification, psClientNotification);
+                        try {
+                            gameActionResult = GameActionMapper.getInstance().getEffect(gameAction).executeEffect(game, rrClientNotification, psClientNotification);
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
 
                         if (gameActionResult) {
                             if (!game.lastAction.getClass().equals(EndTurnAction.class)) {
@@ -185,7 +169,7 @@ public class GameReducer extends Reducer {
 
                             }
                             if (winH || winA) {
-                                ServerStore.getInstance().dispatchAction(new GameEndGame(game.gamePublicData.getId()));
+                                ServerStore.getInstance().dispatchAction(new GameEndGameAction(game.gamePublicData.getId()));
                             }
                             rrClientNotification.setActionResult(true);
                         }

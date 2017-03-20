@@ -38,7 +38,7 @@ public class ReqRespHandler extends Thread {
         this.uuid = UUID.randomUUID();
         this.serverStore = ServerStore.getInstance();
         this.socket = socket;
-        this.buffer = new ArrayBlockingQueue<RemoteMethodCall>(1);
+        this.buffer = new ArrayBlockingQueue<>(1);
         try {
             this.objectInputStream = new ObjectInputStream(socket.getInputStream());
             this.objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -130,9 +130,6 @@ public class ReqRespHandler extends Thread {
         this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, game.gamePublicData.getId(),playerName));
         this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(objectOutputStream, game.gamePublicData.getId())));
         this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
-        //parameters.clear();
-        //this.serverStore.dispatchAction(this.actionFactory.getAction("@GAMES_ADD_PLAYER_TO_GAME",gamePlayer));
-        //game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
 
     }
 
@@ -178,17 +175,16 @@ public class ReqRespHandler extends Thread {
      *                be delivered the text message, is derived.
      * @throws IOException
      */
-    /*public void publishGlobalMessage(String message,
+    public void publishGlobalMessage(String message, Integer gameId,
                                      PlayerToken token) throws IOException {
-        Map<PlayerToken, Game> games = this.serverStore.getState().GAMES_BY_PLAYERTOKEN;
-        Game game = games.get(token);
-        Player player = game.fromTokenToPlayer(token);
-        ArrayList<Object> parameters = new ArrayList<Object>();
-        parameters.add("[" + player.getName() + "]: " + message);
-        this.sendData(
-                new RemoteMethodCall("ackMessage"));
-        //game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
-    }*/
+        for (PubSubHandler handler : this.serverStore.getState().getPubSubHandlers()){
+            if(handler.getGameId().equals(gameId)){
+                ArrayList<Object> parameters = new ArrayList<>();
+                parameters.add(token.getUUID().toString()+" says: "+message);
+                handler.queueNotification(new RemoteMethodCall("publishChatMsg",parameters));
+            }
+        }
+    }
 
     /**
      * A services that allows a client to force(without waiting the timeout) the
@@ -228,7 +224,8 @@ public class ReqRespHandler extends Thread {
                 RemoteMethodCall remoteMethodCall = buffer.poll();
                 if (remoteMethodCall != null) {
                     this.sendData(remoteMethodCall);
-                    if (!remoteMethodCall.getMethodName().equals("sendToken")) {
+
+                    if (!remoteMethodCall.getMethodName().equals("sendToken") && !remoteMethodCall.getMethodName().equals("pubSubNotification")) {
                         closeDataFlow();
                     }
                     mustRun = false;

@@ -1,10 +1,7 @@
-package sts;
+package server_store;
 
 import server_store.ServerState;
-import store_actions.StoreAction;
-
-import java.util.List;
-import java.util.Map;
+import server_store.StoreAction;
 
 /**
  * Created by giorgiopea on 08/03/17.

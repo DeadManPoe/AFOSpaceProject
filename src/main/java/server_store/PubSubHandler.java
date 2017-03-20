@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
@@ -22,7 +23,7 @@ public class PubSubHandler extends Thread {
     // The socket associated to the handler
     private Socket socket;
     // A queue of messages to send to the subscriber
-    private ConcurrentLinkedQueue<RemoteMethodCall> buffer;
+    private ArrayBlockingQueue<RemoteMethodCall> buffer;
     private Integer gameId;
     // The object output stream used to perform the remote method call on the
     // subscriber
@@ -33,16 +34,17 @@ public class PubSubHandler extends Thread {
      * method calls on the subscriber. An empty queue of remote method calls for
      * the handler is automatically created as well.
      *
-     * @param socket
+     * @param outputStream
      *            the socket used perform remote method calls on the subscriber
+     * @param gameId
+     *
      * @throws IOException
      */
     public PubSubHandler(ObjectOutputStream outputStream, Integer gameId) throws IOException {
         this.gameId = gameId;
         this.socket = socket;
-        this.buffer = new ConcurrentLinkedQueue<RemoteMethodCall>();
+        this.buffer = new ArrayBlockingQueue<>(1);
         this.objectOutputStream = outputStream;
-        //this.objectOutputStream.flush();
     }
 
     /**
