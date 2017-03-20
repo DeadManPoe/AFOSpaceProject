@@ -36,7 +36,8 @@ public class Game {
     public GameMap gameMap;
     public Action lastAction;
     public List<Class<? extends Action>> nextActions;
-    public List<PubSubHandler> pubSubHandlers;
+    public RRClientNotification lastRRclientNotification;
+    public PSClientNotification lastPSclientNotification;
 
     public Game(String gameMapName) {
         counter++;
@@ -46,6 +47,7 @@ public class Game {
         this.gamePublicData = new GamePublicData(counter, "Game_" + counter);
         this.turnNumber = 0;
         this.lastAction = null;
-        this.pubSubHandlers = new ArrayList<>();
+        this.lastPSclientNotification = null;
+        this.lastRRclientNotification = null;
     }
 }

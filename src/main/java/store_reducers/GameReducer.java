@@ -19,6 +19,7 @@ import server_store.Reducer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
@@ -66,7 +67,7 @@ public class GameReducer extends Reducer {
                 } else if (game.mapName.equals("GALVANI")) {
                     gameMapFactory = new GalvaniGameMapFactory();
                 } else {
-                    //
+                    throw new NoSuchElementException("No map matches with the given name");
                 }
                 game.gameMap = gameMapFactory.makeMap();
                 for (Player player : game.players) {
@@ -170,22 +171,8 @@ public class GameReducer extends Reducer {
                     }
 
                 }
-                for (ReqRespHandler handler : state.getReqRespHandlers()) {
-                    if (handler.getUuid().equals(handlerUUID)) {
-                        ArrayList<Object> parameters = new ArrayList<>();
-                        parameters.add(rrClientNotification);
-                        handler.addRemoteMethodCallToQueue(new RemoteMethodCall("sendNotification", parameters));
-                        break;
-                    }
-                }
-                for (PubSubHandler handler : state.getPubSubHandlers()) {
-                    if (handler.getGameId() == game.gamePublicData.getId()) {
-                        ArrayList<Object> parameters = new ArrayList<>();
-                        parameters.add(psClientNotification);
-                        handler.queueNotification(new RemoteMethodCall("sendPubNotification", parameters));
-
-                    }
-                }
+                game.lastRRclientNotification = rrClientNotification;
+                game.lastPSclientNotification = psClientNotification;
                 break;
             }
         }

@@ -1,0 +1,49 @@
+package store_effects;
+
+import common.RemoteMethodCall;
+import server_store.*;
+import store_actions.GameMakeActionAction;
+
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
+
+/**
+ * Created by giorgiopea on 20/03/17.
+ */
+public class GameMakeActionEffect extends Effect {
+
+    @Override
+    public void apply(StoreAction action, ServerState state) {
+        GameMakeActionAction castedAction = (GameMakeActionAction) action;
+        Game game = null;
+        for (Game c_game : state.getGames()){
+            if (c_game.gamePublicData.getId() == castedAction.getPayload().getGameId()){
+                game = c_game;
+                break;
+            }
+        }
+        if (game != null){
+            for (ReqRespHandler handler : state.getReqRespHandlers()) {
+                if (handler.getUuid().equals(castedAction.getPayload().getReqRespHandlerUUID())) {
+                    ArrayList<Object> parameters = new ArrayList<>();
+                    parameters.add(game.lastRRclientNotification);
+                    handler.addRemoteMethodCallToQueue(new RemoteMethodCall("sendNotification", parameters));
+                    break;
+                }
+            }
+            for (PubSubHandler handler : state.getPubSubHandlers()) {
+                if (handler.getGameId() == game.gamePublicData.getId()) {
+                    ArrayList<Object> parameters = new ArrayList<>();
+                    parameters.add(game.lastRRclientNotification);
+                    handler.queueNotification(new RemoteMethodCall("sendPubNotification", parameters));
+
+                }
+            }
+        }
+        else {
+            throw new NoSuchElementException("No game matches the given id");
+        }
+
+
+    }
+}

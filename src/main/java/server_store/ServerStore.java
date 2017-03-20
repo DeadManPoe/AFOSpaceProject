@@ -1,5 +1,8 @@
 package server_store;
 
+import store_effects.GameAddPlayerEffect;
+import store_effects.GameMakeActionEffect;
+import store_effects.GameStartGameEffect;
 import store_reducers.CommunicationReducer;
 import store_reducers.GameReducer;
 import store_reducers.GamesReducer;
@@ -29,6 +32,7 @@ public class ServerStore {
     private ServerStore(){
         this.produceInitialState();
         this.registerReducers();
+        this.registerEffects();
     }
 
 
@@ -62,7 +66,7 @@ public class ServerStore {
     private void dispatchEffect(StoreAction action) {
         Effect effect = this.actionTypeToEffect.get(action.getType());
         if (effect != null) {
-            effect.apply(action);
+            effect.apply(action,this.getState());
         }
     }
 
@@ -82,6 +86,11 @@ public class ServerStore {
         this.registerReducer(new CommunicationReducer(),"@COMMUNICATION");
         this.registerReducer(new GamesReducer(),"@GAMES");
         this.registerReducer(new GameReducer(),"@GAME");
+    }
+    private void registerEffects(){
+        this.registerEffect(new GameMakeActionEffect(),"@GAME_MAKE_ACTION");
+        this.registerEffect(new GameStartGameEffect(),"@GAME_START_GAME");
+        this.registerEffect(new GameAddPlayerEffect(),"@GAME_ADD_PLAYER");
     }
 }
 
