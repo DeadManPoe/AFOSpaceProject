@@ -14,6 +14,7 @@ public class ServerState implements Serializable {
     private List<ReqRespHandler> reqRespHandlers;
     private List<PubSubHandler> pubSubHandlers;
     private Integer tcp_port;
+    private Integer turnTimeout;
 
 
     public ServerState() {
@@ -21,6 +22,7 @@ public class ServerState implements Serializable {
         this.reqRespHandlers = new ArrayList<>();
         this.pubSubHandlers = new ArrayList<>();
         this.tcp_port = null;
+        this.turnTimeout = 60*1000;
     }
 
     public List<server_store.Game> getGames() {

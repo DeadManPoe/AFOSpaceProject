@@ -6,6 +6,7 @@ import store_actions.GameStartGameAction;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.TimerTask;
 
 /**
  * Created by giorgiopea on 20/03/17.
@@ -26,6 +27,7 @@ public class GameStartGameEffect extends Effect {
             }
         }
         if (game != null){
+
             parameters.add(game.gameMap.getName());
             parameters.add(game.currentPlayer.playerToken);
             for (PubSubHandler handler : state.getPubSubHandlers()){

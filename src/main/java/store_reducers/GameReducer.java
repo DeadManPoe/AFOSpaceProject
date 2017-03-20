@@ -4,6 +4,7 @@ import common.*;
 import decks.ObjectDeck;
 import decks.RescueDeck;
 import decks.SectorDeck;
+import effects.EndTurnEffect;
 import effects.GameActionMapper;
 import factories.*;
 import it.polimi.ingsw.cg_19.*;
@@ -40,6 +41,23 @@ public class GameReducer extends Reducer {
             case "@GAME_START_GAME":
                 this.startGame(action, state);
                 break;
+            case "@GAME_TURNTIMEOUT_EXPIRED":
+                this.turnTimeoutExpired(action, state);
+        }
+        return state;
+
+    }
+
+    private ServerState turnTimeoutExpired(StoreAction action, ServerState state) {
+        GameTurnTimeoutExpiredAction castedAction = (GameTurnTimeoutExpiredAction) action;
+        for (Game game : state.getGames()){
+            if (game.gamePublicData.getId() == castedAction.getPayload()){
+                EndTurnEffect endTurnEffect = new EndTurnEffect();
+                PSClientNotification psClientNotification = new PSClientNotification();
+                RRClientNotification rrClientNotification = new RRClientNotification();
+                endTurnEffect.executeEffect(game,rrClientNotification, psClientNotification);
+                game.lastPSclientNotification = psClientNotification;
+            }
         }
         return state;
 
