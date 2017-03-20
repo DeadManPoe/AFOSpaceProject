@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Represents a thread that handles a request by a client in the logic of the
@@ -38,7 +39,7 @@ public class ReqRespHandler extends Thread {
         this.uuid = UUID.randomUUID();
         this.serverStore = ServerStore.getInstance();
         this.socket = socket;
-        this.buffer = new ArrayBlockingQueue<>(1);
+        this.buffer = new ConcurrentLinkedQueue<>();
         try {
             this.objectInputStream = new ObjectInputStream(socket.getInputStream());
             this.objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -60,11 +61,6 @@ public class ReqRespHandler extends Thread {
     private void sendData(RemoteMethodCall remoteMethodCall) throws IOException {
         this.objectOutputStream.writeObject(remoteMethodCall);
         this.objectOutputStream.flush();
-        // sendPubNotification and sendToken
-        if (!remoteMethodCall.getMethodName().equals("sendPubNotification")
-                && !remoteMethodCall.getMethodName().equals("sendToken")) {
-            this.closeDataFlow();
-        }
     }
 
     private void performReceivedMethodCall(RemoteMethodCall remoteMethodCall) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -224,7 +220,6 @@ public class ReqRespHandler extends Thread {
                 RemoteMethodCall remoteMethodCall = buffer.poll();
                 if (remoteMethodCall != null) {
                     this.sendData(remoteMethodCall);
-
                     if (!remoteMethodCall.getMethodName().equals("sendToken") && !remoteMethodCall.getMethodName().equals("pubSubNotification")) {
                         closeDataFlow();
                     }

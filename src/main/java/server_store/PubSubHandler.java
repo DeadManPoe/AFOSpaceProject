@@ -1,16 +1,11 @@
 package server_store;
 
-import common.PlayerToken;
 import common.RemoteMethodCall;
 import server.ServerLogger;
-import sts.Action;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
@@ -23,7 +18,7 @@ public class PubSubHandler extends Thread {
     // The socket associated to the handler
     private Socket socket;
     // A queue of messages to send to the subscriber
-    private ArrayBlockingQueue<RemoteMethodCall> buffer;
+    private ConcurrentLinkedQueue<RemoteMethodCall> buffer;
     private Integer gameId;
     // The object output stream used to perform the remote method call on the
     // subscriber
@@ -42,8 +37,7 @@ public class PubSubHandler extends Thread {
      */
     public PubSubHandler(ObjectOutputStream outputStream, Integer gameId) throws IOException {
         this.gameId = gameId;
-        this.socket = socket;
-        this.buffer = new ArrayBlockingQueue<>(1);
+        this.buffer = new ConcurrentLinkedQueue<>();
         this.objectOutputStream = outputStream;
     }
 
@@ -55,7 +49,7 @@ public class PubSubHandler extends Thread {
      * @throws IOException
      */
     private void perform(RemoteMethodCall remoteMethodCall) throws IOException {
-        this.objectOutputStream.reset();
+        this.objectOutputStream.flush();
         this.objectOutputStream.writeObject(remoteMethodCall);
         this.objectOutputStream.flush();
     }

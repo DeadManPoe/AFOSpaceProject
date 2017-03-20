@@ -54,6 +54,8 @@ public class GameReducer extends Reducer {
                 RRClientNotification rrClientNotification = new RRClientNotification();
                 endTurnEffect.executeEffect(game,rrClientNotification, psClientNotification);
                 game.lastPSclientNotification = psClientNotification;
+                game.currentTimer.cancel();
+                game.currentTimer = new Timer();
             }
         }
         return state;
