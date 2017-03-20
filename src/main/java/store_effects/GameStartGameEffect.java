@@ -27,7 +27,7 @@ public class GameStartGameEffect extends Effect {
             }
         }
         if (game != null){
-
+            game.currentTimer.schedule(new TurnTimeout(gameId),state.getTurnTimeout());
             parameters.add(game.gameMap.getName());
             parameters.add(game.currentPlayer.playerToken);
             for (PubSubHandler handler : state.getPubSubHandlers()){

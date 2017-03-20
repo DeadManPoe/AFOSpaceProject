@@ -11,10 +11,7 @@ import it.polimi.ingsw.cg_19.GameMap;
 import it.polimi.ingsw.cg_19.Player;
 import server.SubscriberHandler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by giorgiopea on 13/03/17.
@@ -38,6 +35,7 @@ public class Game {
     public List<Class<? extends Action>> nextActions;
     public RRClientNotification lastRRclientNotification;
     public PSClientNotification lastPSclientNotification;
+    public Timer currentTimer;
 
     public Game(String gameMapName) {
         counter++;
@@ -49,5 +47,6 @@ public class Game {
         this.lastAction = null;
         this.lastPSclientNotification = null;
         this.lastRRclientNotification = null;
+        this.currentTimer = null;
     }
 }

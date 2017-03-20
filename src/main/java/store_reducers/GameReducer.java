@@ -18,10 +18,7 @@ import server_store.Turn;
 import store_actions.*;
 import server_store.Reducer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by giorgiopea on 14/03/17.
@@ -105,6 +102,7 @@ public class GameReducer extends Reducer {
                     game.nextActions = AlienTurn.getInitialActions();
                 }
                 game.gamePublicData.setStatus(GameStatus.CLOSED);
+                game.currentTimer = new Timer();
                 return state;
             }
         }
@@ -181,6 +179,10 @@ public class GameReducer extends Reducer {
                             }
                             if (winH || winA) {
                                 ServerStore.getInstance().dispatchAction(new GameEndGameAction(game.gamePublicData.getId()));
+                            }
+                            else {
+                                game.currentTimer.cancel();
+                                game.currentTimer = new Timer();
                             }
                             rrClientNotification.setActionResult(true);
                         }

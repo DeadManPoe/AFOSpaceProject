@@ -57,6 +57,10 @@ public class ServerState implements Serializable {
         this.tcp_port = tcp_port;
     }
 
+    public Integer getTurnTimeout() {
+        return turnTimeout;
+    }
+
     @Override
     public String toString() {
         return "ServerState{" +
