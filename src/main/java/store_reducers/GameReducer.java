@@ -86,14 +86,6 @@ public class GameReducer extends Reducer {
                     game.nextActions = AlienTurn.getInitialActions();
                 }
                 game.gamePublicData.setStatus(GameStatus.CLOSED);
-                ArrayList<Object> parameters = new ArrayList<Object>();
-                parameters.add(game.gameMap.getName());
-                parameters.add(game.currentPlayer.playerToken);
-                for (PubSubHandler handler : state.getPubSubHandlers()){
-                    if (handler.getGameId().equals(gameId)){
-                        handler.queueNotification(new RemoteMethodCall("sendMap",parameters));
-                    }
-                }
                 return state;
             }
         }
@@ -213,14 +205,6 @@ public class GameReducer extends Reducer {
                 if(game.currentPlayer == null){
                     game.currentPlayer = player;
                 }
-                break;
-            }
-        }
-        for (ReqRespHandler handler : state.getReqRespHandlers()) {
-            if (handler.getUuid().equals(castedAction.getPayload().getUuid())) {
-                ArrayList<Object> parameters = new ArrayList<>();
-                parameters.add(playerToken);
-                handler.addRemoteMethodCallToQueue(new RemoteMethodCall("sendToken", parameters));
                 break;
             }
         }
