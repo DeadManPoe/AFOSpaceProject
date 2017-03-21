@@ -1012,4 +1012,10 @@ public class Client extends Observable {
 	public void setHasEscaped(boolean hasEscaped) {
 		this.hasEscaped = hasEscaped;
 	}
+
+	public void subscribe() throws IllegalAccessException, IOException, NoSuchMethodException, NotBoundException, InvocationTargetException, ClassNotFoundException {
+        ArrayList<Object> parameter = new ArrayList<Object>();
+        parameter.add(this.getToken());
+        this.comSession.start("subscribe", parameter);
+	}
 }

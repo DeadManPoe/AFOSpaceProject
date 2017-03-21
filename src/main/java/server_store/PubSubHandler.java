@@ -49,7 +49,6 @@ public class PubSubHandler extends Thread {
      * @throws IOException
      */
     private void perform(RemoteMethodCall remoteMethodCall) throws IOException {
-        this.objectOutputStream.flush();
         this.objectOutputStream.writeObject(remoteMethodCall);
         this.objectOutputStream.flush();
     }

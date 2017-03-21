@@ -73,12 +73,7 @@ public class ComSession {
 		RemoteDataExchange session = client.getDataExcFactory().make();
 		session.sendData(new RemoteMethodCall(methodToCall, methodParams));
 		session.receiveData();
-		if (methodToCall.equals("joinGame")
-				|| methodToCall.equals("joinNewGame")) {
-			session.keepAlive();
-		} else {
-			session.closeDataFlow();
-		}
+		session.closeDataFlow();
 	}
 
 	/**

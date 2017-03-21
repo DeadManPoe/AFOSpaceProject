@@ -18,6 +18,7 @@ public class PlayerToken implements Serializable {
 	private static final long serialVersionUID = 1L;
 	// The universally unique identifier of the player
 	private final UUID playerId;
+	private final Integer gameId;
 	private final PlayerType playerType;
 
 	/**
@@ -29,9 +30,10 @@ public class PlayerToken implements Serializable {
 	 *            the type of the player the token refers to
 	 * @see PlayerType
 	 */
-	public PlayerToken(PlayerType playerType) {
+	public PlayerToken(PlayerType playerType, Integer gameId) {
 		this.playerId = UUID.randomUUID();
 		this.playerType = playerType;
+		this.gameId = gameId;
 	}
 
 	/**
@@ -52,7 +54,11 @@ public class PlayerToken implements Serializable {
 		return playerType;
 	}
 
-	@Override
+    public Integer getGameId() {
+        return gameId;
+    }
+
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

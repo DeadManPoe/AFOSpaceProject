@@ -203,11 +203,11 @@ public class GameReducer extends Reducer {
 
     private ServerState addPlayer(StoreAction action, ServerState state) {
         GameAddPlayerAction castedAction = (GameAddPlayerAction) action;
-        PlayerToken playerToken = null;
+        PlayerToken playerToken;
         for (Game game : state.getGames()) {
             if (game.gamePublicData.getId() == castedAction.getPayload().getGameId()) {
                 PlayerType playerType = assignTypeToPlayer(game.players.size() + 1);
-                playerToken = new PlayerToken(playerType);
+                playerToken = new PlayerToken(playerType, castedAction.getPayload().getGameId());
                 server_store.Player player = new server_store.Player(playerType, castedAction.getPayload().getPlayerName(), playerToken);
                 game.players.add(player);
                 game.gamePublicData.addPlayer();

@@ -6,6 +6,7 @@ import it.polimi.ingsw.cg_19.PlayerType;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -61,7 +62,12 @@ public class ClientRemoteServices extends UnicastRemoteObject implements
 	public void sendToken(PlayerToken token) throws IOException,
 			RemoteException {
 		client.setToken(token);
-	}
+        try {
+            client.subscribe();
+        } catch (IllegalAccessException | NoSuchMethodException | NotBoundException | InvocationTargetException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
 	/**
 	 * @see ClientRemoteServicesInterface#sendAvailableGames
