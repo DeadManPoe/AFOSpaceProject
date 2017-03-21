@@ -10,61 +10,60 @@ import java.util.List;
  */
 public class AlienTurn extends Turn {
 
-    private static List<Class<? extends Action>> initialActions;
-    public static List<Class<? extends Action>> getInitialActions(){
+    private static List<String> initialActions;
+    public static List<String> getInitialActions(){
         if(initialActions == null){
-            initialActions = new ArrayList<Class<? extends Action>>();
-            initialActions.add(MoveAction.class);
-            initialActions.add(MoveAttackAction.class);
+            initialActions = new ArrayList<String>();
+            initialActions.add("@GAMEACTION_MOVE");
+            initialActions.add("@GAMEACTION_MOVE_ATTACK");
         }
         return initialActions;
     }
 
-    public static List<Class<? extends Action>> nextAction(Action action, Player currentPlayer) {
-        List<Class<? extends Action>> nextActions = new ArrayList<Class<? extends Action>>();
-        Class<? extends Action> actionType = action.getClass();
+    public static List<String> nextAction(StoreAction action, Player currentPlayer) {
+        List<String> nextActions = new ArrayList<String>();
         // Actions to be set after a move action
-        if (actionType.equals(MoveAction.class)) {
+        if (action.type.equals("@GAMEACTION_MOVE")) {
             MoveAction moveAction = (MoveAction) action;
-            if (moveAction.getTarget().getSectorType() == SectorType.DANGEROUS) {
-                nextActions.add(DrawSectorCardAction.class);
+            if (moveAction.payload.getSectorType() == SectorType.DANGEROUS) {
+                nextActions.add("@GAMEACTION_DRAW_SECTOR_CARD");
             } else {
-                nextActions.add(EndTurnAction.class);
+                nextActions.add("@GAMEACTION_END_TURN");
             }
         }
         // Actions to be set after a draw sector card action
-        else if (actionType.equals(DrawSectorCardAction.class)) {
-            nextActions.add(UseSectorCardAction.class);
+        else if (action.type.equals(DrawSectorCardAction.class)) {
+            nextActions.add("@GAMEACTION_USE_SECTOR_CARD");
         }
         // Actions to be set after a use sector card action
-        else if (actionType.equals(UseSectorCardAction.class)) {
-            SectorCard card = ((UseSectorCardAction) action).getCard();
+        else if (action.type.equals("@GAMEACTION_USE_SECTOR_CARD")) {
+            SectorCard card = ((UseSectorCardAction) action).payload;
             if (card.hasObjectAssociated()) {
                 // Need to discard an object card
                 if (currentPlayer.privateDeck.getSize() == 4) {
-                    nextActions.add(DiscardAction.class);
+                    nextActions.add("@GAMEACTION_DISCARD_OBJ_CARD");
                 } else {
-                    nextActions.add(EndTurnAction.class);
+                    nextActions.add("@GAMEACTION_END_TURN");
                 }
             } else {
-                nextActions.add(EndTurnAction.class);
+                nextActions.add("@GAMEACTION_END_TURN");
             }
 
         }
 		/*
-		 * // DRAW Obj else if (actionType.equals(DrawActionFromObject.class)) {
+		 * // DRAW Obj else if (action.type.equals(DrawActionFromObject.class)) {
 		 * if (getGame().getCurrentPlayer().getPrivateDeck().getSize() == 3) {
 		 * nextActions.add(DiscardAction.class); } else {
 		 * //nextActions.add(AttackAction.class);
-		 * nextActions.add(EndTurnAction.class); } }
+		 * nextActions.add("@GAMEACTION_END_TURN"); } }
 		 */
         // Actions to be set after a discard object card action
-        else if (actionType.equals(DiscardAction.class)) {
-            nextActions.add(EndTurnAction.class);
+        else if (action.type.equals(DiscardAction.class)) {
+            nextActions.add("@GAMEACTION_END_TURN");
         }
         // Actions to be set after an attack action
-        else if (actionType.equals(MoveAttackAction.class)) {
-            nextActions.add(EndTurnAction.class);
+        else if (action.type.equals(MoveAttackAction.class)) {
+            nextActions.add("@GAMEACTION_END_TURN");
         }
         return nextActions;
     }

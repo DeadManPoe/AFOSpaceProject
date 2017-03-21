@@ -52,7 +52,7 @@ public class GameReducer extends Reducer {
                 EndTurnEffect endTurnEffect = new EndTurnEffect();
                 PSClientNotification psClientNotification = new PSClientNotification();
                 RRClientNotification rrClientNotification = new RRClientNotification();
-                endTurnEffect.executeEffect(game,rrClientNotification, psClientNotification);
+                endTurnEffect.executeEffect(game,new EndTurnAction(game.gamePublicData.getId()));
                 game.lastPSclientNotification = psClientNotification;
                 game.currentTimer.cancel();
                 game.currentTimer = new Timer();
@@ -137,10 +137,10 @@ public class GameReducer extends Reducer {
                     rrClientNotification.setActionResult(false);
                 } else {
                     // If the player is ok then checks if the action is ok
-                    if (game.nextActions.contains(gameAction.getClass())) {
+                    if (game.nextActions.contains(action.getType())){
 
                         // Executes the effect and get the result
-                        ServerStore.getInstance().dispatchAction(new GameActionAction(action));
+                        ServerStore.getInstance().dispatchAction(new GameActionAction(action,game));
                         if (game.lastActionResult) {
                             if (!game.lastAction.getClass().equals(EndTurnAction.class)) {
                                 if (actualPlayer.playerType.equals(PlayerType.HUMAN)) {

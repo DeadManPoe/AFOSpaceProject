@@ -34,8 +34,8 @@ public class HumanTurn extends Turn {
 	public HumanTurn(Game game) {
 		super(game);
 		this.initialActions = new ArrayList<Class<? extends Action>>();
-		this.initialActions.add(MoveAction.class);
-		this.initialActions.add(UseObjAction.class);
+		//this.initialActions.add(MoveAction.class);
+		//this.initialActions.add(UseObjAction.class);
 	}
 
 	@Override
@@ -45,8 +45,8 @@ public class HumanTurn extends Turn {
 
 		// Actions to be set after a move action
 		if (actionType.equals(MoveAction.class)) {
-			MoveAction move = (MoveAction) action;
-			SectorType sectorType = move.getTarget().getSectorType();
+			//MoveAction move = (MoveAction) action;
+			//SectorType sectorType = move.getTarget().getSectorType();
 
 			if (sectorType == SectorType.DANGEROUS) {
 				if (!game.getCurrentPlayer().isSedated()) {

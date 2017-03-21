@@ -32,7 +32,7 @@ public class Game {
     public String mapName;
     public GameMap gameMap;
     public StoreAction lastAction;
-    public List<Class<? extends Action>> nextActions;
+    public List<String> nextActions;
     public RRClientNotification lastRRclientNotification;
     public PSClientNotification lastPSclientNotification;
     public Timer currentTimer;

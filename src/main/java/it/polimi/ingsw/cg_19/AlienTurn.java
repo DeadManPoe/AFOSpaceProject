@@ -41,7 +41,7 @@ public class AlienTurn extends Turn {
 			if (moveAction.getTarget().getSectorType() == SectorType.DANGEROUS) {
 				nextActions.add(DrawSectorCardAction.class);
 			} else {
-				nextActions.add(EndTurnAction.class);
+				nextActions.add("@GAMEACTION_END_TURN");
 			}
 		}
 		// Actions to be set after a draw sector card action
@@ -56,10 +56,10 @@ public class AlienTurn extends Turn {
 				if (game.getCurrentPlayer().getPrivateDeck().getSize() == 4) {
 					nextActions.add(DiscardAction.class);
 				} else {
-					nextActions.add(EndTurnAction.class);
+					nextActions.add("@GAMEACTION_END_TURN");
 				}
 			} else {
-				nextActions.add(EndTurnAction.class);
+				nextActions.add("@GAMEACTION_END_TURN");
 			}
 
 		}
@@ -68,15 +68,15 @@ public class AlienTurn extends Turn {
 		 * if (getGame().getCurrentPlayer().getPrivateDeck().getSize() == 3) {
 		 * nextActions.add(DiscardAction.class); } else {
 		 * //nextActions.add(AttackAction.class);
-		 * nextActions.add(EndTurnAction.class); } }
+		 * nextActions.add("@GAMEACTION_END_TURN"); } }
 		 */
 		// Actions to be set after a discard object card action
 		else if (actionType.equals(DiscardAction.class)) {
-			nextActions.add(EndTurnAction.class);
+			nextActions.add("@GAMEACTION_END_TURN");
 		}
 		// Actions to be set after an attack action
 		else if (actionType.equals(MoveAttackAction.class)) {
-			nextActions.add(EndTurnAction.class);
+			nextActions.add("@GAMEACTION_END_TURN");
 		}
 		return nextActions;
 	}

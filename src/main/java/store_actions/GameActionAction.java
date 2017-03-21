@@ -1,5 +1,6 @@
 package store_actions;
 
+import server_store.Game;
 import server_store.StoreAction;
 
 /**
@@ -7,7 +8,12 @@ import server_store.StoreAction;
  */
 public class GameActionAction extends StoreAction {
 
-    public GameActionAction(StoreAction action) {
+    public Game game;
+    public StoreAction action;
+
+    public GameActionAction(StoreAction action, Game game) {
         this.type = action.getType();
+        this.action = action;
+        this.game = game;
     }
 }
