@@ -72,8 +72,12 @@ public class ComSession {
 			IOException, NotBoundException {
 		RemoteDataExchange session = client.getDataExcFactory().make();
 		session.sendData(new RemoteMethodCall(methodToCall, methodParams));
-		session.receiveData();
-		session.closeDataFlow();
+		if (methodToCall.equals("subscribe")) {
+			session.keepAlive();
+		} else {
+			session.receiveData();
+			session.closeDataFlow();
+		}
 	}
 
 	/**
@@ -114,11 +118,10 @@ public class ComSession {
 			NotBoundException {
 		RemoteDataExchange session = client.getDataExcFactory().make();
 		session.sendData(new RemoteMethodCall(methodToCall));
-		session.receiveData();
-		if (methodToCall.equals("joinGame")
-				|| methodToCall.equals("joinNewGame")) {
+		if (methodToCall.equals("subscribe")) {
 			session.keepAlive();
 		} else {
+			session.receiveData();
 			session.closeDataFlow();
 		}
 	}

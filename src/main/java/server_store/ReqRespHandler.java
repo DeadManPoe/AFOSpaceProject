@@ -145,7 +145,7 @@ public class ReqRespHandler extends Thread {
     }
     public void subscribe(PlayerToken playerToken) throws IOException {
         this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(objectOutputStream, playerToken.getGameId())));
-        this.serverStore.dispatchAction(new GameStartGameAction(playerToken.getGameId()));
+        //this.serverStore.dispatchAction(new GameStartGameAction(playerToken.getGameId()));
         this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
     }
 

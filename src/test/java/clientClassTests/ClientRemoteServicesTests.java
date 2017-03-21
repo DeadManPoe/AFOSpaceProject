@@ -34,10 +34,10 @@ public class ClientRemoteServicesTests {
 	public void sendTokenTest() throws RemoteException, IOException {
 		client = new Client(new ClientConnection(21323,"sdasd","sddsad"));
 		clientServices = new ClientRemoteServices(client);
-		PlayerToken token = new PlayerToken(PlayerType.ALIEN);
+		PlayerToken token = new PlayerToken(PlayerType.ALIEN,null);
 		clientServices.sendToken(token);
 		assertEquals(token,client.getToken());
-		token = new PlayerToken(PlayerType.HUMAN);
+		token = new PlayerToken(PlayerType.HUMAN,null);
 		clientServices.sendToken(token);
 		assertEquals(token,client.getToken());
 	}
@@ -59,16 +59,16 @@ public class ClientRemoteServicesTests {
 	public void allowTurnTest() throws RemoteException, IOException {
 		client = new Client(new ClientConnection(21323,"sdasd","sddsad"));
 		clientServices = new ClientRemoteServices(client);
-		PlayerToken token = new PlayerToken(PlayerType.ALIEN);
+		PlayerToken token = new PlayerToken(PlayerType.ALIEN,null);
 		clientServices.sendToken(token);
 		clientServices.allowTurn(token);
 		assertTrue(client.getIsMyTurn());
 		client.setIsMyTurn(false);
-		token = new PlayerToken(PlayerType.HUMAN);
+		token = new PlayerToken(PlayerType.HUMAN,null);
 		clientServices.allowTurn(token);
 		assertFalse(client.getIsMyTurn());
 		client.setIsMyTurn(false);
-		token = new PlayerToken(PlayerType.ALIEN);
+		token = new PlayerToken(PlayerType.ALIEN,null);
 		clientServices.allowTurn(token);
 		assertFalse(client.getIsMyTurn());
 	}
@@ -95,7 +95,7 @@ public class ClientRemoteServicesTests {
 	public void processRemoteInvocationTest() throws RemoteException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException{
 		client = new Client(new ClientConnection(21323,"sdasd","sddsad"));
 		clientServices = new ClientRemoteServices(client);
-		PlayerToken token = new PlayerToken(PlayerType.ALIEN);
+		PlayerToken token = new PlayerToken(PlayerType.ALIEN,null);
 		ArrayList<Object> parameters = new ArrayList<Object>();
 		parameters.add(token);
 		clientServices.processRemoteInvocation(new RemoteMethodCall("sendToken",parameters));
@@ -112,7 +112,7 @@ public class ClientRemoteServicesTests {
 	public void sendMapTest() throws IOException{
 		client = new Client(new ClientConnection(21323,"sdasd","sddsad"));
 		clientServices = new ClientRemoteServices(client);
-		PlayerToken token = new PlayerToken(PlayerType.ALIEN);
+		PlayerToken token = new PlayerToken(PlayerType.ALIEN,null);
 		clientServices.sendToken(token);
 		GalileiGameMapFactory factory = new GalileiGameMapFactory();
 		GameMap map = factory.makeMap();

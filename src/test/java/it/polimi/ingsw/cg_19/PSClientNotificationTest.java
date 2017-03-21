@@ -21,7 +21,7 @@ public class PSClientNotificationTest {
 	@Test
 	public void testGetAddDeadPlayers() {
 		PSClientNotification ps = new PSClientNotification();
-		PlayerToken p = new PlayerToken(PlayerType.HUMAN);
+		PlayerToken p = new PlayerToken(PlayerType.HUMAN, null);
 		ps.addDeadPlayers(p);
 		assertEquals(p, ps.getDeadPlayers().get(0));
 	}
@@ -32,7 +32,7 @@ public class PSClientNotificationTest {
 	@Test
 	public void testGetAddAttackedPlayers() {
 		PSClientNotification ps = new PSClientNotification();
-		PlayerToken p = new PlayerToken(PlayerType.HUMAN);
+		PlayerToken p = new PlayerToken(PlayerType.HUMAN,null);
 		ps.addAttackedPlayers(p);
 		assertEquals(p, ps.getAttackedPlayers().get(0));
 	}

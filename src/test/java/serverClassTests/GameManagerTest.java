@@ -38,7 +38,7 @@ public class GameManagerTest {
 		Game game = new Game("FERMI");
 		int gameIndex = game.getPublicData().getId();
 		gameManager.addGameNoTimer(game);
-		PlayerToken playerToken = new PlayerToken(PlayerType.ALIEN);
+		PlayerToken playerToken = new PlayerToken(PlayerType.ALIEN,null);
 		gameManager.addPlayerToGame(playerToken, gameIndex);
 		assertEquals(game, gameManager.getGame(playerToken));
 		gameManager.addPlayerToGame(playerToken, 23232);
@@ -60,7 +60,7 @@ public class GameManagerTest {
 		Game game = new Game("FERMI");
 		int gameIndex = game.getPublicData().getId();
 		gameManager.addGameNoTimer(game);
-		PlayerToken playerToken = new PlayerToken(PlayerType.ALIEN);
+		PlayerToken playerToken = new PlayerToken(PlayerType.ALIEN,null);
 		gameManager.addPlayerToGame(playerToken, gameIndex);
 		gameManager.removeGame(game);
 		assertEquals(null, gameManager.getGame(gameIndex));
