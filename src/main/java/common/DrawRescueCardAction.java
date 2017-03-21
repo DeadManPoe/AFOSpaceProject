@@ -1,5 +1,7 @@
 package common;
 
+import server_store.StoreAction;
+
 /**
  * Represents the action of drawing a rescue card from the rescue card deck
  * 
@@ -7,12 +9,9 @@ package common;
  * @author Giorgio Pea
  *
  */
-public class DrawRescueCardAction extends Action {
-	// A field used only for serialization purposes
-	private static final long serialVersionUID = 1L;
+public class DrawRescueCardAction extends StoreAction {
 
-	@Override
-	public String toString() {
-		return "DrawRescueCardAction []";
+	public DrawRescueCardAction() {
+        this.type = "@GAMEACTION_DRAW_RESCUE_CARD";
 	}
 }

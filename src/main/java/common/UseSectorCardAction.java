@@ -1,5 +1,7 @@
 package common;
 
+import server_store.StoreAction;
+
 /**
  * Represents the action of using a sector card in the game
  * 
@@ -7,28 +9,12 @@ package common;
  * @author Giorgio Pea
  * @version 1.0
  */
-public class UseSectorCardAction extends Action {
-	// A field automatically created for serialization purposes
-	private static final long serialVersionUID = 1L;
+public class UseSectorCardAction extends StoreAction {
 
-	private final SectorCard card;
+    public SectorCard payload;
 
-	/**
-	 * Constructs an action of using a sector card from the sector it refers to
-	 * 
-	 * @param card
-	 */
-	public UseSectorCardAction(SectorCard card) {
-		this.card = card;
-	}
-
-	/**
-	 * Gets the sector card associated with the action
-	 * 
-	 * @return the sector card associated with the action
-	 */
-	public SectorCard getCard() {
-		return card;
-	}
-
+    public UseSectorCardAction(SectorCard sectorCard) {
+        this.type = "@GAMEACTION_USE_SECTOR_CARD";
+        this.payload = sectorCard;
+    }
 }

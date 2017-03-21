@@ -1,5 +1,7 @@
 package common;
 
+import server_store.StoreAction;
+
 /**
  * Represents the action of ending a turn in the game
  * 
@@ -7,12 +9,9 @@ package common;
  * @author Giorgio Pea
  * @version 1.0
  */
-public class EndTurnAction extends Action {
-	// A field used only for serialization purposes
-	private static final long serialVersionUID = 1L;
+public class EndTurnAction extends StoreAction {
 
-	@Override
-	public String toString() {
-		return "EndTurnAction []";
-	}
+    public EndTurnAction() {
+        this.type ="@GAMEACTION_END_TURN";
+    }
 }
