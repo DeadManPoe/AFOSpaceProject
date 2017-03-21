@@ -10,16 +10,16 @@ import java.util.List;
  */
 public class HumanTurn extends Turn {
 
-    private static List<Class<? extends Action>> initialActions;
+    private static List<String> initialActions;
     public static List<Class<? extends Action>> getInitialActions(){
         if(initialActions == null){
-            initialActions = new ArrayList<Class<? extends Action>>();
+            initialActions = new ArrayList<String>();
             initialActions.add(MoveAction.class);
             initialActions.add(UseObjAction.class);
         }
         return initialActions;
     }
-    public static List<Class<? extends Action>> nextAction(Action action, Player currentPlayer){
+    public static List<String> nextAction(StoreAction action, Player currentPlayer){
         List<Class<? extends Action>> nextActions = new ArrayList<Class<? extends Action>>();
         Class<? extends Action> actionType = action.getClass();
 

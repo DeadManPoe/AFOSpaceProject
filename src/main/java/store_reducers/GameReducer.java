@@ -115,7 +115,6 @@ public class GameReducer extends Reducer {
         GameMakeActionAction castedAction = (GameMakeActionAction) action;
         Action gameAction = castedAction.getPayload().getAction();
         UUID handlerUUID = castedAction.getPayload().getReqRespHandlerUUID();
-        boolean gameActionResult = false;
         boolean winH = false;
         boolean winA = false;
         RRClientNotification rrClientNotification = new RRClientNotification();
@@ -141,13 +140,8 @@ public class GameReducer extends Reducer {
                     if (game.nextActions.contains(gameAction.getClass())) {
 
                         // Executes the effect and get the result
-                        try {
-                            gameActionResult = GameActionMapper.getInstance().getEffect(gameAction).executeEffect(game, rrClientNotification, psClientNotification);
-                        } catch (InstantiationException | IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-
-                        if (gameActionResult) {
+                        ServerStore.getInstance().dispatchAction(new GameActionAction(action));
+                        if (game.lastActionResult) {
                             if (!game.lastAction.getClass().equals(EndTurnAction.class)) {
                                 if (actualPlayer.playerType.equals(PlayerType.HUMAN)) {
                                     game.nextActions = HumanTurn.nextAction(game.lastAction, actualPlayer);

@@ -13,9 +13,11 @@ import server_store.StoreAction;
 public class UseObjAction extends StoreAction {
 
     public ObjectCard payload;
+    public int gameId;
 
-    public UseObjAction(ObjectCard objectCard) {
+    public UseObjAction(ObjectCard objectCard, int gameId) {
         this.type = "@GAMEACTION_USE_OBJ_CARD";
         this.payload = objectCard;
+        this.gameId = gameId;
     }
 }

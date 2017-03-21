@@ -12,9 +12,11 @@ import server_store.StoreAction;
 public class UseSectorCardAction extends StoreAction {
 
     public SectorCard payload;
+    public int gameId;
 
-    public UseSectorCardAction(SectorCard sectorCard) {
+    public UseSectorCardAction(SectorCard sectorCard, int gameId) {
         this.type = "@GAMEACTION_USE_SECTOR_CARD";
         this.payload = sectorCard;
+        this.gameId = gameId;
     }
 }

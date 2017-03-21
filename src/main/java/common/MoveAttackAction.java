@@ -13,9 +13,11 @@ import server_store.StoreAction;
 public class MoveAttackAction extends StoreAction {
 
     public Sector payload;
+    public int gameId;
 
-	public MoveAttackAction(Sector target) {
+	public MoveAttackAction(Sector target, int gameId) {
         this.type = "@GAMEACTION_MOVEATTACK";
         this.payload = target;
+        this.gameId = gameId;
 	}
 }

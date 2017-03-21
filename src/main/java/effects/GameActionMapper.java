@@ -29,7 +29,7 @@ public class GameActionMapper {
 
 	private static GameActionMapper instance = new GameActionMapper();
 
-    private Map<Class<? extends Action>, Class<? extends ActionEffect>> fromActionToActionEffect;
+    private Map<String, Class<? extends ActionEffect>> fromActionToActionEffect;
 
     public static GameActionMapper getInstance(){
         return instance;
@@ -47,43 +47,25 @@ public class GameActionMapper {
 		// Mapper init
 		fromActionToActionEffect = new HashMap<>();
 		// Mapper filling
-		fromActionToActionEffect.put(MoveAction.class, MoveActionEffect.class);
-		fromActionToActionEffect.put(DrawSectorCardAction.class,
+		fromActionToActionEffect.put("@GAMEACTION_MOVE", MoveActionEffect.class);
+		fromActionToActionEffect.put("@GAMEACTION_DRAW_SECTOR_CARD",
 				DrawSectorCardEffect.class);
-		fromActionToActionEffect.put(DrawObjectCardAction.class,
+		fromActionToActionEffect.put("@GAMEACTION_DRAW_OBJ_CARD",
 				DrawObjectCardEffect.class);
-		fromActionToActionEffect.put(DiscardAction.class,
+		fromActionToActionEffect.put("@GAMEACTION_DISCARD_OBJ_CARD",
 				DiscardObjCardEffect.class);
 		fromActionToActionEffect
-				.put(UseObjAction.class, UseObjCardEffect.class);
-		fromActionToActionEffect.put(MoveAttackAction.class,
+				.put("@GAMEACTION_USE_OBJ_CARD", UseObjCardEffect.class);
+		fromActionToActionEffect.put("@GAMEACTION_MOVE_ATTACK",
 				MoveAttackActionEffect.class);
-		fromActionToActionEffect.put(EndTurnAction.class, EndTurnEffect.class);
-		fromActionToActionEffect.put(UseSectorCardAction.class,
+		fromActionToActionEffect.put("@GAMEACTION_END_TURN", EndTurnEffect.class);
+		fromActionToActionEffect.put("@GAMEACTION_USE_SECTOR_CARD",
 				UseSectorCardEffect.class);
 	}
 
-	/**
-	 * Produces the action effect mapped to an action
-	 * 
-	 * @param action
-	 *            the action for which retrieve the effect
-	 * @return the effect associated with the action
-	 * @throws InstantiationException
-	 *             if there's an error in the instantiation of the effect
-	 * @throws IllegalAccessException
-	 *             if there's an error in the instantiation of the effect
-	 */
-	public ActionEffect getEffect(Action action) throws InstantiationException,
-			IllegalAccessException {
-		/*
-		 * The action effect type is derived from the mapper and a new istance
-		 * of the action effect is created
-		 */
-		ActionEffect effect = fromActionToActionEffect.get(action.getClass())
-				.newInstance();
-		effect.setAction(action);
-		return effect;
+
+	public Class<? extends ActionEffect> getEffect(String actionType){
+		return fromActionToActionEffect.get(actionType);
 	}
 
 }

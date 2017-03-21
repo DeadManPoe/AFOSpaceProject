@@ -11,7 +11,10 @@ import server_store.StoreAction;
  */
 public class EndTurnAction extends StoreAction {
 
-    public EndTurnAction() {
+    public int gameId;
+
+    public EndTurnAction(int gameId) {
         this.type ="@GAMEACTION_END_TURN";
+        this.gameId = gameId;
     }
 }

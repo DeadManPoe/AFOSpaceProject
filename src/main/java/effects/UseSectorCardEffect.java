@@ -1,14 +1,16 @@
 package effects;
 
-import it.polimi.ingsw.cg_19.Game;
-
-import java.util.List;
-import java.util.logging.Level;
-
-import server.ServerLogger;
-import common.PSClientNotification;
-import common.RRClientNotification;
+import com.sun.corba.se.spi.activation.Server;
+import common.Action;
 import common.UseSectorCardAction;
+import server.ServerLogger;
+import server_store.Game;
+import server_store.ServerState;
+import server_store.StoreAction;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.logging.Level;
 
 /**
  * Represents the effect of using a sector card
@@ -20,46 +22,23 @@ import common.UseSectorCardAction;
  * @version 1.0
  */
 public class UseSectorCardEffect extends ActionEffect {
-	/**
-	 * Constructs the effect of using a sector card. This effect is constructed
-	 * from a {@link common.UseSectorCardAction}
-	 * 
-	 * @param useSectorAction
-	 *            the action that needs to be enriched with its effect
-	 */
-	public UseSectorCardEffect(UseSectorCardAction useSectorAction) {
-		super(useSectorAction);
-	}
 
-	/**
-	 * Constructs the effect of using a sector card. This effect is constructed
-	 * from a {@link common.UseSectorCardAction} that is null
-	 * 
-	 */
-	public UseSectorCardEffect() {
-		this(null);
-	}
-
-	/**
-	 */
-	@Override
-	public boolean executeEffect(server_store.Game game,
-								 RRClientNotification rrNotification,
-								 PSClientNotification psNotification) {
-		UseSectorCardAction useAction = (UseSectorCardAction) action;
+	public static boolean executeEffect(Game game, UseSectorCardAction action) {
 		SectorCardsMapper mapper = new SectorCardsMapper();
 		game.lastAction = action;
 		try {
-			// Resolve and get the result of the sector card effect
-			return mapper.getEffect(useAction.getCard()).executeEffect(game,
-					rrNotification, psNotification);
+			Method executeMethod = mapper.getEffect(action.payload).getMethod("execute");
+			return (boolean)  executeMethod.invoke(game);
 		} catch (InstantiationException | IllegalAccessException e) {
 			ServerLogger
 					.getLogger()
 					.log(Level.SEVERE,
 							"Error in executing an action effect | UseSectorCardEffect",
 							e);
-			return false;
+		} catch (NoSuchMethodException | InvocationTargetException e) {
+			e.printStackTrace();
+
 		}
+		return false;
 	}
 }

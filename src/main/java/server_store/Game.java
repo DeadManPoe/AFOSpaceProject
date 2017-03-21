@@ -31,11 +31,12 @@ public class Game {
     public GamePublicData gamePublicData;
     public String mapName;
     public GameMap gameMap;
-    public Action lastAction;
+    public StoreAction lastAction;
     public List<Class<? extends Action>> nextActions;
     public RRClientNotification lastRRclientNotification;
     public PSClientNotification lastPSclientNotification;
     public Timer currentTimer;
+    public boolean lastActionResult;
 
     public Game(String gameMapName) {
         counter++;
@@ -48,5 +49,6 @@ public class Game {
         this.lastPSclientNotification = null;
         this.lastRRclientNotification = null;
         this.currentTimer = null;
+        this.lastActionResult = true;
     }
 }

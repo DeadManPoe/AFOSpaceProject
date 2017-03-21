@@ -57,12 +57,9 @@ public class ObjectCardsMapper {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	public ObjectCardEffect getEffect(ObjectCard objectCard)
+	public Class<? extends ObjectCardEffect> getEffect(ObjectCard objectCard)
 			throws InstantiationException, IllegalAccessException {
-		ObjectCardEffect effect = fromObjectCardToObjectCardEffect.get(
-				objectCard.getClass()).newInstance();
-		effect.setObject(objectCard);
-		return effect;
+		return this.fromObjectCardToObjectCardEffect.get(objectCard.getClass());
 	}
 
 }

@@ -48,11 +48,8 @@ public class SectorCardsMapper {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	public SectorCardEffect getEffect(SectorCard sectorCard)
+	public Class<? extends SectorCardEffect> getEffect(SectorCard sectorCard)
 			throws InstantiationException, IllegalAccessException {
-		SectorCardEffect effect = fromSectorToSectorEffect.get(
-				sectorCard.getClass()).newInstance();
-		effect.setCard(sectorCard);
-		return effect;
+		return fromSectorToSectorEffect.get(sectorCard.getClass());
 	}
 }
