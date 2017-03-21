@@ -3,9 +3,6 @@ package client;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import server.GameManager;
-import it.polimi.ingsw.cg_19.Game;
-
 /**
  * Represents the timeout for a generic game It is a one time execution timer
  * 

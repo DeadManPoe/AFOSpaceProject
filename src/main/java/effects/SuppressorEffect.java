@@ -1,10 +1,8 @@
 package effects;
 
-import it.polimi.ingsw.cg_19.Game;
-import it.polimi.ingsw.cg_19.Player;
-import common.PSClientNotification;
-import common.RRClientNotification;
 import common.SuppressorObjectCard;
+import server_store.Game;
+import server_store.Player;
 
 /**
  * Represents the effect of a suppressor object card
@@ -16,40 +14,14 @@ import common.SuppressorObjectCard;
  * @version 1.0
  */
 public class SuppressorEffect extends ObjectCardEffect {
-	/**
-	 * Constructs an effect of a suppressor object card. This effect is
-	 * constructed from a {@link common.SuppressorObjectCard}
-	 * 
-	 * @param suppressorObjectCard
-	 *            the {@link common.SuppressorObjectCard} that needs to be
-	 *            enriched with its effect
-	 */
-	public SuppressorEffect(SuppressorObjectCard suppressorObjectCard) {
-		super(suppressorObjectCard);
-	}
 
-	/**
-	 * Constructs an effect of a suppressor object card. This effect is
-	 * constructed from a {@link common.SuppressorObjectCard} that is null
-	 * 
-	 */
-	public SuppressorEffect() {
-		super(null);
-	}
-
-	/**
-	 * @see ObjectCardEffect#executeEffect(Game)
-	 */
-	@Override
-	public boolean executeEffect(server_store.Game game,
-								 RRClientNotification rrNotification,
-								 PSClientNotification psNotification) {
-		server_store.Player currentPlayer = game.currentPlayer;
+	public static boolean executeEffect(Game game) {
+		Player currentPlayer = game.currentPlayer;
 		currentPlayer.isSedated = true;
-		rrNotification
+		game.lastRRclientNotification
 				.setMessage("You will not draw any sector card this turn");
-		psNotification
-				.setMessage(psNotification.getMessage()
+		game.lastPSclientNotification
+				.setMessage(game.lastPSclientNotification.getMessage()
 						+ "\n[GLOBAL MESSAGE]: He/she will not draw any sector card this turn");
 		return true;
 	}

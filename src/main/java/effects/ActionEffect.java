@@ -1,9 +1,6 @@
 package effects;
 
-import it.polimi.ingsw.cg_19.Game;
 import common.*;
-import server_store.ServerState;
-import server_store.StoreAction;
 
 /**
  * Represents the effect associated with an action

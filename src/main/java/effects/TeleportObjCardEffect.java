@@ -1,12 +1,9 @@
 package effects;
 
-import it.polimi.ingsw.cg_19.Game;
-import it.polimi.ingsw.cg_19.GameMap;
-import it.polimi.ingsw.cg_19.Player;
-import common.PSClientNotification;
-import common.RRClientNotification;
 import common.Sector;
 import common.TeleportObjectCard;
+import it.polimi.ingsw.cg_19.GameMap;
+import server_store.Game;
 
 /**
  * Represents the effect of a teleport object card
@@ -19,33 +16,7 @@ import common.TeleportObjectCard;
  */
 public class TeleportObjCardEffect extends ObjectCardEffect {
 
-	/**
-	 * Constructs an effect of a teleport object card. This effect is
-	 * constructed from a {@link common.TeleportObjectCard}
-	 * 
-	 * @param teleportObjectCard
-	 *            the {@link common.TeleportObjectCard} that needs to be
-	 *            enriched with its effect
-	 */
-	public TeleportObjCardEffect(TeleportObjectCard teleportObjectCard) {
-		super(teleportObjectCard);
-	}
-
-	/**
-	 * Constructs an effect of a teleport object card. This effect is
-	 * constructed from a {@link common.TeleportObjectCard} that is null
-	 * 
-	 */
-	public TeleportObjCardEffect() {
-		this(null);
-	}
-
-	/**
-	 */
-	@Override
-	public boolean executeEffect(server_store.Game game,
-								 RRClientNotification rrNotification,
-								 PSClientNotification psNotification) {
+	public static boolean executeEffect(Game game) {
 		GameMap map = game.gameMap;
 		server_store.Player curr = game.currentPlayer;
 		Sector humanSector = map.getHumanSector();
@@ -54,9 +25,9 @@ public class TeleportObjCardEffect extends ObjectCardEffect {
 		curr.currentSector.removePlayer(curr);
 		curr.currentSector = humanSector;
 		humanSector.addPlayer(curr);
-		rrNotification.setMessage("You've teleported to the human sector");
-		psNotification
-				.setMessage(psNotification.getMessage()
+		game.lastRRclientNotification.setMessage("You've teleported to the human sector");
+		game.lastPSclientNotification
+				.setMessage(game.lastPSclientNotification.getMessage()
 						+ "\n[GLOBAL MESSAGE]: He/She will be teleported to the human sector");
 		return true;
 	}

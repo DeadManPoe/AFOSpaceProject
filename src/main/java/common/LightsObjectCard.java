@@ -12,15 +12,7 @@ public class LightsObjectCard extends ObjectCard {
 	// The target of the lights effect
 	private final Sector centralSector;
 
-	/**
-	 * Constructs a lights object card. This card is constructed from the sector
-	 * whose neighbors must be checked in order to find out if there is any
-	 * player inside
-	 * 
-	 * @param target
-	 *            the sector whose neighbors must be checked in order to find
-	 *            out if there is any player inside
-	 */
+
 	public LightsObjectCard(Sector centralSector) {
 		this.centralSector = centralSector;
 	}

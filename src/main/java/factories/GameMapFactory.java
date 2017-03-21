@@ -15,7 +15,6 @@ import org.jgrapht.UndirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
-import server.ServerLogger;
 import common.Coordinate;
 import common.Sector;
 import common.SectorType;
@@ -108,11 +107,7 @@ public abstract class GameMapFactory {
 			}
 			fileReaderBuffer.close();
 		} catch (FileNotFoundException e) {
-			ServerLogger.getLogger().log(Level.SEVERE,
-					"No map file | GameMapFactory", e);
 		} catch (IOException e) {
-			ServerLogger.getLogger().log(Level.SEVERE,
-					"Problem reading a map file | GameMapFactory", e);
 		}
 		try {
 			// Reading file and adding edges that connects the vertices(sectors)
@@ -159,11 +154,9 @@ public abstract class GameMapFactory {
 				j++;
 			}
 		} catch (FileNotFoundException e) {
-			ServerLogger.getLogger().log(Level.SEVERE,
-					"No map file | GameMapFactory", e);
+
 		} catch (IOException e) {
-			ServerLogger.getLogger().log(Level.SEVERE,
-					"Problem reading a map file | GameMapFactory", e);
+
 		}
 		return graph;
 	}

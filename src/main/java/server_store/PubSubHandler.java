@@ -1,7 +1,6 @@
 package server_store;
 
 import common.RemoteMethodCall;
-import server.ServerLogger;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -68,11 +67,6 @@ public class PubSubHandler extends Thread {
                 try {
                     this.perform(remotheMethodCall);
                 } catch (IOException e1) {
-                    ServerLogger
-                            .getLogger()
-                            .log(Level.SEVERE,
-                                    "Could not perform action | SocketSubscriberHandler",
-                                    e1);
                 }
             else {
                 try {
@@ -82,8 +76,7 @@ public class PubSubHandler extends Thread {
                         buffer.wait();
                     }
                 } catch (InterruptedException e) {
-                    ServerLogger.getLogger().log(Level.SEVERE,
-                            "Thread interrupted | SocketSubscriberHandler", e);
+
                 }
             }
         }

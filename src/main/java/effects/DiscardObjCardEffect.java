@@ -1,12 +1,12 @@
 package effects;
 
-import it.polimi.ingsw.cg_19.Game;
-import it.polimi.ingsw.cg_19.Player;
 import common.DiscardAction;
 import common.ObjectCard;
 import common.PSClientNotification;
 import common.RRClientNotification;
 import decks.ObjectDeck;
+import server_store.Game;
+import server_store.Player;
 
 /**
  * Represents the effect of discarding an object card
@@ -18,47 +18,20 @@ import decks.ObjectDeck;
  * @version 1.2
  */
 public class DiscardObjCardEffect extends ActionEffect {
-	/**
-	 * Constructs an effect of discarding an object card. This effect is
-	 * constructed from a {@link common.DiscardAction}
-	 * 
-	 * @param discardAction
-	 *            the {@link common.DiscardAction} that needs to be enriched
-	 *            with its effect
-	 */
-	public DiscardObjCardEffect(DiscardAction discardAction) {
-		super(discardAction);
-	}
-
-	/**
-	 * Constructs an effect of discarding an object card. This effect is
-	 * constructed from a {@link common.DiscardAction} that is null. This
-	 * constructor is only used for test purposes.
-	 */
-	public DiscardObjCardEffect() {
-		this(null);
-	}
-
-	/**
-	 */
-	@Override
-	public boolean executeEffect(server_store.Game game,
-								 RRClientNotification rrNotification,
-								 PSClientNotification psNotification) {
-		server_store.Player currentPlayer = game.currentPlayer;
-		DiscardAction discardAction = (DiscardAction) this.action;
+	public static boolean executeEffect(Game game, DiscardAction discardAction) {
+		Player currentPlayer = game.currentPlayer;
 		ObjectDeck objectDeck = game.objectDeck;
-		ObjectCard discardedCard = discardAction.getObjectCard();
+		ObjectCard discardedCard = discardAction.payload;
 		currentPlayer.privateDeck.removeCard(discardedCard);
 		objectDeck.addToDiscard(discardedCard);
 		objectDeck.refill();
 		// Notifications setting
-		rrNotification.setMessage("You have discarded a "
+		game.lastRRclientNotification.setMessage("You have discarded a "
 				+ discardedCard.toString() + " object card");
-		psNotification.setMessage("[GLOBAL MESSAGE]: "
+		game.lastPSclientNotification.setMessage("[GLOBAL MESSAGE]: "
 				+ currentPlayer.name + " has discarded an object card\n");
 		//
-		game.lastAction = action;
+		game.lastAction = discardAction;
 		return true;
 	}
 }

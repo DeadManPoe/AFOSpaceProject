@@ -1,13 +1,10 @@
 package serverClassTests;
 
-import static org.junit.Assert.*;
-import it.polimi.ingsw.cg_19.Game;
 import it.polimi.ingsw.cg_19.PlayerType;
 
 import org.junit.Test;
 
 import common.PlayerToken;
-import server.GameManager;
 
 /**
  * Some tests for the GameManager class Not all methods are tested because of

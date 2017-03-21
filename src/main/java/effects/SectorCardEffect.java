@@ -1,8 +1,5 @@
 package effects;
 
-import it.polimi.ingsw.cg_19.Game;
-import common.PSClientNotification;
-import common.RRClientNotification;
 import common.SectorCard;
 
 /**

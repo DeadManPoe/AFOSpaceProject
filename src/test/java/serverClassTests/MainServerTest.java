@@ -6,8 +6,6 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import server.GameManager;
-import server.MainServer;
 import server.ServerConnection;
 
 /**
