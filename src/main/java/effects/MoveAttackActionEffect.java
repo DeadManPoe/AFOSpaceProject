@@ -6,6 +6,7 @@ import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.Game;
 import server_store.Player;
 import server_store.ServerState;
+import server_store.StoreAction;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,18 +24,19 @@ import java.util.Iterator;
  */
 public class MoveAttackActionEffect extends ActionEffect {
 
-    public static boolean executeEffect(Game game, MoveAttackAction action) {
+    public static boolean executeEffect(Game game, StoreAction action) {
+        MoveAttackAction castedAction = (MoveAttackAction) action;
         RRClientNotification clientNotification = new RRClientNotification();
         PSClientNotification psNotification = new PSClientNotification();
 
         Sector sourceSector = game.currentPlayer.currentSector;
         Sector targetSector = game.gameMap.getSectorByCoords(
-                action.payload.getCoordinate());
+                castedAction.payload.getCoordinate());
         server_store.Player currentPlayer = game.currentPlayer;
         String rrMessage = "";
         String psMessage = "";
 
-        if (!sourceSector.equals(action.payload)) {
+        if (!sourceSector.equals(castedAction.payload)) {
             if (game.gameMap.checkSectorAdiacency(sourceSector, targetSector,
                     currentPlayer.speed, 0, currentPlayer.playerType,
                     sourceSector, currentPlayer.isAdrenalined)) {

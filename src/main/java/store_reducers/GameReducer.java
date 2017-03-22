@@ -113,15 +113,14 @@ public class GameReducer extends Reducer {
         UUID handlerUUID = castedAction.payload.reqRespHandlerUUID;
         boolean winH = false;
         boolean winA = false;
-        RRClientNotification rrClientNotification = new RRClientNotification();
-        PSClientNotification psClientNotification = new PSClientNotification();
         for (Game game : state.getGames()) {
             if (game.gamePublicData.getId() == castedAction.payload.playerToken.getGameId()) {
                 //1. get and check actual player
                 //2. get check actions
                 //3. check win conditions
                 //4. notify
-
+                game.lastPSclientNotification = new PSClientNotification();
+                game.lastRRclientNotification = new RRClientNotification();
                 Player actualPlayer = null;
                 for (Player player : game.players) {
                     if (player.playerToken.getUUID().equals(castedAction.payload.playerToken.getUUID())) {
@@ -130,7 +129,7 @@ public class GameReducer extends Reducer {
                     }
                 }
                 if (!game.currentPlayer.equals(actualPlayer)) {
-                    rrClientNotification.setActionResult(false);
+                    game.lastRRclientNotification.setActionResult(false);
                 } else {
                     // If the player is ok then checks if the action is ok
                     if (game.nextActions.contains(gameAction.getType())){
@@ -157,16 +156,16 @@ public class GameReducer extends Reducer {
                             winA = checkWinConditions(PlayerType.ALIEN, game);
 
                             if (winH) {
-                                psClientNotification
-                                        .setMessage(psClientNotification.getMessage()
+                                game.lastPSclientNotification
+                                        .setMessage(game.lastPSclientNotification.getMessage()
                                                 + "\n[GLOBAL MESSAGE]: The game has ended, HUMANS WIN!");
-                                psClientNotification.setHumanWins(true);
+                                game.lastPSclientNotification.setHumanWins(true);
                             }
                             if (winA) {
-                                psClientNotification
-                                        .setMessage(psClientNotification.getMessage()
+                                game.lastPSclientNotification
+                                        .setMessage(game.lastPSclientNotification.getMessage()
                                                 + "\n[GLOBAL MESSAGE]: The game has ended, ALIENS WIN!");
-                                psClientNotification.setAlienWins(true);
+                                game.lastPSclientNotification.setAlienWins(true);
 
                             }
                             if (winH || winA) {
@@ -176,15 +175,13 @@ public class GameReducer extends Reducer {
                                 game.currentTimer.cancel();
                                 game.currentTimer = new Timer();
                             }
-                            rrClientNotification.setActionResult(true);
+                            game.lastRRclientNotification.setActionResult(true);
                         }
                     } else {
-                        rrClientNotification.setActionResult(false);
+                        game.lastRRclientNotification.setActionResult(false);
                     }
 
                 }
-                game.lastRRclientNotification = rrClientNotification;
-                game.lastPSclientNotification = psClientNotification;
                 break;
             }
         }

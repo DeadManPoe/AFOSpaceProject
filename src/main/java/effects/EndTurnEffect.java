@@ -6,6 +6,7 @@ import common.RRClientNotification;
 import it.polimi.ingsw.cg_19.PlayerState;
 import server_store.Game;
 import server_store.ServerState;
+import server_store.StoreAction;
 
 import java.util.ArrayList;
 
@@ -21,7 +22,8 @@ import java.util.ArrayList;
 
 public class EndTurnEffect extends ActionEffect {
 
-    public static boolean executeEffect(Game game, EndTurnAction action) {
+    public static boolean executeEffect(Game game, StoreAction action) {
+        EndTurnAction castedAction = (EndTurnAction) action;
         game.currentPlayer.isAdrenalined = false;
         game.currentPlayer.isSedated = false;
         game.currentPlayer.hasMoved = false;
@@ -37,7 +39,7 @@ public class EndTurnEffect extends ActionEffect {
         game.lastPSclientNotification.setMessage(game.lastPSclientNotification.getMessage() + game.currentPlayer.name + " now is your turn");
 
         // Notify the client
-        game.lastAction = action;
+        game.lastAction = castedAction;
         return true;
     }
 

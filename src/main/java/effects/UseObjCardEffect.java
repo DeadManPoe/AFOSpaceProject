@@ -2,6 +2,7 @@ package effects;
 
 import common.*;
 import server_store.Game;
+import server_store.StoreAction;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,7 +41,8 @@ public class UseObjCardEffect extends ActionEffect {
     }
 
 
-    public static boolean executeEffect(Game game, UseObjAction action) {
+    public static boolean executeEffect(Game game, StoreAction action) {
+        UseObjAction castedAction = (UseObjAction) action;
         if (beforeMoveCards.size() == 0 && afterMoveCards.size() == 0) {
             produceUtilsDataStructure();
         }
@@ -49,27 +51,27 @@ public class UseObjCardEffect extends ActionEffect {
         PSClientNotification psNotification = new PSClientNotification();
         // Checks if the card can be played before move or after move
         if (!game.currentPlayer.hasMoved) {
-            if (!beforeMoveCards.contains(action.payload.getClass()))
+            if (!beforeMoveCards.contains(castedAction.payload.getClass()))
                 return false;
         } else {
-            if (!afterMoveCards.contains(action.payload.getClass()))
+            if (!afterMoveCards.contains(castedAction.payload.getClass()))
                 return false;
         }
 
         try {
             clientNotification.setMessage("You have used a"
-                    + action.payload.toString());
+                    + castedAction.payload.toString());
             psNotification.setMessage("[GLOBAL MESSAGE]: "
                     + game.currentPlayer.name + " has used a "
-                    + action.payload.toString());
-            game.objectDeck.addToDiscard(action.payload);
+                    + castedAction.payload.toString());
+            game.objectDeck.addToDiscard(castedAction.payload);
             game.currentPlayer.privateDeck
-                    .removeCard(action.payload);
+                    .removeCard(castedAction.payload);
             game.lastAction = action;
             game.lastRRclientNotification = clientNotification;
             game.lastPSclientNotification = psNotification;
-            Method executeMethod = mapper.getEffect(action.payload).getMethod("executeEffect");
-            return (boolean) executeMethod.invoke(game, action.payload);
+            Method executeMethod = mapper.getEffect(castedAction.payload).getMethod("executeEffect");
+            return (boolean) executeMethod.invoke(game, castedAction.payload);
 
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
