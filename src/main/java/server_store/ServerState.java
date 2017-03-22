@@ -22,7 +22,7 @@ public class ServerState implements Serializable {
         this.reqRespHandlers = new ArrayList<>();
         this.pubSubHandlers = new ArrayList<>();
         this.tcp_port = null;
-        this.turnTimeout = 20*1000;
+        this.turnTimeout = 10*60*1000;
     }
 
     public List<server_store.Game> getGames() {

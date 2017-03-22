@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -8,18 +9,22 @@ import org.jgrapht.graph.SimpleGraph;
 import org.junit.Test;
 import common.*;
 
+*/
 /**
  * Some tests for the AlienTurnTest class
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class AlienTurnTest {
 
-	/**
+	*/
+/**
 	 * Test for the constructor It checks if the alien turn class is initiated
 	 * correctly
-	 */
+	 *//*
+
 	@Test
 	public void testAlienTurn() {
 		// Create a simple graph containing one sector s1
@@ -39,10 +44,12 @@ public class AlienTurnTest {
 		assertEquals(MoveAction.class, turn.getInitialActions().get(0));
 	}
 
-	/**
+	*/
+/**
 	 * Test for the getNextAction method It checks that given an action and in a
 	 * particular game situation the next action is calculated correctly
-	 */
+	 *//*
+
 	@Test
 	public void testGetNextActions() {
 		// Create a simple graph containing one sector s1
@@ -111,4 +118,4 @@ public class AlienTurnTest {
 		assertTrue(turn.getNextActions(new MoveAttackAction(safeSector))
 				.contains(EndTurnAction.class));
 	}
-}
+}*/

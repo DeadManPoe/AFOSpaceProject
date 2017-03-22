@@ -36,6 +36,7 @@ import common.SectorCard;
 import common.TeleportObjectCard;
 import common.UseObjAction;
 import common.UseSectorCardAction;
+import server_store.StoreAction;
 
 /**
  * Represents a client in the client server communication layer of the
@@ -399,7 +400,7 @@ public class Client extends Observable {
 		Sector targetSector = this.getGameMap().getSectorByCoords(coordinate);
 		if (targetSector != null) {
 			ArrayList<Object> parameters = new ArrayList<Object>();
-			Action action = new MoveAction(targetSector);
+			StoreAction action = new MoveAction(targetSector);
 			parameters.add(action);
 			parameters.add(this.getToken());
 			this.comSession.start("makeAction", parameters);
@@ -452,7 +453,7 @@ public class Client extends Observable {
 			} else if (objectCard instanceof AttackObjectCard) {
 				this.askAttack = true;
 			} else {
-				Action action = new UseObjAction(objectCard);
+				StoreAction action = new UseObjAction(objectCard);
 				parameters.add(action);
 				parameters.add(this.token);
 				this.comSession.start("makeAction", parameters);
@@ -495,7 +496,7 @@ public class Client extends Observable {
 			NoSuchMethodException, SecurityException, ClassNotFoundException,
 			IOException, NotBoundException {
 		ArrayList<Object> parameters = new ArrayList<Object>();
-		Action action = new EndTurnAction();
+		StoreAction action = new EndTurnAction();
 		parameters.add(action);
 		parameters.add(this.token);
 		this.comSession.start("makeAction", parameters);
@@ -650,7 +651,7 @@ public class Client extends Observable {
 			SectorCard globalNoiseCard = new GlobalNoiseSectorCard(hasObject,
 					targetSector);
 			ArrayList<Object> parameters = new ArrayList<Object>();
-			Action action = new UseSectorCardAction(globalNoiseCard);
+			StoreAction action = new UseSectorCardAction(globalNoiseCard);
 			parameters.add(action);
 			parameters.add(this.getToken());
 			this.comSession.start("makeAction", parameters);
@@ -693,7 +694,7 @@ public class Client extends Observable {
 			ObjectCard objectCardToDiscard = this.getPrivateDeck().getCard(
 					objectCardIndex - 1);
 			ArrayList<Object> parameters = new ArrayList<Object>();
-			Action action = new DiscardAction(objectCardToDiscard);
+			StoreAction action = new DiscardAction(objectCardToDiscard);
 			parameters.add(action);
 			parameters.add(this.token);
 			this.comSession.start("makeAction", parameters);
@@ -746,7 +747,7 @@ public class Client extends Observable {
 		if (targetSector != null) {
 			ObjectCard lightsCard = new LightsObjectCard(targetSector);
 			ArrayList<Object> parameters = new ArrayList<Object>();
-			Action action = new UseObjAction(lightsCard);
+			StoreAction action = new UseObjAction(lightsCard);
 			parameters.add(action);
 			parameters.add(this.getToken());
 			this.comSession.start("makeAction", parameters);
@@ -858,12 +859,12 @@ public class Client extends Observable {
 			AttackObjectCard card = null;
 			if (humanAttack) {
 				card = new AttackObjectCard(targetSector);
-				Action action = new UseObjAction(card);
+				StoreAction action = new UseObjAction(card);
 				parameters.add(action);
 				parameters.add(this.getToken());
 				this.comSession.start("makeAction", parameters);
 			} else {
-				Action action = new MoveAttackAction(targetSector);
+				StoreAction action = new MoveAttackAction(targetSector);
 				parameters.add(action);
 				parameters.add(this.getToken());
 				this.comSession.start("makeAction", parameters);

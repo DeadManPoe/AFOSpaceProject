@@ -49,11 +49,7 @@ public class GameReducer extends Reducer {
         GameTurnTimeoutExpiredAction castedAction = (GameTurnTimeoutExpiredAction) action;
         for (Game game : state.getGames()){
             if (game.gamePublicData.getId() == castedAction.getPayload()){
-                EndTurnEffect endTurnEffect = new EndTurnEffect();
-                PSClientNotification psClientNotification = new PSClientNotification();
-                RRClientNotification rrClientNotification = new RRClientNotification();
-                endTurnEffect.executeEffect(game,new EndTurnAction(game.gamePublicData.getId()));
-                game.lastPSclientNotification = psClientNotification;
+                EndTurnEffect.executeEffect(game,new EndTurnAction());
                 game.currentTimer.cancel();
                 game.currentTimer = new Timer();
             }
@@ -113,14 +109,14 @@ public class GameReducer extends Reducer {
 
     private ServerState makeAction(StoreAction action, ServerState state) {
         GameMakeActionAction castedAction = (GameMakeActionAction) action;
-        Action gameAction = castedAction.getPayload().getAction();
-        UUID handlerUUID = castedAction.getPayload().getReqRespHandlerUUID();
+        StoreAction gameAction = castedAction.payload.action;
+        UUID handlerUUID = castedAction.payload.reqRespHandlerUUID;
         boolean winH = false;
         boolean winA = false;
         RRClientNotification rrClientNotification = new RRClientNotification();
         PSClientNotification psClientNotification = new PSClientNotification();
         for (Game game : state.getGames()) {
-            if (game.gamePublicData.getId() == castedAction.getPayload().getGameId()) {
+            if (game.gamePublicData.getId() == castedAction.payload.playerToken.getGameId()) {
                 //1. get and check actual player
                 //2. get check actions
                 //3. check win conditions
@@ -128,7 +124,7 @@ public class GameReducer extends Reducer {
 
                 Player actualPlayer = null;
                 for (Player player : game.players) {
-                    if (player.playerToken.getUUID().equals(castedAction.getPayload().getPlayerToken().getUUID())) {
+                    if (player.playerToken.getUUID().equals(castedAction.payload.playerToken.getUUID())) {
                         actualPlayer = player;
                         break;
                     }
@@ -137,10 +133,10 @@ public class GameReducer extends Reducer {
                     rrClientNotification.setActionResult(false);
                 } else {
                     // If the player is ok then checks if the action is ok
-                    if (game.nextActions.contains(action.getType())){
+                    if (game.nextActions.contains(gameAction.getType())){
 
                         // Executes the effect and get the result
-                        ServerStore.getInstance().dispatchAction(new GameActionAction(action,game));
+                        ServerStore.getInstance().dispatchAction(new GameActionAction(gameAction,game));
                         if (game.lastActionResult) {
                             if (!game.lastAction.getClass().equals(EndTurnAction.class)) {
                                 if (actualPlayer.playerType.equals(PlayerType.HUMAN)) {

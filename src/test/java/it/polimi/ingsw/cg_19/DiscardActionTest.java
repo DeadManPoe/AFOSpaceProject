@@ -22,7 +22,7 @@ public class DiscardActionTest {
 	public void testGetObjectCard() {
 		ObjectCard card = new AdrenalineObjectCard();
 		DiscardAction action = new DiscardAction(card);
-		assertEquals(card, action.getObjectCard());
+		assertEquals(card, action.payload);
 	}
 
 }

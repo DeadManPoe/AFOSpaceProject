@@ -5,6 +5,7 @@ import store_effects.GameMakeActionEffect;
 import store_effects.GameStartGameEffect;
 import store_effects.GameTurnTimeoutExpiredEffect;
 import store_reducers.CommunicationReducer;
+import store_reducers.GameActionReducer;
 import store_reducers.GameReducer;
 import store_reducers.GamesReducer;
 
@@ -87,6 +88,7 @@ public class ServerStore {
         this.registerReducer(new CommunicationReducer(),"@COMMUNICATION");
         this.registerReducer(new GamesReducer(),"@GAMES");
         this.registerReducer(new GameReducer(),"@GAME");
+        this.registerReducer(new GameActionReducer(), "@GAMEACTION");
     }
     private void registerEffects(){
         this.registerEffect(new GameMakeActionEffect(),"@GAME_MAKE_ACTION");

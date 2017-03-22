@@ -24,7 +24,7 @@ public class MoveActionTest {
 	public void testGetTarget() {
 		Sector target = new Sector(new Coordinate('A', 1), SectorType.SAFE);
 		MoveAction action = new MoveAction(target);
-		assertEquals(target, action.getTarget());
+		assertEquals(target, action.payload);
 	}
 
 	/**

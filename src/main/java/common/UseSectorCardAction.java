@@ -13,7 +13,7 @@ public class UseSectorCardAction extends StoreAction {
 
     public SectorCard payload;
 
-    public UseSectorCardAction(SectorCard sectorCard, int gameId) {
+    public UseSectorCardAction(SectorCard sectorCard) {
         this.type = "@GAMEACTION_USE_SECTOR_CARD";
         this.payload = sectorCard;
     }

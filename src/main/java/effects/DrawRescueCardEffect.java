@@ -28,7 +28,7 @@ public class DrawRescueCardEffect extends ActionEffect {
 					+ " has escaped from aliens!");
 			game.lastRRclientNotification.addCard(card);
 			game.lastPSclientNotification.setEscapedPlayer(game.currentPlayer.playerToken);
-			EndTurnEffect.executeEffect(game, new EndTurnAction(game.gamePublicData.getId()));
+			EndTurnEffect.executeEffect(game, new EndTurnAction());
 			return true;
 		} else {
 			game.lastRRclientNotification.addCard(card);

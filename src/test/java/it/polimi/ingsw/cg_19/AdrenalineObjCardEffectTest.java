@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -12,17 +13,21 @@ import server_store.*;
 import server_store.Game;
 import server_store.Player;
 
+*/
 /**
  * Some tests for the AdrenalineObjCardEffect class
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class AdrenalineObjCardEffectTest {
 
-	/**
+	*/
+/**
 	 * Checks that after using an adrenaline card the player is adrenalined
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() {
 		RRClientNotification n1 = new RRClientNotification();
@@ -37,10 +42,12 @@ public class AdrenalineObjCardEffectTest {
 		assertTrue(p.isAdrenalined);
 	}
 
-	/**
+	*/
+/**
 	 * Checks that the getObjectCard method return the AdrenalineObjectCard
 	 * correctly
-	 */
+	 *//*
+
 	@Test
 	public void testAdrenalineEffect() {
 		AdrenalineObjectCard card = new AdrenalineObjectCard();
@@ -49,3 +56,4 @@ public class AdrenalineObjCardEffectTest {
 	}
 
 }
+*/

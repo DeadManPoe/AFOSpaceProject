@@ -1,3 +1,4 @@
+/*
 package serverClassTests;
 
 import it.polimi.ingsw.cg_19.PlayerType;
@@ -6,20 +7,24 @@ import org.junit.Test;
 
 import common.PlayerToken;
 
+*/
 /**
  * Some tests for the GameManager class Not all methods are tested because of
  * RMI/Socket depedency
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class GameManagerTest {
 	private GameManager gameManager = GameManager.getInstance();
 
 	@Test
-	/**
+	*/
+/**
 	 * Test for the getGame method
-	 */
+	 *//*
+
 	public void testAddGameNoTimer() {
 		Game game = new Game("FERMI");
 		int gameIndex = game.getPublicData().getId();
@@ -27,9 +32,11 @@ public class GameManagerTest {
 		assertEquals(game, gameManager.getGame(gameIndex));
 	}
 
-	/**
+	*/
+/**
 	 * Checks that a player is correctly added to a game
-	 */
+	 *//*
+
 	@Test
 	public void testAddPlayerToGame() {
 		Game game = new Game("FERMI");
@@ -49,9 +56,11 @@ public class GameManagerTest {
 
 	}
 
-	/**
+	*/
+/**
 	 * Checks that a game is correctly removed
-	 */
+	 *//*
+
 	@Test
 	public void testRemoveGame() {
 		Game game = new Game("FERMI");
@@ -64,3 +73,4 @@ public class GameManagerTest {
 		assertEquals(null, gameManager.getGame(playerToken));
 	}
 }
+*/

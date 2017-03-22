@@ -14,20 +14,20 @@ import server.ServerConnection;
  * @author Andrea Sessa
  * @author Giorgio Pea
  */
-public class MainServerTest {
+/*public class MainServerTest {
 	private MainServer server;
 	private ServerConnection serverConn = new ServerConnection(000, 000, "");
 
-	/**
+	*//**
 	 * Checks that the getGameManager return the correct reference to the
 	 * gameManager
 	 * 
 	 * @throws IOException
-	 */
+	 *//*
 	@Test
 	public void getGameManagerTest() throws IOException {
 		server = new MainServer(serverConn);
 		assertTrue(GameManager.getInstance() == server.getGameManager());
 		assertEquals(GameManager.getInstance(), server.getGameManager());
 	}
-}
+}*/

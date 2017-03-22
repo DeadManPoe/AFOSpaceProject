@@ -42,4 +42,20 @@ public class Player {
         this.playerToken = playerToken;
 
     }
+
+    @Override
+    public String toString() {
+        return "Player{" +
+                "speed=" + speed +
+                ", playerToken=" + playerToken +
+                ", playerType=" + playerType +
+                ", currentSector=" + currentSector +
+                ", playerState=" + playerState +
+                ", privateDeck=" + privateDeck +
+                ", isSedated=" + isSedated +
+                ", isAdrenalined=" + isAdrenalined +
+                ", hasMoved=" + hasMoved +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

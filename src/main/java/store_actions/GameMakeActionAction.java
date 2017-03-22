@@ -11,14 +11,10 @@ import java.util.UUID;
  */
 public class GameMakeActionAction extends StoreAction {
 
-    private GameMakeActionActionPayload payload;
+    public GameMakeActionActionPayload payload;
 
-    public GameMakeActionAction(Integer gameId, PlayerToken playerToken, UUID uuid, Action action) {
+    public GameMakeActionAction(PlayerToken playerToken, UUID uuid, StoreAction action) {
         this.type = "@GAME_MAKE_ACTION";
-        this.payload = new GameMakeActionActionPayload(gameId,playerToken,uuid,action);
-    }
-
-    public GameMakeActionActionPayload getPayload() {
-        return payload;
+        this.payload = new GameMakeActionActionPayload(playerToken,uuid,action);
     }
 }

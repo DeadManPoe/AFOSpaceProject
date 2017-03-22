@@ -5,6 +5,7 @@ import it.polimi.ingsw.cg_19.GameMap;
 import server_store.Game;
 import server_store.Player;
 import server_store.ServerState;
+import server_store.StoreAction;
 
 /**
  * Represents the effect of the moving a player
@@ -17,7 +18,8 @@ import server_store.ServerState;
  */
 public class MoveActionEffect extends ActionEffect {
 
-    public static boolean executeEffect(Game game, MoveAction moveAction) {
+    public static boolean executeEffect(Game game, StoreAction action) {
+        MoveAction moveAction = (MoveAction) action;
         game.lastAction = moveAction;
         // Retrieve a reference of the map
         GameMap map = game.gameMap;

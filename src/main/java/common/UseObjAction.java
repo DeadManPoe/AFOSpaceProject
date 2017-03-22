@@ -14,7 +14,7 @@ public class UseObjAction extends StoreAction {
 
     public ObjectCard payload;
 
-    public UseObjAction(ObjectCard objectCard, int gameId) {
+    public UseObjAction(ObjectCard objectCard) {
         this.type = "@GAMEACTION_USE_OBJ_CARD";
         this.payload = objectCard;
     }

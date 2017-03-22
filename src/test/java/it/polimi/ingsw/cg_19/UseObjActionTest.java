@@ -25,8 +25,8 @@ public class UseObjActionTest {
 		AdrenalineObjectCard card = new AdrenalineObjectCard();
 		SuppressorObjectCard card2 = new SuppressorObjectCard();
 		UseObjAction action = new UseObjAction(card);
-		assertEquals(card, action.getCard());
-		assertNotEquals(card2, action.getCard());
+		assertEquals(card, action.payload);
+		assertNotEquals(card2, action.payload);
 	}
 
 	/**

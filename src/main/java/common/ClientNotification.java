@@ -55,4 +55,11 @@ public class ClientNotification implements Serializable {
 	public void setMessage(String message) {
 		this.message = message;
 	}
+
+	@Override
+	public String toString() {
+		return "ClientNotification{" +
+				"message='" + message + '\'' +
+				'}';
+	}
 }

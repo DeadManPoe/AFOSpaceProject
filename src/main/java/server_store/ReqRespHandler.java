@@ -124,7 +124,6 @@ public class ReqRespHandler extends Thread {
         server_store.Game game = new server_store.Game(gameMapName);
         this.serverStore.dispatchAction(new GamesAddGameAction(game));
         this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, game.gamePublicData.getId(),playerName));
-        this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(objectOutputStream, game.gamePublicData.getId())));
         this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
 
     }
@@ -147,6 +146,15 @@ public class ReqRespHandler extends Thread {
         this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(objectOutputStream, playerToken.getGameId())));
         //this.serverStore.dispatchAction(new GameStartGameAction(playerToken.getGameId()));
         this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
+        for (Game game : serverStore.getState().getGames()){
+            if (game.gamePublicData.getId() == playerToken.getGameId()){
+                if(game.players.size() == 2){
+                    this.serverStore.dispatchAction(new GameStartGameAction(playerToken.getGameId()));
+                    break;
+                }
+            }
+        }
+
     }
 
     /**
@@ -160,9 +168,9 @@ public class ReqRespHandler extends Thread {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    public void makeAction(Action action, Integer gameId, PlayerToken playerToken)
+    public void makeAction(StoreAction action, PlayerToken playerToken)
             throws IOException, InstantiationException, IllegalAccessException {
-        this.serverStore.dispatchAction(new GameMakeActionAction(gameId, playerToken, this.uuid, action));
+        this.serverStore.dispatchAction(new GameMakeActionAction(playerToken, this.uuid, action));
     }
 
     /**
@@ -176,10 +184,10 @@ public class ReqRespHandler extends Thread {
      *                be delivered the text message, is derived.
      * @throws IOException
      */
-    public void publishGlobalMessage(String message, Integer gameId,
+    public void publishGlobalMessage(String message,
                                      PlayerToken token) throws IOException {
         for (PubSubHandler handler : this.serverStore.getState().getPubSubHandlers()){
-            if(handler.getGameId().equals(gameId)){
+            if(handler.getGameId().equals(token.getGameId())){
                 ArrayList<Object> parameters = new ArrayList<>();
                 parameters.add(token.getUUID().toString()+" says: "+message);
                 handler.queueNotification(new RemoteMethodCall("publishChatMsg",parameters));

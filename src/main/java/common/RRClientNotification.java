@@ -119,4 +119,6 @@ public class RRClientNotification extends ClientNotification {
 	public void addSector(Sector sector) {
 		this.lightedSectors.add(sector);
 	}
+
+
 }

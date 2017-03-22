@@ -9,7 +9,7 @@ import java.util.TimerTask;
  * @author Andrea Sessa
  * @author Giorgio Pea
  */
-public class GameTimeout extends TimerTask {
+/*public class GameTimeout extends TimerTask {
 	private Game game;
 	private GameManager gameManager;
 	private Timer timer;
@@ -27,4 +27,4 @@ public class GameTimeout extends TimerTask {
 		timer.cancel();
 		timer.purge();
 	}
-}
+}*/

@@ -51,4 +51,26 @@ public class Game {
         this.currentTimer = null;
         this.lastActionResult = true;
     }
+
+    @Override
+    public String toString() {
+        return "Game{" +
+                "players=" + players +
+                ", playerNameToToken=" + playerNameToToken +
+                ", objectDeck=" + objectDeck +
+                ", rescueDeck=" + rescueDeck +
+                ", sectorDeck=" + sectorDeck +
+                ", currentPlayer=" + currentPlayer +
+                ", turnNumber=" + turnNumber +
+                ", gamePublicData=" + gamePublicData +
+                ", mapName='" + mapName + '\'' +
+                ", gameMap=" + gameMap +
+                ", lastAction=" + lastAction +
+                ", nextActions=" + nextActions +
+                ", lastRRclientNotification=" + lastRRclientNotification +
+                ", lastPSclientNotification=" + lastPSclientNotification +
+                ", currentTimer=" + currentTimer +
+                ", lastActionResult=" + lastActionResult +
+                '}';
+    }
 }

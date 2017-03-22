@@ -16,15 +16,15 @@ public class GameMakeActionEffect extends Effect {
         GameMakeActionAction castedAction = (GameMakeActionAction) action;
         Game game = null;
         for (Game c_game : state.getGames()){
-            if (c_game.gamePublicData.getId() == castedAction.getPayload().getGameId()){
+            if (c_game.gamePublicData.getId() == castedAction.payload.playerToken.getGameId()){
                 game = c_game;
                 break;
             }
         }
         if (game != null){
-            game.currentTimer.schedule(new TurnTimeout(castedAction.getPayload().getGameId()), state.getTurnTimeout());
+            game.currentTimer.schedule(new TurnTimeout(castedAction.payload.playerToken.getGameId()), state.getTurnTimeout());
             for (ReqRespHandler handler : state.getReqRespHandlers()) {
-                if (handler.getUuid().equals(castedAction.getPayload().getReqRespHandlerUUID())) {
+                if (handler.getUuid().equals(castedAction.payload.reqRespHandlerUUID)) {
                     ArrayList<Object> parameters = new ArrayList<>();
                     parameters.add(game.lastRRclientNotification);
                     handler.addRemoteMethodCallToQueue(new RemoteMethodCall("sendNotification", parameters));
@@ -34,7 +34,7 @@ public class GameMakeActionEffect extends Effect {
             for (PubSubHandler handler : state.getPubSubHandlers()) {
                 if (handler.getGameId() == game.gamePublicData.getId()) {
                     ArrayList<Object> parameters = new ArrayList<>();
-                    parameters.add(game.lastRRclientNotification);
+                    parameters.add(game.lastPSclientNotification);
                     handler.queueNotification(new RemoteMethodCall("sendPubNotification", parameters));
 
                 }

@@ -26,10 +26,17 @@ public class EndTurnEffect extends ActionEffect {
         game.currentPlayer.isSedated = false;
         game.currentPlayer.hasMoved = false;
         // Set the new current player
+
+
+        game.lastPSclientNotification = new PSClientNotification();
+        game.lastPSclientNotification.setMessage("\n[GLOBAL MESSAGE]: "
+                + game.currentPlayer.name
+                + " has ended its turn.\n[GLOBAL MESSAGE]: ");
+
         shiftCurrentplayer(game);
+        game.lastPSclientNotification.setMessage(game.lastPSclientNotification.getMessage() + game.currentPlayer.name + " now is your turn");
+
         // Notify the client
-        if (game.currentPlayer.playerState != PlayerState.ESCAPED)
-            game.lastRRclientNotification.setMessage("You have ended your turn now wait until its your turn");
         game.lastAction = action;
         return true;
     }
