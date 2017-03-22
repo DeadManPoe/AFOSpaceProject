@@ -1,5 +1,6 @@
 package server_store;
 
+import common.PlayerToken;
 import common.RemoteMethodCall;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ public class PubSubHandler extends Thread {
     private Socket socket;
     // A queue of messages to send to the subscriber
     private ConcurrentLinkedQueue<RemoteMethodCall> buffer;
-    private Integer gameId;
+    private PlayerToken playerToken;
     // The object output stream used to perform the remote method call on the
     // subscriber
     private ObjectOutputStream objectOutputStream;
@@ -30,12 +31,12 @@ public class PubSubHandler extends Thread {
      *
      * @param outputStream
      *            the socket used perform remote method calls on the subscriber
-     * @param gameId
+     * @param playerToken The token that identifies a player along with the game is playing
      *
      * @throws IOException
      */
-    public PubSubHandler(ObjectOutputStream outputStream, Integer gameId) throws IOException {
-        this.gameId = gameId;
+    public PubSubHandler(ObjectOutputStream outputStream, PlayerToken playerToken) throws IOException {
+        this.playerToken = playerToken;
         this.buffer = new ConcurrentLinkedQueue<>();
         this.objectOutputStream = outputStream;
     }
@@ -82,8 +83,8 @@ public class PubSubHandler extends Thread {
         }
     }
 
-    public Integer getGameId() {
-        return gameId;
+    public PlayerToken getPlayerToken() {
+        return playerToken;
     }
 
     public void queueNotification(RemoteMethodCall remoteMethodCall) {

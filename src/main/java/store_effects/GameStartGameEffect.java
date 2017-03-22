@@ -31,7 +31,7 @@ public class GameStartGameEffect extends Effect {
             parameters.add(game.gameMap.getName());
             parameters.add(game.currentPlayer.playerToken);
             for (PubSubHandler handler : state.getPubSubHandlers()){
-                if (handler.getGameId().equals(gameId)){
+                if (handler.getPlayerToken().getGameId().equals(gameId)){
                     handler.queueNotification(new RemoteMethodCall("sendMap",parameters));
                 }
             }

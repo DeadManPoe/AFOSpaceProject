@@ -34,7 +34,7 @@ public class GamesReducer extends Reducer {
             }
         }
         for (int i=0; i<state.getPubSubHandlers().size(); i++){
-            if(state.getPubSubHandlers().get(i).getGameId().equals(castedAction.getPayload())){
+            if(state.getPubSubHandlers().get(i).getPlayerToken().getGameId().equals(castedAction.getPayload())){
                 state.getPubSubHandlers().remove(i);
             }
         }

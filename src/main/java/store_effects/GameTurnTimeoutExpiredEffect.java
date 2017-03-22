@@ -24,7 +24,7 @@ public class GameTurnTimeoutExpiredEffect extends Effect {
             }
         }
         for (PubSubHandler handler : state.getPubSubHandlers()){
-            if (handler.getGameId().equals(castedAction.getPayload())){
+            if (handler.getPlayerToken().getGameId().equals(castedAction.getPayload())){
                 handler.queueNotification(new RemoteMethodCall("sendPubNotification",parameters));
             }
         }

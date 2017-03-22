@@ -32,7 +32,7 @@ public class GameMakeActionEffect extends Effect {
                 }
             }
             for (PubSubHandler handler : state.getPubSubHandlers()) {
-                if (handler.getGameId() == game.gamePublicData.getId()) {
+                if (handler.getPlayerToken().getGameId() == game.gamePublicData.getId()) {
                     ArrayList<Object> parameters = new ArrayList<>();
                     parameters.add(game.lastPSclientNotification);
                     handler.queueNotification(new RemoteMethodCall("sendPubNotification", parameters));

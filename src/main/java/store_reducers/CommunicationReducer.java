@@ -45,7 +45,7 @@ public class CommunicationReducer extends Reducer {
     private ServerState removePubSubHandler(StoreAction action, ServerState state) {
         CommunicationRemovePubSubHandlerAction castedAction = (CommunicationRemovePubSubHandlerAction) action;
         for (int i=0; i<state.getPubSubHandlers().size(); i++){
-            if(state.getPubSubHandlers().get(i).getGameId().equals(castedAction.getPayload())){
+            if(state.getPubSubHandlers().get(i).getPlayerToken().getGameId().equals(castedAction.getPayload())){
                 state.getPubSubHandlers().remove(i);
                 return state;
             }
