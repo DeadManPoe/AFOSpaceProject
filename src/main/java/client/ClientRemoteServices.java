@@ -222,10 +222,8 @@ public class ClientRemoteServices extends UnicastRemoteObject implements
 	 * @see ClientRemoteServicesInterface#allowTurn
 	 */
 	@Override
-	public void allowTurn(PlayerToken playerToken) {
-		if (playerToken.equals(client.getToken())) {
-			client.setIsMyTurn(true);
-		}
+	public void allowTurn() {
+		client.setIsMyTurn(true);
 	}
 
 	/**

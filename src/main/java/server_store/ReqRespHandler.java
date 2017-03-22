@@ -143,7 +143,7 @@ public class ReqRespHandler extends Thread {
         this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
     }
     public void subscribe(PlayerToken playerToken) throws IOException {
-        this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(objectOutputStream, playerToken.getGameId())));
+        this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(objectOutputStream, playerToken)));
         //this.serverStore.dispatchAction(new GameStartGameAction(playerToken.getGameId()));
         this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
         for (Game game : serverStore.getState().getGames()){
@@ -187,7 +187,7 @@ public class ReqRespHandler extends Thread {
     public void publishGlobalMessage(String message,
                                      PlayerToken token) throws IOException {
         for (PubSubHandler handler : this.serverStore.getState().getPubSubHandlers()){
-            if(handler.getGameId().equals(token.getGameId())){
+            if(handler.getPlayerToken().getGameId().equals(token.getGameId())){
                 ArrayList<Object> parameters = new ArrayList<>();
                 parameters.add(token.getUUID().toString()+" says: "+message);
                 handler.queueNotification(new RemoteMethodCall("publishChatMsg",parameters));

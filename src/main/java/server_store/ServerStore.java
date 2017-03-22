@@ -1,9 +1,6 @@
 package server_store;
 
-import store_effects.GameAddPlayerEffect;
-import store_effects.GameMakeActionEffect;
-import store_effects.GameStartGameEffect;
-import store_effects.GameTurnTimeoutExpiredEffect;
+import store_effects.*;
 import store_reducers.CommunicationReducer;
 import store_reducers.GameActionReducer;
 import store_reducers.GameReducer;
@@ -95,6 +92,7 @@ public class ServerStore {
         this.registerEffect(new GameStartGameEffect(),"@GAME_START_GAME");
         this.registerEffect(new GameAddPlayerEffect(),"@GAME_ADD_PLAYER");
         this.registerEffect(new GameTurnTimeoutExpiredEffect(),"@GAME_TURNTIMEOUT_EXPIRED");
+        this.registerEffect(new GameActionMakeEffect(), "@GAMEACTION_END_TURN");
     }
 }
 

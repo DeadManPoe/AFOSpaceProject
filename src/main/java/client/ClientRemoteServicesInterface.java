@@ -99,7 +99,7 @@ public interface ClientRemoteServicesInterface extends Remote {
 	 * @throws RemoteException
 	 *             signals a rmi com. error
 	 */
-	public void allowTurn(PlayerToken playerToken) throws RemoteException;
+	public void allowTurn() throws RemoteException;
 
 	/**
 	 * Allows the server to "kick" out of the game a player
