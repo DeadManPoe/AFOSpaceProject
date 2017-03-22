@@ -18,8 +18,8 @@ public class GameActionReducer extends Reducer {
     public ServerState reduce(StoreAction action, ServerState state) {
         GameActionAction castedAction = (GameActionAction) action;
         try {
-            Method executeMethod = GameActionMapper.getInstance().getEffect(action.getType()).getMethod("execute");
-            executeMethod.invoke(castedAction.game, castedAction.action);
+            Method executeMethod = GameActionMapper.getInstance().getEffect(action.getType()).getMethod("executeEffect");
+            castedAction.game.lastActionResult = (boolean) executeMethod.invoke(castedAction.game, castedAction.action);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }

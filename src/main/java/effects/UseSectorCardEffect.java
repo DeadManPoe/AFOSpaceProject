@@ -22,7 +22,7 @@ public class UseSectorCardEffect extends ActionEffect {
 		SectorCardsMapper mapper = new SectorCardsMapper();
 		game.lastAction = action;
 		try {
-			Method executeMethod = mapper.getEffect(action.payload).getMethod("execute");
+			Method executeMethod = mapper.getEffect(action.payload).getMethod("executeEffect");
 			return (boolean)  executeMethod.invoke(game);
 		} catch (InstantiationException | IllegalAccessException e) {
 

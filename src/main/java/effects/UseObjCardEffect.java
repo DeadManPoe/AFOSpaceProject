@@ -68,7 +68,7 @@ public class UseObjCardEffect extends ActionEffect {
             game.lastAction = action;
             game.lastRRclientNotification = clientNotification;
             game.lastPSclientNotification = psNotification;
-            Method executeMethod = mapper.getEffect(action.payload).getMethod("execute");
+            Method executeMethod = mapper.getEffect(action.payload).getMethod("executeEffect");
             return (boolean) executeMethod.invoke(game, action.payload);
 
         } catch (InstantiationException | IllegalAccessException e) {
