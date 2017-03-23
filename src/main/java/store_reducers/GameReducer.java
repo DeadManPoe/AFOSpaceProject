@@ -284,7 +284,7 @@ public class GameReducer extends Reducer {
                 return true;
             } else if (game.turnNumber == 39 && !allEscapedHumans) {
                 return true;
-            } else if (!allEscapedHumans && existEscapes) {
+            } else if (!allEscapedHumans && !existEscapes) {
                 return true;
             }
             return false;
