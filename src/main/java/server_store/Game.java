@@ -22,7 +22,6 @@ public class Game {
     public static int counter = 0;
 
     public List<server_store.Player> players;
-    public Map<String, PlayerToken> playerNameToToken;
     public ObjectDeck objectDeck;
     public RescueDeck rescueDeck;
     public SectorDeck sectorDeck;
@@ -37,6 +36,8 @@ public class Game {
     public PSClientNotification lastPSclientNotification;
     public Timer currentTimer;
     public boolean lastActionResult;
+    public boolean didAlienWin;
+    public boolean didHumansWin;
 
     public Game(String gameMapName) {
         counter++;
@@ -50,13 +51,14 @@ public class Game {
         this.lastRRclientNotification = null;
         this.currentTimer = null;
         this.lastActionResult = true;
+        this.didHumansWin = false;
+        this.didHumansWin = false;
     }
 
     @Override
     public String toString() {
         return "Game{" +
                 "players=" + players +
-                ", playerNameToToken=" + playerNameToToken +
                 ", objectDeck=" + objectDeck +
                 ", rescueDeck=" + rescueDeck +
                 ", sectorDeck=" + sectorDeck +
@@ -71,6 +73,8 @@ public class Game {
                 ", lastPSclientNotification=" + lastPSclientNotification +
                 ", currentTimer=" + currentTimer +
                 ", lastActionResult=" + lastActionResult +
+                ", didAlienWin=" + didAlienWin +
+                ", didHumansWin=" + didHumansWin +
                 '}';
     }
 }

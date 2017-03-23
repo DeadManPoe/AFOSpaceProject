@@ -165,28 +165,10 @@ public class GameReducer extends Reducer {
                                 }
                                 game.turnNumber++;
                             }
-                            winH = checkWinConditions(PlayerType.HUMAN, game);
-                            winA = checkWinConditions(PlayerType.ALIEN, game);
-
-                            if (winH) {
-                                game.lastPSclientNotification
-                                        .setMessage(game.lastPSclientNotification.getMessage()
-                                                + "\n[GLOBAL MESSAGE]: The game has ended, HUMANS WIN!");
-                                game.lastPSclientNotification.setHumanWins(true);
-                            }
-                            if (winA) {
-                                game.lastPSclientNotification
-                                        .setMessage(game.lastPSclientNotification.getMessage()
-                                                + "\n[GLOBAL MESSAGE]: The game has ended, ALIENS WIN!");
-                                game.lastPSclientNotification.setAlienWins(true);
-
-                            }
-                            if (winH || winA) {
-                                ServerStore.getInstance().dispatchAction(new GamesEndGameAction(game.gamePublicData.getId()));
-                            } else {
-                                game.currentTimer.cancel();
-                                game.currentTimer = new Timer();
-                            }
+                            game.didHumansWin = checkWinConditions(PlayerType.HUMAN, game);
+                            game.didAlienWin = checkWinConditions(PlayerType.ALIEN, game);
+                            game.currentTimer.cancel();
+                            game.currentTimer = new Timer();
                             game.lastRRclientNotification.setActionResult(true);
                         }
                     } else {
@@ -266,7 +248,7 @@ public class GameReducer extends Reducer {
      * @return True if the faction has won, false otherwise
      */
     private boolean checkWinConditions(PlayerType playerType, Game game) {
-        boolean allDeadHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED, game.players);
+        boolean allDeadHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.DEAD, game.players);
         boolean allEscapedHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED, game.players);
         boolean allDeadAliens = this.checkStateAll(PlayerType.ALIEN, PlayerState.DEAD, game.players);
         boolean existEscapes = game.gameMap.existEscapes();

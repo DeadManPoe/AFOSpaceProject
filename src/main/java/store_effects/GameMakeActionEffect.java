@@ -3,6 +3,7 @@ package store_effects;
 import common.RemoteMethodCall;
 import server_store.*;
 import store_actions.GameMakeActionAction;
+import store_actions.GamesEndGameAction;
 
 import java.util.ArrayList;
 
@@ -22,7 +23,19 @@ public class GameMakeActionEffect extends Effect {
             }
         }
         if (game != null){
-            game.currentTimer.schedule(new TurnTimeout(castedAction.payload.playerToken.getGameId()), state.getTurnTimeout());
+            if (game.didHumansWin) {
+                game.lastPSclientNotification
+                        .setMessage(game.lastPSclientNotification.getMessage()
+                                + "\n[GLOBAL MESSAGE]: The game has ended, HUMANS WIN!");
+                game.lastPSclientNotification.setHumanWins(true);
+            }
+            if (game.didAlienWin) {
+                game.lastPSclientNotification
+                        .setMessage(game.lastPSclientNotification.getMessage()
+                                + "\n[GLOBAL MESSAGE]: The game has ended, ALIENS WIN!");
+                game.lastPSclientNotification.setAlienWins(true);
+
+            }
             for (ReqRespHandler handler : state.getReqRespHandlers()) {
                 if (handler.getUuid().equals(castedAction.payload.reqRespHandlerUUID)) {
                     ArrayList<Object> parameters = new ArrayList<>();
@@ -39,6 +52,13 @@ public class GameMakeActionEffect extends Effect {
 
                 }
             }
+            if (!game.didAlienWin && !game.didHumansWin){
+                game.currentTimer.schedule(new TurnTimeout(castedAction.payload.playerToken.getGameId()), state.getTurnTimeout());
+            }
+            else {
+                ServerStore.getInstance().dispatchAction(new GamesEndGameAction(game.gamePublicData.getId()));
+            }
+
         }
 
 
