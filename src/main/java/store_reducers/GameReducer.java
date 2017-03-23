@@ -1,27 +1,28 @@
 package store_reducers;
 
-import common.*;
+import common.EndTurnAction;
+import common.PSClientNotification;
+import common.PlayerToken;
+import common.RRClientNotification;
 import decks.ObjectDeck;
 import decks.RescueDeck;
 import decks.SectorDeck;
 import effects.EndTurnEffect;
-import effects.GameActionMapper;
 import factories.*;
-import it.polimi.ingsw.cg_19.*;
+import it.polimi.ingsw.cg_19.PlayerState;
+import it.polimi.ingsw.cg_19.PlayerType;
 import server.GameStatus;
 import server_store.*;
-import server_store.AlienTurn;
-import server_store.Game;
-import server_store.HumanTurn;
-import server_store.Player;
-import server_store.Turn;
 import store_actions.*;
-import server_store.Reducer;
 
-import java.util.*;
+import java.util.List;
+import java.util.Timer;
 
 /**
  * Created by giorgiopea on 14/03/17.
+ *
+ * Handles the logic related to the slice of the app's state
+ * represented by a single game
  */
 public class GameReducer extends Reducer {
     @Override
@@ -47,9 +48,9 @@ public class GameReducer extends Reducer {
 
     private ServerState turnTimeoutExpired(StoreAction action, ServerState state) {
         GameTurnTimeoutExpiredAction castedAction = (GameTurnTimeoutExpiredAction) action;
-        for (Game game : state.getGames()){
-            if (game.gamePublicData.getId() == castedAction.getPayload()){
-                EndTurnEffect.executeEffect(game,new EndTurnAction());
+        for (Game game : state.getGames()) {
+            if (game.gamePublicData.getId() == castedAction.getPayload()) {
+                EndTurnEffect.executeEffect(game, new EndTurnAction());
                 game.currentTimer.cancel();
                 game.currentTimer = new Timer();
             }
@@ -58,12 +59,20 @@ public class GameReducer extends Reducer {
 
     }
 
+    /**
+     * Changes a game in the list of games in the app's state, so that the game
+     * starts. This includes the initialization of the game's associated decks and map, along with
+     * a turn timer
+     *
+     * @param action The action that has triggered this task, see {@link store_actions.GameStartGameAction}
+     * @param state  The current app's state
+     * @return The new app's state
+     */
     private ServerState startGame(StoreAction action, ServerState state) {
-
         GameStartGameAction castedAction = (GameStartGameAction) action;
         Integer gameId = castedAction.getPayload();
-        for (Game game : state.getGames()){
-            if(game.gamePublicData.getId() == gameId ){
+        for (Game game : state.getGames()) {
+            if (game.gamePublicData.getId() == gameId) {
                 DeckFactory deckFactory = new ObjectDeckFactory();
                 game.objectDeck = (ObjectDeck) deckFactory.makeDeck();
                 deckFactory = new SectorDeckFactory();
@@ -71,18 +80,8 @@ public class GameReducer extends Reducer {
                 deckFactory = new RescueDeckFactory();
                 game.rescueDeck = (RescueDeck) deckFactory.makeDeck();
 
-                GameMapFactory gameMapFactory = null;
+                game.gameMap = GameMapFactory.provideCorrectFactory(game.mapName).makeMap();
 
-                if (game.mapName.equals("GALILEI")) {
-                    gameMapFactory = new GalileiGameMapFactory();
-                } else if (game.mapName.equals("FERMI")) {
-                    gameMapFactory = new FermiGameMapFactory();
-                } else if (game.mapName.equals("GALVANI")) {
-                    gameMapFactory = new GalvaniGameMapFactory();
-                } else {
-                    throw new NoSuchElementException("No map matches with the given name");
-                }
-                game.gameMap = gameMapFactory.makeMap();
                 for (Player player : game.players) {
                     if (player.playerType.equals(PlayerType.HUMAN)) {
                         player.currentSector = game.gameMap.getHumanSector();
@@ -92,8 +91,6 @@ public class GameReducer extends Reducer {
                         game.gameMap.getAlienSector().addPlayer(player);
                     }
                 }
-                Turn turn;
-                // Init of the first game turn
                 if (game.currentPlayer.playerType.equals(PlayerType.HUMAN)) {
                     game.nextActions = HumanTurn.getInitialActions();
                 } else {
@@ -104,21 +101,26 @@ public class GameReducer extends Reducer {
                 return state;
             }
         }
-        return null;
+        return state;
     }
 
+    /**
+     * Changes a game in the list of games in the app's state in response to a player willing to make an in-game action.
+     * This method checks if the player that wants to make an in-game action is authorized to do so, if the action
+     * is allowed to be performed and if the action, once executed, causes the game to end. All the necessary textual
+     * notification to be sent to players are produced too
+     *
+     * @param action The action that has triggered this task, see {@link store_actions.GameMakeActionAction}
+     * @param state The app's current state
+     * @return The app's new state
+     */
     private ServerState makeAction(StoreAction action, ServerState state) {
         GameMakeActionAction castedAction = (GameMakeActionAction) action;
         StoreAction gameAction = castedAction.payload.action;
-        UUID handlerUUID = castedAction.payload.reqRespHandlerUUID;
-        boolean winH = false;
-        boolean winA = false;
+        boolean winH;
+        boolean winA;
         for (Game game : state.getGames()) {
             if (game.gamePublicData.getId() == castedAction.payload.playerToken.getGameId()) {
-                //1. get and check actual player
-                //2. get check actions
-                //3. check win conditions
-                //4. notify
                 game.lastPSclientNotification = new PSClientNotification();
                 game.lastRRclientNotification = new RRClientNotification();
                 Player actualPlayer = null;
@@ -131,11 +133,11 @@ public class GameReducer extends Reducer {
                 if (!game.currentPlayer.equals(actualPlayer)) {
                     game.lastRRclientNotification.setActionResult(false);
                 } else {
-                    // If the player is ok then checks if the action is ok
-                    if (game.nextActions.contains(gameAction.getType())){
+                    // If the player is ok then check if the action is ok
+                    if (game.nextActions.contains(gameAction.getType())) {
 
-                        // Executes the effect and get the result
-                        ServerStore.getInstance().dispatchAction(new GameActionAction(gameAction,game));
+                        // Executes the action's associated logic and get the result
+                        ServerStore.getInstance().dispatchAction(new GameActionAction(gameAction, game));
                         if (game.lastActionResult) {
                             if (!game.lastAction.getClass().equals(EndTurnAction.class)) {
                                 if (actualPlayer.playerType.equals(PlayerType.HUMAN)) {
@@ -169,9 +171,8 @@ public class GameReducer extends Reducer {
 
                             }
                             if (winH || winA) {
-                                ServerStore.getInstance().dispatchAction(new GameEndGameAction(game.gamePublicData.getId()));
-                            }
-                            else {
+                                ServerStore.getInstance().dispatchAction(new GamesEndGameAction(game.gamePublicData.getId()));
+                            } else {
                                 game.currentTimer.cancel();
                                 game.currentTimer = new Timer();
                             }
@@ -188,6 +189,13 @@ public class GameReducer extends Reducer {
         return state;
     }
 
+    /**
+     * Changes a game in the list of games in the app's state, so that a new player is added to this game
+     *
+     * @param action The action that has triggered this task, see {@link store_actions.GameAddPlayerAction}
+     * @param state The app's current state
+     * @return The app's new state
+     */
     private ServerState addPlayer(StoreAction action, ServerState state) {
         GameAddPlayerAction castedAction = (GameAddPlayerAction) action;
         PlayerToken playerToken;
@@ -198,7 +206,7 @@ public class GameReducer extends Reducer {
                 server_store.Player player = new server_store.Player(playerType, castedAction.getPayload().getPlayerName(), playerToken);
                 game.players.add(player);
                 game.gamePublicData.addPlayer();
-                if(game.currentPlayer == null){
+                if (game.currentPlayer == null) {
                     game.currentPlayer = player;
                 }
                 break;
@@ -209,13 +217,13 @@ public class GameReducer extends Reducer {
 
 
     /**
-     * Produces a player type based on the number of players already in game .
+     * Produces a player type based on the number of players already in game.
      * If the number of players already in game is even, the returned player
      * type is "HUMAN", otherwise is "ALIEN". This procedure is adopted in order
      * to guarantee a balanced number of aliens and humans
      *
-     * @param numberOfPlayers the number of players already in game
-     * @return a player type, either "HUMAN" or "ALIEN"
+     * @param numberOfPlayers The number of players already in game
+     * @return A player type, either "HUMAN" or "ALIEN"
      */
     public PlayerType assignTypeToPlayer(int numberOfPlayers) {
         if (numberOfPlayers % 2 == 0) {
@@ -226,41 +234,61 @@ public class GameReducer extends Reducer {
 
     }
 
+    /**
+     * Decides if the Humans or Aliens have won the game.
+     * Aliens win if:
+     * <ul>
+     *     <li>All human players are dead</li>
+     *     <li>Some human player is still alive but the turn number is 39</li>
+     *     <li>Some human player is still alive but no escape point is available</li>
+     * </ul>
+     * <br/>
+     * Humans win if:
+     * <ul>
+     *     <li>They have all escaped</li>
+     *     <li>No alien is left, at least one human is still alive and at least one escape point exists/li>
+     *     <li>At least one human has escaped but no more alive players exist</li>
+     * </ul>
+     * @param playerType The type of the faction we want to check if has won or not
+     * @param game The game we are considering
+     * @return True if the faction has won, false otherwise
+     */
     private boolean checkWinConditions(PlayerType playerType, Game game) {
+        boolean allDeadHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED,game.players);
+        boolean allEscapedHumans = this.checkStateAll(PlayerType.HUMAN,PlayerState.ESCAPED, game.players);
+        boolean allDeadAliens = this.checkStateAll(PlayerType.ALIEN, PlayerState.DEAD, game.players);
+        boolean existEscapes = game.gameMap.existEscapes();
         if (playerType == PlayerType.HUMAN) {
             // If all human players are escaped then Human wins!
-            if (this.checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED, game.players))
+            if (allEscapedHumans){
                 return true;
-                // Only one human player left with an escape possibility
-            else if (this.getNumOfAlivePlayer(PlayerType.ALIEN, game.players) == 0
-                    && this.getNumOfAlivePlayer(PlayerType.HUMAN, game.players) == 1
-                    && game.gameMap.existEscapes())
+            }
+            else if (!allDeadHumans && allDeadAliens ){
                 return true;
-                // All human player are dead or escaped
-            else if (!this.checkStateAll(PlayerType.HUMAN, PlayerState.DEAD, game.players)
-                    && this.getNumOfAlivePlayer(PlayerType.HUMAN, game.players) == 0)
-                return true;
+            }
+            return false;
         } else {
             // If all human player are all dead, alien wins!
-            if (this.getNumOfAlivePlayer(PlayerType.HUMAN, game.players) == 0
-                    && !checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED, game.players))
+            if (allDeadHumans){
                 return true;
-
-            if (game.turnNumber == 39) {
-                // Some human player is still alive, but turn = 39, so alien
-                // wins
-                if (this.getNumOfAlivePlayer(PlayerType.HUMAN, game.players) > 0)
-                    return true;
-                return false;
-            } else {
-                if (!game.gameMap.existEscapes()
-                        && this.getNumOfAlivePlayer(PlayerType.HUMAN, game.players) > 0)
-                    return true;
             }
+            else if (game.turnNumber == 39 && !allEscapedHumans){
+                return true;
+            }
+            else if (!allEscapedHumans && existEscapes){
+                return true;
+            }
+            return false;
         }
-        return false;
     }
 
+    /**
+     * Check if all the players of a given faction obey to a given status
+     * @param playerType The faction we are interested in
+     * @param state The status we are interested in
+     * @param players All the players of all factions
+     * @return True if the players of the given faction obey to the given status, false otherwise
+     */
     private boolean checkStateAll(PlayerType playerType, PlayerState state, List<Player> players) {
         for (Player player : players) {
             if (!player.playerState.equals(state)
@@ -268,15 +296,5 @@ public class GameReducer extends Reducer {
                 return false;
         }
         return true;
-    }
-
-    private int getNumOfAlivePlayer(PlayerType type, List<Player> players) {
-        int count = 0;
-        for (Player player : players) {
-            if (player.playerState.equals(PlayerState.ALIVE)
-                    && player.playerType.equals(type))
-                count++;
-        }
-        return count;
     }
 }

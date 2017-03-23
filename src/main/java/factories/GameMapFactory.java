@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
 import org.jgrapht.UndirectedGraph;
@@ -106,7 +107,6 @@ public abstract class GameMapFactory {
 				}
 			}
 			fileReaderBuffer.close();
-		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 		}
 		try {
@@ -153,12 +153,21 @@ public abstract class GameMapFactory {
 				}
 				j++;
 			}
-		} catch (FileNotFoundException e) {
-
 		} catch (IOException e) {
 
 		}
 		return graph;
+	}
+	public static GameMapFactory provideCorrectFactory(String factoryIdentifier){
+		switch (factoryIdentifier){
+			case "GALILEI":
+				return new GalileiGameMapFactory();
+			case "FERMI":
+				return new FermiGameMapFactory();
+			case "GALVANI":
+				return new GalvaniGameMapFactory();
+		}
+		throw new NoSuchElementException("No factory matches the given identifier");
 	}
 
 	/**
