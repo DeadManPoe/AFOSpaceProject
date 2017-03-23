@@ -10,6 +10,7 @@ import server_store.StoreAction;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Represents the effect of moving a player and attacking the sector in which
@@ -26,8 +27,6 @@ public class MoveAttackActionEffect extends ActionEffect {
 
     public static boolean executeEffect(Game game, StoreAction action) {
         MoveAttackAction castedAction = (MoveAttackAction) action;
-        RRClientNotification clientNotification = new RRClientNotification();
-        PSClientNotification psNotification = new PSClientNotification();
 
         Sector sourceSector = game.currentPlayer.currentSector;
         Sector targetSector = game.gameMap.getSectorByCoords(
@@ -35,6 +34,7 @@ public class MoveAttackActionEffect extends ActionEffect {
         server_store.Player currentPlayer = game.currentPlayer;
         String rrMessage = "";
         String psMessage = "";
+        List<Player> deadPlayers = new ArrayList<>();
 
         if (!sourceSector.equals(castedAction.payload)) {
             if (game.gameMap.checkSectorAdiacency(sourceSector, targetSector,
@@ -60,11 +60,11 @@ public class MoveAttackActionEffect extends ActionEffect {
                     }
                     // If no defense card has been found for p, then p is dead
                     if (!defenseFound) {
-                        targetSector.removePlayer(player);
+                        deadPlayers.add(player);
                         player.playerState = PlayerState.DEAD;
                         player.currentSector = null;
                         // Notify the rest of the players
-                        psNotification.addDeadPlayers(player.playerToken);
+                        game.lastPSclientNotification.addDeadPlayers(player.playerToken);
                         rrMessage += "You have attacked sector "
                                 + targetSector.getCoordinate().toString()
                                 + " and so " + player.name + " is dead.";
@@ -78,7 +78,7 @@ public class MoveAttackActionEffect extends ActionEffect {
                             game.currentPlayer.speed = 3;
                         }
                         // Otherwise p has been attacked
-                        psNotification.addAttackedPlayers(player.playerToken
+                        game.lastPSclientNotification.addAttackedPlayers(player.playerToken
                         );
                         rrMessage += "You have attacked sector "
                                 + targetSector.getCoordinate().toString()
@@ -102,10 +102,11 @@ public class MoveAttackActionEffect extends ActionEffect {
                             + targetSector.getCoordinate().toString()
                             + " but it contained no players.";
                 }
-                clientNotification.setMessage(rrMessage);
-                psNotification.setMessage(psMessage);
-                game.lastRRclientNotification = clientNotification;
-                game.lastPSclientNotification = psNotification;
+                game.lastRRclientNotification.setMessage(rrMessage);
+                game.lastPSclientNotification.setMessage(psMessage);
+                for (Player player : deadPlayers){
+                    targetSector.removePlayer(player);
+                }
                 // Move the player that has attacked to the target sector
                 sourceSector.removePlayer(currentPlayer);
                 currentPlayer.currentSector = targetSector;

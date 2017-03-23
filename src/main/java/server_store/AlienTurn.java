@@ -58,11 +58,11 @@ public class AlienTurn extends Turn {
 		 * nextActions.add("@GAMEACTION_END_TURN"); } }
 		 */
         // Actions to be set after a discard object card action
-        else if (action.type.equals(DiscardAction.class)) {
+        else if (action.type.equals("@GAMEACTION_DISCARD_OBJ_CARD")) {
             nextActions.add("@GAMEACTION_END_TURN");
         }
         // Actions to be set after an attack action
-        else if (action.type.equals(MoveAttackAction.class)) {
+        else if (action.type.equals("@GAMEACTION_MOVE_ATTACK")) {
             nextActions.add("@GAMEACTION_END_TURN");
         }
         return nextActions;

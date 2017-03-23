@@ -159,9 +159,9 @@ public class GameReducer extends Reducer {
 
                             } else {
                                 if (actualPlayer.playerType.equals(PlayerType.HUMAN)) {
-                                    game.nextActions = HumanTurn.getInitialActions();
-                                } else {
                                     game.nextActions = AlienTurn.getInitialActions();
+                                } else {
+                                    game.nextActions = HumanTurn.getInitialActions();
                                 }
                                 game.turnNumber++;
                             }
