@@ -13,7 +13,9 @@ import server_store.Reducer;
  * represented by the games
  */
 public class GamesReducer extends Reducer {
-
+    /**
+     * @see server_store.Reducer
+     */
     @Override
     public ServerState reduce(StoreAction action, ServerState state) {
         String actionType = action.getType();
@@ -31,7 +33,7 @@ public class GamesReducer extends Reducer {
      * Removes a game from the list of games in the app's state
      * @param action The action that has triggered this task, see {@link store_actions.GamesEndGameAction}
      * @param state The current app's state
-     * @return A new app's state
+     * @return The app's new state
      */
     private ServerState removeGame(StoreAction action, ServerState state) {
         GamesEndGameAction castedAction = (GamesEndGameAction) action;
@@ -52,7 +54,7 @@ public class GamesReducer extends Reducer {
      * Adds a game to the list of games in the app's state
      * @param action The action that has triggered this task
      * @param state The current app's state, see {@link store_actions.GamesAddGameAction}
-     * @return A new app's state
+     * @return The app's new state
      */
     private ServerState addGame(StoreAction action, ServerState state){
         GamesAddGameAction castedAction = (GamesAddGameAction) action;

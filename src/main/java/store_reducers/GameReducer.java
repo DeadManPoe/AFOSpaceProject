@@ -20,11 +20,14 @@ import java.util.Timer;
 
 /**
  * Created by giorgiopea on 14/03/17.
- *
+ * <p>
  * Handles the logic related to the slice of the app's state
  * represented by a single game
  */
 public class GameReducer extends Reducer {
+    /**
+     * @see server_store.Reducer
+     */
     @Override
     public ServerState reduce(StoreAction action, ServerState state) {
 
@@ -46,6 +49,14 @@ public class GameReducer extends Reducer {
 
     }
 
+    /**
+     * Changes a game in the list of games in the app's state so that the turn of the current player ends because
+     * he/she hasn't made an action within the turn's timeout
+     *
+     * @param action The action that has triggered this task, see {@link store_actions.GameTurnTimeoutExpiredAction}
+     * @param state  The app's current state
+     * @return The app's new state
+     */
     private ServerState turnTimeoutExpired(StoreAction action, ServerState state) {
         GameTurnTimeoutExpiredAction castedAction = (GameTurnTimeoutExpiredAction) action;
         for (Game game : state.getGames()) {
@@ -60,13 +71,13 @@ public class GameReducer extends Reducer {
     }
 
     /**
-     * Changes a game in the list of games in the app's state, so that the game
+     * Changes a game in the list of games in the app's state so that the game
      * starts. This includes the initialization of the game's associated decks and map, along with
      * a turn timer
      *
      * @param action The action that has triggered this task, see {@link store_actions.GameStartGameAction}
      * @param state  The current app's state
-     * @return The new app's state
+     * @return The app's new state
      */
     private ServerState startGame(StoreAction action, ServerState state) {
         GameStartGameAction castedAction = (GameStartGameAction) action;
@@ -111,7 +122,7 @@ public class GameReducer extends Reducer {
      * notification to be sent to players are produced too
      *
      * @param action The action that has triggered this task, see {@link store_actions.GameMakeActionAction}
-     * @param state The app's current state
+     * @param state  The app's current state
      * @return The app's new state
      */
     private ServerState makeAction(StoreAction action, ServerState state) {
@@ -190,10 +201,10 @@ public class GameReducer extends Reducer {
     }
 
     /**
-     * Changes a game in the list of games in the app's state, so that a new player is added to this game
+     * Changes a game in the list of games in the app's state so that a new player is added to this game
      *
      * @param action The action that has triggered this task, see {@link store_actions.GameAddPlayerAction}
-     * @param state The app's current state
+     * @param state  The app's current state
      * @return The app's new state
      */
     private ServerState addPlayer(StoreAction action, ServerState state) {
@@ -238,44 +249,42 @@ public class GameReducer extends Reducer {
      * Decides if the Humans or Aliens have won the game.
      * Aliens win if:
      * <ul>
-     *     <li>All human players are dead</li>
-     *     <li>Some human player is still alive but the turn number is 39</li>
-     *     <li>Some human player is still alive but no escape point is available</li>
+     * <li>All human players are dead</li>
+     * <li>Some human player is still alive but the turn number is 39</li>
+     * <li>Some human player is still alive but no escape point is available</li>
      * </ul>
      * <br/>
      * Humans win if:
      * <ul>
-     *     <li>They have all escaped</li>
-     *     <li>No alien is left, at least one human is still alive and at least one escape point exists/li>
-     *     <li>At least one human has escaped but no more alive players exist</li>
+     * <li>They have all escaped</li>
+     * <li>No alien is left, at least one human is still alive and at least one escape point exists/li>
+     * <li>At least one human has escaped but no more alive players exist</li>
      * </ul>
+     *
      * @param playerType The type of the faction we want to check if has won or not
-     * @param game The game we are considering
+     * @param game       The game we are considering
      * @return True if the faction has won, false otherwise
      */
     private boolean checkWinConditions(PlayerType playerType, Game game) {
-        boolean allDeadHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED,game.players);
-        boolean allEscapedHumans = this.checkStateAll(PlayerType.HUMAN,PlayerState.ESCAPED, game.players);
+        boolean allDeadHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED, game.players);
+        boolean allEscapedHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED, game.players);
         boolean allDeadAliens = this.checkStateAll(PlayerType.ALIEN, PlayerState.DEAD, game.players);
         boolean existEscapes = game.gameMap.existEscapes();
         if (playerType == PlayerType.HUMAN) {
             // If all human players are escaped then Human wins!
-            if (allEscapedHumans){
+            if (allEscapedHumans) {
                 return true;
-            }
-            else if (!allDeadHumans && allDeadAliens ){
+            } else if (!allDeadHumans && allDeadAliens) {
                 return true;
             }
             return false;
         } else {
             // If all human player are all dead, alien wins!
-            if (allDeadHumans){
+            if (allDeadHumans) {
                 return true;
-            }
-            else if (game.turnNumber == 39 && !allEscapedHumans){
+            } else if (game.turnNumber == 39 && !allEscapedHumans) {
                 return true;
-            }
-            else if (!allEscapedHumans && existEscapes){
+            } else if (!allEscapedHumans && existEscapes) {
                 return true;
             }
             return false;
@@ -284,9 +293,10 @@ public class GameReducer extends Reducer {
 
     /**
      * Check if all the players of a given faction obey to a given status
+     *
      * @param playerType The faction we are interested in
-     * @param state The status we are interested in
-     * @param players All the players of all factions
+     * @param state      The status we are interested in
+     * @param players    All the players of all factions
      * @return True if the players of the given faction obey to the given status, false otherwise
      */
     private boolean checkStateAll(PlayerType playerType, PlayerState state, List<Player> players) {

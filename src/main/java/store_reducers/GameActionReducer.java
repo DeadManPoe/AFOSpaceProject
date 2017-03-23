@@ -12,14 +12,22 @@ import java.lang.reflect.Method;
 
 /**
  * Created by giorgiopea on 21/03/17.
+ *
+ * Handles the logic related to the slice of the app's state represented by a single game,
+ * in particular the logic related to in-game actions
  */
 public class GameActionReducer extends Reducer {
 
     @Override
     public ServerState reduce(StoreAction action, ServerState state) {
+        /*
+         * Executes the logic associated with the in-game action contained in the given StoreAction
+         */
         GameActionAction castedAction = (GameActionAction) action;
         try {
-            Method executeMethod = GameActionMapper.getInstance().getEffect(action.getType()).getMethod("executeEffect", Game.class, StoreAction.class);
+            //From the class of the effect associated with the in-game action, by using reflection, the executeEffect
+            //method is invoked with the necessary arguments
+            Method executeMethod = GameActionMapper.getInstance().getEffect(castedAction.getType()).getMethod("executeEffect", Game.class, StoreAction.class);
             castedAction.game.lastActionResult = (boolean) executeMethod.invoke(null,castedAction.game, castedAction.action);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
