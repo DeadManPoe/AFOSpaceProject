@@ -58,7 +58,6 @@ public class ClientReqRespHandler {
             outputStream.flush();
             inputStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
-            socket.close();
             throw new IOException(e);
         }
 
@@ -73,7 +72,6 @@ public class ClientReqRespHandler {
             outputStream.flush();
         } catch (IOException e) {
             socket.close();
-            throw new IOException(e);
         }
 
     }
@@ -86,6 +84,8 @@ public class ClientReqRespHandler {
      *             associated socket
      */
     public void closeDataFlow() throws IOException {
+        outputStream.close();
+        inputStream.close();
         socket.close();
     }
 
@@ -98,16 +98,16 @@ public class ClientReqRespHandler {
                 .readObject();
         // Data processing: from the remote method call object to the actual
         // method invocation
-        clientServices.processRemoteInvocation(remoteCall);
+        this.processRemoteInvocation(remoteCall);
 
     }
 
 
     public void sendToken(PlayerToken token) throws IOException,
             RemoteException {
-        client.setToken(token);
+        //Dispatch an action that sets the token of the player
         try {
-            client.subscribe();
+            this.subscribe();
         } catch (IllegalAccessException | NoSuchMethodException | NotBoundException | InvocationTargetException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -122,7 +122,7 @@ public class ClientReqRespHandler {
      */
     public void sendAvailableGames(ArrayList<GamePublicData> availableGames)
             throws IOException, RemoteException {
-        client.setAvailableGames(availableGames);
+        //Dispatch an action that sets the available games
     }
 
     /**
@@ -133,7 +133,7 @@ public class ClientReqRespHandler {
      *             signals a com. error
      */
     public void publishChatMsg(String msg) throws RemoteException {
-        client.displayMessage(msg);
+        //dispatch an action that updates the chat message
     }
 
     /**
@@ -143,11 +143,10 @@ public class ClientReqRespHandler {
      * @throws RemoteException
      *             signals a com. error
      */
-    @Override
     public void sendNotification(ClientNotification clientNotification)
             throws RemoteException, IOException {
         RRClientNotification clientNotificationa = (RRClientNotification) clientNotification;
-        client.setNotification(clientNotificationa);
+        //Dispatch an action that sets the current notification
     }
 
     /**
@@ -157,10 +156,9 @@ public class ClientReqRespHandler {
      * @throws RemoteException
      *             signals a com. error
      */
-    @Override
     public void sendPubNotification(ClientNotification psNotification) {
         PSClientNotification notification = (PSClientNotification) psNotification;
-        client.psNotify(notification);
+        //Dispatch an action that sets the current psclient notification
     }
 
     /**
@@ -206,8 +204,8 @@ public class ClientReqRespHandler {
     /**
      * @see ClientRemoteServicesInterface#sendMap
      */
-    @Override
     public void sendMap(String mapName, PlayerToken playerToken) {
+        //Dispatch an action that sets the map and makes the game start
         if (mapName.equals("GALILEI")) {
             GalileiGameMapFactory factory = new GalileiGameMapFactory();
             GameMap map = factory.makeMap();
