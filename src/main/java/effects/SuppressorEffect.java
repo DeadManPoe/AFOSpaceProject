@@ -1,5 +1,6 @@
 package effects;
 
+import common.ObjectCard;
 import common.SuppressorObjectCard;
 import server_store.Game;
 import server_store.Player;
@@ -15,7 +16,7 @@ import server_store.Player;
  */
 public class SuppressorEffect extends ObjectCardEffect {
 
-	public static boolean executeEffect(Game game) {
+	public static boolean executeEffect(Game game, ObjectCard objectCard) {
 		Player currentPlayer = game.currentPlayer;
 		currentPlayer.isSedated = true;
 		game.lastRRclientNotification

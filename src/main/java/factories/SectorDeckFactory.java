@@ -25,19 +25,19 @@ public class SectorDeckFactory extends DeckFactory {
 		// Deck creation
 		List<Card> deck = new ArrayList<Card>();
 		for (int i = 0; i < 5; i++) {
-			deck.add(new SilenceSectorCard());
+			//deck.add(new SilenceSectorCard());
 		}
 		for (int i = 0; i < 4; i++) {
 			deck.add(new GlobalNoiseSectorCard(true, null));
 		}
 		for (int i = 0; i < 6; i++) {
-			deck.add(new GlobalNoiseSectorCard(false, null));
+			//deck.add(new GlobalNoiseSectorCard(false, null));
 		}
 		for (int i = 0; i < 4; i++) {
-			deck.add(new LocalNoiseSectorCard(true));
+			//deck.add(new LocalNoiseSectorCard(true));
 		}
 		for (int i = 0; i < 6; i++) {
-			deck.add(new LocalNoiseSectorCard(false));
+			//deck.add(new LocalNoiseSectorCard(false));
 		}
 		// Deck shuffling
 		long seed = System.nanoTime();

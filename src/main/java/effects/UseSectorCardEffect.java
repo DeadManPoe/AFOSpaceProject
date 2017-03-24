@@ -1,5 +1,6 @@
 package effects;
 
+import common.SectorCard;
 import common.UseSectorCardAction;
 import server_store.Game;
 import server_store.StoreAction;
@@ -24,8 +25,8 @@ public class UseSectorCardEffect extends ActionEffect {
 		SectorCardsMapper mapper = new SectorCardsMapper();
 		game.lastAction = action;
 		try {
-			Method executeMethod = mapper.getEffect(castedAction.payload).getMethod("executeEffect", Game.class);
-			return (boolean)  executeMethod.invoke(null,game);
+			Method executeMethod = mapper.getEffect(castedAction.payload).getMethod("executeEffect", Game.class, SectorCard.class);
+			return (boolean)  executeMethod.invoke(null,game, castedAction.payload);
 		} catch (InstantiationException | IllegalAccessException e) {
 
 		} catch (NoSuchMethodException | InvocationTargetException e) {

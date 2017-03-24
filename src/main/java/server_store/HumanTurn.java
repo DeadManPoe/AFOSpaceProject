@@ -61,7 +61,7 @@ public class HumanTurn extends Turn {
         }
 
         // Actions to be set after a discard object card action
-        else if (action.type.equals(DiscardAction.class)) {
+        else if (action.type.equals("@GAMEACTION_DISCARD_OBJ_CARD")) {
             nextActions.add("@GAMEACTION_USE_OBJ_CARD");
             nextActions.add("@GAMEACTION_END_TURN");
         }
@@ -75,10 +75,10 @@ public class HumanTurn extends Turn {
             } else {
                 nextActions.add("@GAMEACTION_END_TURN");
             }
-        } else if (action.type.equals(DrawRescueCardAction.class)) {
+        } else if (action.type.equals("@GAMEACTION_DRAW_RESCUE_CARD")) {
             nextActions.add("@GAMEACTION_END_TURN");
             nextActions.add("@GAMEACTION_USE_OBJ_CARD");
-        } else if (action.type.equals(MoveAttackAction.class)) {
+        } else if (action.type.equals("@GAMEACTION_MOVE_ATTACK")) {
             if (currentPlayer.privateDeck.getSize() > 0) {
                 nextActions.add("@GAMEACTION_USE_OBJ_CARD");
             }

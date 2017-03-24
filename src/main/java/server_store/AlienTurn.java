@@ -32,7 +32,7 @@ public class AlienTurn extends Turn {
             }
         }
         // Actions to be set after a draw sector card action
-        else if (action.type.equals(DrawSectorCardAction.class)) {
+        else if (action.type.equals("@GAMEACTION_DRAW_SECTOR_CARD")) {
             nextActions.add("@GAMEACTION_USE_SECTOR_CARD");
         }
         // Actions to be set after a use sector card action

@@ -2,6 +2,7 @@ package effects;
 
 import common.LocalNoiseSectorCard;
 import common.Sector;
+import common.SectorCard;
 import server_store.Game;
 
 /**
@@ -14,7 +15,7 @@ import server_store.Game;
  */
 public class LocalNoiseSectorCardEffect extends SectorCardEffect {
 
-	public static boolean executeEffect(Game game) {
+	public static boolean executeEffect(Game game, SectorCard card) {
 		// The local noise effect could be seen as a global noise effect with a
 		// sector that is automatically
 		// indicated

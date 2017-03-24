@@ -2,10 +2,7 @@ package effects;
 
 import java.util.List;
 
-import common.LightsObjectCard;
-import common.PSClientNotification;
-import common.RRClientNotification;
-import common.Sector;
+import common.*;
 import server_store.Game;
 
 /**
@@ -18,9 +15,9 @@ import server_store.Game;
  * @version 1.1
  */
 public class LightObjectCardEffect extends ObjectCardEffect {
-	public boolean executeEffect(Game game, LightsObjectCard lightsObjectCard) {
+	public static boolean executeEffect(Game game, ObjectCard objectCard) {
 		List<Sector> neighboorSectors = game.gameMap.getSearchableGraph()
-				.neighborListOf(lightsObjectCard.getTarget());
+				.neighborListOf(((LightsObjectCard) objectCard).getTarget());
 		String playerName;
 		String globalMessage = "\n[GLOBAL MESSAGE]: Players spotted:";
 		for (Sector sector : neighboorSectors) {

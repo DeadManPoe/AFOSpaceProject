@@ -1,6 +1,7 @@
 package effects;
 
 
+import common.SectorCard;
 import common.SilenceSectorCard;
 import server_store.Game;
 import server_store.ServerState;
@@ -18,7 +19,7 @@ import server_store.ServerState;
 public class SilenceSectorCardEffect extends SectorCardEffect {
 
 
-	public static boolean executeEffect(Game game) {
+	public static boolean executeEffect(Game game, SectorCard sectorCard) {
 		game.lastRRclientNotification.setMessage("You've said SILENCE");
 		game.lastPSclientNotification.setMessage(game.lastPSclientNotification.getMessage()
 				+ "\n[GLOBAL MESSAGE]: " + game.currentPlayer.name

@@ -128,8 +128,6 @@ public class GameReducer extends Reducer {
     private ServerState makeAction(StoreAction action, ServerState state) {
         GameMakeActionAction castedAction = (GameMakeActionAction) action;
         StoreAction gameAction = castedAction.payload.action;
-        boolean winH;
-        boolean winA;
         for (Game game : state.getGames()) {
             if (game.gamePublicData.getId() == castedAction.payload.playerToken.getGameId()) {
                 game.lastPSclientNotification = new PSClientNotification();
@@ -218,7 +216,7 @@ public class GameReducer extends Reducer {
      * @param numberOfPlayers The number of players already in game
      * @return A player type, either "HUMAN" or "ALIEN"
      */
-    public PlayerType assignTypeToPlayer(int numberOfPlayers) {
+    private PlayerType assignTypeToPlayer(int numberOfPlayers) {
         if (numberOfPlayers % 2 == 0) {
             return PlayerType.HUMAN;
         } else {
