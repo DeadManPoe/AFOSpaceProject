@@ -13,7 +13,7 @@ import java.util.Timer;
  *
  * Handles the side-effects related to the expiration of the game turn timeout.
  */
-public class GameTurnTimeoutExpiredEffect extends Effect {
+public class GameTurnTimeoutExpiredEffect implements Effect {
 
     @Override
     public void apply(StoreAction action, ServerState state) {

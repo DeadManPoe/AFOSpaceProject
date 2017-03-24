@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
  * Handles the logic related to the slice of the app's state represented by a single game,
  * in particular the logic related to in-game actions
  */
-public class GameActionReducer extends Reducer {
+public class GameActionReducer implements Reducer {
 
     @Override
     public ServerState reduce(StoreAction action, ServerState state) {

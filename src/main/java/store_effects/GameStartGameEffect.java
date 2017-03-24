@@ -13,7 +13,7 @@ import java.util.TimerTask;
  *
  * Handles the side-effects related to the start of a game
  */
-public class GameStartGameEffect extends Effect {
+public class GameStartGameEffect implements Effect {
 
 
     @Override

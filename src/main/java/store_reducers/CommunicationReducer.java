@@ -10,7 +10,7 @@ import server_store.Reducer;
  * Handles the logic related to the slice of the app's state represented by the list of
  * ReqResp and PubSub handlers
  */
-public class CommunicationReducer extends Reducer {
+public class CommunicationReducer implements Reducer {
 
     @Override
     public ServerState reduce(StoreAction action, ServerState state) {

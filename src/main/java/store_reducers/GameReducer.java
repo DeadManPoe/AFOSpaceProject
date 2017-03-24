@@ -24,7 +24,7 @@ import java.util.Timer;
  * Handles the logic related to the slice of the app's state
  * represented by a single game
  */
-public class GameReducer extends Reducer {
+public class GameReducer implements Reducer {
     /**
      * @see server_store.Reducer
      */

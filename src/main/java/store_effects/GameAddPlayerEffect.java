@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
  *
  * Handles the side-effects related to the addition of a player into a game
  */
-public class GameAddPlayerEffect extends Effect {
+public class GameAddPlayerEffect implements Effect {
 
     @Override
     public void apply(StoreAction action, ServerState state) {

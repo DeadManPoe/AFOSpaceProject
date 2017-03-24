@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * <p>
  * Handles the side-effects related to an in-game action
  */
-public class GameMakeActionEffect extends Effect {
+public class GameMakeActionEffect implements Effect {
 
     @Override
     public void apply(StoreAction action, ServerState state) {

@@ -12,7 +12,7 @@ import server_store.Reducer;
  * Handles the logic related to the slice of the app's state
  * represented by the games
  */
-public class GamesReducer extends Reducer {
+public class GamesReducer implements Reducer {
     /**
      * @see server_store.Reducer
      */
