@@ -9,11 +9,16 @@ import java.util.NoSuchElementException;
 
 /**
  * Created by giorgiopea on 20/03/17.
+ *
+ * Handles the side-effects related to the addition of a player into a game
  */
 public class GameAddPlayerEffect extends Effect {
 
     @Override
     public void apply(StoreAction action, ServerState state) {
+        /*
+            This method sends to the player, who wants to join a game, its identification token
+         */
         GameAddPlayerAction castedAction = (GameAddPlayerAction) action;
         Game game = null;
         for (Game c_game : state.getGames()){

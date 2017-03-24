@@ -10,12 +10,18 @@ import java.util.TimerTask;
 
 /**
  * Created by giorgiopea on 20/03/17.
+ *
+ * Handles the side-effects related to the start of a game
  */
 public class GameStartGameEffect extends Effect {
 
 
     @Override
     public void apply(StoreAction action, ServerState state) {
+        /*
+            This method notifies the clients with the token of the player who will start
+            to act as first, and with the name of the game's map.
+         */
         GameStartGameAction castedAction = (GameStartGameAction) action;
         Integer gameId = castedAction.getPayload();
         Game game = null;

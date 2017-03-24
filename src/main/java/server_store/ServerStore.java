@@ -92,7 +92,6 @@ public class ServerStore {
         this.registerEffect(new GameStartGameEffect(),"@GAME_START_GAME");
         this.registerEffect(new GameAddPlayerEffect(),"@GAME_ADD_PLAYER");
         this.registerEffect(new GameTurnTimeoutExpiredEffect(),"@GAME_TURNTIMEOUT_EXPIRED");
-        this.registerEffect(new GameActionMakeEffect(), "@GAMEACTION_END_TURN");
     }
 }
 
