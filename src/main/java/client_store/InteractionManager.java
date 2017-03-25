@@ -6,6 +6,7 @@ import server_store.StoreAction;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.rmi.NotBoundException;
 import java.util.ArrayList;
 
 /**
@@ -127,6 +128,66 @@ public class InteractionManager {
                     "Undifined card, please try again");
         }
     }
+    public void globalNoise(char horCoord, int vertCoord, boolean hasObject){
+        Coordinate coordinate = new Coordinate(horCoord, vertCoord);
+        Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
+        if (targetSector != null) {
+            SectorCard globalNoiseCard = new GlobalNoiseSectorCard(hasObject,
+                    targetSector);
+            ArrayList<Object> parameters = new ArrayList<Object>();
+            StoreAction action = new UseSectorCardAction(globalNoiseCard);
+            parameters.add(action);
+            parameters.add(this.clientStore.getState().player.playerToken);
+            RemoteMethodCall methodCall = null;
+            try {
+                methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            try {
+                this.processRemoteInvocation(methodCall);
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+        } else {
+            throw new IllegalArgumentException(
+                    "The sector you have indicated does not exists, please try again");
+        }
+    }
+    public void lights(char horCoord, int vertCoord) {
+        Coordinate coordinate = new Coordinate(horCoord, vertCoord);
+        Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
+        if (targetSector != null) {
+            ObjectCard lightsCard = new LightsObjectCard(targetSector);
+            ArrayList<Object> parameters = new ArrayList<Object>();
+            StoreAction action = new UseObjAction(lightsCard);
+            parameters.add(action);
+            parameters.add(this.clientStore.getState().player.playerToken);
+            RemoteMethodCall remoteMethodCall = null;
+            try {
+                remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            try {
+                this.processRemoteInvocation(remoteMethodCall);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+            //this.askLight = false;
+            this.clientStore.dispatchAction(new ClientRemoveObjCardAction(lightsCard));
+        } else {
+            throw new IllegalArgumentException(
+                    "Undefined sector, please try again");
+        }
+
+    }
     //Not much sure
     private void setAvailableGames(ArrayList<GamePublicData> avGames){
         this.clientStore.dispatchAction(new ClientSetAvGamesAction(avGames));
@@ -144,6 +205,32 @@ public class InteractionManager {
         if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
             this.clientStore.dispatchAction(new ClientEndTurnAction());
         }
+    }
+    public void discardCard(int objectCardIndex) {
+        int cardsAmount = this.clientStore.getState().player.privateDeck.getSize();
+        if (objectCardIndex <= cardsAmount && objectCardIndex > 0) {
+            ObjectCard objectCardToDiscard = this.clientStore.getState().player.privateDeck.getCard(
+                    objectCardIndex - 1);
+            ArrayList<Object> parameters = new ArrayList<Object>();
+            StoreAction action = new DiscardAction(objectCardToDiscard);
+            parameters.add(action);
+            parameters.add(this.clientStore.getState().player.playerToken);
+            try {
+                RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
+                this.processRemoteInvocation(remoteMethodCall);
+            } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+
+            if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
+                this.clientStore.dispatchAction(new ClientRemoveObjCardAction(objectCardToDiscard));
+            }
+
+        } else {
+            throw new IllegalArgumentException(
+                    "Undifined card, please try again");
+        }
+
     }
     public void sendMessage(String message){
         ArrayList<Object> parameters = new ArrayList<Object>();
@@ -165,23 +252,36 @@ public class InteractionManager {
                 card = new AttackObjectCard(targetSector);
                 StoreAction action = new UseObjAction(card);
                 parameters.add(action);
-                parameters.add(this.getToken());
-                this.comSession.start("makeAction", parameters);
+                parameters.add(this.clientStore.getState().player.playerToken);
+                try {
+                    RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
+                    this.processRemoteInvocation(remoteMethodCall);
+                } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             } else {
                 StoreAction action = new MoveAttackAction(targetSector);
                 parameters.add(action);
-                parameters.add(this.getToken());
-                this.comSession.start("makeAction", parameters);
+                parameters.add(this.clientStore.getState().player.playerToken);
+                RemoteMethodCall remoteMethodCall = null;
+                try {
+                    remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    this.processRemoteInvocation(remoteMethodCall);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
             }
-            if (this.getCurrentNotification().getActionResult()) {
-                this.currentSector = targetSector;
-                this.privateDeck.removeCard(card);
-                this.hasMoved = true;
+            if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
+                this.clientStore.dispatchAction(new ClientMoveAction(targetSector));
             }
-            this.askAttack = false;
+            //this.askAttack = false;
         } else {
             throw new IllegalArgumentException(
-                    "Undefined sector, please try again");
+                    "The sector you have indicated does not exists, please try again");
         }
 
     }
