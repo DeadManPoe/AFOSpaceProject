@@ -439,10 +439,7 @@ public class Client extends Observable {
 	 * @throws NotBoundException
 	 *             signals a com. error
 	 */
-	public void useObjCard(int objectCardIndex) throws IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException,
-			NoSuchMethodException, SecurityException, ClassNotFoundException,
-			IOException, NotBoundException {
+	public void useObjCard(int objectCardIndex) {
 		int cardsAmount = this.getPrivateDeck().getSize();
 		if (objectCardIndex <= cardsAmount && objectCardIndex > 0) {
 			ArrayList<Object> parameters = new ArrayList<Object>();
