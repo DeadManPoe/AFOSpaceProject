@@ -8,7 +8,7 @@ import java.util.List;
  * Created by giorgiopea on 11/03/17.
  *
  */
-public class ServerState implements Serializable {
+public class ServerState extends State implements Serializable {
 
     private List<server_store.Game> games;
     private List<ReqRespHandler> reqRespHandlers;

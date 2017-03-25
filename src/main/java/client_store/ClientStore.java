@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 
 /**
  * Created by giorgiopea on 24/03/17.
+ *
  */
 public class ClientStore {
 
@@ -44,7 +45,7 @@ public class ClientStore {
 
 
     public ClientState getState() {
-        return this.observableState.getServerState();
+        return this.observableState.getClientState();
     }
 
     private void registerReducer(Reducer reducer, String actionType) {
@@ -62,7 +63,7 @@ public class ClientStore {
             storeLogger.info((new Timestamp(System.currentTimeMillis())).toString());
             storeLogger.info("| STATE BEFORE |\n" + this.observableState.toString());
             storeLogger.info("| ACTION |\n" + action.toString());
-            this.observableState.setServerState(reducer.reduce(action, this.observableState.getServerState()), action);
+            this.observableState.setClientState(reducer.reduce(action, this.observableState.getClientState()), action);
             storeLogger.info("| STATE AFTER |\n" + this.observableState.toString());
             this.dispatchEffect(action);
         } else {
@@ -86,7 +87,7 @@ public class ClientStore {
     }
 
     private void produceInitialState(){
-        ServerState initialState = new ServerState();
+        ClientState initialState = new ClientState();
         this.init(initialState);
     }
     private void registerReducers(){

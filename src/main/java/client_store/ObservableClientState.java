@@ -1,6 +1,7 @@
 package client_store;
 
 import server_store.ServerState;
+import server_store.State;
 import server_store.StoreAction;
 
 import java.util.Observable;
@@ -15,12 +16,12 @@ public class ObservableClientState extends Observable {
         this.clientState = serverState;
     }
 
-    public ClientState getServerState() {
+    public ClientState getClientState() {
         return clientState;
     }
 
-    public void setServerState(ClientState serverState, StoreAction lastAction) {
-        this.clientState = serverState;
+    public void setClientState(State clientState, StoreAction lastAction) {
+        this.clientState = (ClientState) clientState;
         this.setChanged();
         this.notifyObservers(lastAction);
     }

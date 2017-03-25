@@ -8,6 +8,6 @@ import server_store.StoreAction;
  */
 public interface Effect {
 
-    void apply(StoreAction action, ServerState state);
+    void apply(StoreAction action, State state);
 
 }

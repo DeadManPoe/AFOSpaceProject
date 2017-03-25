@@ -5,5 +5,5 @@ package server_store;
  *
  */
 public interface Reducer {
-    ServerState reduce(StoreAction action, ServerState state);
+    State reduce(StoreAction action, State state);
 }
