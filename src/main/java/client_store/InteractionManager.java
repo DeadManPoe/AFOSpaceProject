@@ -6,7 +6,6 @@ import server_store.StoreAction;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.NotBoundException;
 import java.util.ArrayList;
 
 /**
@@ -45,10 +44,28 @@ public class InteractionManager {
         this.clientStore.dispatchAction(new ClientStartGameAction());
     }
     public void joinNewGame(String gameMapName, String playerName){
-
+        this.clientStore.dispatchAction(new ClientInitPlayerAction(playerName));
+        ArrayList<Object> parameters = new ArrayList<>();
+        parameters.add(gameMapName);
+        parameters.add(playerName);
+        try {
+            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("joinNewGame",parameters));
+            this.processRemoteInvocation(methodCall);
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
     public void joinGame(int gameId, String playerName){
-
+        this.clientStore.dispatchAction(new ClientInitPlayerAction(playerName));
+        ArrayList<Object> parameters = new ArrayList<>();
+        parameters.add(gameId);
+        parameters.add(playerName);
+        try {
+            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("joinGame",parameters));
+            this.processRemoteInvocation(methodCall);
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     public void move(char horCoord, int vertCoord) {
@@ -71,7 +88,7 @@ public class InteractionManager {
 
         } else {
             throw new IllegalArgumentException(
-                    "The sector you indicated does not exists, please try again");
+                    "The sector you have indicated does not exists, please try again");
         }
     }
 
@@ -80,6 +97,9 @@ public class InteractionManager {
         if (objectCardIndex <= cardsAmount && objectCardIndex > 0) {
             ObjectCard objectCard = this.clientStore.getState().player.privateDeck.getCard(
                     objectCardIndex - 1);
+            /**
+             * TODO
+             */
             if (objectCard instanceof LightsObjectCard) {
                 //
             } else if (objectCard instanceof AttackObjectCard) {
@@ -105,6 +125,72 @@ public class InteractionManager {
         } else {
             throw new IllegalArgumentException(
                     "Undifined card, please try again");
+        }
+    }
+    //Not much sure
+    private void setAvailableGames(ArrayList<GamePublicData> avGames){
+        this.clientStore.dispatchAction(new ClientSetAvGamesAction(avGames));
+    }
+    public void endTurn() {
+        ArrayList<Object> parameters = new ArrayList<Object>();
+        StoreAction action = new EndTurnAction();
+        parameters.add(action);
+        parameters.add(this.clientStore.getState().player.playerToken);
+        try {
+            this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
+            this.clientStore.dispatchAction(new ClientEndTurnAction());
+        }
+    }
+    public void sendMessage(String message){
+        ArrayList<Object> parameters = new ArrayList<Object>();
+        parameters.add(message);
+        parameters.add(this.clientStore.getState().player);
+        try {
+            this.communicationHandler.newComSession(new RemoteMethodCall("publishGlobalMessage", parameters));
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    public void attack(char horCoord, int vertCoord, boolean humanAttack){
+        Coordinate coordinate = new Coordinate(horCoord, vertCoord);
+        Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
+        if (targetSector != null) {
+            ArrayList<Object> parameters = new ArrayList<Object>();
+            AttackObjectCard card = null;
+            if (humanAttack) {
+                card = new AttackObjectCard(targetSector);
+                StoreAction action = new UseObjAction(card);
+                parameters.add(action);
+                parameters.add(this.getToken());
+                this.comSession.start("makeAction", parameters);
+            } else {
+                StoreAction action = new MoveAttackAction(targetSector);
+                parameters.add(action);
+                parameters.add(this.getToken());
+                this.comSession.start("makeAction", parameters);
+            }
+            if (this.getCurrentNotification().getActionResult()) {
+                this.currentSector = targetSector;
+                this.privateDeck.removeCard(card);
+                this.hasMoved = true;
+            }
+            this.askAttack = false;
+        } else {
+            throw new IllegalArgumentException(
+                    "Undefined sector, please try again");
+        }
+
+    }
+    public void getGames() {
+        try {
+            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("getGames",new ArrayList<Object>()));
+            this.processRemoteInvocation(methodCall);
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
         }
     }
     public void processRemoteInvocation(RemoteMethodCall remoteClientInvocation)

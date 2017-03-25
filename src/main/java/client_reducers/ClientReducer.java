@@ -1,12 +1,10 @@
 package client_reducers;
 
 import client_store.ClientState;
-import client_store_actions.ClientMoveAction;
-import client_store_actions.ClientRemoveObjCardAction;
-import client_store_actions.ClientSetGameMapAction;
-import client_store_actions.ClientSetPlayerTokenAction;
+import client_store_actions.*;
 import factories.GameMapFactory;
 import it.polimi.ingsw.cg_19.PlayerType;
+import server_store.Player;
 import server_store.Reducer;
 import server_store.State;
 import server_store.StoreAction;
@@ -34,8 +32,32 @@ public class ClientReducer implements Reducer {
                 return this.removeObjCard(action,castedState);
             case "@CLIENT_SET_PLAYER_TOKEN":
                 return this.setClientToken(action,castedState);
+            case "@CLIENT_INIT_PLAYER":
+                return this.initPlayer(action,castedState);
+            case "@CLIENT_END_TURN":
+                return this.endTurn(action,castedState);
+            case "@CLIENT_SET_AV_GAMES":
+                return this.setAvGames(action,castedState);
 
         }
+        return state;
+    }
+
+    private State setAvGames(StoreAction action, ClientState state) {
+        ClientSetAvGamesAction castedAction = (ClientSetAvGamesAction) action;
+        state.availableGames = castedAction.payload;
+        return state;
+    }
+
+    private State endTurn(StoreAction action, ClientState state) {
+        state.isMyTurn = false;
+        state.player.hasMoved = false;
+        return state;
+    }
+
+    private State initPlayer(StoreAction action, ClientState state) {
+        ClientInitPlayerAction castedAction = (ClientInitPlayerAction) action;
+        state.player = new Player(null,castedAction.payload,null);
         return state;
     }
 
