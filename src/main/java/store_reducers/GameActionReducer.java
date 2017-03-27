@@ -1,10 +1,7 @@
 package store_reducers;
 
 import effects.GameActionMapper;
-import server_store.Game;
-import server_store.Reducer;
-import server_store.ServerState;
-import server_store.StoreAction;
+import server_store.*;
 import store_actions.GameActionAction;
 
 import java.lang.reflect.InvocationTargetException;
@@ -19,10 +16,11 @@ import java.lang.reflect.Method;
 public class GameActionReducer implements Reducer {
 
     @Override
-    public ServerState reduce(StoreAction action, ServerState state) {
+    public ServerState reduce(StoreAction action, State state) {
         /*
          * Executes the logic associated with the in-game action contained in the given StoreAction
          */
+        ServerState castedState = (ServerState) state;
         GameActionAction castedAction = (GameActionAction) action;
         try {
             //From the class of the effect associated with the in-game action, by using reflection, the executeEffect
@@ -32,6 +30,6 @@ public class GameActionReducer implements Reducer {
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
-        return state;
+        return castedState;
     }
 }

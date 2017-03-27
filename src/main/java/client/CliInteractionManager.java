@@ -194,9 +194,7 @@ public class CliInteractionManager implements Observer {
 			} catch (IllegalArgumentException e) {
 				System.out.println(e.getMessage());
 				this.useObjectCard();
-			} catch (IllegalAccessException | InvocationTargetException
-					| NoSuchMethodException | SecurityException
-					| ClassNotFoundException | IOException | NotBoundException e) {
+			} catch ( SecurityException e) {
 				ClientLogger.getLogger().log(Level.SEVERE, "com error | move ",
 						e);
 				System.out

@@ -1,6 +1,7 @@
 package store_reducers;
 
 import server_store.ServerState;
+import server_store.State;
 import store_actions.GamesEndGameAction;
 import store_actions.GamesAddGameAction;
 import server_store.StoreAction;
@@ -17,16 +18,17 @@ public class GamesReducer implements Reducer {
      * @see server_store.Reducer
      */
     @Override
-    public ServerState reduce(StoreAction action, ServerState state) {
+    public ServerState reduce(StoreAction action, State state) {
+        ServerState castedState = (ServerState) state;
         String actionType = action.getType();
 
         if(actionType.equals("@GAMES_ADD_GAME")){
-            this.addGame(action,state);
+            this.addGame(action,castedState);
         }
         else if(actionType.equals("@GAMES_END_GAME")){
-            this.removeGame(action,state);
+            this.removeGame(action,castedState);
         }
-        return state;
+        return castedState;
     }
 
     /**

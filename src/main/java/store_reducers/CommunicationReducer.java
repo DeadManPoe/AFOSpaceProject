@@ -13,26 +13,27 @@ import server_store.Reducer;
 public class CommunicationReducer implements Reducer {
 
     @Override
-    public ServerState reduce(StoreAction action, ServerState state) {
+    public ServerState reduce(StoreAction action, State state) {
+        ServerState castedState = (ServerState) state;
         String actionType = action.getType();
         switch (actionType) {
             case "@COMMUNICATION_SET_TCPORT":
-                this.setTcpPort(action, state);
+                this.setTcpPort(action, castedState);
                 break;
             case "@COMMUNICATION_ADD_REQRESP_HANDLER":
-                this.addReqRespHandlerAction(action, state);
+                this.addReqRespHandlerAction(action, castedState);
                 break;
             case "@COMMUNICATION_ADD_PUBSUB_HANDLER":
-                this.addPubSubHandler(action, state);
+                this.addPubSubHandler(action, castedState);
                 break;
             case "@COMMUNICATION_REMOVE_PUBSUB_HANDLER":
-                this.removePubSubHandler(action, state);
+                this.removePubSubHandler(action, castedState);
                 break;
             case "@COMMUNICATION_REMOVE_REQRESP_HANDLER":
-                this.removeReqRespHandler(action, state);
+                this.removeReqRespHandler(action, castedState);
                 break;
         }
-        return state;
+        return castedState;
     }
 
     /**

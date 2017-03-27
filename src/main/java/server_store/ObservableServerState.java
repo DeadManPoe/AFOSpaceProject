@@ -18,8 +18,8 @@ public class ObservableServerState extends Observable {
         return serverState;
     }
 
-    public void setServerState(ServerState serverState, StoreAction lastAction) {
-        this.serverState = serverState;
+    public void setServerState(State serverState, StoreAction lastAction) {
+        this.serverState = (ServerState) serverState;
         this.setChanged();
         this.notifyObservers(lastAction);
     }

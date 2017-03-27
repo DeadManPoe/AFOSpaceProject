@@ -29,23 +29,23 @@ public class GameReducer implements Reducer {
      * @see server_store.Reducer
      */
     @Override
-    public ServerState reduce(StoreAction action, ServerState state) {
-
+    public ServerState reduce(StoreAction action, State state) {
+        ServerState castedState = (ServerState) state;
         String actionType = action.getType();
         switch (actionType) {
             case "@GAME_ADD_PLAYER":
-                this.addPlayer(action, state);
+                this.addPlayer(action, castedState);
                 break;
             case "@GAME_MAKE_ACTION":
-                this.makeAction(action, state);
+                this.makeAction(action, castedState);
                 break;
             case "@GAME_START_GAME":
-                this.startGame(action, state);
+                this.startGame(action, castedState);
                 break;
             case "@GAME_TURNTIMEOUT_EXPIRED":
-                this.turnTimeoutExpired(action, state);
+                this.turnTimeoutExpired(action, castedState);
         }
-        return state;
+        return castedState;
 
     }
 

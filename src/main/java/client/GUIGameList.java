@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.Timer;
 import java.util.logging.Level;
 
@@ -22,7 +23,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
+import client_gui.GuiManager;
+import common.GamePublicData;
 import server.GameStatus;
 
 /**
@@ -38,17 +43,11 @@ public class GUIGameList extends JPanel {
 	private JButton startButton = new JButton("Start Game");
 	private JPanel buttonPanel;
 	private String mapName;
+    private DefaultTableModel gameList;
 
-	private transient GuiInteractionManager gui;
+	private transient final GuiManager guiManager = GuiManager.getInstance();
 
-	/**
-	 * Constructs a panel that shows the list of available games
-	 * 
-	 * @param gui
-	 */
-	public GUIGameList(GuiInteractionManager gui) {
-		this.gui = gui;
-	}
+
 
 	/**
 	 * Loads the information on the panel that shows the list of available
@@ -58,23 +57,16 @@ public class GUIGameList extends JPanel {
 	 * @param connMethod
 	 *            the type of connection to use during the game (RMI/SOCKET)
 	 */
-	public void Load(String connMethod) throws IllegalAccessException,
-			InvocationTargetException, NoSuchMethodException,
-			ClassNotFoundException, IOException, NotBoundException {
+	public void Load(){
 		stateMessage.setFont(new Font("Arial", Font.BOLD, 22));
 		stateMessage.setForeground(Color.WHITE);
 		stateMessage.setAlignmentX(CENTER_ALIGNMENT);
 
-		gui.getClient()
-				.buildDataRemoteExchangeFactory(connMethod.toUpperCase());
 
-		JTable gameTables = new JTable();
+		final JTable gameTables = new JTable();
+        this.gameList = new DefaultTableModel();
+        gameTables.setModel(this.gameList);
 
-		GamePollingThread pollingThread = new GamePollingThread(gui, gameTables);
-		final Timer timerTask = new Timer();
-		pollingThread.updateGames();
-
-		timerTask.scheduleAtFixedRate(pollingThread, 0, 10000);
 
 		JScrollPane scroll = new JScrollPane(gameTables);
 		gameTables.setFillsViewportHeight(true);
@@ -97,13 +89,10 @@ public class GUIGameList extends JPanel {
 				try {
 					stateMessage.setText("Waiting for others players...");
 					// A box for the name
-					String name = JOptionPane.showInputDialog(gui.getFrame(),
-							"Insert the player name: ",
+					String name = JOptionPane.showInputDialog(guiManager.getFrame(),
+							"Insert your name for the game: ",
 							JOptionPane.OK_CANCEL_OPTION);
 					if (!("").equals(name)) {
-						JTable gameTables = (JTable) ((JViewport) ((JScrollPane) ((JButton) e
-								.getSource()).getParent().getParent()
-								.getComponent(0)).getComponent(0)).getView();
 						if (gameTables.getSelectedRowCount() == 1) {
 							int id = (Integer) gameTables.getValueAt(
 									gameTables.getSelectedRow(), 0);
@@ -215,14 +204,14 @@ public class GUIGameList extends JPanel {
 				}
 			}
 		});
-
-		addComponentListener(new ComponentAdapter() {
-			public void componentHidden(ComponentEvent e) {
-				timerTask.cancel();
-				timerTask.purge();
-			}
-		});
-
 	}
+	public void setGameListContent(List<GamePublicData> gamePublicDataList){
+        for (int i=0; i<this.gameList.getRowCount(); i++){
+            this.gameList.removeRow(i);
+        }
+        for (GamePublicData gameDate : gamePublicDataList){
+            this.gameList.addRow(new Object[]{gameDate.getId(), gameDate.getStatus(), gameDate.getPlayersCount()});
+        }
+    }
 
 }

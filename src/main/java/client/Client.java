@@ -453,7 +453,21 @@ public class Client extends Observable {
 				StoreAction action = new UseObjAction(objectCard);
 				parameters.add(action);
 				parameters.add(this.token);
-				this.comSession.start("makeAction", parameters);
+				try {
+					this.comSession.start("makeAction", parameters);
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				} catch (NoSuchMethodException e) {
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (NotBoundException e) {
+					e.printStackTrace();
+				}
 				if (this.getCurrentNotification().getActionResult()) {
 					this.getPrivateDeck().removeCard(objectCard);
 					if (objectCard instanceof TeleportObjectCard) {

@@ -15,13 +15,14 @@ import java.util.NoSuchElementException;
 public class GameAddPlayerEffect implements Effect {
 
     @Override
-    public void apply(StoreAction action, ServerState state) {
+    public void apply(StoreAction action, State state) {
         /*
             This method sends to the player, who wants to join a game, its identification token
          */
+        ServerState castedState = (ServerState) state;
         GameAddPlayerAction castedAction = (GameAddPlayerAction) action;
         Game game = null;
-        for (Game c_game : state.getGames()){
+        for (Game c_game : castedState.getGames()){
             if (c_game.gamePublicData.getId() == castedAction.getPayload().getGameId()){
                 game = c_game;
                 break;
@@ -29,7 +30,7 @@ public class GameAddPlayerEffect implements Effect {
         }
         if (game != null){
             Player player = game.players.get(game.players.size() - 1);
-            for (ReqRespHandler handler : state.getReqRespHandlers()) {
+            for (ReqRespHandler handler : castedState.getReqRespHandlers()) {
                 if (handler.getUuid().equals(castedAction.getPayload().getUuid())) {
                     ArrayList<Object> parameters = new ArrayList<>();
                     parameters.add(player.playerToken);
