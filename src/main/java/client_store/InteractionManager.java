@@ -98,13 +98,10 @@ public class InteractionManager {
         if (objectCardIndex <= cardsAmount && objectCardIndex > 0) {
             ObjectCard objectCard = this.clientStore.getState().player.privateDeck.getCard(
                     objectCardIndex - 1);
-            /**
-             * TODO
-             */
             if (objectCard instanceof LightsObjectCard) {
-                //
+                this.clientStore.dispatchAction(new ClientAskLightsAction(true));
             } else if (objectCard instanceof AttackObjectCard) {
-                //
+                this.clientStore.dispatchAction(new ClientAskAttackAction(true));
             } else {
                 ArrayList<Object> parameters = new ArrayList<>();
                 StoreAction action = new UseObjAction(objectCard);
@@ -166,21 +163,15 @@ public class InteractionManager {
             RemoteMethodCall remoteMethodCall = null;
             try {
                 remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
             try {
                 this.processRemoteInvocation(remoteMethodCall);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
-            //this.askLight = false;
+            this.clientStore.dispatchAction(new ClientAskAttackAction(false));
             this.clientStore.dispatchAction(new ClientRemoveObjCardAction(lightsCard));
         } else {
             throw new IllegalArgumentException(
@@ -278,7 +269,7 @@ public class InteractionManager {
             if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
                 this.clientStore.dispatchAction(new ClientMoveAction(targetSector));
             }
-            //this.askAttack = false;
+            this.clientStore.dispatchAction(new ClientAskAttackAction(false));
         } else {
             throw new IllegalArgumentException(
                     "The sector you have indicated does not exists, please try again");

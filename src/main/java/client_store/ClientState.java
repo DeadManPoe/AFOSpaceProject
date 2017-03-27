@@ -26,4 +26,6 @@ public class ClientState extends State implements Serializable {
     public boolean isGameStarted;
     public boolean isMyTurn;
     public RRClientNotification currentReqRespNotification;
+    public boolean askLights;
+    public boolean askAttack;
 }
