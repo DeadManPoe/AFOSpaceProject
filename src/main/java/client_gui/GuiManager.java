@@ -61,7 +61,7 @@ public class GuiManager implements Observer {
             this.guiGameList.Load();
             mainFrame.add(this.guiGameList);
             java.util.Timer timer = new Timer();
-            timer.scheduleAtFixedRate(new GamePollingThread(), 2000,2000);
+            timer.scheduleAtFixedRate(new GamePollingThread(), 2000,10000);
         } catch (IOException | ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             e.printStackTrace();
             this.guiInitialWindow.alertConnectionProblem(true);

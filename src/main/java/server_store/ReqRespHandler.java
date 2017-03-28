@@ -233,7 +233,7 @@ public class ReqRespHandler extends Thread {
                 RemoteMethodCall remoteMethodCall = buffer.poll();
                 if (remoteMethodCall != null) {
                     this.sendData(remoteMethodCall);
-                    if (!remoteMethodCall.getMethodName().equals("setPlayerToken") && !remoteMethodCall.getMethodName().equals("pubSubNotification")) {
+                    if (!remoteMethodCall.getMethodName().equals("subscribe") ){
                         closeDataFlow();
                     }
                     mustRun = false;

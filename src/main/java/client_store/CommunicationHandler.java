@@ -42,7 +42,6 @@ public class CommunicationHandler {
             return methodCallToExecute;
         }
         else {
-            this.outputStream.close();
             this.clientStore.dispatchAction(new ClientAddPubSubHandlerAction(socket,inputStream));
         }
         return null;

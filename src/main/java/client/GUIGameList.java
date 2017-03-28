@@ -63,8 +63,16 @@ public class GUIGameList extends JPanel {
 
 
         final JTable gameTables = new JTable();
-        this.gameList = new DefaultTableModel();
+        this.gameList = new DefaultTableModel(){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;//This causes all cells to be not editable
+            }
+        };
         gameTables.setModel(this.gameList);
+        this.gameList.addColumn("Game ID");
+        this.gameList.addColumn("Game status");
+        this.gameList.addColumn("Players");
 
 
         JScrollPane scroll = new JScrollPane(gameTables);
