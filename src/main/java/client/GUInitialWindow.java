@@ -26,7 +26,7 @@ public class GUInitialWindow extends JPanel {
 	/**
 	 * Load and display the panel
 	 */
-	public void Load() {
+	public void load() {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBackground(Color.BLACK);
 

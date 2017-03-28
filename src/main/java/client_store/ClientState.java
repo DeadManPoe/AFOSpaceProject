@@ -11,6 +11,7 @@ import server_store.State;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Timer;
 
 /**
  * Created by giorgiopea on 24/03/17.
@@ -28,9 +29,11 @@ public class ClientState extends State implements Serializable {
     public RRClientNotification currentReqRespNotification;
     public boolean askLights;
     public boolean askAttack;
+    public Timer gamePollingTimer;
 
     public ClientState() {
         this.tcpPort = 29999;
         this.host = "localhost";
+        this.player = new Player(null,null,null);
     }
 }

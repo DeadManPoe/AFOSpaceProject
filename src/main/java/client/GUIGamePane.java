@@ -13,6 +13,8 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.NotBoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.swing.Box;
@@ -29,6 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
+import client_gui.GuiManager;
 import common.ObjectCard;
 
 /**
@@ -67,14 +70,14 @@ public class GUIGamePane extends JPanel {
 	private JPopupMenu alienCardMenu = new JPopupMenu();
 	private JPopupMenu emptyMenu = new JPopupMenu();
 	private JPopupMenu attackMenu = new JPopupMenu();
+	private final GuiManager guiManager = GuiManager.getInstance();
 
 	private JPopupMenu currentCardMenu = new JPopupMenu();
 
 	private ObjectCard selectedObjectCard;
 
-	public GUIGamePane(final GuiInteractionManager gui) {
-		mapPanel = new GUIMap(gui);
-		this.gui = gui;
+	public GUIGamePane() {
+		mapPanel = new GUIMap();
 		logModel = new DefaultListModel<String>();
 		logPane = new JList<String>(logModel);
 		logScrollPane = new JScrollPane();
@@ -106,30 +109,16 @@ public class GUIGamePane extends JPanel {
 		endTurnButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				try {
-					gui.endTurn();
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				guiManager.forwardMethod("endTurn",new ArrayList<Object>());
 			}
 		});
 
 		msgButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				try {
-					gui.sendGlobalMessage(chatTextField.getText());
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+                List<Object> parameters = new ArrayList<>();
+                parameters.add(chatTextField.getText());
+                guiManager.forwardMethod("sendMessage",parameters);
 				chatTextField.setText("");
 			}
 		});
@@ -138,15 +127,9 @@ public class GUIGamePane extends JPanel {
 		useCardItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.useObjectCard(selectedObjectCard);
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+                List<Object> parameters = new ArrayList<>();
+                parameters.add(selectedObjectCard);
+                guiManager.forwardMethod("useObjectCard",parameters);
 			}
 		});
 		humanUseOnlyItem.addActionListener(useCardItem.getActionListeners()[0]);
@@ -154,15 +137,9 @@ public class GUIGamePane extends JPanel {
 		alienDiscardItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.discard(selectedObjectCard);
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+                List<Object> parameters = new ArrayList<>();
+                parameters.add(selectedObjectCard);
+                guiManager.forwardMethod("discardCard",parameters);
 			}
 		});
 		humanDiscardItem.addActionListener(alienDiscardItem
@@ -250,8 +227,6 @@ public class GUIGamePane extends JPanel {
 		c.gridx = 1;
 		c.anchor = GridBagConstraints.EAST;
 		add(rightPanel, c);
-
-		gui.getFrame().add(this);
 	}
 
 	/**

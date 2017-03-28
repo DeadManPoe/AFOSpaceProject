@@ -1,9 +1,6 @@
 package client_gui;
 
-import client.GUIGameList;
-import client.GUIGamePane;
-import client.GUInitialWindow;
-import client.GamePollingThread;
+import client.*;
 import client_store.ClientStore;
 import client_store.InteractionManager;
 import client_store_actions.ClientSetAvGamesAction;
@@ -14,6 +11,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.List;
 import java.util.Timer;
 
 /**
@@ -44,12 +42,12 @@ public class GuiManager implements Observer {
                 .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
         this.guiGameList.setBackground(Color.BLACK);
 
-        //this.guiGamePane = new GUIGamePane();
-        //this.guiGamePane.setLayout(new GridBagLayout());
+        this.guiGamePane = new GUIGamePane();
+        this.guiGamePane.setLayout(new GridBagLayout());
 
+        this.guiInitialWindow.load();
+        mainFrame.getContentPane().add(this.guiInitialWindow);
         this.guiInitialWindow.setVisible(true);
-        this.guiInitialWindow.Load();
-        mainFrame.add(this.guiInitialWindow);
     }
 
     public void connectAndDisplayGames() {
@@ -57,20 +55,25 @@ public class GuiManager implements Observer {
             this.guiInitialWindow.alertConnectionProblem(false);
             interactionManager.getGames();
             this.guiInitialWindow.setVisible(false);
+            this.guiGameList.load();
+            mainFrame.getContentPane().add(this.guiGameList);
             this.guiGameList.setVisible(true);
-            this.guiGameList.Load();
-            mainFrame.add(this.guiGameList);
-            java.util.Timer timer = new Timer();
-            timer.scheduleAtFixedRate(new GamePollingThread(), 2000,10000);
+            ClientStore.getInstance().getState().gamePollingTimer = new Timer();
+            ClientStore.getInstance().getState().gamePollingTimer.scheduleAtFixedRate(new GamePollingThread(), 2000,10000);
         } catch (IOException | ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             e.printStackTrace();
             this.guiInitialWindow.alertConnectionProblem(true);
         }
 
     }
-    public void joinGame(int gameId, String playerName){
-        this.interactionManager.joinGame(gameId,playerName);
+    public void forwardMethod(String methodName, List<Object> parameters){
+        try {
+            this.interactionManager.executeMethod(methodName, parameters);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
+
     public JFrame getFrame(){
         return this.mainFrame;
     }
@@ -82,9 +85,29 @@ public class GuiManager implements Observer {
             ClientSetAvGamesAction castedAction = (ClientSetAvGamesAction) action;
             this.guiGameList.setGameListContent(castedAction.payload);
         }
+        else if (action.getType().equals("@CLIENT_START_GAME")){
+            this.mainFrame.remove(this.guiInitialWindow);
+            this.mainFrame.remove(this.guiGameList);
+            mainFrame.revalidate();
+            mainFrame.repaint();
+
+            this.guiGamePane.load(ClientStore.getInstance().getState().gameMap.getName());
+            String welcomeMsg = "Welcome, " + ClientStore.getInstance().getState().player.name + " you're "
+                    + ClientStore.getInstance().getState().player.playerType;
+            if (ClientStore.getInstance().getState().isMyTurn)
+                welcomeMsg += " - It's your turn!";
+            else
+                welcomeMsg += " - Waiting your turn!";
+            this.guiGamePane.setStateMessage(welcomeMsg);
+            this.guiGamePane.getMapPane().lightSector(
+                    ClientStore.getInstance().getState().player.currentSector.getCoordinate(), "Y", ClientStore.getInstance().getState().player.name);
+            mainFrame.getContentPane().add(this.guiGamePane);
+            this.guiGamePane.setVisible(true);
+
+        }
     }
 
-    public void JoinNewGame(String mapName, String playerName) {
+    public void joinNewGame(String mapName, String playerName) {
         interactionManager.joinNewGame(mapName,playerName);
     }
 }

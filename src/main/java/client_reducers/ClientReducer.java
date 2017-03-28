@@ -64,6 +64,7 @@ public class ClientReducer implements Reducer {
     private State setClientToken(StoreAction action, ClientState state) {
         ClientSetPlayerTokenAction castedAction = (ClientSetPlayerTokenAction) action;
         state.player.playerToken = castedAction.payload;
+        state.player.playerType = castedAction.payload.getPlayerType();
         return state;
     }
 
@@ -87,6 +88,7 @@ public class ClientReducer implements Reducer {
 
     private State startGame(StoreAction action, ClientState state) {
         state.isGameStarted = true;
+        state.gamePollingTimer.cancel();
         return state;
     }
 

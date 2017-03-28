@@ -5,14 +5,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 import java.util.logging.Level;
 
 import javax.swing.Box;
@@ -22,11 +16,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JViewport;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 import client_gui.GuiManager;
 import common.GamePublicData;
@@ -56,7 +48,7 @@ public class GUIGameList extends JPanel {
      * one
      *
      */
-    public void Load() {
+    public void load() {
         stateMessage.setFont(new Font("Arial", Font.BOLD, 22));
         stateMessage.setForeground(Color.WHITE);
         stateMessage.setAlignmentX(CENTER_ALIGNMENT);
@@ -115,10 +107,12 @@ public class GUIGameList extends JPanel {
                     if (!("").equals(name)) {
                         int id = (Integer) gameTables.getValueAt(
                                 gameTables.getSelectedRow(), 0);
-                        String status = ((GameStatus) gameTables
-                                .getValueAt(gameTables.getSelectedRow(), 1))
-                                .toString();
-                        guiManager.joinGame(id, name);
+
+                        List<Object> parameters = new ArrayList<>();
+                        parameters.add(id);
+                        parameters.add(name);
+
+                        guiManager.forwardMethod("joinGame",parameters);
                     } else {
                         JOptionPane.showMessageDialog(guiManager.getFrame(),
                                 "Please insert a valid name",
@@ -150,8 +144,11 @@ public class GUIGameList extends JPanel {
                             JOptionPane.PLAIN_MESSAGE, null, possibilities,
                             "Galilei");
 
-                    guiManager.JoinNewGame(mapName.toUpperCase(), name);
-                    startButton.setVisible(true);
+                    List<Object> parameters = new ArrayList<>();
+                    parameters.add(mapName.toUpperCase());
+                    parameters.add(name);
+                    guiManager.forwardMethod("joinNewGame",parameters);
+                    //startButton.setVisible(true);
                     buttonPanel.setVisible(false);
 
                 } else {

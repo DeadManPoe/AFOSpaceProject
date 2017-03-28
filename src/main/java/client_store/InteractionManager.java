@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.NotBoundException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by giorgiopea on 25/03/17.
@@ -56,7 +57,7 @@ public class InteractionManager {
             e.printStackTrace();
         }
     }
-    public void joinGame(int gameId, String playerName){
+    public void joinGame(Integer gameId, String playerName){
         this.clientStore.dispatchAction(new ClientInitPlayerAction(playerName));
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(gameId);
@@ -69,8 +70,7 @@ public class InteractionManager {
         }
     }
 
-    public void move(char horCoord, int vertCoord) {
-        Coordinate coordinate = new Coordinate(horCoord, vertCoord);
+    public void move(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         if (targetSector != null) {
             ArrayList<Object> parameters = new ArrayList<Object>();
@@ -128,8 +128,7 @@ public class InteractionManager {
     public void allowTurn(){
         this.clientStore.dispatchAction(new ClientAllowTurnAction());
     }
-    public void globalNoise(char horCoord, int vertCoord, boolean hasObject){
-        Coordinate coordinate = new Coordinate(horCoord, vertCoord);
+    public void globalNoise(Coordinate coordinate, boolean hasObject){
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         if (targetSector != null) {
             SectorCard globalNoiseCard = new GlobalNoiseSectorCard(hasObject,
@@ -154,8 +153,7 @@ public class InteractionManager {
                     "The sector you have indicated does not exists, please try again");
         }
     }
-    public void lights(char horCoord, int vertCoord) {
-        Coordinate coordinate = new Coordinate(horCoord, vertCoord);
+    public void lights(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         if (targetSector != null) {
             ObjectCard lightsCard = new LightsObjectCard(targetSector);
@@ -236,8 +234,7 @@ public class InteractionManager {
             e.printStackTrace();
         }
     }
-    public void attack(char horCoord, int vertCoord, boolean humanAttack){
-        Coordinate coordinate = new Coordinate(horCoord, vertCoord);
+    public void attack(Coordinate coordinate, boolean humanAttack){
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         if (targetSector != null) {
             ArrayList<Object> parameters = new ArrayList<Object>();
@@ -304,6 +301,13 @@ public class InteractionManager {
         }
         this.getClass().getDeclaredMethod(methodName, parametersClasses)
                 .invoke(this, parameters.toArray());
+    }
+    public void executeMethod(String methodName, List<Object> parameters) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Class<?>[] parametersClasses = new Class[parameters.size()];
+        for (int i=0; i<parametersClasses.length; i++){
+            parametersClasses[i] = parameters.get(i).getClass();
+        }
+        this.getClass().getDeclaredMethod(methodName,parametersClasses).invoke(this,parameters.toArray());
     }
 
 }

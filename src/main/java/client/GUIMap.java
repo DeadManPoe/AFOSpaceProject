@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+import client_gui.GuiManager;
 import it.polimi.ingsw.cg_19.GameMap;
 
 import javax.swing.ImageIcon;
@@ -37,7 +38,7 @@ import factories.GameMapFactory;
  */
 public class GUIMap extends JLayeredPane {
 	static final long serialVersionUID = 1L;
-	private transient final GuiInteractionManager gui;
+	private transient final GuiManager guiManager = GuiManager.getInstance();
 
 	private transient List<SectorLabel> sectorsList;
 	private transient List<SectorLabel> lightedSectors;
@@ -57,8 +58,7 @@ public class GUIMap extends JLayeredPane {
 	private JPopupMenu emptyMenu = new JPopupMenu();
 	private JPopupMenu humanAttackMenu = new JPopupMenu();
 
-	public GUIMap(final GuiInteractionManager gui) {
-		this.gui = gui;
+	public GUIMap() {
 
 		sectorsList = new ArrayList<SectorLabel>();
 		lightedSectors = new ArrayList<SectorLabel>();
@@ -84,14 +84,9 @@ public class GUIMap extends JLayeredPane {
 		alienMoveItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.move(selectedSector.getCoordinate());
-				} catch (IllegalAccessException | InvocationTargetException
-						| NoSuchMethodException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				List<Object> parameters = new ArrayList<>();
+				parameters.add(selectedSector.getCoordinate());
+				guiManager.forwardMethod("move",parameters);
 			}
 		});
 
@@ -100,59 +95,37 @@ public class GUIMap extends JLayeredPane {
 		attackItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.attack(selectedSector.getCoordinate(), false);
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				List<Object> parameters = new ArrayList<>();
+				parameters.add(selectedSector.getCoordinate());
+				parameters.add(false);
+				guiManager.forwardMethod("attack",parameters);
 			}
 		});
 		humanAttack.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.attack(selectedSector.getCoordinate(), true);
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				List<Object> parameters = new ArrayList<>();
+				parameters.add(selectedSector.getCoordinate());
+				parameters.add(true);
+				guiManager.forwardMethod("attack",parameters);
 			}
 		});
 
 		noiseItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.noise(selectedSector.getCoordinate());
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				List<Object> parameters = new ArrayList<>();
+				parameters.add(selectedSector.getCoordinate());
+				guiManager.forwardMethod("globalNoise",parameters);
 			}
 		});
 
 		lightItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.light(selectedSector.getCoordinate());
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+                List<Object> parameters = new ArrayList<>();
+                parameters.add(selectedSector.getCoordinate());
+                guiManager.forwardMethod("lights",parameters);
 			}
 		});
 
@@ -183,22 +156,7 @@ public class GUIMap extends JLayeredPane {
 		backgroundLabel.setBounds(0, 0, 800, 600);
 		add(backgroundLabel);
 		this.setLayer(backgroundLabel, LAYER_BACKGROUND);
-		GameMapFactory factory = null;
-
-		// Choose the correct factory according to the chosen map
-		switch (mapName.toUpperCase()) {
-		case "GALILEI":
-			factory = new GalileiGameMapFactory();
-			break;
-		case "FERMI":
-			factory = new FermiGameMapFactory();
-			break;
-		case "GALVANI":
-			factory = new GalvaniGameMapFactory();
-			break;
-		default:
-			break;
-		}
+		GameMapFactory factory = GameMapFactory.provideCorrectFactory(mapName);
 
 		// Load the map from the correspondent file
 		GameMap map = factory.makeMap();
@@ -249,6 +207,7 @@ public class GUIMap extends JLayeredPane {
 				}
 			}
 		}
+		backgroundLabel.setVisible(true);
 	}
 
 	/**

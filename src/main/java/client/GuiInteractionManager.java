@@ -70,11 +70,11 @@ public class GuiInteractionManager implements Observer {
 				.setLayout(new BoxLayout(gameListWindow, BoxLayout.Y_AXIS));
 		gameListWindow.setBackground(Color.BLACK);
 
-		GUIGamePane = new GUIGamePane(this);
+		GUIGamePane = new GUIGamePane();
 		GUIGamePane.setLayout(new GridBagLayout());
 
 		initialWindow.setVisible(true);
-		initialWindow.Load();
+		initialWindow.load();
 		mainFrame.add(initialWindow);
 		this.myTurn = false;
 	}
@@ -106,7 +106,7 @@ public class GuiInteractionManager implements Observer {
 			SecurityException, ClassNotFoundException, IOException,
 			NotBoundException {
 		this.initialWindow.setVisible(false);
-		this.gameListWindow.Load();
+		this.gameListWindow.load();
 		this.gameListWindow.setVisible(true);
 		this.mainFrame.add(this.gameListWindow);
 	}
