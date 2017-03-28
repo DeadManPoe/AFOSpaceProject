@@ -13,6 +13,6 @@ public class AddPubSubHandlerEffect implements Effect {
     @Override
     public void apply(StoreAction action, State state) {
         ClientState castedState = (ClientState) state;
-        castedState.currentPubSubHandler.run();
+        castedState.currentPubSubHandler.start();
     }
 }

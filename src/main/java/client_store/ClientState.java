@@ -36,4 +36,22 @@ public class ClientState extends State implements Serializable {
         this.host = "localhost";
         this.player = new Player(null,null,null);
     }
+
+    @Override
+    public String toString() {
+        return "ClientState{" +
+                "tcpPort=" + tcpPort +
+                ", currentPubSubHandler=" + currentPubSubHandler +
+                ", availableGames=" + availableGames +
+                ", player=" + player +
+                ", host='" + host + '\'' +
+                ", gameMap=" + gameMap +
+                ", isGameStarted=" + isGameStarted +
+                ", isMyTurn=" + isMyTurn +
+                ", currentReqRespNotification=" + currentReqRespNotification +
+                ", askLights=" + askLights +
+                ", askAttack=" + askAttack +
+                ", gamePollingTimer=" + gamePollingTimer +
+                '}';
+    }
 }

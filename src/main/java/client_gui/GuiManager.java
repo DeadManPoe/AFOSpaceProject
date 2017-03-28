@@ -41,7 +41,6 @@ public class GuiManager implements Observer {
         this.guiGameList
                 .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
         this.guiGameList.setBackground(Color.BLACK);
-
         this.guiGamePane = new GUIGamePane();
         this.guiGamePane.setLayout(new GridBagLayout());
 
@@ -55,6 +54,9 @@ public class GuiManager implements Observer {
             this.guiInitialWindow.alertConnectionProblem(false);
             interactionManager.getGames();
             this.guiInitialWindow.setVisible(false);
+            this.guiGameList
+                    .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
+            this.guiGameList.setBackground(Color.BLACK);
             this.guiGameList.load();
             mainFrame.getContentPane().add(this.guiGameList);
             this.guiGameList.setVisible(true);
@@ -86,28 +88,15 @@ public class GuiManager implements Observer {
             this.guiGameList.setGameListContent(castedAction.payload);
         }
         else if (action.getType().equals("@CLIENT_START_GAME")){
-            this.mainFrame.remove(this.guiInitialWindow);
-            this.mainFrame.remove(this.guiGameList);
-            mainFrame.revalidate();
-            mainFrame.repaint();
-
-            this.guiGamePane.load(ClientStore.getInstance().getState().gameMap.getName());
-            String welcomeMsg = "Welcome, " + ClientStore.getInstance().getState().player.name + " you're "
-                    + ClientStore.getInstance().getState().player.playerType;
-            if (ClientStore.getInstance().getState().isMyTurn)
-                welcomeMsg += " - It's your turn!";
-            else
-                welcomeMsg += " - Waiting your turn!";
-            this.guiGamePane.setStateMessage(welcomeMsg);
-            this.guiGamePane.getMapPane().lightSector(
-                    ClientStore.getInstance().getState().player.currentSector.getCoordinate(), "Y", ClientStore.getInstance().getState().player.name);
-            mainFrame.getContentPane().add(this.guiGamePane);
+            this.guiGameList.setVisible(false);
+            this.guiGamePane.load("GALILEI");
+            this.mainFrame.add(this.guiGamePane);
             this.guiGamePane.setVisible(true);
-
         }
     }
 
     public void joinNewGame(String mapName, String playerName) {
         interactionManager.joinNewGame(mapName,playerName);
     }
+
 }

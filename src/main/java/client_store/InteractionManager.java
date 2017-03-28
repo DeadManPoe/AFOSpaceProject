@@ -4,6 +4,7 @@ import client_store_actions.*;
 import common.*;
 import server_store.StoreAction;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.NotBoundException;
@@ -284,6 +285,7 @@ public class InteractionManager {
     public void processRemoteInvocation(RemoteMethodCall remoteClientInvocation)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException, SecurityException {
+        System.out.println("Interaction Manager"+SwingUtilities.isEventDispatchThread());
         String methodName = remoteClientInvocation.getMethodName();
         ArrayList<Object> parameters = remoteClientInvocation
                 .getMethodParameters();

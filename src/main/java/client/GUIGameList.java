@@ -38,6 +38,7 @@ public class GUIGameList extends JPanel {
     private JPanel buttonPanel;
     private String mapName;
     private DefaultTableModel gameList;
+    private JTable gameTables;
 
     private transient final GuiManager guiManager = GuiManager.getInstance();
 
@@ -54,7 +55,7 @@ public class GUIGameList extends JPanel {
         stateMessage.setAlignmentX(CENTER_ALIGNMENT);
 
 
-        final JTable gameTables = new JTable();
+        gameTables = new JTable();
         this.gameList = new DefaultTableModel(){
             @Override
             public boolean isCellEditable(int row, int column) {

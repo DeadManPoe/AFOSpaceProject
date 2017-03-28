@@ -2,6 +2,7 @@ package client_store;
 
 import common.RemoteMethodCall;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.lang.reflect.InvocationTargetException;
