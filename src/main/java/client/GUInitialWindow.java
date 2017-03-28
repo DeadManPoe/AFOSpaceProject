@@ -22,6 +22,7 @@ public class GUInitialWindow extends JPanel {
 
 	private final transient GuiManager guiManager = GuiManager.getInstance();
 
+	private JLabel connectionProblemLabel;
 	/**
 	 * Load and display the panel
 	 */
@@ -40,11 +41,23 @@ public class GUInitialWindow extends JPanel {
 		JButton connectButton = new JButton("Connect");
 		connectButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
 		add(connectButton);
+
+		this.connectionProblemLabel = new JLabel();
+		this.connectionProblemLabel.setText("A connection problem happened, please try again.");
+		this.connectionProblemLabel.setForeground(Color.white);
+		this.connectionProblemLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        this.connectionProblemLabel.setVisible(false);
+        // Some space
+        add(Box.createRigidArea(new Dimension(0, 20)));
+        add(this.connectionProblemLabel);
 		connectButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				guiManager.connectAndDisplayGames();
 			}
 		});
+	}
+	public void alertConnectionProblem(boolean visibility){
+		this.connectionProblemLabel.setVisible(visibility);
 	}
 }

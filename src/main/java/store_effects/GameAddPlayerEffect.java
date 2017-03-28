@@ -34,7 +34,7 @@ public class GameAddPlayerEffect implements Effect {
                 if (handler.getUuid().equals(castedAction.getPayload().getUuid())) {
                     ArrayList<Object> parameters = new ArrayList<>();
                     parameters.add(player.playerToken);
-                    handler.addRemoteMethodCallToQueue(new RemoteMethodCall("sendToken", parameters));
+                    handler.addRemoteMethodCallToQueue(new RemoteMethodCall("setPlayerToken", parameters));
                     break;
                 }
             }

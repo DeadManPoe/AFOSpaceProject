@@ -107,7 +107,7 @@ public class ReqRespHandler extends Thread {
         ArrayList<Object> parameters = new ArrayList<Object>();
         parameters.add(gamesList);
         this.sendData(
-                new RemoteMethodCall("sendAvailableGames", parameters));
+                new RemoteMethodCall("setAvailableGames", parameters));
         this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
     }
 
@@ -233,7 +233,7 @@ public class ReqRespHandler extends Thread {
                 RemoteMethodCall remoteMethodCall = buffer.poll();
                 if (remoteMethodCall != null) {
                     this.sendData(remoteMethodCall);
-                    if (!remoteMethodCall.getMethodName().equals("sendToken") && !remoteMethodCall.getMethodName().equals("pubSubNotification")) {
+                    if (!remoteMethodCall.getMethodName().equals("setPlayerToken") && !remoteMethodCall.getMethodName().equals("pubSubNotification")) {
                         closeDataFlow();
                     }
                     mustRun = false;

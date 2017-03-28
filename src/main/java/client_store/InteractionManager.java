@@ -125,6 +125,9 @@ public class InteractionManager {
                     "Undifined card, please try again");
         }
     }
+    public void allowTurn(){
+        this.clientStore.dispatchAction(new ClientAllowTurnAction());
+    }
     public void globalNoise(char horCoord, int vertCoord, boolean hasObject){
         Coordinate coordinate = new Coordinate(horCoord, vertCoord);
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
@@ -276,13 +279,10 @@ public class InteractionManager {
         }
 
     }
-    public void getGames() {
-        try {
-            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("getGames",new ArrayList<Object>()));
-            this.processRemoteInvocation(methodCall);
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
+    public void getGames() throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("getGames",new ArrayList<Object>()));
+        this.processRemoteInvocation(methodCall);
+
     }
     public void processRemoteInvocation(RemoteMethodCall remoteClientInvocation)
             throws IllegalAccessException, IllegalArgumentException,

@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
+import client_gui.GuiManager;
 import client_store.ClientStore;
 import client_store.InteractionManager;
 import client_store_actions.ClientSetAvGamesAction;
@@ -30,7 +31,11 @@ public class GamePollingThread extends TimerTask {
 	 */
 	@Override
 	public void run() {
-        InteractionManager.getInstance().getGames();
+		try {
+			InteractionManager.getInstance().getGames();
+		} catch (IOException | ClassNotFoundException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

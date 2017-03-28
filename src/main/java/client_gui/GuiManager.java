@@ -4,12 +4,15 @@ import client.GUIGameList;
 import client.GUIGamePane;
 import client.GUInitialWindow;
 import client.GamePollingThread;
+import client_store.ClientStore;
 import client_store.InteractionManager;
 import client_store_actions.ClientSetAvGamesAction;
 import server_store.StoreAction;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.Timer;
 
@@ -30,6 +33,7 @@ public class GuiManager implements Observer {
     }
 
     private GuiManager(){
+        ClientStore.getInstance().observeState(this);
     }
 
     public void initGuiComponents(){
@@ -40,8 +44,8 @@ public class GuiManager implements Observer {
                 .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
         this.guiGameList.setBackground(Color.BLACK);
 
-        this.guiGamePane = new GUIGamePane();
-        this.guiGamePane.setLayout(new GridBagLayout());
+        //this.guiGamePane = new GUIGamePane();
+        //this.guiGamePane.setLayout(new GridBagLayout());
 
         this.guiInitialWindow.setVisible(true);
         this.guiInitialWindow.Load();
@@ -49,11 +53,23 @@ public class GuiManager implements Observer {
     }
 
     public void connectAndDisplayGames() {
-        interactionManager.getGames();
-        this.guiInitialWindow.setVisible(false);
-        this.guiGameList.setVisible(true);
-        java.util.Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new GamePollingThread(), 2000,2000);
+        try {
+            this.guiInitialWindow.alertConnectionProblem(false);
+            interactionManager.getGames();
+            this.guiInitialWindow.setVisible(false);
+            this.guiGameList.setVisible(true);
+            this.guiGameList.Load();
+            mainFrame.add(this.guiGameList);
+            java.util.Timer timer = new Timer();
+            timer.scheduleAtFixedRate(new GamePollingThread(), 2000,2000);
+        } catch (IOException | ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            e.printStackTrace();
+            this.guiInitialWindow.alertConnectionProblem(true);
+        }
+
+    }
+    public void joinGame(int gameId, String playerName){
+        this.interactionManager.joinGame(gameId,playerName);
     }
     public JFrame getFrame(){
         return this.mainFrame;
@@ -66,5 +82,9 @@ public class GuiManager implements Observer {
             ClientSetAvGamesAction castedAction = (ClientSetAvGamesAction) action;
             this.guiGameList.setGameListContent(castedAction.payload);
         }
+    }
+
+    public void JoinNewGame(String mapName, String playerName) {
+        interactionManager.joinNewGame(mapName,playerName);
     }
 }

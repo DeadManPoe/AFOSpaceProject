@@ -28,4 +28,9 @@ public class ClientState extends State implements Serializable {
     public RRClientNotification currentReqRespNotification;
     public boolean askLights;
     public boolean askAttack;
+
+    public ClientState() {
+        this.tcpPort = 29999;
+        this.host = "localhost";
+    }
 }

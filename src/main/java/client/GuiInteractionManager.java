@@ -63,9 +63,9 @@ public class GuiInteractionManager implements Observer {
 		this.client = client;
 		client.addObserver(this);
 
-		initialWindow = new GUInitialWindow(this);
+		initialWindow = new GUInitialWindow();
 
-		gameListWindow = new GUIGameList(this);
+		gameListWindow = new GUIGameList();
 		gameListWindow
 				.setLayout(new BoxLayout(gameListWindow, BoxLayout.Y_AXIS));
 		gameListWindow.setBackground(Color.BLACK);
@@ -106,7 +106,7 @@ public class GuiInteractionManager implements Observer {
 			SecurityException, ClassNotFoundException, IOException,
 			NotBoundException {
 		this.initialWindow.setVisible(false);
-		this.gameListWindow.Load(connectionMethod);
+		this.gameListWindow.Load();
 		this.gameListWindow.setVisible(true);
 		this.mainFrame.add(this.gameListWindow);
 	}
@@ -201,7 +201,7 @@ public class GuiInteractionManager implements Observer {
 			this.client.setGameEnded(false);
 			this.gameListWindow.setVisible(false);
 			this.mainFrame.remove(gameListWindow);
-			gameListWindow = new GUIGameList(this);
+			gameListWindow = new GUIGameList();
 			gameListWindow.setLayout(new BoxLayout(gameListWindow,
 					BoxLayout.Y_AXIS));
 			gameListWindow.setBackground(Color.BLACK);

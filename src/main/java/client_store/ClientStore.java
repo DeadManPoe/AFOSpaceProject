@@ -1,5 +1,7 @@
 package client_store;
 
+import client_reducers.ClientReducer;
+import client_store_effects.AddPubSubHandlerEffect;
 import com.sun.security.ntlm.Client;
 import server_store.*;
 import store_effects.GameAddPlayerEffect;
@@ -83,6 +85,7 @@ public class ClientStore {
     }
 
     public void init(ClientState initialState) {
+
         this.observableState = new ObservableClientState(initialState);
     }
 
@@ -91,8 +94,11 @@ public class ClientStore {
         this.init(initialState);
     }
     private void registerReducers(){
+        this.registerReducer(new ClientReducer(),"@CLIENT");
+        this.registerReducer(new client_reducers.CommunicationReducer(),"@COMMUNICATION");
     }
     private void registerEffects(){
+        this.registerEffect(new AddPubSubHandlerEffect(),"@COMMUNICATION_ADD_PUB_SUB_HANDLER");
     }
 
 
