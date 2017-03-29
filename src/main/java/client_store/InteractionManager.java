@@ -34,10 +34,12 @@ public class InteractionManager {
     public void sendNotification(ClientNotification clientNotification)
             throws RemoteException, IOException {
         RRClientNotification rrClientNotification = (RRClientNotification) clientNotification;
+        this.clientStore.dispatchAction(new ClientSetCurrentReqRespNotificationAction(rrClientNotification));
     }
 
     public void sendPubNotification(ClientNotification psNotification) {
         PSClientNotification notification = (PSClientNotification) psNotification;
+        this.clientStore.dispatchAction(new ClientSetCurrentPubSubNotificationAction(notification));
     }
 
 

@@ -40,10 +40,28 @@ public class ClientReducer implements Reducer {
                 return this.setAvGames(action,castedState);
             case "@CLIENT_PUBLISH_MSG":
                 return this.publishMsg(action,castedState);
+            case "@CLIENT_SET_CURRENT_REQRESP_NOTIFICATION":
+                return this.setRR(action,castedState);
+            case "@CLIENT_SET_CURRENT_PUBSUB_NOTIFICATION":
+                return this.setPS(action,castedState);
 
         }
         return state;
     }
+
+    private State setPS(StoreAction action, ClientState state) {
+        ClientSetCurrentPubSubNotificationAction castedAction = (ClientSetCurrentPubSubNotificationAction) action;
+        state.currentPubSubNotification = castedAction.payload;
+        return state;
+    }
+
+    private State setRR(StoreAction action, ClientState state) {
+        ClientSetCurrentReqRespNotificationAction castedAction = (ClientSetCurrentReqRespNotificationAction) action;
+        state.currentReqRespNotification = castedAction.payload;
+        return state;
+    }
+
+
 
     private State publishMsg(StoreAction action, ClientState state) {
         ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;

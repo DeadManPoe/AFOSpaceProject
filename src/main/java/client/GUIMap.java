@@ -84,9 +84,7 @@ public class GUIMap extends JLayeredPane {
 		alienMoveItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				List<Object> parameters = new ArrayList<>();
-				parameters.add(selectedSector.getCoordinate());
-				guiManager.forwardMethod("move",parameters);
+				guiManager.move(selectedSector.getCoordinate());
 			}
 		});
 
