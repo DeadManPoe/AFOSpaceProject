@@ -93,37 +93,27 @@ public class GUIMap extends JLayeredPane {
 		attackItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				List<Object> parameters = new ArrayList<>();
-				parameters.add(selectedSector.getCoordinate());
-				parameters.add(false);
-				guiManager.forwardMethod("attack",parameters);
+				guiManager.attack(selectedSector.getCoordinate());
 			}
 		});
 		humanAttack.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				List<Object> parameters = new ArrayList<>();
-				parameters.add(selectedSector.getCoordinate());
-				parameters.add(true);
-				guiManager.forwardMethod("attack",parameters);
+				guiManager.attack(selectedSector.getCoordinate());
 			}
 		});
 
 		noiseItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				List<Object> parameters = new ArrayList<>();
-				parameters.add(selectedSector.getCoordinate());
-				guiManager.forwardMethod("globalNoise",parameters);
+				guiManager.noise(selectedSector.getCoordinate());
 			}
 		});
 
 		lightItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-                List<Object> parameters = new ArrayList<>();
-                parameters.add(selectedSector.getCoordinate());
-                guiManager.forwardMethod("lights",parameters);
+                guiManager.lights(selectedSector.getCoordinate());
 			}
 		});
 
