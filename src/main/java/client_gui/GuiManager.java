@@ -5,6 +5,7 @@ import client_store.ClientStore;
 import client_store.InteractionManager;
 import client_store_actions.ClientSetAvGamesAction;
 import client_store_actions.ClientSetCurrentMessage;
+import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.StoreAction;
 
 import javax.swing.*;
@@ -104,6 +105,13 @@ public class GuiManager implements Observer {
             this.guiGamePane.load(ClientStore.getInstance().getState().gameMap.getName());
             this.mainFrame.add(this.guiGamePane);
             this.guiGamePane.setVisible(true);
+            if (ClientStore.getInstance().getState().player.playerType.equals(PlayerType.ALIEN)){
+                this.guiGamePane.setSectorMenu(MenuType.ALIEN_INITIAL);
+            }
+            else {
+                this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
+            }
+
         }
         else if (action.getType().equals("@CLIENT_PUBLISH_MSG")){
             ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;

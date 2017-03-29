@@ -1,5 +1,6 @@
 package client_store;
 
+import client.ClientRemoteServicesInterface;
 import client_store_actions.*;
 import common.*;
 import server_store.StoreAction;
@@ -8,6 +9,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +31,15 @@ public class InteractionManager {
         this.clientStore = ClientStore.getInstance();
         this.communicationHandler = CommunicationHandler.getInstance();
     }
+    public void sendNotification(ClientNotification clientNotification)
+            throws RemoteException, IOException {
+        RRClientNotification rrClientNotification = (RRClientNotification) clientNotification;
+    }
+
+    public void sendPubNotification(ClientNotification psNotification) {
+        PSClientNotification notification = (PSClientNotification) psNotification;
+    }
+
 
 
     public void setPlayerToken(PlayerToken token){

@@ -278,6 +278,9 @@ public class GUIGamePane extends JPanel {
 			break;
 		}
 	}
+	public void setSectorMenu(MenuType mode){
+		this.mapPanel.changeMapMenu(mode);
+	}
 
 	/**
 	 * Displays on the screen the given object card label
