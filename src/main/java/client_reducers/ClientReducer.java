@@ -107,7 +107,7 @@ public class ClientReducer implements Reducer {
         if (state.player.playerType.equals(PlayerType.ALIEN)) {
             state.player.currentSector = state.gameMap.getAlienSector();
         } else {
-            state.player.currentSector = state.gameMap.getAlienSector();
+            state.player.currentSector = state.gameMap.getHumanSector();
         }
         return state;
     }

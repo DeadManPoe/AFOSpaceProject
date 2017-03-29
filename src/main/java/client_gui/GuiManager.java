@@ -98,13 +98,13 @@ public class GuiManager implements Observer {
             else {
                 welcomeMsg += " - Waiting your turn!";
             }
+            this.guiGameList.setVisible(false);
+            this.guiGamePane.setVisible(true);
+            this.guiGamePane.load(ClientStore.getInstance().getState().gameMap.getName());
             this.guiGamePane.setStateMessage(welcomeMsg);
             this.guiGamePane.getMapPane().lightSector(
                     ClientStore.getInstance().getState().player.currentSector.getCoordinate(), "Y",  ClientStore.getInstance().getState().player.name);
-            this.guiGameList.setVisible(false);
-            this.guiGamePane.load(ClientStore.getInstance().getState().gameMap.getName());
             this.mainFrame.add(this.guiGamePane);
-            this.guiGamePane.setVisible(true);
             if (ClientStore.getInstance().getState().player.playerType.equals(PlayerType.ALIEN)){
                 this.guiGamePane.setSectorMenu(MenuType.ALIEN_INITIAL);
             }
