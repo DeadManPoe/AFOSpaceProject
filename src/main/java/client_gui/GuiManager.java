@@ -5,6 +5,7 @@ import client_store.ClientStore;
 import client_store.InteractionManager;
 import client_store_actions.ClientSetAvGamesAction;
 import client_store_actions.ClientSetCurrentMessage;
+import client_store_actions.ClientSetCurrentPubSubNotificationAction;
 import common.*;
 import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.StoreAction;
@@ -13,6 +14,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.rmi.NotBoundException;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
@@ -87,6 +89,24 @@ public class GuiManager implements Observer {
         this.guiGamePane.getMapPane().delightAllSectors();
         this.guiGamePane.getMapPane().lightSector(newCoordinates, "Y",
                 playerName);
+    }
+    private void updateCardsPanel() {
+        PrivateDeck privateDeck = ClientStore.getInstance().getState().player.privateDeck;
+        for (ObjectCard card : privateDeck.getContent()) {
+            this.guiGamePane.addCardToPanel(card);
+        }
+        this.guiGamePane.repaint();
+    }
+    public void attack(Coordinate coords) {
+        this.interactionManager.attack(coords);
+        this.updatePosition();
+        this.guiGamePane.removeAllCardsFromPanel();
+        this.updateCardsPanel();
+        try {
+            this.handleAction();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public void move(Coordinate coordinate) {
@@ -240,11 +260,115 @@ public class GuiManager implements Observer {
             this.guiGamePane.appendMsg(castedAction.payload);
         } else if (action.getType().equals("@CLIENT_MOVE_TO_SECTOR")) {
 
+        } else if (action.getType().equals("@CLIENT_SET_CURRENT_PUBSUB_NOTIFICATION")){
+            ClientSetCurrentPubSubNotificationAction castedAction = (ClientSetCurrentPubSubNotificationAction) action;
+            this.guiGamePane.appendMsg(castedAction.payload.getMessage());
         }
     }
 
     public void joinNewGame(String mapName, String playerName) {
         interactionManager.joinNewGame(mapName, playerName);
+    }
+    /**
+     * Produces a noise effect to the given coordinates
+     */
+    public void noise(Coordinate coords) throws IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException,
+            NoSuchMethodException, SecurityException, ClassNotFoundException,
+            IOException, NotBoundException {
+        this.interactionManager.globalNoise(coords, true);
+        this.handleAction();
+        this.guiGamePane.setStateMessage("You've made noise on sector "
+                + coords.getX() + "" + coords.getY());
+    }
+    /**
+     * Updates the map panel after using a light object card It displays the
+     * lighted sector and evidence the player in that sector
+     *
+     * @param sectors
+     *            The list of sectord to light
+     */
+    private void updateLightedSector(List<Sector> sectors) {
+        String nameList = "";
+        for (Sector s : sectors) {
+            nameList = "";
+            for (server_store.Player p : s.getPlayers()) {
+                nameList += " " + p.name;
+            }
+            this.guiGamePane.getMapPane().lightSector(s.getCoordinate(), "P",
+                    nameList);
+        }
+    }
+    /**
+     * Produces a light effect to the given coordinates
+     */
+    public void lights(Coordinate coords) {
+        this.interactionManager.lights(coords);
+        this.updateLightedSector(ClientStore.getInstance().getState().currentReqRespNotification
+                .getLightedSectors());
+        try {
+            this.handleAction();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        this.guiGamePane.removeAllCardsFromPanel();
+        this.updateCardsPanel();
+        this.guiGamePane.setStateMessage("You've lighted sector "
+                + coords.getX() + "" + coords.getY());
+    }
+
+    /**
+     * Allows the client to use an object card
+     */
+    public void useObjectCard(ObjectCard card){
+        int index = ClientStore.getInstance().getState().player.privateDeck.getContent().indexOf(card);
+        try {
+            this.interactionManager.useObjCard(index + 1);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        this.updatePosition();
+        this.guiGamePane.removeAllCardsFromPanel();
+        this.updateCardsPanel();
+        try {
+            this.handleAction();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (!ClientStore.getInstance().getState().currentReqRespNotification.getActionResult())
+            this.guiGamePane.setStateMessage("You cannot use this card!");
+        else {
+            if(!(card instanceof LightsObjectCard) && !(card instanceof AttackObjectCard))
+                this.guiGamePane.setStateMessage("You've used an object card!");
+        }
+    }
+
+    /**
+     * Allows the client to discard an object card
+     */
+    public void discard(ObjectCard card){
+        int index = ClientStore.getInstance().getState().player.privateDeck.getContent().indexOf(card);
+        this.interactionManager.discardCard(index + 1);
+        this.guiGamePane.removeAllCardsFromPanel();
+        this.updateCardsPanel();
+        try {
+            this.handleAction();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        this.guiGamePane.setStateMessage("You've discarded an object card");
+    }
+
+    /**
+     * Allows the user to terminate its turn
+     */
+    public void endTurn(){
+        this.interactionManager.endTurn();
+        try {
+            this.handleAction();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
 }

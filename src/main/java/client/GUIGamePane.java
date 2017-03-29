@@ -87,7 +87,7 @@ public class GUIGamePane extends JPanel {
 		endTurnButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				guiManager.forwardMethod("endTurn",new ArrayList<Object>());
+				guiManager.endTurn();
 			}
 		});
 
@@ -105,9 +105,7 @@ public class GUIGamePane extends JPanel {
 		useCardItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-                List<Object> parameters = new ArrayList<>();
-                parameters.add(selectedObjectCard);
-                guiManager.forwardMethod("useObjectCard",parameters);
+				guiManager.useObjectCard(selectedObjectCard);
 			}
 		});
 		humanUseOnlyItem.addActionListener(useCardItem.getActionListeners()[0]);
@@ -115,9 +113,7 @@ public class GUIGamePane extends JPanel {
 		alienDiscardItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-                List<Object> parameters = new ArrayList<>();
-                parameters.add(selectedObjectCard);
-                guiManager.forwardMethod("discardCard",parameters);
+                guiManager.discard(selectedObjectCard);
 			}
 		});
 		humanDiscardItem.addActionListener(alienDiscardItem

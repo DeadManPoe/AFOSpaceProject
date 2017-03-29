@@ -3,6 +3,7 @@ package client_store;
 import client.ClientRemoteServicesInterface;
 import client_store_actions.*;
 import common.*;
+import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.StoreAction;
 
 import javax.swing.*;
@@ -251,7 +252,8 @@ public class InteractionManager {
             e.printStackTrace();
         }
     }
-    public void attack(Coordinate coordinate, boolean humanAttack){
+    public void attack(Coordinate coordinate){
+        boolean humanAttack = ClientStore.getInstance().getState().player.playerType.equals(PlayerType.HUMAN);
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         if (targetSector != null) {
             ArrayList<Object> parameters = new ArrayList<Object>();
