@@ -38,8 +38,16 @@ public class ClientReducer implements Reducer {
                 return this.endTurn(action,castedState);
             case "@CLIENT_SET_AV_GAMES":
                 return this.setAvGames(action,castedState);
+            case "@CLIENT_PUBLISH_MSG":
+                return this.publishMsg(action,castedState);
 
         }
+        return state;
+    }
+
+    private State publishMsg(StoreAction action, ClientState state) {
+        ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
+        state.lastChatMessage = castedAction.payload;
         return state;
     }
 

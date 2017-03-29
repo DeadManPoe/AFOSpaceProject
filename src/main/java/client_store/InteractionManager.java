@@ -70,6 +70,9 @@ public class InteractionManager {
             e.printStackTrace();
         }
     }
+    public void publishChatMsg(String msg){
+        ClientStore.getInstance().dispatchAction(new ClientSetCurrentMessage(msg));
+    }
 
     public void move(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
@@ -228,7 +231,7 @@ public class InteractionManager {
     public void sendMessage(String message){
         ArrayList<Object> parameters = new ArrayList<Object>();
         parameters.add(message);
-        parameters.add(this.clientStore.getState().player);
+        parameters.add(this.clientStore.getState().player.playerToken);
         try {
             this.communicationHandler.newComSession(new RemoteMethodCall("publishGlobalMessage", parameters));
         } catch (IOException | ClassNotFoundException e) {
@@ -285,24 +288,26 @@ public class InteractionManager {
     public void processRemoteInvocation(RemoteMethodCall remoteClientInvocation)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException, SecurityException {
-        System.out.println("Interaction Manager"+SwingUtilities.isEventDispatchThread());
-        String methodName = remoteClientInvocation.getMethodName();
-        ArrayList<Object> parameters = remoteClientInvocation
-                .getMethodParameters();
-        Class<?>[] parametersClasses = new Class[parameters.size()];
-        for (int i = 0; i < parameters.size(); i++) {
-            if (parameters.get(i).getClass().getName().contains("action")
-                    || parameters.get(i).getClass().getName()
-                    .contains("ClientNotification")) {
-                parametersClasses[i] = parameters.get(i).getClass()
-                        .getSuperclass();
-            } else {
-                parametersClasses[i] = parameters.get(i).getClass();
-            }
+        if (remoteClientInvocation != null){
+            String methodName = remoteClientInvocation.getMethodName();
+            ArrayList<Object> parameters = remoteClientInvocation
+                    .getMethodParameters();
+            Class<?>[] parametersClasses = new Class[parameters.size()];
+            for (int i = 0; i < parameters.size(); i++) {
+                if (parameters.get(i).getClass().getName().contains("action")
+                        || parameters.get(i).getClass().getName()
+                        .contains("ClientNotification")) {
+                    parametersClasses[i] = parameters.get(i).getClass()
+                            .getSuperclass();
+                } else {
+                    parametersClasses[i] = parameters.get(i).getClass();
+                }
 
+            }
+            this.getClass().getDeclaredMethod(methodName, parametersClasses)
+                    .invoke(this, parameters.toArray());
         }
-        this.getClass().getDeclaredMethod(methodName, parametersClasses)
-                .invoke(this, parameters.toArray());
+
     }
     public void executeMethod(String methodName, List<Object> parameters) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Class<?>[] parametersClasses = new Class[parameters.size()];

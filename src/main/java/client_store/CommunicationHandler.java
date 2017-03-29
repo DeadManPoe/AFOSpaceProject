@@ -31,13 +31,16 @@ public class CommunicationHandler {
     }
 
     public RemoteMethodCall newComSession(RemoteMethodCall remoteMethodCall) throws IOException, ClassNotFoundException {
+        RemoteMethodCall methodCallToExecute = null;
         this.socket = new Socket(clientStore.getState().host, clientStore.getState().tcpPort);
         this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
         this.outputStream.flush();
         this.inputStream = new ObjectInputStream(this.socket.getInputStream());
         this.sendData(remoteMethodCall);
         if ( !remoteMethodCall.getMethodName().equals("subscribe")){
-            RemoteMethodCall methodCallToExecute = this.receiveData(inputStream);
+            if ( !remoteMethodCall.getMethodName().equals("publishGlobalMessage")){
+                methodCallToExecute = this.receiveData(inputStream);
+            }
             this.closeDataFlow();
             return methodCallToExecute;
         }

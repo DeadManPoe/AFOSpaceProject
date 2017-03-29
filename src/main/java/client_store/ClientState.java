@@ -30,6 +30,7 @@ public class ClientState extends State implements Serializable {
     public boolean askLights;
     public boolean askAttack;
     public Timer gamePollingTimer;
+    public String lastChatMessage;
 
     public ClientState() {
         this.tcpPort = 29999;
