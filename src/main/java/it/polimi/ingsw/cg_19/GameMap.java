@@ -210,6 +210,49 @@ public class GameMap {
 		return null;
 	}
 
+    /**
+     * Checks if a given sector is reachable from another given sector within, or exactly with, a certain distance
+     * @param sourceSector The starting sector
+     * @param targetSector The sector whose adjacency we want to check w.r.t a given starting sector
+     * @param maxDistance The distance within which the given target sector must be reachable from the given source sector
+     * @param forceMaxMovement A flag that forces the algorythm to check sector reachable with exactly the given distance
+     * @return True if the reachability is verified with success, otherwise false
+     */
+	public boolean checkSectorAdiacency(Sector sourceSector, Sector targetSector,int maxDistance,boolean forceMaxMovement){
+        List<List<Sector>> visitedSectors = new ArrayList<>();
+        List<Sector> neighbors = this.searchableGraph.neighborListOf(sourceSector);
+        visitedSectors.add(neighbors);
+        for (int i=1; i<maxDistance; i++){
+            visitedSectors.add(new ArrayList<Sector>());
+            for (Sector sector : visitedSectors.get(i-1)){
+                neighbors = this.searchableGraph.neighborListOf(sector);
+                for ( Sector neighbor : neighbors){
+                    if (!neighbor.isHasBeenChecked()){
+                            visitedSectors.get(i).add(neighbor);
+                    }
+
+                }
+            }
+        }
+        if (forceMaxMovement){
+            for ( Sector sector : visitedSectors.get(maxDistance-1)){
+                if (sector.equals(targetSector)){
+                    return true;
+                }
+            }
+        }
+        else {
+            for (List<Sector> sectorList : visitedSectors){
+                for (Sector sector : sectorList){
+                    if (sector.equals(targetSector)){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+	}
+
 	/**
 	 * Checks if two map's sector are adjacent according to a given maximum
 	 * distance

@@ -89,6 +89,9 @@ public class GameMapTest {
 		// Create a new Map map starting from the graph defined above
 		GameMap map = new GameMap(graph, 0, 0, 0, 0, "");
 
+        assertTrue();
+
+
 		assertTrue(map.checkSectorAdiacency(s1,s3,1,0,PlayerType.HUMAN,s1,true));
 		// Checks the return value of checkAdiacency
 		assertFalse(map.checkSectorAdiacency(s1, s2, 1, 0, PlayerType.HUMAN,

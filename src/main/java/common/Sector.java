@@ -24,6 +24,15 @@ public class Sector implements Serializable {
 	private volatile SectorLegality legality;
 	// The list of player in this sector
 	private volatile ArrayList<server_store.Player> players;
+	private volatile boolean hasBeenChecked;
+
+	public boolean isHasBeenChecked() {
+		return hasBeenChecked;
+	}
+
+	public void setHasBeenChecked(boolean hasBeenChecked) {
+		this.hasBeenChecked = hasBeenChecked;
+	}
 
 	/**
 	 * Constructs a sector from a coordinate and from and a sector type.The
@@ -40,6 +49,7 @@ public class Sector implements Serializable {
 	public Sector(Coordinate coordinate, SectorType sectorType) {
 		this.coordinate = coordinate;
 		this.sectorType = sectorType;
+		this.hasBeenChecked = false;
 		players = new ArrayList<server_store.Player>();
 
 		switch (this.sectorType.toString()) {
