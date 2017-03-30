@@ -139,6 +139,9 @@ public class InteractionManager {
                     if (objectCard instanceof TeleportObjectCard) {
                         this.clientStore.dispatchAction(new ClientTeleportAction());
                     }
+                    else if (objectCard instanceof SuppressorObjectCard){
+                        this.clientStore.dispatchAction(new ClientSuppressAction(true));
+                    }
                 }
             }
         } else {
@@ -193,7 +196,7 @@ public class InteractionManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
-            this.clientStore.dispatchAction(new ClientAskAttackAction(false));
+            this.clientStore.dispatchAction(new ClientAskLightsAction(false));
             this.clientStore.dispatchAction(new ClientRemoveObjCardAction(lightsCard));
         } else {
             throw new IllegalArgumentException(

@@ -70,7 +70,7 @@ public class HumanTurn extends Turn {
             if (currentPlayer.privateDeck.getSize() > 0) {
                 nextActions.add("@GAMEACTION_USE_OBJ_CARD");
             }
-            if (currentPlayer.hasMoved) {
+            if (!currentPlayer.hasMoved) {
                 nextActions.add("@GAMEACTION_MOVE");
             } else {
                 nextActions.add("@GAMEACTION_END_TURN");

@@ -6,6 +6,7 @@ import client_store.InteractionManager;
 import client_store_actions.ClientSetAvGamesAction;
 import client_store_actions.ClientSetCurrentMessage;
 import client_store_actions.ClientSetCurrentPubSubNotificationAction;
+import client_store_actions.ClientSetCurrentReqRespNotificationAction;
 import common.*;
 import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.StoreAction;
@@ -48,7 +49,6 @@ public class GuiManager implements Observer {
         this.guiGameList.setBackground(Color.BLACK);
         this.guiGamePane = new GUIGamePane();
         this.guiGamePane.setLayout(new GridBagLayout());
-
         this.guiInitialWindow.load();
         mainFrame.getContentPane().add(this.guiInitialWindow);
         this.guiInitialWindow.setVisible(true);
@@ -154,7 +154,7 @@ public class GuiManager implements Observer {
 
 
     private void handleAction() throws ClassNotFoundException {
-        Card firstCard = null, secondCard = null;
+        Card firstCard, secondCard = null;
         boolean isAskingLights = ClientStore.getInstance().getState().askLights;
         boolean isAskingAttack = ClientStore.getInstance().getState().askAttack;
         boolean hasMoved = ClientStore.getInstance().getState().player.hasMoved;
@@ -162,8 +162,6 @@ public class GuiManager implements Observer {
         RRClientNotification currentReqRespNotification = ClientStore.getInstance().getState().currentReqRespNotification;
         PrivateDeck clientPrivateDeck = ClientStore.getInstance().getState().player.privateDeck;
 
-        this.updateGuiState();
-        this.guiGamePane.appendMsg(currentReqRespNotification.getMessage());
         List<Card> drawedCards = currentReqRespNotification.getDrawnCards();
 
         if (isAskingLights) {
@@ -234,7 +232,6 @@ public class GuiManager implements Observer {
     }
 
     private void manyCardHandler(PlayerType playerType) {
-
         if (playerType.equals(PlayerType.HUMAN)) {
             this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_DISC_MENU);
         } else {
@@ -281,13 +278,17 @@ public class GuiManager implements Observer {
 
         } else if (action.getType().equals("@CLIENT_PUBLISH_MSG")) {
             ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
-            this.guiGamePane.appendMsg(castedAction.payload);
+            //this.guiGamePane.appendMsg(castedAction.payload);
         } else if (action.getType().equals("@CLIENT_ALLOW_TURN")) {
             updateGuiState();
         } else if (action.getType().equals("@CLIENT_SET_CURRENT_PUBSUB_NOTIFICATION")) {
             ClientSetCurrentPubSubNotificationAction castedAction = (ClientSetCurrentPubSubNotificationAction) action;
             this.guiGamePane.appendMsg(castedAction.payload.getMessage());
             this.processPSNotification(castedAction.payload);
+        }
+        else if (action.getType().equals("@CLIENT_SET_CURRENT_REQRESP_NOTIFICATION")){
+            ClientSetCurrentReqRespNotificationAction castedAction = (ClientSetCurrentReqRespNotificationAction) action;
+            this.guiGamePane.setStateMessage(castedAction.payload.getMessage());
         }
         else if (action.getType().equals("@CLIENT_DENY_TURN")){
             this.updateGuiState();

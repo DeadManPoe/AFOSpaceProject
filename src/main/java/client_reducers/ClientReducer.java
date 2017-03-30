@@ -46,8 +46,31 @@ public class ClientReducer implements Reducer {
                 return this.setPS(action,castedState);
             case "@CLIENT_DENY_TURN":
                 return this.denyTurn(action,castedState);
+            case "@CLIENT_ASK_LIGHTS":
+                return this.askLights(action,castedState);
+            case "@CLIENT_ASK_ATTACK":
+                return this.askAttack(action,castedState);
+            case "@CLIENT_SUPPRESS":
+                return this.suppress(action, castedState);
 
         }
+        return state;
+    }
+
+    private State suppress(StoreAction action, ClientState state) {
+        ClientSuppressAction castedAction = (ClientSuppressAction) action;
+        state.player.isSedated = castedAction.payload;
+        return state;
+    }
+
+    private State askLights(StoreAction action, ClientState state) {
+        ClientAskLightsAction castedAction = (ClientAskLightsAction) action;
+        state.askLights = castedAction.payload;
+        return state;
+    }
+    private State askAttack(StoreAction action, ClientState state){
+        ClientAskAttackAction castedAction = (ClientAskAttackAction) action;
+        state.askAttack = castedAction.payload;
         return state;
     }
 
