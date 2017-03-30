@@ -234,6 +234,11 @@ public class GameMap {
                 }
             }
         }
+        for (List<Sector> sectorList : visitedSectors){
+            for (Sector sector : sectorList){
+                sector.setHasBeenChecked(false);
+            }
+        }
         if (forceMaxMovement){
             for ( Sector sector : visitedSectors.get(maxDistance-1)){
                 if (sector.equals(targetSector)){
@@ -243,6 +248,7 @@ public class GameMap {
         }
         else {
             for (List<Sector> sectorList : visitedSectors){
+
                 for (Sector sector : sectorList){
                     if (sector.equals(targetSector)){
                         return true;
