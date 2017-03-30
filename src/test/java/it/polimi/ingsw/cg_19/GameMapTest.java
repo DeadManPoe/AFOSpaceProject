@@ -89,23 +89,14 @@ public class GameMapTest {
 		// Create a new Map map starting from the graph defined above
 		GameMap map = new GameMap(graph, 0, 0, 0, 0, "");
 
-        assertTrue();
 
-
-		assertTrue(map.checkSectorAdiacency(s1,s3,1,0,PlayerType.HUMAN,s1,true));
-		// Checks the return value of checkAdiacency
-		assertFalse(map.checkSectorAdiacency(s1, s2, 1, 0, PlayerType.HUMAN,
-				s1, false));
-		assertFalse(map.checkSectorAdiacency(s1, s3, 2, 0, PlayerType.HUMAN,
-				s1, true));
-		assertTrue(map.checkSectorAdiacency(s1, s2, 2, 0, PlayerType.ALIEN, s1,
-				false));
-		assertTrue(map.checkSectorAdiacency(s1, s2, 1, 0, PlayerType.ALIEN, s1,
-				true));
-		assertTrue(map.checkSectorAdiacency(s3, s4, 1, 0, PlayerType.HUMAN, s3,
-				false));
-		assertFalse(map.checkSectorAdiacency(s1, s5, 1, 0, PlayerType.ALIEN,
-				s1, true));
+        assertTrue(map.checkSectorAdiacency(s1,s2,1,false));
+        assertTrue(map.checkSectorAdiacency(s1,s2,2,false));
+        assertFalse(map.checkSectorAdiacency(s1,s3,1,false));
+        assertTrue(map.checkSectorAdiacency(s1,s3,2,false));
+        assertTrue(map.checkSectorAdiacency(s1,s3,2,true));
+        assertFalse(map.checkSectorAdiacency(s1,s2,2,true));
+        assertTrue(map.checkSectorAdiacency(s1,s4,3,false));
 	}
 
 	/**
