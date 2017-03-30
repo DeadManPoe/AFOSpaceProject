@@ -44,8 +44,15 @@ public class ClientReducer implements Reducer {
                 return this.setRR(action,castedState);
             case "@CLIENT_SET_CURRENT_PUBSUB_NOTIFICATION":
                 return this.setPS(action,castedState);
+            case "@CLIENT_DENY_TURN":
+                return this.denyTurn(action,castedState);
 
         }
+        return state;
+    }
+
+    private State denyTurn(StoreAction action, ClientState state) {
+        state.isMyTurn = false;
         return state;
     }
 

@@ -54,7 +54,7 @@ public class GuiManager implements Observer {
         this.guiInitialWindow.setVisible(true);
     }
 
-    public synchronized void updateGuiState() {
+    private void updateGuiState() {
         boolean isMyTurn = ClientStore.getInstance().getState().isMyTurn;
         PlayerType playerType = ClientStore.getInstance().getState().player.playerType;
         if (isMyTurn) {
@@ -277,6 +277,7 @@ public class GuiManager implements Observer {
             } else {
                 this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
             }
+            this.mainFrame.repaint();
 
         } else if (action.getType().equals("@CLIENT_PUBLISH_MSG")) {
             ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
@@ -287,6 +288,9 @@ public class GuiManager implements Observer {
             ClientSetCurrentPubSubNotificationAction castedAction = (ClientSetCurrentPubSubNotificationAction) action;
             this.guiGamePane.appendMsg(castedAction.payload.getMessage());
             this.processPSNotification(castedAction.payload);
+        }
+        else if (action.getType().equals("@CLIENT_DENY_TURN")){
+            this.updateGuiState();
         }
     }
 

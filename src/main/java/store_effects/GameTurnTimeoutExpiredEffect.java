@@ -23,19 +23,32 @@ public class GameTurnTimeoutExpiredEffect implements Effect {
          */
         ServerState castedState = (ServerState) state;
         GameTurnTimeoutExpiredAction castedAction = (GameTurnTimeoutExpiredAction) action;
+        Game game_ = null;
         ArrayList<Object> parameters = new ArrayList<>();
         for (Game game : castedState.getGames()){
             if (game.gamePublicData.getId() == castedAction.getPayload()){
                 parameters.add(game.lastPSclientNotification);
                 //The new timeout is set
                 game.currentTimer.schedule(new TurnTimeout(castedAction.getPayload()),castedState.getTurnTimeout());
+                game_ = game;
             }
         }
-        //Notification sending
-        for (PubSubHandler handler : castedState.getPubSubHandlers()){
-            if (handler.getPlayerToken().getGameId().equals(castedAction.getPayload())){
-                handler.queueNotification(new RemoteMethodCall("sendPubNotification",parameters));
+        if (game_ != null){
+            //Notification sending
+            for (PubSubHandler handler : castedState.getPubSubHandlers()){
+                if (handler.getPlayerToken().getGameId().equals(castedAction.
+                        getPayload())){
+                    if (handler.getPlayerToken().equals(game_.currentPlayer.playerToken)){
+                        handler.queueNotification(new RemoteMethodCall("allowTurn", new ArrayList<Object>()));
+                    }
+                    else {
+                        handler.queueNotification(new RemoteMethodCall("denyTurn", new ArrayList<Object>()));
+                    }
+                    handler.queueNotification(new RemoteMethodCall("sendPubNotification",parameters));
+
+                }
             }
         }
+
     }
 }

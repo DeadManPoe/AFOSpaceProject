@@ -87,6 +87,9 @@ public class InteractionManager {
     public void publishChatMsg(String msg){
         ClientStore.getInstance().dispatchAction(new ClientSetCurrentMessage(msg));
     }
+    public void denyTurn(){
+        ClientStore.getInstance().dispatchAction(new ClientDenyTurnAction());
+    }
 
     public void move(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
