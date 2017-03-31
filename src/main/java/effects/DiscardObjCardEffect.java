@@ -7,6 +7,7 @@ import common.RRClientNotification;
 import decks.ObjectDeck;
 import server_store.Game;
 import server_store.Player;
+import server_store.StoreAction;
 
 /**
  * Represents the effect of discarding an object card
@@ -18,10 +19,11 @@ import server_store.Player;
  * @version 1.2
  */
 public class DiscardObjCardEffect extends ActionEffect {
-	public static boolean executeEffect(Game game, DiscardAction discardAction) {
+	public static boolean executeEffect(Game game, StoreAction action) {
+		DiscardAction castedAction = (DiscardAction) action;
 		Player currentPlayer = game.currentPlayer;
 		ObjectDeck objectDeck = game.objectDeck;
-		ObjectCard discardedCard = discardAction.payload;
+		ObjectCard discardedCard = castedAction.payload;
 		currentPlayer.privateDeck.removeCard(discardedCard);
 		objectDeck.addToDiscard(discardedCard);
 		objectDeck.refill();
@@ -31,7 +33,7 @@ public class DiscardObjCardEffect extends ActionEffect {
 		game.lastPSclientNotification.setMessage("[GLOBAL MESSAGE]: "
 				+ currentPlayer.name + " has discarded an object card\n");
 		//
-		game.lastAction = discardAction;
+		game.lastAction = castedAction;
 		return true;
 	}
 }

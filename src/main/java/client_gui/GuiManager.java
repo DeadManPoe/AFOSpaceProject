@@ -370,13 +370,14 @@ public class GuiManager implements Observer {
      */
     public void noise(Coordinate coords) {
         this.interactionManager.globalNoise(coords, true);
+        this.guiGamePane.setStateMessage("You've made noise on sector "
+                + coords.getX() + "" + coords.getY());
         try {
             this.handleAction();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        this.guiGamePane.setStateMessage("You've made noise on sector "
-                + coords.getX() + "" + coords.getY());
+
     }
 
     /**
