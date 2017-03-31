@@ -167,12 +167,12 @@ public class GuiManager implements Observer {
 
         if (isAskingLights) {
             this.guiGamePane
-                    .setStateMessage("Select a sector for the light cards!");
+                    .setStateMessage("Select a sector for the light card");
             this.guiGamePane.getMapPane().changeMapMenu(
                     MenuType.LIGHT_MENU);
         } else if (isAskingAttack) {
             this.guiGamePane
-                    .setStateMessage("Select a sector fot the attack card!");
+                    .setStateMessage("Select a sector fot the attack card");
             this.guiGamePane.getMapPane().changeMapMenu(
                     MenuType.ATTACK_MENU);
         } else if (!drawedCards.isEmpty()) {
@@ -190,32 +190,43 @@ public class GuiManager implements Observer {
 
             if (firstCard instanceof GlobalNoiseSectorCard) {
                 this.guiGamePane
-                        .setStateMessage("Select a sector for the global noise card!");
+                        .setStateMessage("Select a sector for the global noise card");
                 this.guiGamePane.getMapPane().changeMapMenu(
                         MenuType.NOISE_MENU);
                 this.guiGamePane.changeCardMenu(MenuType.EMPTY);
                 // I've drawn a object card
-            } else if (clientPrivateDeck.getSize() > 3) {
-                this.manyCardHandler(playerType);
-            } else {
-                this.guiGamePane
-                        .setStateMessage("Continue your turn...");
-                this.guiGamePane.showEndTurnButton(true);
+            }
+            else {
+                if (firstCard instanceof SilenceSectorCard){
+                    this.guiGamePane
+                            .setStateMessage("You will not reveal any clue about your position");
+                    this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+                }
+                if (firstCard instanceof LocalNoiseSectorCard){
+                    this.guiGamePane.setStateMessage("You have revealed your position");
+                    this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+                }
+                if (clientPrivateDeck.getSize() > 3){
+                    this.manyCardHandler(playerType);
+                }
+                else {
+                    this.guiGamePane.showEndTurnButton(true);
+                }
+
             }
         } else {
             if (clientPrivateDeck.getSize() > 3) {
                 this.manyCardHandler(playerType);
             } else if (playerType.equals(PlayerType.HUMAN)) {
-                this.guiGamePane
-                        .setStateMessage("Continue your turn...");
                 if (hasMoved) {
                     this.guiGamePane.showEndTurnButton(true);
                     this.guiGamePane.getMapPane().changeMapMenu(
                             MenuType.EMPTY);
+                    this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_MENU);
                 } else {
                     this.guiGamePane.getMapPane().changeMapMenu(
                             MenuType.HUMAN_INITIAL);
-                    this.guiGamePane.showEndTurnButton(false);
+                    this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_MENU);
                 }
 
             } else {
@@ -226,7 +237,6 @@ public class GuiManager implements Observer {
                 } else {
                     this.guiGamePane.getMapPane().changeMapMenu(
                             MenuType.ALIEN_INITIAL);
-                    this.guiGamePane.showEndTurnButton(false);
                 }
             }
         }
@@ -241,8 +251,6 @@ public class GuiManager implements Observer {
 
         this.guiGamePane.setStateMessage("Use or discard an object card");
         this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-        this.guiGamePane.showEndTurnButton(false);
-        this.guiGamePane.repaint();
     }
 
     private void showMessageBox(String message) {
@@ -441,7 +449,6 @@ public class GuiManager implements Observer {
         this.interactionManager.discardCard(index + 1);
         this.guiGamePane.removeAllCardsFromPanel();
         this.updateCardsPanel();
-        this.updateGuiState();
         try {
             this.handleAction();
         } catch (ClassNotFoundException e) {
