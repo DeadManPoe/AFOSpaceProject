@@ -138,6 +138,7 @@ public class GuiManager implements Observer {
 
         if (hasMoved) {
             this.updatePosition();
+            this.guiGamePane.setStateMessage("You have moved to sector "+ClientStore.getInstance().getState().player.currentSector.getCoordinate());
             try {
                 this.handleAction();
             } catch (ClassNotFoundException e) {
@@ -278,7 +279,7 @@ public class GuiManager implements Observer {
 
         } else if (action.getType().equals("@CLIENT_PUBLISH_MSG")) {
             ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
-            //this.guiGamePane.appendMsg(castedAction.payload);
+            this.guiGamePane.appendMsg(castedAction.payload);
         } else if (action.getType().equals("@CLIENT_ALLOW_TURN")) {
             updateGuiState();
         } else if (action.getType().equals("@CLIENT_SET_CURRENT_PUBSUB_NOTIFICATION")) {
@@ -440,6 +441,7 @@ public class GuiManager implements Observer {
         this.interactionManager.discardCard(index + 1);
         this.guiGamePane.removeAllCardsFromPanel();
         this.updateCardsPanel();
+        this.updateGuiState();
         try {
             this.handleAction();
         } catch (ClassNotFoundException e) {

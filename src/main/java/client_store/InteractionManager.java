@@ -253,8 +253,10 @@ public class InteractionManager {
         parameters.add(message);
         parameters.add(this.clientStore.getState().player.playerToken);
         try {
-            this.communicationHandler.newComSession(new RemoteMethodCall("publishGlobalMessage", parameters));
-        } catch (IOException | ClassNotFoundException e) {
+            RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("publishGlobalMessage", parameters));
+            this.processRemoteInvocation(remoteMethodCall);
+
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
     }
