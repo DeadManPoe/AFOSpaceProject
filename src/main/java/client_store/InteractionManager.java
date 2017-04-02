@@ -94,6 +94,7 @@ public class InteractionManager {
     public void move(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         if (targetSector != null) {
+            this.clientStore.dispatchAction(new ClientAskAttackAction(false));
             ArrayList<Object> parameters = new ArrayList<Object>();
             StoreAction action = new MoveAction(targetSector);
             parameters.add(action);
@@ -264,6 +265,7 @@ public class InteractionManager {
         boolean humanAttack = ClientStore.getInstance().getState().player.playerType.equals(PlayerType.HUMAN);
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         if (targetSector != null) {
+            ClientStore.getInstance().dispatchAction(new ClientAskAttackAction(true));
             ArrayList<Object> parameters = new ArrayList<Object>();
             AttackObjectCard card = null;
             if (humanAttack) {

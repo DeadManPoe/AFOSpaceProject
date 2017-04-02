@@ -3,6 +3,7 @@ package effects;
 import common.*;
 import it.polimi.ingsw.cg_19.PlayerState;
 import it.polimi.ingsw.cg_19.PlayerType;
+import it.polimi.ingsw.cg_19.SectorLegality;
 import server_store.Game;
 import server_store.Player;
 import server_store.ServerState;
@@ -24,7 +25,22 @@ import java.util.List;
  * @see MoveAttackAction
  */
 public class MoveAttackActionEffect extends ActionEffect {
+    private static boolean verifyMoveLegality(Sector source, Sector target, PlayerType playerType){
+        if (source.equals(target)){
+            return false;
+        }
+        if (playerType.equals(PlayerType.HUMAN) &&
+                (target.getSectorLegality().equals(SectorLegality.NONE))){
+            return false;
+        }
+        else if (playerType.equals(PlayerType.ALIEN) &&
+                (target.getSectorLegality().equals(SectorLegality.NONE)
+                        || target.getSectorLegality().equals(SectorLegality.HUMAN))){
+            return false;
+        }
+        return true;
 
+    }
     public static boolean executeEffect(Game game, StoreAction action) {
         MoveAttackAction castedAction = (MoveAttackAction) action;
 
@@ -37,9 +53,8 @@ public class MoveAttackActionEffect extends ActionEffect {
         List<Player> deadPlayers = new ArrayList<>();
 
         if (!sourceSector.equals(castedAction.payload)) {
-            if (game.gameMap.checkSectorAdiacency(sourceSector, targetSector,
-                    currentPlayer.speed, 0, currentPlayer.playerType,
-                    sourceSector, currentPlayer.isAdrenalined)) {
+            if (game.gameMap.checkSectorAdiacency(sourceSector,targetSector,currentPlayer.speed,currentPlayer.isAdrenalined)
+                    && verifyMoveLegality(sourceSector,targetSector,currentPlayer.playerType)) {
 
                 // For each player contained in the target sector
                 for (Player player : targetSector.getPlayers()) {
