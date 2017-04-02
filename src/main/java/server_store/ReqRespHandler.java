@@ -1,5 +1,7 @@
 package server_store;
 
+import client_store.ClientStore;
+import com.sun.corba.se.spi.activation.Server;
 import common.Action;
 import common.GamePublicData;
 import common.PlayerToken;
@@ -149,12 +151,33 @@ public class ReqRespHandler extends Thread {
         for (Game game : serverStore.getState().getGames()){
             if (game.gamePublicData.getId() == playerToken.getGameId()){
                 if(game.players.size() == 2){
-                    this.serverStore.dispatchAction(new GameStartGameAction(playerToken.getGameId()));
+                    //this.serverStore.dispatchAction(new GameStartGameAction(playerToken.getGameId()));
+                    startableGame(game);
                     break;
                 }
             }
         }
 
+    }
+    public void onDemandGameStart(PlayerToken playerToken){
+        List<Game> games = ServerStore.getInstance().getState().getGames();
+        for ( Game game : games){
+            if (game.gamePublicData.getId() == playerToken.getGameId()
+                    && game.currentPlayer.playerToken.getUUID().equals(playerToken.getUUID())){
+                ServerStore.getInstance().dispatchAction(new GameStartGameAction(game.gamePublicData.getId()));
+                ServerStore.getInstance().dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
+                break;
+            }
+        }
+    }
+
+    private void startableGame(Game game) {
+        for (PubSubHandler handler : ServerStore.getInstance().getState().getPubSubHandlers()){
+            if (handler.getPlayerToken().getUUID().equals(game.currentPlayer.playerToken.getUUID())){
+                handler.queueNotification(new RemoteMethodCall("signalStartableGame",new ArrayList<Object>()));
+                break;
+            }
+        }
     }
 
     /**

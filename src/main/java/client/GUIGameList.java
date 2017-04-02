@@ -21,6 +21,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import client_gui.GuiManager;
+import client_store.ClientStore;
 import common.GamePublicData;
 import server.GameStatus;
 
@@ -181,7 +182,7 @@ public class GUIGameList extends JPanel {
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.err.println("balla");
+                guiManager.forwardMethod("onDemandGameStart", new ArrayList<>());
             }
         });
     }
@@ -197,4 +198,7 @@ public class GUIGameList extends JPanel {
         }
     }
 
+    public void startableGame() {
+        this.startButton.setVisible(true);
+    }
 }

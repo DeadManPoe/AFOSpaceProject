@@ -310,6 +310,9 @@ public class GuiManager implements Observer {
         else if (action.getType().equals("@CLIENT_DENY_TURN")){
             this.updateGuiState();
         }
+        else if (action.getType().equals("@CLIENT_STARTABLE_GAME")){
+            this.guiGameList.startableGame();
+        }
     }
 
     private void processPSNotification(PSClientNotification notification) {

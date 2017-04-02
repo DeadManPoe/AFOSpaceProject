@@ -38,7 +38,7 @@ public class CommunicationHandler {
         this.inputStream = new ObjectInputStream(this.socket.getInputStream());
         this.sendData(remoteMethodCall);
         if ( !remoteMethodCall.getMethodName().equals("subscribe")){
-            if ( !remoteMethodCall.getMethodName().equals("publishGlobalMessage")){
+            if ( !remoteMethodCall.getMethodName().equals("publishGlobalMessage") && !remoteMethodCall.getMethodName().equals("onDemandGameStart")){
                 methodCallToExecute = this.receiveData(inputStream);
             }
             this.closeDataFlow();

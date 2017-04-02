@@ -55,6 +55,17 @@ public class InteractionManager {
             e.printStackTrace();
         }
     }
+    public void onDemandGameStart(){
+        ArrayList<Object> parameters = new ArrayList<>();
+        parameters.add(ClientStore.getInstance().getState().player.playerToken);
+        try {
+            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("onDemandGameStart",parameters));
+            this.processRemoteInvocation(methodCall);
+
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void setMapAndStartGame(String mapName){
         this.clientStore.dispatchAction(new ClientSetGameMapAction(mapName));
@@ -113,6 +124,9 @@ public class InteractionManager {
             throw new IllegalArgumentException(
                     "The sector you have indicated does not exists, please try again");
         }
+    }
+    public void signalStartableGame(){
+        this.clientStore.dispatchAction(new ClientStartableGameAction());
     }
 
     public void useObjCard(int objectCardIndex) throws IOException, ClassNotFoundException {
