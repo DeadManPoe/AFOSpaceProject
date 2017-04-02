@@ -122,14 +122,22 @@ public class GuiManager implements Observer {
 
     public void attack(Coordinate coords) {
         this.interactionManager.attack(coords);
-        this.updatePosition();
-        this.guiGamePane.removeAllCardsFromPanel();
-        this.updateCardsPanel();
-        try {
-            this.handleAction();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        boolean hasAttacked = ClientStore.getInstance().getState().askAttack;
+        if (!hasAttacked){
+            this.updatePosition();
+            this.guiGamePane.removeAllCardsFromPanel();
+            this.updateCardsPanel();
+            try {
+                this.handleAction();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            this.guiGamePane.setStateMessage(ClientStore.getInstance().getState().currentReqRespNotification.getMessage());
         }
+        else {
+            this.guiGamePane.setStateMessage("You cannot attack in that sector!");
+        }
+
     }
 
     public void move(Coordinate coordinate) {
@@ -296,8 +304,8 @@ public class GuiManager implements Observer {
             this.processPSNotification(castedAction.payload);
         }
         else if (action.getType().equals("@CLIENT_SET_CURRENT_REQRESP_NOTIFICATION")){
-            ClientSetCurrentReqRespNotificationAction castedAction = (ClientSetCurrentReqRespNotificationAction) action;
-            this.guiGamePane.setStateMessage(castedAction.payload.getMessage());
+            //ClientSetCurrentReqRespNotificationAction castedAction = (ClientSetCurrentReqRespNotificationAction) action;
+            //this.guiGamePane.setStateMessage(castedAction.payload.getMessage());
         }
         else if (action.getType().equals("@CLIENT_DENY_TURN")){
             this.updateGuiState();
@@ -393,7 +401,7 @@ public class GuiManager implements Observer {
             for (server_store.Player p : s.getPlayers()) {
                 nameList += " " + p.name;
             }
-            this.guiGamePane.getMapPane().lightSector(s.getCoordinate(), "P",
+            this.guiGamePane.getMapPane().lightSector(s.getCoordinate(), "",
                     nameList);
         }
     }
@@ -412,8 +420,7 @@ public class GuiManager implements Observer {
         }
         this.guiGamePane.removeAllCardsFromPanel();
         this.updateCardsPanel();
-        this.guiGamePane.setStateMessage("You've lighted sector "
-                + coords.getX() + "" + coords.getY());
+        this.guiGamePane.setStateMessage(ClientStore.getInstance().getState().currentReqRespNotification.getMessage());
     }
 
     /**

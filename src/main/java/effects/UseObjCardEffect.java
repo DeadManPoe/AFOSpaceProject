@@ -59,7 +59,7 @@ public class UseObjCardEffect extends ActionEffect {
         }
 
         try {
-            clientNotification.setMessage("You have used a"
+            clientNotification.setMessage("You have used a "
                     + castedAction.payload.toString());
             psNotification.setMessage("[GLOBAL MESSAGE]: "
                     + game.currentPlayer.name + " has used a "

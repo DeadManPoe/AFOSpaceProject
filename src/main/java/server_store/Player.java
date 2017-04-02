@@ -6,10 +6,12 @@ import common.Sector;
 import it.polimi.ingsw.cg_19.PlayerState;
 import it.polimi.ingsw.cg_19.PlayerType;
 
+import java.io.Serializable;
+
 /**
  * Created by giorgiopea on 13/03/17.
  */
-public class Player {
+public class Player implements Serializable {
     public int speed;
     public PlayerToken playerToken;
     // Player's type

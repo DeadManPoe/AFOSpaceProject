@@ -295,8 +295,9 @@ public class InteractionManager {
             }
             if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
                 this.clientStore.dispatchAction(new ClientMoveAction(targetSector));
+                this.clientStore.dispatchAction(new ClientAskAttackAction(false));
             }
-            this.clientStore.dispatchAction(new ClientAskAttackAction(false));
+
         } else {
             throw new IllegalArgumentException(
                     "The sector you have indicated does not exists, please try again");
