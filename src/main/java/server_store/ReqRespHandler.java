@@ -150,8 +150,11 @@ public class ReqRespHandler extends Thread {
         this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
         for (Game game : serverStore.getState().getGames()){
             if (game.gamePublicData.getId() == playerToken.getGameId()){
-                if(game.players.size() == 2){
-                    //this.serverStore.dispatchAction(new GameStartGameAction(playerToken.getGameId()));
+                if(game.players.size() == 8){
+                    this.serverStore.dispatchAction(new GameStartGameAction(playerToken.getGameId()));
+                    break;
+                }
+                else if(game.players.size() == 2){
                     startableGame(game);
                     break;
                 }
