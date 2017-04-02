@@ -99,27 +99,29 @@ public class GUIGameList extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    stateMessage.setText("Waiting for others players...");
                     // A box for the name
                     String name = (String) JOptionPane.showInputDialog(guiManager.getFrame(),
                             "Insert your name for the game: ",
                             "Name insert",
                             JOptionPane.OK_CANCEL_OPTION, null, null, "");
-                    if (!("").equals(name)) {
-                        int id = (Integer) gameTables.getValueAt(
-                                gameTables.getSelectedRow(), 0);
+                    if (name != null){
+                        if (!("").equals(name)) {
+                            int id = (Integer) gameTables.getValueAt(
+                                    gameTables.getSelectedRow(), 0);
 
-                        List<Object> parameters = new ArrayList<>();
-                        parameters.add(id);
-                        parameters.add(name);
-
-                        guiManager.forwardMethod("joinGame",parameters);
-                    } else {
-                        JOptionPane.showMessageDialog(guiManager.getFrame(),
-                                "Please insert a valid name",
-                                "Error",
-                                JOptionPane.ERROR_MESSAGE);
+                            List<Object> parameters = new ArrayList<>();
+                            parameters.add(id);
+                            parameters.add(name);
+                            stateMessage.setText("Waiting for others players...");
+                            guiManager.forwardMethod("joinGame",parameters);
+                        } else {
+                            JOptionPane.showMessageDialog(guiManager.getFrame(),
+                                    "Please insert a valid name",
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
                     }
+
                 } catch (IllegalArgumentException | SecurityException e1) {
                     ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
                             e1);
@@ -138,26 +140,31 @@ public class GUIGameList extends JPanel {
                         "Insert your name for the game: ",
                         "Name insert",
                         JOptionPane.OK_CANCEL_OPTION, null, null, "");
-                if (!("").equals(name)) {
-                    stateMessage.setText("Waiting for other players");
-                    mapName = (String) JOptionPane.showInputDialog(
-                            guiManager.getFrame(), "Choose the map: ", "Map",
-                            JOptionPane.PLAIN_MESSAGE, null, possibilities,
-                            "Galilei");
+                if (name != null){
+                    if (!("").equals(name)) {
+                        mapName = (String) JOptionPane.showInputDialog(
+                                guiManager.getFrame(), "Choose the map: ", "Map",
+                                JOptionPane.PLAIN_MESSAGE, null, possibilities,
+                                "Galilei");
+                        if(mapName != null){
+                            stateMessage.setText("Waiting for others players...");
+                            List<Object> parameters = new ArrayList<>();
+                            parameters.add(mapName.toUpperCase());
+                            parameters.add(name);
+                            guiManager.forwardMethod("joinNewGame",parameters);
+                            //startButton.setVisible(true);
+                            buttonPanel.setVisible(false);
+                        }
 
-                    List<Object> parameters = new ArrayList<>();
-                    parameters.add(mapName.toUpperCase());
-                    parameters.add(name);
-                    guiManager.forwardMethod("joinNewGame",parameters);
-                    //startButton.setVisible(true);
-                    buttonPanel.setVisible(false);
 
-                } else {
-                    JOptionPane.showMessageDialog(guiManager.getFrame(),
-                            "Please insert a valid name",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(guiManager.getFrame(),
+                                "Please insert a valid name",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
                 }
+
             }
         });
 
