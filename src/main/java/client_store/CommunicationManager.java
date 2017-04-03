@@ -6,27 +6,24 @@ import common.RemoteMethodCall;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
-import java.rmi.NotBoundException;
-import java.util.concurrent.ExecutorService;
 
 /**
  * Created by giorgiopea on 25/03/17.
  */
-public class CommunicationHandler {
-    private static CommunicationHandler instance = new CommunicationHandler();
+public class CommunicationManager {
+    private static CommunicationManager instance = new CommunicationManager();
     private final ClientStore clientStore;
     private Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
 
 
-    public static CommunicationHandler getInstance(){
+    public static CommunicationManager getInstance(){
         return instance;
     }
 
-    private CommunicationHandler(){
+    private CommunicationManager(){
         clientStore = ClientStore.getInstance();
     }
 

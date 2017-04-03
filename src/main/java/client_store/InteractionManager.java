@@ -1,65 +1,97 @@
 package client_store;
 
-import client.ClientRemoteServicesInterface;
+import client_gui.GuiManager;
 import client_store_actions.*;
 import common.*;
+import it.polimi.ingsw.cg_19.GameMap;
 import it.polimi.ingsw.cg_19.PlayerType;
+import server_store.Player;
 import server_store.StoreAction;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by giorgiopea on 25/03/17.
- *
  */
-public class InteractionManager {
+public class InteractionManager implements Observer {
 
     private static final InteractionManager instance = new InteractionManager();
+    //Ref to the client store
     private final ClientStore clientStore;
-    private final CommunicationHandler communicationHandler;
+    //Ref to the communication manager
+    private final CommunicationManager communicationManager;
+    private final GuiManager guiManager;
 
     public static InteractionManager getInstance() {
         return instance;
     }
 
-    private InteractionManager(){
+    private InteractionManager() {
         this.clientStore = ClientStore.getInstance();
-        this.communicationHandler = CommunicationHandler.getInstance();
-    }
-    public void sendNotification(ClientNotification clientNotification)
-            throws RemoteException, IOException {
-        RRClientNotification rrClientNotification = (RRClientNotification) clientNotification;
-        this.clientStore.dispatchAction(new ClientSetCurrentReqRespNotificationAction(rrClientNotification));
+        this.communicationManager = CommunicationManager.getInstance();
+        this.guiManager = GuiManager.getInstance();
     }
 
-    public void sendPubNotification(ClientNotification psNotification) {
-        PSClientNotification notification = (PSClientNotification) psNotification;
-        this.clientStore.dispatchAction(new ClientSetCurrentPubSubNotificationAction(notification));
+    /**
+     * Manages the answer to a request to the server. This method just updates the app's state
+     * with the received answer, and it does so by dispatching a proper action.
+     *
+     * @param clientNotification The answer to a request to the server
+     */
+    private void sendNotification(ClientNotification clientNotification) {
+        RRClientNotification castedClientNotification = (RRClientNotification) clientNotification;
+        this.clientStore.dispatchAction(new ClientSetCurrentReqRespNotificationAction(castedClientNotification));
+    }
+    /**
+     * Manages asynchronous server notification in the context of a publisher subscriber policy.
+     * This method just updates the app's state with the received notification,
+     * and it does so by dispatching a proper action.
+     *
+     * @param clientNotification The asynchronous server notification to be managed
+     */
+    private void sendPubNotification(ClientNotification clientNotification) {
+        PSClientNotification castedClientNotification = (PSClientNotification) clientNotification;
+        this.clientStore.dispatchAction(new ClientSetCurrentPubSubNotificationAction(castedClientNotification));
     }
 
+    /**
+     * Sets the client's player token.
+     * @param playerToken The player token to be assigned to the client
+     */
+    private void setPlayerToken(PlayerToken playerToken) {
+        this.clientStore.dispatchAction(new ClientSetPlayerTokenAction(playerToken));
+        this.subscribe();
+    }
 
-
-    public void setPlayerToken(PlayerToken token){
-        this.clientStore.dispatchAction(new ClientSetPlayerTokenAction(token));
+    /**
+     * Subscribes the client to asynchronous notifications related to the game he has joined
+     */
+    private void subscribe(){
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(this.clientStore.getState().player.playerToken);
         try {
-            this.communicationHandler.newComSession(new RemoteMethodCall("subscribe",parameters));
-        } catch (IOException | ClassNotFoundException e) {
+            RemoteMethodCall remoteMethodCall = this.communicationManager.newComSession(new RemoteMethodCall("subscribe", parameters));
+            this.processRemoteInvocation(remoteMethodCall);
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
     }
-    public void onDemandGameStart(){
+
+    /**
+     * Requests the start of the game the client has created skipping the natural waiting
+     * of 8 players to start the game
+     */
+    public void onDemandGameStart() {
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(ClientStore.getInstance().getState().player.playerToken);
         try {
-            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("onDemandGameStart",parameters));
+            RemoteMethodCall methodCall = this.communicationManager.newComSession(new RemoteMethodCall("onDemandGameStart", parameters));
             this.processRemoteInvocation(methodCall);
 
         } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
@@ -67,53 +99,86 @@ public class InteractionManager {
         }
     }
 
-    public void setMapAndStartGame(String mapName){
+    /**
+     * Sets the game map and starts the game associated with the client
+     * @param mapName The name of the map to be used for the game
+     */
+    public void setMapAndStartGame(String mapName) {
         this.clientStore.dispatchAction(new ClientSetGameMapAction(mapName));
         this.clientStore.dispatchAction(new ClientStartGameAction());
+        Player player = this.clientStore.getState().player;
+        GameMap gameMap = this.clientStore.getState().gameMap;
+        boolean isMyTurn = this.clientStore.getState().isMyTurn;
+        this.guiManager.startGame(player.name,player.playerType,gameMap.getName(),isMyTurn, player.currentSector.getCoordinate());
     }
-    public void joinNewGame(String gameMapName, String playerName){
+
+    /**
+     * Requests the creation and join of a game
+     * @param gameMapName The name of the map to be used for the game
+     * @param playerName The name to be used in game by the client
+     */
+    public void joinNewGame(String gameMapName, String playerName) {
         this.clientStore.dispatchAction(new ClientInitPlayerAction(playerName));
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(gameMapName);
         parameters.add(playerName);
         try {
-            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("joinNewGame",parameters));
+            RemoteMethodCall methodCall = this.communicationManager.newComSession(new RemoteMethodCall("joinNewGame", parameters));
             this.processRemoteInvocation(methodCall);
         } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
     }
-    public void joinGame(Integer gameId, String playerName){
+
+    /**
+     * Requests the join of a game
+     * @param gameId The identifier of the game to join
+     * @param playerName The name to be used in game by the client
+     */
+    public void joinGame(Integer gameId, String playerName) {
         this.clientStore.dispatchAction(new ClientInitPlayerAction(playerName));
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(gameId);
         parameters.add(playerName);
         try {
-            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("joinGame",parameters));
+            RemoteMethodCall methodCall = this.communicationManager.newComSession(new RemoteMethodCall("joinGame", parameters));
             this.processRemoteInvocation(methodCall);
         } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
     }
-    public void publishChatMsg(String msg){
+
+    /**
+     * Sets a new chat message for the game the client has joined
+     * @param msg The chat message to be set
+     */
+    public void publishChatMsg(String msg) {
         ClientStore.getInstance().dispatchAction(new ClientSetCurrentMessage(msg));
     }
-    public void denyTurn(){
+
+    public void denyTurn() {
         ClientStore.getInstance().dispatchAction(new ClientDenyTurnAction());
     }
 
+    /**
+     * Requests and manages a move action for the game the client has joined
+     * @param coordinate The coordinates of the sector to move to
+     */
     public void move(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         if (targetSector != null) {
+            //If I make a non legal attack and instead of redoing the attack I opt for a move action,
+            // I need to set the app's state 'askAttack' prop to false
             this.clientStore.dispatchAction(new ClientAskAttackAction(false));
             ArrayList<Object> parameters = new ArrayList<Object>();
             StoreAction action = new MoveAction(targetSector);
             parameters.add(action);
             parameters.add(this.clientStore.getState().player.playerToken);
             try {
-                RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
+                RemoteMethodCall methodCall = this.communicationManager.newComSession(new RemoteMethodCall("makeAction", parameters));
                 this.processRemoteInvocation(methodCall);
-                if (this.clientStore.getState().currentReqRespNotification.getActionResult()){
+                if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
+                    //If the move action has been accepted by the server, i need to make it happen on the client
                     this.clientStore.dispatchAction(new ClientMoveAction(targetSector));
                 }
             } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
@@ -125,15 +190,24 @@ public class InteractionManager {
                     "The sector you have indicated does not exists, please try again");
         }
     }
-    public void signalStartableGame(){
+
+    /**
+     * Signals that the game the game has created and joined can be started without
+     * waiting for the presence of 8 players
+     */
+    private void signalStartableGame() {
         this.clientStore.dispatchAction(new ClientStartableGameAction());
     }
 
-    public void useObjCard(int objectCardIndex) throws IOException, ClassNotFoundException {
+    /**
+     * Requests and manages the use of an object card in the game the client has joined
+     * @param objectCardIndex The index of the card to use in the client's private deck of object cards
+     */
+    public void useObjCard(int objectCardIndex){
         int cardsAmount = this.clientStore.getState().player.privateDeck.getSize();
-        if (objectCardIndex <= cardsAmount && objectCardIndex > 0) {
+        if (objectCardIndex <= cardsAmount && objectCardIndex >= 0) {
             ObjectCard objectCard = this.clientStore.getState().player.privateDeck.getCard(
-                    objectCardIndex - 1);
+                    objectCardIndex);
             if (objectCard instanceof LightsObjectCard) {
                 this.clientStore.dispatchAction(new ClientAskLightsAction(true));
             } else if (objectCard instanceof AttackObjectCard) {
@@ -143,31 +217,38 @@ public class InteractionManager {
                 StoreAction action = new UseObjAction(objectCard);
                 parameters.add(action);
                 parameters.add(this.clientStore.getState().player.playerToken);
-                RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
                 try {
+                    RemoteMethodCall methodCall = this.communicationManager.newComSession(new RemoteMethodCall("makeAction", parameters));
                     this.processRemoteInvocation(methodCall);
-                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
+                        this.clientStore.dispatchAction(new ClientRemoveObjCardAction(objectCard));
+                        if (objectCard instanceof TeleportObjectCard) {
+                            this.clientStore.dispatchAction(new ClientTeleportAction());
+                        } else if (objectCard instanceof SuppressorObjectCard) {
+                            this.clientStore.dispatchAction(new ClientSuppressAction(true));
+                        }
+                    }
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException | IOException e) {
                     e.printStackTrace();
                 }
-                if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
-                    this.clientStore.dispatchAction(new ClientRemoveObjCardAction(objectCard));
-                    if (objectCard instanceof TeleportObjectCard) {
-                        this.clientStore.dispatchAction(new ClientTeleportAction());
-                    }
-                    else if (objectCard instanceof SuppressorObjectCard){
-                        this.clientStore.dispatchAction(new ClientSuppressAction(true));
-                    }
-                }
+
             }
         } else {
             throw new IllegalArgumentException(
                     "Undifined card, please try again");
         }
     }
-    public void allowTurn(){
+
+    public void allowTurn() {
         this.clientStore.dispatchAction(new ClientAllowTurnAction());
     }
-    public void globalNoise(Coordinate coordinate, boolean hasObject){
+
+    /**
+     * Requests and manages the execution of a global noise action in the game the client has joined
+     * @param coordinate The coordinates of the sector associated with the action
+     * @param hasObject If the action implies drawing an object card
+     */
+    public void globalNoise(Coordinate coordinate, boolean hasObject) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         if (targetSector != null) {
             SectorCard globalNoiseCard = new GlobalNoiseSectorCard(hasObject,
@@ -176,15 +257,10 @@ public class InteractionManager {
             StoreAction action = new UseSectorCardAction(globalNoiseCard);
             parameters.add(action);
             parameters.add(this.clientStore.getState().player.playerToken);
-            RemoteMethodCall methodCall = null;
             try {
-                methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            try {
+                RemoteMethodCall methodCall = this.communicationManager.newComSession(new RemoteMethodCall("makeAction", parameters));
                 this.processRemoteInvocation(methodCall);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
         } else {
@@ -192,6 +268,7 @@ public class InteractionManager {
                     "The sector you have indicated does not exists, please try again");
         }
     }
+
     public void lights(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         if (targetSector != null) {
@@ -202,7 +279,7 @@ public class InteractionManager {
             parameters.add(this.clientStore.getState().player.playerToken);
             RemoteMethodCall remoteMethodCall = null;
             try {
-                remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
+                remoteMethodCall = this.communicationManager.newComSession(new RemoteMethodCall("makeAction", parameters));
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -219,17 +296,19 @@ public class InteractionManager {
         }
 
     }
+
     //Not much sure
-    private void setAvailableGames(ArrayList<GamePublicData> avGames){
+    private void setAvailableGames(ArrayList<GamePublicData> avGames) {
         this.clientStore.dispatchAction(new ClientSetAvGamesAction(avGames));
     }
+
     public void endTurn() {
         ArrayList<Object> parameters = new ArrayList<Object>();
         StoreAction action = new EndTurnAction();
         parameters.add(action);
         parameters.add(this.clientStore.getState().player.playerToken);
         try {
-            this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
+            this.communicationManager.newComSession(new RemoteMethodCall("makeAction", parameters));
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -237,6 +316,7 @@ public class InteractionManager {
             this.clientStore.dispatchAction(new ClientEndTurnAction());
         }
     }
+
     public void discardCard(int objectCardIndex) {
         int cardsAmount = this.clientStore.getState().player.privateDeck.getSize();
         if (objectCardIndex <= cardsAmount && objectCardIndex > 0) {
@@ -247,7 +327,7 @@ public class InteractionManager {
             parameters.add(action);
             parameters.add(this.clientStore.getState().player.playerToken);
             try {
-                RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
+                RemoteMethodCall remoteMethodCall = this.communicationManager.newComSession(new RemoteMethodCall("makeAction", parameters));
                 this.processRemoteInvocation(remoteMethodCall);
             } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
@@ -263,19 +343,21 @@ public class InteractionManager {
         }
 
     }
-    public void sendMessage(String message){
+
+    public void sendMessage(String message) {
         ArrayList<Object> parameters = new ArrayList<Object>();
         parameters.add(message);
         parameters.add(this.clientStore.getState().player.playerToken);
         try {
-            RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("publishGlobalMessage", parameters));
+            RemoteMethodCall remoteMethodCall = this.communicationManager.newComSession(new RemoteMethodCall("publishGlobalMessage", parameters));
             this.processRemoteInvocation(remoteMethodCall);
 
         } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
     }
-    public void attack(Coordinate coordinate){
+
+    public void attack(Coordinate coordinate) {
         boolean humanAttack = ClientStore.getInstance().getState().player.playerType.equals(PlayerType.HUMAN);
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         if (targetSector != null) {
@@ -288,7 +370,7 @@ public class InteractionManager {
                 parameters.add(action);
                 parameters.add(this.clientStore.getState().player.playerToken);
                 try {
-                    RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
+                    RemoteMethodCall remoteMethodCall = this.communicationManager.newComSession(new RemoteMethodCall("makeAction", parameters));
                     this.processRemoteInvocation(remoteMethodCall);
                 } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                     e.printStackTrace();
@@ -299,7 +381,7 @@ public class InteractionManager {
                 parameters.add(this.clientStore.getState().player.playerToken);
                 RemoteMethodCall remoteMethodCall = null;
                 try {
-                    remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction",parameters));
+                    remoteMethodCall = this.communicationManager.newComSession(new RemoteMethodCall("makeAction", parameters));
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -320,28 +402,23 @@ public class InteractionManager {
         }
 
     }
+
     public void getGames() throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("getGames",new ArrayList<Object>()));
+        RemoteMethodCall methodCall = this.communicationManager.newComSession(new RemoteMethodCall("getGames", new ArrayList<Object>()));
         this.processRemoteInvocation(methodCall);
 
     }
+
     public void processRemoteInvocation(RemoteMethodCall remoteClientInvocation)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException, SecurityException {
-        if (remoteClientInvocation != null){
+        if (remoteClientInvocation != null) {
             String methodName = remoteClientInvocation.getMethodName();
             ArrayList<Object> parameters = remoteClientInvocation
                     .getMethodParameters();
             Class<?>[] parametersClasses = new Class[parameters.size()];
             for (int i = 0; i < parameters.size(); i++) {
-                if (parameters.get(i).getClass().getName().contains("action")
-                        || parameters.get(i).getClass().getName()
-                        .contains("ClientNotification")) {
-                    parametersClasses[i] = parameters.get(i).getClass()
-                            .getSuperclass();
-                } else {
-                    parametersClasses[i] = parameters.get(i).getClass();
-                }
+                parametersClasses[i] = parameters.get(i).getClass();
 
             }
             this.getClass().getDeclaredMethod(methodName, parametersClasses)
@@ -349,12 +426,17 @@ public class InteractionManager {
         }
 
     }
+
     public void executeMethod(String methodName, List<Object> parameters) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Class<?>[] parametersClasses = new Class[parameters.size()];
-        for (int i=0; i<parametersClasses.length; i++){
+        for (int i = 0; i < parametersClasses.length; i++) {
             parametersClasses[i] = parameters.get(i).getClass();
         }
-        this.getClass().getDeclaredMethod(methodName,parametersClasses).invoke(this,parameters.toArray());
+        this.getClass().getDeclaredMethod(methodName, parametersClasses).invoke(this, parameters.toArray());
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+
+    }
 }

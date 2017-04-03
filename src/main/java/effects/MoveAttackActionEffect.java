@@ -80,6 +80,9 @@ public class MoveAttackActionEffect extends ActionEffect {
                         player.currentSector = null;
                         // Notify the rest of the players
                         game.lastPSclientNotification.addDeadPlayers(player.playerToken);
+                        if (game.currentPlayer.playerType == PlayerType.ALIEN) {
+                            game.currentPlayer.speed = 3;
+                        }
                         rrMessage += "You have attacked sector "
                                 + targetSector.getCoordinate().toString()
                                 + " and so " + player.name + " is dead.";
@@ -89,9 +92,7 @@ public class MoveAttackActionEffect extends ActionEffect {
                                 + targetSector.getCoordinate().toString()
                                 + " and so " + player.name + " is dead.";
                     } else {
-                        if (game.currentPlayer.playerType == PlayerType.ALIEN) {
-                            game.currentPlayer.speed = 3;
-                        }
+
                         // Otherwise p has been attacked
                         game.lastPSclientNotification.addAttackedPlayers(player.playerToken
                         );

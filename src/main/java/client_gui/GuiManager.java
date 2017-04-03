@@ -265,6 +265,29 @@ public class GuiManager implements Observer {
         JOptionPane.showMessageDialog(mainFrame, message);
     }
 
+    public void startGame(String playerName, PlayerType playerType,String mapName, boolean isMyTurn, Coordinate startingSectorCoordinate){
+        String welcomeMsg = "Welcome, " + playerName + " you're "
+                + playerType.toString();
+        if (isMyTurn) {
+            welcomeMsg += " - It's your turn!";
+        } else {
+            welcomeMsg += " - Waiting your turn!";
+        }
+        this.guiGameList.setVisible(false);
+        this.guiGamePane.setVisible(true);
+        this.guiGamePane.load(mapName);
+        this.guiGamePane.setStateMessage(welcomeMsg);
+        this.guiGamePane.getMapPane().lightSector(
+                startingSectorCoordinate, "Y", playerName);
+        this.mainFrame.add(this.guiGamePane);
+        if (playerType.equals(PlayerType.ALIEN)) {
+            this.guiGamePane.setSectorMenu(MenuType.ALIEN_INITIAL);
+        } else {
+            this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
+        }
+        this.mainFrame.repaint();
+    }
+
     @Override
     public void update(Observable o, Object arg) {
         StoreAction action = (StoreAction) arg;
@@ -272,26 +295,7 @@ public class GuiManager implements Observer {
             ClientSetAvGamesAction castedAction = (ClientSetAvGamesAction) action;
             this.guiGameList.setGameListContent(castedAction.payload);
         } else if (action.getType().equals("@CLIENT_START_GAME")) {
-            String welcomeMsg = "Welcome, " + ClientStore.getInstance().getState().player.name + " you're "
-                    + ClientStore.getInstance().getState().player.playerType;
-            if (ClientStore.getInstance().getState().isMyTurn) {
-                welcomeMsg += " - It's your turn!";
-            } else {
-                welcomeMsg += " - Waiting your turn!";
-            }
-            this.guiGameList.setVisible(false);
-            this.guiGamePane.setVisible(true);
-            this.guiGamePane.load(ClientStore.getInstance().getState().gameMap.getName());
-            this.guiGamePane.setStateMessage(welcomeMsg);
-            this.guiGamePane.getMapPane().lightSector(
-                    ClientStore.getInstance().getState().player.currentSector.getCoordinate(), "Y", ClientStore.getInstance().getState().player.name);
-            this.mainFrame.add(this.guiGamePane);
-            if (ClientStore.getInstance().getState().player.playerType.equals(PlayerType.ALIEN)) {
-                this.guiGamePane.setSectorMenu(MenuType.ALIEN_INITIAL);
-            } else {
-                this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
-            }
-            this.mainFrame.repaint();
+
 
         } else if (action.getType().equals("@CLIENT_PUBLISH_MSG")) {
             ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
@@ -432,7 +436,7 @@ public class GuiManager implements Observer {
     public void useObjectCard(ObjectCard card) {
         int index = ClientStore.getInstance().getState().player.privateDeck.getContent().indexOf(card);
         try {
-            this.interactionManager.useObjCard(index + 1);
+            this.interactionManager.useObjCard(index);
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
