@@ -76,32 +76,19 @@ public class GuiManager implements Observer {
     }
 
     public void connectAndDisplayGames() {
-        try {
-            this.guiInitialWindow.alertConnectionProblem(false);
-            interactionManager.getGames();
-            this.guiInitialWindow.setVisible(false);
-            this.guiGameList
-                    .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
-            this.guiGameList.setBackground(Color.BLACK);
-            this.guiGameList.load();
-            mainFrame.getContentPane().add(this.guiGameList);
-            this.guiGameList.setVisible(true);
-            ClientStore.getInstance().getState().gamePollingTimer = new Timer();
-            ClientStore.getInstance().getState().gamePollingTimer.scheduleAtFixedRate(new GamePollingThread(), 0, 10000);
-        } catch (IOException | ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            e.printStackTrace();
-            this.guiInitialWindow.alertConnectionProblem(true);
-        }
+        interactionManager.getGames();
+        this.guiInitialWindow.setVisible(false);
+        this.guiGameList
+                .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
+        this.guiGameList.setBackground(Color.BLACK);
+        this.guiGameList.load();
+        mainFrame.getContentPane().add(this.guiGameList);
+        this.guiGameList.setVisible(true);
+        ClientStore.getInstance().getState().gamePollingTimer = new Timer();
+        ClientStore.getInstance().getState().gamePollingTimer.scheduleAtFixedRate(new GamePollingThread(), 0, 10000);
 
     }
 
-    public void forwardMethod(String methodName, List<Object> parameters) {
-        try {
-            this.interactionManager.executeMethod(methodName, parameters);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     private void updatePosition() {
@@ -481,4 +468,11 @@ public class GuiManager implements Observer {
         this.guiGamePane.showEndTurnButton(false);
     }
 
+    public void onDemandGameStart(){
+        this.interactionManager.onDemandGameStart();
+    }
+
+    public void joinGame(Integer gameId, String playerName) {
+        this.interactionManager.joinGame(gameId, playerName);
+    }
 }

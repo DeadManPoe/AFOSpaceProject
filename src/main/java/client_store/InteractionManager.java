@@ -19,7 +19,7 @@ import java.util.Observer;
 /**
  * Created by giorgiopea on 25/03/17.
  */
-public class InteractionManager implements Observer {
+public class InteractionManager{
 
     private static final InteractionManager instance = new InteractionManager();
     //Ref to the client store
@@ -413,12 +413,16 @@ public class InteractionManager implements Observer {
         try {
             RemoteMethodCall methodCall = this.communicationManager.newComSession(new RemoteMethodCall("getGames", new ArrayList<Object>()));
             this.processRemoteInvocation(methodCall);
+            ClientStore.getInstance().dispatchAction(new ClientSetConnectionStatusAction(true));
             RRClientNotification currentNotification = this.clientStore.getState().currentReqRespNotification;
             if (currentNotification.getActionResult()){
                 this.clientStore.dispatchAction(new ClientSetAvGamesAction(currentNotification.getAvailableGames()));
             }
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
+        }
+        catch (IOException e){
+            ClientStore.getInstance().dispatchAction(new ClientSetConnectionStatusAction(false));
         }
 
 
@@ -441,8 +445,5 @@ public class InteractionManager implements Observer {
 
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
 
-    }
 }

@@ -38,7 +38,7 @@ import factories.GameMapFactory;
  */
 public class GUIMap extends JLayeredPane {
 	static final long serialVersionUID = 1L;
-	private transient final GuiManager guiManager = GuiManager.getInstance();
+	private final GuiManager guiManager = GuiManager.getInstance();
 
 	private transient List<SectorLabel> sectorsList;
 	private transient List<SectorLabel> lightedSectors;

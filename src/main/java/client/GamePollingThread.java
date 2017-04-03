@@ -33,9 +33,10 @@ public class GamePollingThread extends TimerTask {
 	public void run() {
 		try {
 			InteractionManager.getInstance().getGames();
-		} catch (IOException | ClassNotFoundException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 }

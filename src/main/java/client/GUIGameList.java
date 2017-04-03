@@ -1,29 +1,21 @@
 package client;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
+import client_gui.GuiManager;
+import client_store.ClientStore;
+import client_store_actions.ClientSetAvGamesAction;
+import common.GamePublicData;
+import server_store.StoreAction;
 
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-
-import client_gui.GuiManager;
-import client_store.ClientStore;
-import common.GamePublicData;
-import server.GameStatus;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Represents the panel that shows the list of available games
@@ -31,18 +23,17 @@ import server.GameStatus;
  * @author Andrea Sessa
  * @author Giorgio Pea
  */
-public class GUIGameList extends JPanel {
-    private static final long serialVersionUID = 1L;
-
-    private JLabel stateMessage = new JLabel("");
-    private JButton startButton = new JButton("Start Game");
-    private JPanel buttonPanel;
-    private String mapName;
+public class GUIGameList extends JPanel implements Observer {
+    
     private DefaultTableModel gameList;
-    private JTable gameTables;
+    private JButton startButton;
+    private final GuiManager guiManager;
 
-    private transient final GuiManager guiManager = GuiManager.getInstance();
-
+    public GUIGameList() {
+        this.guiManager = GuiManager.getInstance();
+        //Registers observer
+        ClientStore.getInstance().observeState(this);
+    }
 
     /**
      * Loads the information on the panel that shows the list of available
@@ -51,12 +42,17 @@ public class GUIGameList extends JPanel {
      *
      */
     public void load() {
-        stateMessage.setFont(new Font("Arial", Font.BOLD, 22));
+        final JTable gameTables =  new JTable();
+        final JLabel stateMessage = new JLabel("");
+        this.startButton = new JButton("Start Game");
+        final JPanel buttonPanel = new JPanel();
+        JScrollPane scrollableGamesPanel = new JScrollPane(gameTables);
+        final JButton joinButton = new JButton("Join Game");
+        JButton joinNewButton = new JButton("New Game");
+        stateMessage.setFont(new Font("Arial", Font.BOLD, 18));
         stateMessage.setForeground(Color.WHITE);
         stateMessage.setAlignmentX(CENTER_ALIGNMENT);
 
-
-        gameTables = new JTable();
         this.gameList = new DefaultTableModel(){
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -67,20 +63,15 @@ public class GUIGameList extends JPanel {
         this.gameList.addColumn("Game ID");
         this.gameList.addColumn("Game status");
         this.gameList.addColumn("Players");
-
-
-        JScrollPane scroll = new JScrollPane(gameTables);
+        
         gameTables.setFillsViewportHeight(true);
+        scrollableGamesPanel.setMaximumSize(new Dimension(800, 250));
 
-        scroll.setMaximumSize(new Dimension(800, 250));
-
-        add(scroll);
-
+        add(scrollableGamesPanel);
+        //Some vertical space
         add(Box.createRigidArea(new Dimension(0, 20)));
-
-        buttonPanel = new JPanel();
-
-        final JButton joinButton = new JButton("Join");
+        
+        
         joinButton.setEnabled(false);
         joinButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
         buttonPanel.add(joinButton);
@@ -109,12 +100,8 @@ public class GUIGameList extends JPanel {
                         if (!("").equals(name)) {
                             int id = (Integer) gameTables.getValueAt(
                                     gameTables.getSelectedRow(), 0);
-
-                            List<Object> parameters = new ArrayList<>();
-                            parameters.add(id);
-                            parameters.add(name);
                             stateMessage.setText("Waiting for others players...");
-                            guiManager.forwardMethod("joinGame",parameters);
+                            guiManager.joinGame(id, name);
                         } else {
                             JOptionPane.showMessageDialog(guiManager.getFrame(),
                                     "Please insert a valid name",
@@ -124,16 +111,14 @@ public class GUIGameList extends JPanel {
                     }
 
                 } catch (IllegalArgumentException | SecurityException e1) {
-                    ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-                            e1);
+                    e1.printStackTrace();
                 }
             }
         });
-
-        JButton newButton = new JButton("New");
-        newButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
-        buttonPanel.add(newButton);
-        newButton.addActionListener(new ActionListener() {
+        
+        joinNewButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
+        buttonPanel.add(joinNewButton);
+        joinNewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Object[] possibilities = {"Galilei", "Fermi", "Galvani"};
@@ -143,18 +128,15 @@ public class GUIGameList extends JPanel {
                         JOptionPane.OK_CANCEL_OPTION, null, null, "");
                 if (name != null){
                     if (!("").equals(name)) {
-                        mapName = (String) JOptionPane.showInputDialog(
+                        String mapName = (String) JOptionPane.showInputDialog(
                                 guiManager.getFrame(), "Choose the map: ", "Map",
                                 JOptionPane.PLAIN_MESSAGE, null, possibilities,
                                 "Galilei");
                         if(mapName != null){
                             stateMessage.setText("Waiting for others players...");
-                            List<Object> parameters = new ArrayList<>();
-                            parameters.add(mapName.toUpperCase());
-                            parameters.add(name);
-                            guiManager.forwardMethod("joinNewGame",parameters);
-                            //startButton.setVisible(true);
                             buttonPanel.setVisible(false);
+                            guiManager.joinNewGame(mapName,name);
+
                         }
 
 
@@ -172,8 +154,10 @@ public class GUIGameList extends JPanel {
         buttonPanel.setMaximumSize(buttonPanel.getPreferredSize());
         buttonPanel.setBackground(Color.BLACK);
         add(buttonPanel);
+        //Some vertical space
         add(Box.createRigidArea(new Dimension(0, 20)));
         add(stateMessage);
+        //Some vertical space
         add(Box.createRigidArea(new Dimension(0, 20)));
         add(startButton);
         startButton.setVisible(false);
@@ -182,12 +166,12 @@ public class GUIGameList extends JPanel {
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                guiManager.forwardMethod("onDemandGameStart", new ArrayList<>());
+                guiManager.onDemandGameStart();
             }
         });
     }
 
-    public void setGameListContent(List<GamePublicData> gamePublicDataList) {
+    private void setGameListContent(List<GamePublicData> gamePublicDataList) {
         if(this.gameList != null){
             for (int i = 0; i < this.gameList.getRowCount(); i++) {
                 this.gameList.removeRow(i);
@@ -198,7 +182,14 @@ public class GUIGameList extends JPanel {
         }
     }
 
-    public void startableGame() {
-        this.startButton.setVisible(true);
+    @Override
+    public void update(Observable o, Object arg) {
+        StoreAction action = (StoreAction) arg;
+        if(action.getType().equals("@CLIENT_SET_AV_GAMES")){
+            ClientSetAvGamesAction castedAction = (ClientSetAvGamesAction) action;
+            this.setGameListContent(castedAction.payload);
+        } else if (action.getType().equals("@CLIENT_STARTABLE_GAME")) {
+            this.startButton.setVisible(true);
+        }
     }
 }
