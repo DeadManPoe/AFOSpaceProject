@@ -17,6 +17,7 @@ public class RRClientNotification extends ClientNotification {
 	private boolean actionResult;
 	private final ArrayList<Card> drawedCards;
 	private final ArrayList<Sector> lightedSectors;
+    private final ArrayList<GamePublicData> availableGames;
 
 	/**
 	 * Constructs a notification to be delivered to a single client in response
@@ -35,14 +36,19 @@ public class RRClientNotification extends ClientNotification {
 	 *            sevtor card
 	 */
 	public RRClientNotification(boolean actionResult,
-			ArrayList<Card> drawedCards, ArrayList<Sector> sectors) {
+			ArrayList<Card> drawedCards, ArrayList<Sector> sectors, ArrayList<GamePublicData> availableGames) {
 		super("");
 		this.actionResult = actionResult;
 		this.drawedCards = drawedCards;
 		this.lightedSectors = sectors;
+        this.availableGames = availableGames;
 	}
 
-	/**
+    public ArrayList<GamePublicData> getAvailableGames() {
+        return availableGames;
+    }
+
+    /**
 	 * * Constructs a notification to be delivered to a single client in
 	 * response to one of its game actions. This notification is constructed
 	 * from the result of the action it refers to,that is set to false, and from
@@ -51,8 +57,9 @@ public class RRClientNotification extends ClientNotification {
 	 */
 	public RRClientNotification() {
 		super("");
-		this.drawedCards = new ArrayList<Card>();
-		this.lightedSectors = new ArrayList<Sector>();
+		this.drawedCards = new ArrayList<>();
+		this.lightedSectors = new ArrayList<>();
+        this.availableGames = new ArrayList<>();
 	}
 
 	/**
