@@ -84,6 +84,12 @@ public class GuiManager implements Observer {
         this.guiGameList.load();
         mainFrame.getContentPane().add(this.guiGameList);
         this.guiGameList.setVisible(true);
+        /**
+         * this.remove(this.guiInitialWindow)
+         * this.add(this.guiGameList)
+         * this.validate()
+         * this.repaint()
+         */
         ClientStore.getInstance().getState().gamePollingTimer = new Timer();
         ClientStore.getInstance().getState().gamePollingTimer.scheduleAtFixedRate(new GamePollingThread(), 0, 10000);
 
@@ -273,6 +279,12 @@ public class GuiManager implements Observer {
             this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
         }
         this.mainFrame.repaint();
+        /**
+         * this.mainFrame.remove(this.guiGameList)
+         * this.mainFrame.add(this.guiGamePane)
+         * this.mainFrame.validate()
+         * this.mainFrame.repaint()
+         */
     }
 
     @Override
@@ -422,11 +434,7 @@ public class GuiManager implements Observer {
      */
     public void useObjectCard(ObjectCard card) {
         int index = ClientStore.getInstance().getState().player.privateDeck.getContent().indexOf(card);
-        try {
-            this.interactionManager.useObjCard(index);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        this.interactionManager.useObjCard(index);
         this.updatePosition();
         this.guiGamePane.removeAllCardsFromPanel();
         this.updateCardsPanel();
@@ -474,5 +482,9 @@ public class GuiManager implements Observer {
 
     public void joinGame(Integer gameId, String playerName) {
         this.interactionManager.joinGame(gameId, playerName);
+    }
+
+    public void sendMessage(String text) {
+        this.interactionManager.sendMessage(text);
     }
 }

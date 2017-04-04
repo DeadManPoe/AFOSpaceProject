@@ -10,9 +10,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.rmi.NotBoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.logging.Level;
 
 import client_gui.GuiManager;
+import client_store.ClientStore;
 import it.polimi.ingsw.cg_19.GameMap;
 
 import javax.swing.ImageIcon;
@@ -28,6 +31,9 @@ import factories.FermiGameMapFactory;
 import factories.GalileiGameMapFactory;
 import factories.GalvaniGameMapFactory;
 import factories.GameMapFactory;
+import it.polimi.ingsw.cg_19.PlayerType;
+import server_store.Player;
+import server_store.StoreAction;
 
 /**
  * Represents the panel in which is displayed the game map
@@ -36,8 +42,8 @@ import factories.GameMapFactory;
  * @author Giorgio Pea
  * @version 1.0
  */
-public class GUIMap extends JLayeredPane {
-	static final long serialVersionUID = 1L;
+public class GUIMap extends JLayeredPane implements Observer{
+	private final ClientStore clientStore;
 	private final GuiManager guiManager = GuiManager.getInstance();
 
 	private transient List<SectorLabel> sectorsList;
@@ -59,7 +65,8 @@ public class GUIMap extends JLayeredPane {
 	private JPopupMenu humanAttackMenu = new JPopupMenu();
 
 	public GUIMap() {
-
+        this.clientStore = ClientStore.getInstance();
+        this.clientStore.observeState(this);
 		sectorsList = new ArrayList<SectorLabel>();
 		lightedSectors = new ArrayList<SectorLabel>();
 
@@ -339,4 +346,29 @@ public class GUIMap extends JLayeredPane {
 		}
 	}
 
+	private void startGame(){
+        Player player = this.clientStore.getState().player;
+        if (player.playerType.equals(PlayerType.ALIEN)){
+            this.currentMapMenu = alienNormalMenu;
+        }
+        else {
+            this.currentMapMenu = humanNormalMenu;
+        }
+    }
+
+	@Override
+	public void update(Observable o, Object arg) {
+		StoreAction action = (StoreAction) arg;
+		switch (action.getType()){
+            case "@CLIENT_ASK_LIGHTS":
+                this.currentMapMenu = this.lightMenu;
+                break;
+            case "@CLIENT_ASK_ATTACK":
+                this.currentMapMenu = this.humanAttackMenu;
+                break;
+            case "@CLIENT_START_GAME":
+                this.startGame();
+                break;
+        }
+	}
 }

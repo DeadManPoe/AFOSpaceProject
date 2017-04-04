@@ -1,5 +1,6 @@
 package client_reducers;
 
+import client.GamePollingThread;
 import client_store.ClientState;
 import client_store_actions.*;
 import factories.GameMapFactory;
@@ -8,6 +9,8 @@ import server_store.Player;
 import server_store.Reducer;
 import server_store.State;
 import server_store.StoreAction;
+
+import java.util.Timer;
 
 /**
  * Created by giorgiopea on 25/03/17.
@@ -54,8 +57,15 @@ public class ClientReducer implements Reducer {
                 return this.suppress(action, castedState);
             case "@CLIENT_SET_CONNECTION_STATUS":
                 return this.setConnectionStatus(action, castedState);
+            case "@CLIENT_CONNECT_RETRIEVE_GAMES":
+                return this.connectRetrieveGames(action,castedState);
 
         }
+        return state;
+    }
+
+    private State connectRetrieveGames(StoreAction action, ClientState state) {
+        state.gamePollingTimer = new Timer();
         return state;
     }
 

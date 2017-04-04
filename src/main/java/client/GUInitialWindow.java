@@ -1,6 +1,7 @@
 package client;
 
 import client_gui.GuiManager;
+import client_store.ClientStore;
 import client_store_actions.ClientSetConnectionStatusAction;
 import server_store.StoreAction;
 
@@ -21,7 +22,15 @@ public class GUInitialWindow extends JPanel implements Observer {
 	private final GuiManager guiManager = GuiManager.getInstance();
 
 	private JLabel connectionProblemLabel;
-	/**
+
+
+    public GUInitialWindow() {
+        this.connectionProblemLabel = new JLabel();
+        //Subscribes to state changes
+        ClientStore.getInstance().observeState(this);
+    }
+
+    /**
 	 * Load and display the panel
 	 */
 	public void load() {
@@ -39,7 +48,6 @@ public class GUInitialWindow extends JPanel implements Observer {
 		connectButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
 		add(connectButton);
 
-		this.connectionProblemLabel = new JLabel();
 		this.connectionProblemLabel.setText("A connection problem happened, please try again.");
 		this.connectionProblemLabel.setForeground(Color.white);
 		this.connectionProblemLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);

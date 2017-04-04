@@ -1,7 +1,14 @@
 package client;
 
 import client_gui.GuiManager;
+import client_store.ClientStore;
+import client_store_actions.ClientAskAttackAction;
+import client_store_actions.ClientAskLightsAction;
 import common.ObjectCard;
+import it.polimi.ingsw.cg_19.GameMap;
+import it.polimi.ingsw.cg_19.PlayerType;
+import server_store.Player;
+import server_store.StoreAction;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +18,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Represents the main window in which are the map, log, cards, etc... are
@@ -20,11 +29,9 @@ import java.util.List;
  * @author Giorgio Pea
  * @version 1.0
  */
-public class GUIGamePane extends JPanel {
-    private static final long serialVersionUID = 1L;
+public class GUIGamePane extends JPanel implements Observer {
 
-    private transient GuiInteractionManager gui;
-
+    private final ClientStore clientStore;
     private DefaultListModel<String> logModel;
     private JList<String> logPane;
     private JScrollPane logScrollPane;
@@ -34,6 +41,7 @@ public class GUIGamePane extends JPanel {
     private JPanel inputPane;
     private JPanel rightPanel;
     private JPanel cardsPane;
+    private final JLabel topMsg;
 
     private JPanel holdingPanel;
     private GUIMap mapPanel;
@@ -55,6 +63,10 @@ public class GUIGamePane extends JPanel {
     private ObjectCard selectedObjectCard;
 
     public GUIGamePane() {
+        this.clientStore = ClientStore.getInstance();
+        this.clientStore.observeState(this);
+
+        this.topMsg = new JLabel();
         mapPanel = new GUIMap();
         logModel = new DefaultListModel<String>();
         logPane = new JList<String>(logModel);
@@ -94,9 +106,7 @@ public class GUIGamePane extends JPanel {
         msgButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                List<Object> parameters = new ArrayList<>();
-                parameters.add(chatTextField.getText());
-                guiManager.forwardMethod("sendMessage", parameters);
+                guiManager.sendMessage(chatTextField.getText());
                 chatTextField.setText("");
             }
         });
@@ -135,7 +145,7 @@ public class GUIGamePane extends JPanel {
      * Inits the gui for the user displaying the mapName game map
      */
     public void load(String mapName) {
-
+        add(this.topMsg);
         mapPanel.displayGameMap(mapName);
 
         GridBagConstraints c = new GridBagConstraints();
@@ -295,4 +305,61 @@ public class GUIGamePane extends JPanel {
     public void showEndTurnButton(boolean show) {
         this.endTurnButton.setEnabled(show);
     }
+
+    private void endTurn(){
+        this.endTurnButton.setEnabled(false);
+        this.setStateMessage("You have ended your turn, now wait for the others to end theirs");
+    }
+    private void allowTurn(){
+        Player player = this.clientStore.getState().player;
+        this.stateLabel.setText(player.name+" is now your turn!");
+    }
+    private void askLights(StoreAction action) {
+        ClientAskLightsAction castedAction = (ClientAskLightsAction) action;
+        if (castedAction.payload){
+            this.stateLabel.setText("Select a sector for the light card");
+        }
+
+    }
+    private void askAttack(StoreAction action) {
+        ClientAskAttackAction castedAction = (ClientAskAttackAction) action;
+        if (castedAction.payload){
+            this.stateLabel.setText("Select a sector for the attack card");
+        }
+    }
+    private void startGame() {
+        Player player = this.clientStore.getState().player;
+        GameMap gameMap = this.clientStore.getState().gameMap;
+        this.topMsg.setText("Hi "+player.name+" , you will a "+player.playerType.toString()+" during this game");
+        this.topMsg.setForeground(Color.WHITE);
+        this.setVisible(true);
+        this.load(gameMap.getName());
+        this.stateLabel.setText("Welcome to the game!");
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        StoreAction action = (StoreAction) arg;
+        switch (action.getType()){
+            case "@CLIENT_START_GAME":
+                this.startGame();
+                break;
+            case "@CLIENT_END_TURN":
+                this.endTurn();
+                break;
+            case "@CLIENT_ALLOW_TURN":
+                this.allowTurn();
+                break;
+            case "@CLIENT_ASK_LIGHTS":
+                this.askLights(action);
+                break;
+            case "@CLIENT_ASK_ATTACK":
+                this.askAttack(action);
+                break;
+        }
+    }
+
+
+
+
 }

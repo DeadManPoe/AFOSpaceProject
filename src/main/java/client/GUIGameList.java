@@ -2,6 +2,7 @@ package client;
 
 import client_gui.GuiManager;
 import client_store.ClientStore;
+import client_store_actions.ClientConnectRetrieveGamesAction;
 import client_store_actions.ClientSetAvGamesAction;
 import common.GamePublicData;
 import server_store.StoreAction;
@@ -42,6 +43,8 @@ public class GUIGameList extends JPanel implements Observer {
      *
      */
     public void load() {
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        this.setBackground(Color.BLACK);
         final JTable gameTables =  new JTable();
         final JLabel stateMessage = new JLabel("");
         this.startButton = new JButton("Start Game");
@@ -162,7 +165,6 @@ public class GUIGameList extends JPanel implements Observer {
         add(startButton);
         startButton.setVisible(false);
         startButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
-
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -181,15 +183,28 @@ public class GUIGameList extends JPanel implements Observer {
             }
         }
     }
+    private void connectRetrieveGames(StoreAction action){
+        ClientConnectRetrieveGamesAction castedAction = (ClientConnectRetrieveGamesAction) action;
+        if (castedAction.payload){
+            this.load();
+            this.setVisible(true);
+        }
+    }
 
     @Override
     public void update(Observable o, Object arg) {
         StoreAction action = (StoreAction) arg;
-        if(action.getType().equals("@CLIENT_SET_AV_GAMES")){
-            ClientSetAvGamesAction castedAction = (ClientSetAvGamesAction) action;
-            this.setGameListContent(castedAction.payload);
-        } else if (action.getType().equals("@CLIENT_STARTABLE_GAME")) {
-            this.startButton.setVisible(true);
+        switch (action.getType()) {
+            case "@CLIENT_SET_AV_GAMES":
+                ClientSetAvGamesAction castedAction = (ClientSetAvGamesAction) action;
+                this.setGameListContent(castedAction.payload);
+                break;
+            case "@CLIENT_STARTABLE_GAME":
+                this.startButton.setVisible(true);
+                break;
+            case "@CLIENT_CONNECT_RETRIEVE_GAMES":
+                this.connectRetrieveGames(action);
+                break;
         }
     }
 }
