@@ -2,8 +2,8 @@ package client;
 
 import client_gui.GuiManager;
 import client_store.ClientStore;
-import client_store_actions.ClientAskAttackAction;
-import client_store_actions.ClientAskLightsAction;
+import client_store_actions.*;
+import common.Coordinate;
 import common.ObjectCard;
 import it.polimi.ingsw.cg_19.GameMap;
 import it.polimi.ingsw.cg_19.PlayerType;
@@ -16,8 +16,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -336,6 +334,18 @@ public class GUIGamePane extends JPanel implements Observer {
         this.load(gameMap.getName());
         this.stateLabel.setText("Welcome to the game!");
     }
+    private void moveToSector(StoreAction action) {
+        ClientMoveAction castedAction = (ClientMoveAction) action;
+        if (castedAction.succesfully){
+            Coordinate coordinates = this.clientStore.getState().player.currentSector.getCoordinate();
+            this.stateLabel.setText("You have moved to sector "+coordinates);
+        }
+        else {
+            this.stateLabel.setText("You cannot move in the indicated sector");
+        }
+
+    }
+
 
     @Override
     public void update(Observable o, Object arg) {
@@ -356,10 +366,64 @@ public class GUIGamePane extends JPanel implements Observer {
             case "@CLIENT_ASK_ATTACK":
                 this.askAttack(action);
                 break;
+            case "@CLIENT_MOVE_TO_SECTOR":
+                this.moveToSector(action);
+                break;
+            case "@CLIENT_DRAW_OBJ_CARD":
+                this.drawObjCard(action);
+                break;
+            case "@CLIENT_DRAW_SECTOR_CARD":
+                this.drawSectorCard(action);
+                break;
+            case "@CLIENT_ASK_DISCARD":
+                this.askDiscard(action);
+                break;
         }
     }
 
+    private void askDiscard(StoreAction action) {
+        ClientAskDiscardAction castedAction = (ClientAskDiscardAction) action;
+        PlayerType playerType = this.clientStore.getState().player.playerType;
+        if (castedAction.isAsking) {
+            if (playerType.equals(PlayerType.HUMAN)) {
+                this.currentCardMenu = this.humanUseDiscCardMenu;
+                this.stateLabel.setText("Use or discard an object card");
+            }
+            else {
+                this.currentCardMenu = this.alienCardMenu;
+                this.stateLabel.setText("Discard an object card");
+            }
+
+        }
+    }
+
+    private void drawObjCard(StoreAction action) {
+        ClientDrawObjectCardAction castedAction = (ClientDrawObjectCardAction) action;
+        addCardToPanel(castedAction.drawnObjectCard);
+    }
 
 
-
+    public void drawSectorCard(StoreAction action) {
+        ClientDrawSectorCardAction castedAction = (ClientDrawSectorCardAction) action;
+        PlayerType playerType = this.clientStore.getState().player.playerType;
+        if (castedAction.cardIdentifier != null){
+            switch(castedAction.cardIdentifier){
+                case "GlobalNoiseSectorCard":
+                    this.stateLabel.setText("Select a sector for the global noise card");
+                    this.currentCardMenu = this.emptyMenu;
+                    break;
+                case "LocalNoiseSectorCard":
+                    this.stateLabel.setText("You will make noise in your sector");
+                    this.endTurnButton.setEnabled(true);
+                    break;
+                case "SilenceSectorCard":
+                    this.stateLabel.setText("You will make no noise");
+                    this.endTurnButton.setEnabled(true);
+                    break;
+            }
+        }
+        else {
+            this.endTurnButton.setEnabled(true);
+        }
+    }
 }

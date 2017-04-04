@@ -1,9 +1,6 @@
 package client_store;
 
-import common.GamePublicData;
-import common.PSClientNotification;
-import common.PlayerToken;
-import common.RRClientNotification;
+import common.*;
 import it.polimi.ingsw.cg_19.GameMap;
 import server_store.Player;
 import client_store.PubSubHandler;
@@ -36,6 +33,8 @@ public class ClientState extends State implements Serializable {
     public String lastChatMessage;
     public PSClientNotification currentPubSubNotification;
     public int gamePollingPeriod;
+    public boolean askDiscard;
+    public SectorCard drawnSectorCard;
 
     public ClientState() {
         this.gamePollingPeriod = 10000;

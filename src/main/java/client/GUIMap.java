@@ -5,17 +5,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.rmi.NotBoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.logging.Level;
 
 import client_gui.GuiManager;
 import client_store.ClientStore;
+import client_store_actions.ClientMoveAction;
+import client_store_actions.ClientDrawSectorCardAction;
 import it.polimi.ingsw.cg_19.GameMap;
 
 import javax.swing.ImageIcon;
@@ -27,9 +25,6 @@ import javax.swing.JPopupMenu;
 import common.Coordinate;
 import common.Sector;
 import common.SectorType;
-import factories.FermiGameMapFactory;
-import factories.GalileiGameMapFactory;
-import factories.GalvaniGameMapFactory;
 import factories.GameMapFactory;
 import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.Player;
@@ -355,6 +350,16 @@ public class GUIMap extends JLayeredPane implements Observer{
             this.currentMapMenu = humanNormalMenu;
         }
     }
+	private void moveToSector(StoreAction action) {
+		ClientMoveAction castedAction = (ClientMoveAction) action;
+		if (castedAction.succesfully){
+			Coordinate newCoordinates = ClientStore.getInstance().getState().player.currentSector.getCoordinate();
+			String playerName = ClientStore.getInstance().getState().player.name;
+			this.delightAllSectors();
+			this.lightSector(newCoordinates, "Y",
+					playerName);
+		}
+	}
 
 	@Override
 	public void update(Observable o, Object arg) {
@@ -369,6 +374,29 @@ public class GUIMap extends JLayeredPane implements Observer{
             case "@CLIENT_START_GAME":
                 this.startGame();
                 break;
+			case "@CLIENT_MOVE_TO_SECTOR":
+				this.moveToSector(action);
+				break;
+            case "@CLIENT_DRAW_SECTOR_CARD":
+                this.drawSectorCard(action);
+                break;
+            case "@CLIENT_ASK_DISCARD":
         }
 	}
+
+
+    private void drawSectorCard(StoreAction action) {
+        ClientDrawSectorCardAction castedAction = (ClientDrawSectorCardAction) action;
+        if (castedAction.cardIdentifier != null){
+            if (castedAction.cardIdentifier.equals("GlobalNoiseSectorCard")){
+                this.currentMapMenu = this.noiseMenu;
+            }
+            else {
+                this.currentMapMenu = this.emptyMenu;
+            }
+        }
+        else {
+            this.currentMapMenu = this.emptyMenu;
+        }
+    }
 }

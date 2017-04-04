@@ -8,10 +8,12 @@ import server_store.StoreAction;
  */
 public class ClientMoveAction extends StoreAction {
 
-    public Sector payload;
+    public Sector targetSector;
+    public boolean succesfully;
 
-    public ClientMoveAction(Sector targetSector) {
+    public ClientMoveAction(Sector targetSector, boolean succesfully) {
         this.type = "@CLIENT_MOVE_TO_SECTOR";
-        this.payload = targetSector;
+        this.targetSector = targetSector;
+        this.succesfully = succesfully;
     }
 }

@@ -1,6 +1,5 @@
 package client_reducers;
 
-import client.GamePollingThread;
 import client_store.ClientState;
 import client_store_actions.*;
 import factories.GameMapFactory;
@@ -59,8 +58,32 @@ public class ClientReducer implements Reducer {
                 return this.setConnectionStatus(action, castedState);
             case "@CLIENT_CONNECT_RETRIEVE_GAMES":
                 return this.connectRetrieveGames(action,castedState);
+            case "@CLIENT_DRAW_OBJ_CARD":
+                return this.drawObjCard(action, castedState);
+            case "@CLIENT_DRAW_SECTOR_CARD":
+                return this.drawSectorCard(action,castedState);
+            case "@CLIENT_ASK_DISCARD":
+                return this.askDiscard(action, castedState);
 
         }
+        return state;
+    }
+
+    private State askDiscard(StoreAction action, ClientState state) {
+        ClientAskDiscardAction castedAction = (ClientAskDiscardAction) action;
+        state.askDiscard = castedAction.isAsking;
+        return state;
+    }
+
+    private State drawSectorCard(StoreAction action, ClientState state) {
+        ClientDrawSectorCardAction castedAction = (ClientDrawSectorCardAction) action;
+        state.drawnSectorCard = castedAction.currentSectorCard;
+        return state;
+    }
+
+    private State drawObjCard(StoreAction action, ClientState state) {
+        ClientDrawObjectCardAction castedAction = (ClientDrawObjectCardAction) action;
+        state.player.privateDeck.addCard(castedAction.drawnObjectCard);
         return state;
     }
 

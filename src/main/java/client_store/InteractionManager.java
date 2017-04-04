@@ -1,5 +1,6 @@
 package client_store;
 
+import client.MenuType;
 import client_gui.GuiManager;
 import client_store_actions.*;
 import common.*;
@@ -10,11 +11,8 @@ import server_store.StoreAction;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * Created by giorgiopea on 25/03/17.
@@ -155,6 +153,79 @@ public class InteractionManager{
     public void publishChatMsg(String msg) {
         ClientStore.getInstance().dispatchAction(new ClientSetCurrentMessage(msg));
     }
+    private void postProcessing(){
+        Card firstCard, secondCard = null;
+        RRClientNotification currentReqRespNotification = ClientStore.getInstance().getState().currentReqRespNotification;
+        PrivateDeck clientPrivateDeck = ClientStore.getInstance().getState().player.privateDeck;
+
+        List<Card> drawedCards = currentReqRespNotification.getDrawnCards();
+
+        if (!drawedCards.isEmpty()) {
+            firstCard = drawedCards.get(0);
+            if (drawedCards.size() > 1) {
+                secondCard = drawedCards.get(1);
+                this.clientStore.dispatchAction(new ClientDrawObjectCardAction((ObjectCard) secondCard));
+            }
+
+            CardSplashScreen splash = new CardSplashScreen(firstCard,
+                    secondCard, mainFrame);
+
+            if (firstCard instanceof GlobalNoiseSectorCard) {
+                this.clientStore.dispatchAction(new ClientDrawSectorCardAction((SectorCard) firstCard,firstCard.toString()));
+                this.guiGamePane
+                        .setStateMessage("Select a sector for the global noise card");
+                this.guiGamePane.getMapPane().changeMapMenu(
+                        MenuType.NOISE_MENU);
+                this.guiGamePane.changeCardMenu(MenuType.EMPTY);
+                // I've drawn a object card
+            }
+            else {
+                if (firstCard instanceof SilenceSectorCard){
+                    this.guiGamePane
+                            .setStateMessage("You will not reveal any clue about your position");
+                    this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+                }
+                if (firstCard instanceof LocalNoiseSectorCard){
+                    this.guiGamePane.setStateMessage("You have revealed your position");
+                    this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+                }
+                if (clientPrivateDeck.getSize() > 3){
+                    this.clientStore.dispatchAction(new ClientAskDiscardAction(true));
+                    this.manyCardHandler(playerType);
+                }
+                else {
+                    this.guiGamePane.showEndTurnButton(true);
+                }
+
+            }
+        } else {
+            if (clientPrivateDeck.getSize() > 3) {
+                this.manyCardHandler(playerType);
+            } else if (playerType.equals(PlayerType.HUMAN)) {
+                if (hasMoved) {
+                    this.guiGamePane.showEndTurnButton(true);
+                    this.guiGamePane.getMapPane().changeMapMenu(
+                            MenuType.EMPTY);
+                    this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_MENU);
+                } else {
+                    this.guiGamePane.getMapPane().changeMapMenu(
+                            MenuType.HUMAN_INITIAL);
+                    this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_MENU);
+                }
+
+            } else {
+                if (hasMoved) {
+                    this.guiGamePane.showEndTurnButton(true);
+                    this.guiGamePane.getMapPane().changeMapMenu(
+                            MenuType.EMPTY);
+                } else {
+                    this.guiGamePane.getMapPane().changeMapMenu(
+                            MenuType.ALIEN_INITIAL);
+                }
+            }
+        }
+    }
+
     /**
      * Requests and manages a move action for the game the client has joined
      * @param coordinate The coordinates of the sector to move to
@@ -172,10 +243,8 @@ public class InteractionManager{
             try {
                 RemoteMethodCall methodCall = this.communicationManager.newComSession(new RemoteMethodCall("makeAction", parameters));
                 this.processRemoteInvocation(methodCall);
-                if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
-                    //If the move action has been accepted by the server, i need to make it happen on the client
-                    this.clientStore.dispatchAction(new ClientMoveAction(targetSector));
-                }
+                this.clientStore.dispatchAction(new ClientMoveAction(targetSector,this.clientStore.getState().currentReqRespNotification.getActionResult()));
+                this.postProcessing();
             } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
