@@ -158,6 +158,73 @@ public class GuiManager implements Observer {
         return this.mainFrame;
     }
 
+    private void nextState(){
+        PrivateDeck clientPrivateDeck = this.clientStore.getState().player.privateDeck;
+        List<Card> drawnCards = this.clientStore.getState().currentReqRespNotification.getDrawnCards();
+        SectorCard drawnSectorCard = null;
+        ObjectCard drawnObjectCard = null;
+
+        if (drawnCards.size() == 1){
+            drawnSectorCard = (SectorCard) drawnCards.get(0);
+        }
+        else if (drawnCards.size() == 2){
+            drawnSectorCard = (SectorCard) drawnCards.get(0);
+            drawnObjectCard = (ObjectCard) drawnCards.get(1);
+        }
+
+        if ( drawnObjectCard != null){
+            this.guiGamePane.addCardToPanel(drawnObjectCard);
+        }
+
+        if (drawnSectorCard instanceof GlobalNoiseSectorCard){
+            this.guiGamePane
+                    .setStateMessage("Select a sector for the global noise card");
+            this.guiGamePane.getMapPane().changeMapMenu(
+                    MenuType.NOISE_MENU);
+        }
+        else if ( drawnSectorCard instanceof LocalNoiseSectorCard){
+            this.guiGamePane.setStateMessage("You will make noise in your sector");
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+            if (clientPrivateDeck.getSize() > 3){
+                this.manyCardHandler();
+            }
+            else {
+                this.guiGamePane.showEndTurnButton(true);
+            }
+        }
+        else if ( drawnSectorCard instanceof SilenceSectorCard){
+            this.guiGamePane.setStateMessage("You will make no noise");
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+            if (clientPrivateDeck.getSize() > 3){
+                this.manyCardHandler();
+            }
+            else {
+                this.guiGamePane.showEndTurnButton(true);
+            }
+        }
+        else {
+            if (clientPrivateDeck.getSize() > 3){
+                this.manyCardHandler();
+            }
+            else {
+                this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+                this.guiGamePane.showEndTurnButton(true);
+            }
+        }
+    }
+
+    private void verifyPrivateDeck() {
+        Player player = this.clientStore.getState().player;
+        if (player.privateDeck.getSize() > 3){
+            if (player.playerToken.playerType.equals(PlayerType.HUMAN)) {
+                this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_DISC_MENU);
+            } else {
+                this.guiGamePane.changeCardMenu(MenuType.ALIEN_CARD_MENU);
+            }
+            this.guiGamePane.setStateMessage("Use or discard an object card");
+        }
+    }
+
 
     private void handleAction() throws ClassNotFoundException {
         Card firstCard, secondCard = null;
@@ -247,7 +314,8 @@ public class GuiManager implements Observer {
         }
     }
 
-    private void manyCardHandler(PlayerType playerType) {
+    private void manyCardHandler() {
+        PlayerType playerType = this.clientStore.getState().player.playerToken.playerType;
         if (playerType.equals(PlayerType.HUMAN)) {
             this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_DISC_MENU);
         } else {
@@ -441,7 +509,7 @@ public class GuiManager implements Observer {
                 this.startGameReaction();
                 break;
             case "@CLIENT_MOVE_TO_SECTOR":
-                this.moveToSectorReaction(action);
+                this.moveToSectorReaction();
                 break;
             case "@CLIENT_PUBLISH_MSG": {
                 ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
@@ -470,8 +538,7 @@ public class GuiManager implements Observer {
         }
     }
 
-    private void moveToSectorReaction(StoreAction action) {
-        ClientMoveAction castedAction = (ClientMoveAction) action;
+    private void moveToSectorReaction() {
         Player player = this.clientStore.getState().player;
         this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
         if (player.hasMoved){
