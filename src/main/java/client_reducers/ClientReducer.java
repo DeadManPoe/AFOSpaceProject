@@ -137,8 +137,8 @@ public class ClientReducer implements Reducer {
 
     private State moveToSector(StoreAction action, ClientState state) {
         ClientMoveAction castedAction = (ClientMoveAction) action;
-        state.player.currentSector = castedAction.payload;
-        state.player.hasMoved = true;
+        state.player.hasMoved = !castedAction.targetSector.equals(state.player.currentSector);
+        state.player.currentSector = castedAction.targetSector;
         return state;
     }
 

@@ -1,9 +1,6 @@
 package it.polimi.ingsw.cg_19;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.NeighborIndex;
@@ -174,7 +171,7 @@ public class GameMap {
 	 *            the coordinate of the sector to be returned
 	 * @return the map's sector whose coordinate is the one specified
 	 */
-	public Sector getSectorByCoords(Coordinate coordinate) {
+	public Sector getSectorByCoords(Coordinate coordinate) throws NoSuchElementException {
 		/*
 		 * Get list of sectors in the graph and scans this list in order to find
 		 * the correct sector if the sector doesn't exist returns null
@@ -185,7 +182,7 @@ public class GameMap {
 				return s;
 			}
 		}
-		return null;
+		throw new NoSuchElementException("No sector with the given coordinates exists");
 	}
 
 	/**

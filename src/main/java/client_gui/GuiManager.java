@@ -3,10 +3,7 @@ package client_gui;
 import client.*;
 import client_store.ClientStore;
 import client_store.InteractionManager;
-import client_store_actions.ClientSetAvailableGamesAction;
-import client_store_actions.ClientSetConnectionActiveAction;
-import client_store_actions.ClientSetCurrentMessage;
-import client_store_actions.ClientSetCurrentPubSubNotificationAction;
+import client_store_actions.*;
 import common.*;
 import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.Player;
@@ -105,8 +102,8 @@ public class GuiManager implements Observer {
 
 
     private void updatePosition() {
-        Coordinate newCoordinates = ClientStore.getInstance().getState().player.currentSector.getCoordinate();
-        String playerName = ClientStore.getInstance().getState().player.name;
+        Coordinate newCoordinates = this.clientStore.getState().player.currentSector.getCoordinate();
+        String playerName = this.clientStore.getState().player.name;
         this.guiGamePane.getMapPane().delightAllSectors();
         this.guiGamePane.getMapPane().lightSector(newCoordinates, "Y",
                 playerName);
@@ -443,6 +440,9 @@ public class GuiManager implements Observer {
             case "@CLIENT_START_GAME":
                 this.startGameReaction();
                 break;
+            case "@CLIENT_MOVE_TO_SECTOR":
+                this.moveToSectorReaction(action);
+                break;
             case "@CLIENT_PUBLISH_MSG": {
                 ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
                 this.guiGamePane.appendMsg(castedAction.payload);
@@ -467,6 +467,16 @@ public class GuiManager implements Observer {
             case "@CLIENT_STARTABLE_GAME":
                 this.guiGameList.startableGame();
                 break;
+        }
+    }
+
+    private void moveToSectorReaction(StoreAction action) {
+        ClientMoveAction castedAction = (ClientMoveAction) action;
+        Player player = this.clientStore.getState().player;
+        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
+        if (player.hasMoved){
+            this.updatePosition();
+            this.nextState();
         }
     }
 
