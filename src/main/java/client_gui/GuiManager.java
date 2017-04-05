@@ -9,6 +9,7 @@ import client_store_actions.ClientSetCurrentMessage;
 import client_store_actions.ClientSetCurrentPubSubNotificationAction;
 import common.*;
 import it.polimi.ingsw.cg_19.PlayerType;
+import server_store.Player;
 import server_store.StoreAction;
 
 import javax.swing.*;
@@ -25,7 +26,7 @@ import java.util.Timer;
 public class GuiManager implements Observer {
 
     private static GuiManager instance = new GuiManager();
-    private final InteractionManager interactionManager = InteractionManager.getInstance();
+    private final ClientStore clientStore = ClientStore.getInstance();
     private GUInitialWindow guiInitialWindow;
     private GUIGameList guiGameList;
     private GUIGamePane guiGamePane;
@@ -440,27 +441,7 @@ public class GuiManager implements Observer {
                 break;
             }
             case "@CLIENT_START_GAME":
-                String welcomeMsg = "Welcome, " + ClientStore.getInstance().getState().player.name + " you're "
-                        + ClientStore.getInstance().getState().player.playerType;
-                if (ClientStore.getInstance().getState().isMyTurn) {
-                    welcomeMsg += " - It's your turn!";
-                } else {
-                    welcomeMsg += " - Waiting your turn!";
-                }
-                this.guiGameList.setVisible(false);
-                this.guiGamePane.setVisible(true);
-                this.guiGamePane.load(ClientStore.getInstance().getState().gameMap.getName());
-                this.guiGamePane.setStateMessage(welcomeMsg);
-                this.guiGamePane.getMapPane().lightSector(
-                        ClientStore.getInstance().getState().player.currentSector.getCoordinate(), "Y", ClientStore.getInstance().getState().player.name);
-                this.mainFrame.add(this.guiGamePane);
-                if (ClientStore.getInstance().getState().player.playerType.equals(PlayerType.ALIEN)) {
-                    this.guiGamePane.setSectorMenu(MenuType.ALIEN_INITIAL);
-                } else {
-                    this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
-                }
-                this.mainFrame.repaint();
-
+                this.startGameReaction();
                 break;
             case "@CLIENT_PUBLISH_MSG": {
                 ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
@@ -487,6 +468,32 @@ public class GuiManager implements Observer {
                 this.guiGameList.startableGame();
                 break;
         }
+    }
+
+    /**
+     * Switches to the {@link client.GUIGamePane} view from the {@link client.GUIGameList} and
+     * acts on this view in response to the starting of the game
+     */
+    private void startGameReaction() {
+        Player player = this.clientStore.getState().player;
+        String characterInfoMsg = "";
+        if (player.playerToken.playerType.equals(PlayerType.ALIEN)){
+            characterInfoMsg = player.name + " | ALIEN";
+            this.guiGamePane.setSectorMenu(MenuType.ALIEN_INITIAL);
+        }
+        else {
+            characterInfoMsg = player.name + " | HUMAN";
+            this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
+        }
+        this.mainFrame.remove(this.guiGameList);
+        this.guiGamePane.load("dasd");
+        this.mainFrame.add(this.guiGamePane);
+        this.guiGamePane.setVisible(true);
+        this.guiGamePane.setInfoMsg(characterInfoMsg);
+        this.guiGamePane.getMapPane().lightSector(
+                player.currentSector.getCoordinate(), "Y", player.name);
+        this.mainFrame.validate();
+        this.mainFrame.repaint();
     }
 
     /**

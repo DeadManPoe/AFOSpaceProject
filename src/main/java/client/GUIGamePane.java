@@ -23,7 +23,8 @@ import java.util.List;
 public class GUIGamePane extends JPanel {
 
 
-    private final JLabel connectionAlert;
+    private final JLabel connectionAlert = new JLabel("The connection with the server is not active");;
+    private final JLabel infoMsg = new JLabel("");
 
     private transient GuiInteractionManager gui;
 
@@ -59,7 +60,7 @@ public class GUIGamePane extends JPanel {
     private ObjectCard selectedObjectCard;
 
     public GUIGamePane() {
-        this.connectionAlert = new JLabel("The connection with the server is not active");
+
         mapPanel = new GUIMap();
         logModel = new DefaultListModel<String>();
         logPane = new JList<String>(logModel);
@@ -279,6 +280,9 @@ public class GUIGamePane extends JPanel {
                 this.currentCardMenu = emptyMenu;
                 break;
         }
+    }
+    public void setInfoMsg(String infoMsg){
+        this.infoMsg.setText(infoMsg);
     }
 
     public void setSectorMenu(MenuType mode) {
