@@ -9,6 +9,8 @@ import server_store.Reducer;
 import server_store.State;
 import server_store.StoreAction;
 
+import java.util.Timer;
+
 /**
  * Created by giorgiopea on 25/03/17.
  *
@@ -36,8 +38,8 @@ public class ClientReducer implements Reducer {
                 return this.initPlayer(action,castedState);
             case "@CLIENT_END_TURN":
                 return this.endTurn(action,castedState);
-            case "@CLIENT_SET_AV_GAMES":
-                return this.setAvGames(action,castedState);
+            case "@CLIENT_SET_AVAILABLE_GAMES":
+                return this.setAvailableGames(action,castedState);
             case "@CLIENT_PUBLISH_MSG":
                 return this.publishMsg(action,castedState);
             case "@CLIENT_SET_CURRENT_REQRESP_NOTIFICATION":
@@ -99,9 +101,10 @@ public class ClientReducer implements Reducer {
         return state;
     }
 
-    private State setAvGames(StoreAction action, ClientState state) {
-        ClientSetAvGamesAction castedAction = (ClientSetAvGamesAction) action;
-        state.availableGames = castedAction.payload;
+    private State setAvailableGames(StoreAction action, ClientState state) {
+        ClientSetAvailableGamesAction castedAction = (ClientSetAvailableGamesAction) action;
+        state.availableGames = castedAction.availableGames;
+        state.gamePollingTimer = new Timer();
         return state;
     }
 

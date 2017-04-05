@@ -1,6 +1,7 @@
 package client;
 
 import client_gui.GuiManager;
+import client_store.InteractionManager;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -20,7 +21,7 @@ import javax.swing.*;
 public class GUInitialWindow extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	private final transient GuiManager guiManager = GuiManager.getInstance();
+	private final InteractionManager interactionManager = InteractionManager.getInstance();
 
 	private JLabel connectionProblemLabel;
 	/**
@@ -53,8 +54,12 @@ public class GUInitialWindow extends JPanel {
 		connectButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				guiManager.connectAndDisplayGames();
-			}
+                try {
+                    interactionManager.getGames();
+                } catch (IOException e1) {
+                    alertConnectionProblem(true);
+                }
+            }
 		});
 	}
 	public void alertConnectionProblem(boolean visibility){

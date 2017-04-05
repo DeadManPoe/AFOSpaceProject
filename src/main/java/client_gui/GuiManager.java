@@ -3,10 +3,9 @@ package client_gui;
 import client.*;
 import client_store.ClientStore;
 import client_store.InteractionManager;
-import client_store_actions.ClientSetAvGamesAction;
+import client_store_actions.ClientSetAvailableGamesAction;
 import client_store_actions.ClientSetCurrentMessage;
 import client_store_actions.ClientSetCurrentPubSubNotificationAction;
-import client_store_actions.ClientSetCurrentReqRespNotificationAction;
 import common.*;
 import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.StoreAction;
@@ -15,7 +14,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.NotBoundException;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
@@ -265,55 +263,6 @@ public class GuiManager implements Observer {
         JOptionPane.showMessageDialog(mainFrame, message);
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        StoreAction action = (StoreAction) arg;
-        if (action.getType().equals("@CLIENT_SET_AV_GAMES")) {
-            ClientSetAvGamesAction castedAction = (ClientSetAvGamesAction) action;
-            this.guiGameList.setGameListContent(castedAction.payload);
-        } else if (action.getType().equals("@CLIENT_START_GAME")) {
-            String welcomeMsg = "Welcome, " + ClientStore.getInstance().getState().player.name + " you're "
-                    + ClientStore.getInstance().getState().player.playerType;
-            if (ClientStore.getInstance().getState().isMyTurn) {
-                welcomeMsg += " - It's your turn!";
-            } else {
-                welcomeMsg += " - Waiting your turn!";
-            }
-            this.guiGameList.setVisible(false);
-            this.guiGamePane.setVisible(true);
-            this.guiGamePane.load(ClientStore.getInstance().getState().gameMap.getName());
-            this.guiGamePane.setStateMessage(welcomeMsg);
-            this.guiGamePane.getMapPane().lightSector(
-                    ClientStore.getInstance().getState().player.currentSector.getCoordinate(), "Y", ClientStore.getInstance().getState().player.name);
-            this.mainFrame.add(this.guiGamePane);
-            if (ClientStore.getInstance().getState().player.playerType.equals(PlayerType.ALIEN)) {
-                this.guiGamePane.setSectorMenu(MenuType.ALIEN_INITIAL);
-            } else {
-                this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
-            }
-            this.mainFrame.repaint();
-
-        } else if (action.getType().equals("@CLIENT_PUBLISH_MSG")) {
-            ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
-            this.guiGamePane.appendMsg(castedAction.payload);
-        } else if (action.getType().equals("@CLIENT_ALLOW_TURN")) {
-            updateGuiState();
-        } else if (action.getType().equals("@CLIENT_SET_CURRENT_PUBSUB_NOTIFICATION")) {
-            ClientSetCurrentPubSubNotificationAction castedAction = (ClientSetCurrentPubSubNotificationAction) action;
-            this.guiGamePane.appendMsg(castedAction.payload.getMessage());
-            this.processPSNotification(castedAction.payload);
-        }
-        else if (action.getType().equals("@CLIENT_SET_CURRENT_REQRESP_NOTIFICATION")){
-            //ClientSetCurrentReqRespNotificationAction castedAction = (ClientSetCurrentReqRespNotificationAction) action;
-            //this.guiGamePane.setStateMessage(castedAction.payload.getMessage());
-        }
-        else if (action.getType().equals("@CLIENT_DENY_TURN")){
-            this.updateGuiState();
-        }
-        else if (action.getType().equals("@CLIENT_STARTABLE_GAME")){
-            this.guiGameList.startableGame();
-        }
-    }
 
     private void processPSNotification(PSClientNotification notification) {
         PlayerToken playerToken = ClientStore.getInstance().getState().player.playerToken;
@@ -475,6 +424,79 @@ public class GuiManager implements Observer {
         this.interactionManager.endTurn();
         this.updateGuiState();
         this.guiGamePane.showEndTurnButton(false);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        StoreAction action = (StoreAction) arg;
+        switch (action.getType()) {
+            case "@CLIENT_SET_AVAILABLE_GAMES": {
+                this.setAvailableGamesReaction(action);
+                break;
+            }
+            case "@CLIENT_START_GAME":
+                String welcomeMsg = "Welcome, " + ClientStore.getInstance().getState().player.name + " you're "
+                        + ClientStore.getInstance().getState().player.playerType;
+                if (ClientStore.getInstance().getState().isMyTurn) {
+                    welcomeMsg += " - It's your turn!";
+                } else {
+                    welcomeMsg += " - Waiting your turn!";
+                }
+                this.guiGameList.setVisible(false);
+                this.guiGamePane.setVisible(true);
+                this.guiGamePane.load(ClientStore.getInstance().getState().gameMap.getName());
+                this.guiGamePane.setStateMessage(welcomeMsg);
+                this.guiGamePane.getMapPane().lightSector(
+                        ClientStore.getInstance().getState().player.currentSector.getCoordinate(), "Y", ClientStore.getInstance().getState().player.name);
+                this.mainFrame.add(this.guiGamePane);
+                if (ClientStore.getInstance().getState().player.playerType.equals(PlayerType.ALIEN)) {
+                    this.guiGamePane.setSectorMenu(MenuType.ALIEN_INITIAL);
+                } else {
+                    this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
+                }
+                this.mainFrame.repaint();
+
+                break;
+            case "@CLIENT_PUBLISH_MSG": {
+                ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
+                this.guiGamePane.appendMsg(castedAction.payload);
+                break;
+            }
+            case "@CLIENT_ALLOW_TURN":
+                updateGuiState();
+                break;
+            case "@CLIENT_SET_CURRENT_PUBSUB_NOTIFICATION": {
+                ClientSetCurrentPubSubNotificationAction castedAction = (ClientSetCurrentPubSubNotificationAction) action;
+                this.guiGamePane.appendMsg(castedAction.payload.getMessage());
+                this.processPSNotification(castedAction.payload);
+                break;
+            }
+            case "@CLIENT_SET_CURRENT_REQRESP_NOTIFICATION":
+                //ClientSetCurrentReqRespNotificationAction castedAction = (ClientSetCurrentReqRespNotificationAction) action;
+                //this.guiGamePane.setStateMessage(castedAction.payload.getMessage());
+                break;
+            case "@CLIENT_DENY_TURN":
+                this.updateGuiState();
+                break;
+            case "@CLIENT_STARTABLE_GAME":
+                this.guiGameList.startableGame();
+                break;
+        }
+    }
+
+    /**
+     * Switches to the {@link client.GUIGameList} view from the {@link client.GUInitialWindow}
+     * @param action The Store Action that has caused this behavior
+     */
+    private void setAvailableGamesReaction(StoreAction action) {
+        ClientSetAvailableGamesAction castedAction = (ClientSetAvailableGamesAction) action;
+        this.mainFrame.remove(this.guiInitialWindow);
+        this.guiGameList.load();
+        this.guiGameList.setGameListContent(castedAction.availableGames);
+        mainFrame.getContentPane().add(this.guiGameList);
+        this.guiGameList.setVisible(true);
+        this.mainFrame.validate();
+        this.mainFrame.repaint();
     }
 
 }

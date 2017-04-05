@@ -34,11 +34,13 @@ public class ClientState extends State implements Serializable {
     public Timer gamePollingTimer;
     public String lastChatMessage;
     public PSClientNotification currentPubSubNotification;
+    public long gameListPollingPeriod;
 
     public ClientState() {
         this.tcpPort = 29999;
         this.host = "localhost";
         this.player = new Player(null,null,null);
+        this.gameListPollingPeriod = 5000;
     }
 
     @Override

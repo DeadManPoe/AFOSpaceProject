@@ -1,15 +1,12 @@
 package client_store;
 
-import client.ClientRemoteServicesInterface;
 import client_store_actions.*;
 import common.*;
 import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.StoreAction;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -219,10 +216,7 @@ public class InteractionManager {
         }
 
     }
-    //Not much sure
-    private void setAvailableGames(ArrayList<GamePublicData> avGames){
-        this.clientStore.dispatchAction(new ClientSetAvGamesAction(avGames));
-    }
+
     public void endTurn() {
         ArrayList<Object> parameters = new ArrayList<Object>();
         StoreAction action = new EndTurnAction();
@@ -320,9 +314,19 @@ public class InteractionManager {
         }
 
     }
-    public void getGames() throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("getGames",new ArrayList<Object>()));
-        this.processRemoteInvocation(methodCall);
+    private void setAvailableGames(ArrayList<GamePublicData> avGames){
+        this.clientStore.dispatchAction(new ClientSetAvailableGamesAction(avGames));
+    }
+
+    public void getGames() throws IOException{
+        RemoteMethodCall methodCall = null;
+        try {
+            methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("getGames",new ArrayList<Object>()));
+            this.processRemoteInvocation(methodCall);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
 
     }
     public void processRemoteInvocation(RemoteMethodCall remoteClientInvocation)

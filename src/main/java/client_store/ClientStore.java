@@ -2,6 +2,7 @@ package client_store;
 
 import client_reducers.ClientReducer;
 import client_store_effects.AddPubSubHandlerEffect;
+import client_store_effects.SetAvailableGamesEffect;
 import com.sun.security.ntlm.Client;
 import server_store.*;
 import store_effects.GameAddPlayerEffect;
@@ -99,6 +100,7 @@ public class ClientStore {
     }
     private void registerEffects(){
         this.registerEffect(new AddPubSubHandlerEffect(),"@COMMUNICATION_ADD_PUB_SUB_HANDLER");
+        this.registerEffect(new SetAvailableGamesEffect(),"@CLIENT_SET_AVAILABLE_GAMES");
     }
 
 
