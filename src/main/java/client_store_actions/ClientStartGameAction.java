@@ -7,7 +7,10 @@ import server_store.StoreAction;
  */
 public class ClientStartGameAction extends StoreAction {
 
-    public ClientStartGameAction() {
+    public final String gameMapName;
+
+    public ClientStartGameAction(String gameMapName) {
         this.type = "@CLIENT_START_GAME";
+        this.gameMapName = gameMapName;
     }
 }

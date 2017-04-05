@@ -20,8 +20,6 @@ public class ClientReducer implements Reducer {
     public State reduce(StoreAction action, State state) {
         ClientState castedState = (ClientState) state;
         switch (action.getType()){
-            case "@CLIENT_SET_GAME_MAP":
-                return this.setGameMap(action,castedState);
             case "@CLIENT_START_GAME":
                 return this.startGame(action,castedState);
             case "@CLIENT_ALLOW_TURN":
@@ -32,8 +30,6 @@ public class ClientReducer implements Reducer {
                 return this.teleport(action,castedState);
             case "@CLIENT_REMOVE_OBJ_CARD":
                 return this.removeObjCard(action,castedState);
-            case "@CLIENT_SET_PLAYER_TOKEN":
-                return this.setClientToken(action,castedState);
             case "@CLIENT_SET_PLAYER":
                 return this.setPlayer(action,castedState);
             case "@CLIENT_END_TURN":
@@ -128,13 +124,6 @@ public class ClientReducer implements Reducer {
         return state;
     }
 
-    private State setClientToken(StoreAction action, ClientState state) {
-        ClientSetPlayerTokenAction castedAction = (ClientSetPlayerTokenAction) action;
-        state.player.playerToken = castedAction.payload;
-        state.player.playerType = castedAction.payload.getPlayerType();
-        return state;
-    }
-
     private State removeObjCard(StoreAction action, ClientState state) {
         ClientRemoveObjCardAction castedAction = (ClientRemoveObjCardAction) action;
         state.player.privateDeck.removeCard(castedAction.payload);
@@ -154,22 +143,19 @@ public class ClientReducer implements Reducer {
     }
 
     private State startGame(StoreAction action, ClientState state) {
-        state.isGameStarted = true;
+        ClientStartGameAction castedAction = (ClientStartGameAction) action;
+        Player player = state.player;
+        GameMapFactory mapFactory = GameMapFactory.provideCorrectFactory(castedAction.gameMapName);
+        state.gameMap = mapFactory.makeMap();
+        if (player.playerToken.playerType.equals(PlayerType.ALIEN)) {
+            player.currentSector = state.gameMap.getAlienSector();
+        } else {
+            player.currentSector = state.gameMap.getHumanSector();
+        }
         state.gamePollingTimer.cancel();
         return state;
     }
 
-    private State setGameMap(StoreAction action, ClientState state) {
-        ClientSetGameMapAction castedAction = (ClientSetGameMapAction) action;
-        GameMapFactory mapFactory = GameMapFactory.provideCorrectFactory(castedAction.payload);
-        state.gameMap = mapFactory.makeMap();
-        if (state.player.playerType.equals(PlayerType.ALIEN)) {
-            state.player.currentSector = state.gameMap.getAlienSector();
-        } else {
-            state.player.currentSector = state.gameMap.getHumanSector();
-        }
-        return state;
-    }
     private State allowTurn(StoreAction action, ClientState state){
         state.isMyTurn = true;
         return state;

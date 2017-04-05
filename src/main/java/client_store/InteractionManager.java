@@ -65,9 +65,8 @@ public class InteractionManager {
         }
     }
 
-    public void setMapAndStartGame(String mapName){
-        this.clientStore.dispatchAction(new ClientSetGameMapAction(mapName));
-        this.clientStore.dispatchAction(new ClientStartGameAction());
+    private void setMapAndStartGame(String mapName){
+        this.clientStore.dispatchAction(new ClientStartGameAction(mapName));
     }
     public void joinNewGame(String gameMapName, String playerName){
         this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName,null));
