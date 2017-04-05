@@ -14,8 +14,6 @@ import java.io.Serializable;
 public class Player implements Serializable {
     public int speed;
     public PlayerToken playerToken;
-    // Player's type
-    public PlayerType playerType;
     // Player's current sector
     public Sector currentSector;
     // Player's state
@@ -27,13 +25,12 @@ public class Player implements Serializable {
     public volatile boolean hasMoved;
     public volatile String name;
 
-    public Player(PlayerType playerType, String name, PlayerToken playerToken) {
-        if (playerType == PlayerType.HUMAN) {
+    public Player(String name, PlayerToken playerToken) {
+        if (playerToken.playerType == PlayerType.HUMAN) {
             this.speed = 1;
         } else {
             this.speed = 2;
         }
-        this.playerType = playerType;
         this.playerState = PlayerState.ALIVE;
         this.privateDeck = new PrivateDeck();
         this.isAdrenalined = false;
@@ -50,7 +47,6 @@ public class Player implements Serializable {
         return "Player{" +
                 "speed=" + speed +
                 ", playerToken=" + playerToken +
-                ", playerType=" + playerType +
                 ", currentSector=" + currentSector +
                 ", playerState=" + playerState +
                 ", privateDeck=" + privateDeck +

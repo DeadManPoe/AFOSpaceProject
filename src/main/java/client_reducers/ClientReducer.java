@@ -34,8 +34,8 @@ public class ClientReducer implements Reducer {
                 return this.removeObjCard(action,castedState);
             case "@CLIENT_SET_PLAYER_TOKEN":
                 return this.setClientToken(action,castedState);
-            case "@CLIENT_INIT_PLAYER":
-                return this.initPlayer(action,castedState);
+            case "@CLIENT_SET_PLAYER":
+                return this.setPlayer(action,castedState);
             case "@CLIENT_END_TURN":
                 return this.endTurn(action,castedState);
             case "@CLIENT_SET_AVAILABLE_GAMES":
@@ -122,9 +122,9 @@ public class ClientReducer implements Reducer {
         return state;
     }
 
-    private State initPlayer(StoreAction action, ClientState state) {
-        ClientInitPlayerAction castedAction = (ClientInitPlayerAction) action;
-        state.player = new Player(null,castedAction.payload,null);
+    private State setPlayer(StoreAction action, ClientState state) {
+        ClientSetPlayerAction castedAction = (ClientSetPlayerAction) action;
+        state.player = new Player(castedAction.playerName,castedAction.playerToken);
         return state;
     }
 

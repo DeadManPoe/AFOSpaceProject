@@ -42,10 +42,11 @@ public class InteractionManager {
 
 
 
-    public void setPlayerToken(PlayerToken token){
-        this.clientStore.dispatchAction(new ClientSetPlayerTokenAction(token));
+    private void setPlayerToken(PlayerToken playerToken){
+        String playerName = this.clientStore.getState().player.name;
+        this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName,playerToken));
         ArrayList<Object> parameters = new ArrayList<>();
-        parameters.add(this.clientStore.getState().player.playerToken);
+        parameters.add(playerToken);
         try {
             this.communicationHandler.newComSession(new RemoteMethodCall("subscribe",parameters));
         } catch (IOException | ClassNotFoundException e) {
@@ -69,27 +70,34 @@ public class InteractionManager {
         this.clientStore.dispatchAction(new ClientStartGameAction());
     }
     public void joinNewGame(String gameMapName, String playerName){
-        this.clientStore.dispatchAction(new ClientInitPlayerAction(playerName));
+        this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName,null));
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(gameMapName);
         parameters.add(playerName);
         try {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("joinNewGame",parameters));
             this.processRemoteInvocation(methodCall);
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
+        catch (IOException e1){
+            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
+        }
     }
+
     public void joinGame(Integer gameId, String playerName){
-        this.clientStore.dispatchAction(new ClientInitPlayerAction(playerName));
+        this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName,null));
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(gameId);
         parameters.add(playerName);
         try {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("joinGame",parameters));
             this.processRemoteInvocation(methodCall);
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
+        }
+        catch( IOException e1){
+            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
     }
     public void publishChatMsg(String msg){

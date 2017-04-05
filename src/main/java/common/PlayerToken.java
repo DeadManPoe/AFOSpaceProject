@@ -14,12 +14,10 @@ import java.util.UUID;
  * @version 1.0
  */
 public class PlayerToken implements Serializable {
-	// A field automatically created for serialization purposes
-	private static final long serialVersionUID = 1L;
 	// The universally unique identifier of the player
 	private final UUID playerId;
-	private final Integer gameId;
-	private final PlayerType playerType;
+	public final Integer gameId;
+	public final PlayerType playerType;
 
 	/**
 	 * Constructs a token that identifies in an unique way a player. This token
@@ -36,55 +34,28 @@ public class PlayerToken implements Serializable {
 		this.gameId = gameId;
 	}
 
-	/**
-	 * Gets the universal unique identifier of the player the token refers to
-	 * 
-	 * @return the universal unique identifier of the player the token refers to
-	 */
-	public UUID getUUID() {
-		return this.playerId;
-	}
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
-	/**
-	 * Gets the type of the player the token refers to
-	 * 
-	 * @return the type of the player the token refers to
-	 */
-	public PlayerType getPlayerType() {
-		return playerType;
-	}
+		PlayerToken that = (PlayerToken) o;
 
-    public Integer getGameId() {
-        return gameId;
-    }
+		return playerId.equals(that.playerId);
 
-    @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((playerId == null) ? 0 : playerId.hashCode());
-		result = prime * result
-				+ ((playerType == null) ? 0 : playerType.hashCode());
-		return result;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		PlayerToken other = (PlayerToken) obj;
-		if (playerId == null) {
-			if (other.playerId != null)
-				return false;
-		} else if (!playerId.equals(other.playerId))
-			return false;
-		if (playerType != other.playerType)
-			return false;
-		return true;
+	public int hashCode() {
+		return 0;
+	}
+
+	@Override
+	public String toString() {
+		return "PlayerToken{" +
+				"playerId=" + playerId +
+				", gameId=" + gameId +
+				", playerType=" + playerType +
+				'}';
 	}
 }

@@ -22,6 +22,7 @@ import javax.swing.table.DefaultTableModel;
 
 import client_gui.GuiManager;
 import client_store.ClientStore;
+import client_store.InteractionManager;
 import common.GamePublicData;
 import server.GameStatus;
 
@@ -32,23 +33,16 @@ import server.GameStatus;
  * @author Giorgio Pea
  */
 public class GUIGameList extends JPanel {
-    private static final long serialVersionUID = 1L;
 
-    private final JLabel connectionAlert;
+    private final JLabel connectionAlert = new JLabel("The connection with the server is not active");
+    private final InteractionManager interactionManager = InteractionManager.getInstance();
     private JLabel stateMessage = new JLabel("");
     private JButton startButton = new JButton("Start Game");
     private JPanel buttonPanel;
-    private String mapName;
     private DefaultTableModel gameList;
     private JTable gameTables;
 
     private transient final GuiManager guiManager = GuiManager.getInstance();
-
-
-    public GUIGameList() {
-        this.connectionAlert = new JLabel("The connection with the server is not active");
-    }
-
     /**
      * Loads the information on the panel that shows the list of available
      * games, and allows the player to join an existing game or to join a new
@@ -106,34 +100,7 @@ public class GUIGameList extends JPanel {
         joinButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    // A box for the name
-                    String name = (String) JOptionPane.showInputDialog(guiManager.getFrame(),
-                            "Insert your name for the game: ",
-                            "Name insert",
-                            JOptionPane.OK_CANCEL_OPTION, null, null, "");
-                    if (name != null){
-                        if (!("").equals(name)) {
-                            int id = (Integer) gameTables.getValueAt(
-                                    gameTables.getSelectedRow(), 0);
-
-                            List<Object> parameters = new ArrayList<>();
-                            parameters.add(id);
-                            parameters.add(name);
-                            stateMessage.setText("Waiting for others players...");
-                            guiManager.forwardMethod("joinGame",parameters);
-                        } else {
-                            JOptionPane.showMessageDialog(guiManager.getFrame(),
-                                    "Please insert a valid name",
-                                    "Error",
-                                    JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-
-                } catch (IllegalArgumentException | SecurityException e1) {
-                    ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-                            e1);
-                }
+                joinGame();
             }
         });
 
@@ -143,36 +110,7 @@ public class GUIGameList extends JPanel {
         newButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Object[] possibilities = {"Galilei", "Fermi", "Galvani"};
-                String name = (String) JOptionPane.showInputDialog(guiManager.getFrame(),
-                        "Insert your name for the game: ",
-                        "Name insert",
-                        JOptionPane.OK_CANCEL_OPTION, null, null, "");
-                if (name != null){
-                    if (!("").equals(name)) {
-                        mapName = (String) JOptionPane.showInputDialog(
-                                guiManager.getFrame(), "Choose the map: ", "Map",
-                                JOptionPane.PLAIN_MESSAGE, null, possibilities,
-                                "Galilei");
-                        if(mapName != null){
-                            stateMessage.setText("Waiting for others players...");
-                            List<Object> parameters = new ArrayList<>();
-                            parameters.add(mapName.toUpperCase());
-                            parameters.add(name);
-                            guiManager.forwardMethod("joinNewGame",parameters);
-                            //startButton.setVisible(true);
-                            buttonPanel.setVisible(false);
-                        }
-
-
-                    } else {
-                        JOptionPane.showMessageDialog(guiManager.getFrame(),
-                                "Please insert a valid name",
-                                "Error",
-                                JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-
+                newGame();
             }
         });
 
@@ -201,6 +139,66 @@ public class GUIGameList extends JPanel {
             }
             for (GamePublicData gameDate : gamePublicDataList) {
                 this.gameList.addRow(new Object[]{gameDate.getId(), gameDate.getStatus(), gameDate.getPlayersCount()});
+            }
+        }
+    }
+
+    /**
+     * Manages interaction related to the join of a game by the client.
+     * This interaction includes asking to the client what name he should have in the game.
+     *
+     */
+    private void joinGame(){
+            // A box for the name
+            String playerName = (String) JOptionPane.showInputDialog(this.getParent(),
+                    "Insert your name for the game: ",
+                    "Name insert",
+                    JOptionPane.OK_CANCEL_OPTION, null, null, "");
+            if (playerName != null){
+                if (!("").equals(playerName)) {
+                    int gameId = (Integer) gameTables.getValueAt(
+                            gameTables.getSelectedRow(), 0);
+                    stateMessage.setText("Waiting for others players...");
+                    interactionManager.joinGame(gameId, playerName);
+                } else {
+                    JOptionPane.showMessageDialog(guiManager.getFrame(),
+                            "Please insert a valid name",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+
+    }
+
+    /**
+     * Manages interaction related to the creation of a new game by the client.
+     * This interaction includes asking to the client what name he should have in the game and what map
+     * the game should be based on
+     */
+    private void newGame(){
+        Object[] possibilities = {"Galilei", "Fermi", "Galvani"};
+        String playerName = (String) JOptionPane.showInputDialog(this.getParent(),
+                "Insert your name for the game: ",
+                "Name insert",
+                JOptionPane.OK_CANCEL_OPTION, null, null, "");
+        if (playerName != null){
+            if (!("").equals(playerName)) {
+                String mapName = (String) JOptionPane.showInputDialog(
+                        this.getParent(), "Choose the map: ", "Map",
+                        JOptionPane.PLAIN_MESSAGE, null, possibilities,
+                        "Galilei");
+                if(mapName != null){
+                    stateMessage.setText("Waiting for others players...");
+                    this.interactionManager.joinNewGame(mapName,playerName);
+                    buttonPanel.setVisible(false);
+                }
+
+
+            } else {
+                JOptionPane.showMessageDialog(guiManager.getFrame(),
+                        "Please insert a valid name",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
