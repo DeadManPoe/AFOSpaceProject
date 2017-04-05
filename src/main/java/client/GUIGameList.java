@@ -34,6 +34,7 @@ import server.GameStatus;
 public class GUIGameList extends JPanel {
     private static final long serialVersionUID = 1L;
 
+    private final JLabel connectionAlert;
     private JLabel stateMessage = new JLabel("");
     private JButton startButton = new JButton("Start Game");
     private JPanel buttonPanel;
@@ -44,6 +45,10 @@ public class GUIGameList extends JPanel {
     private transient final GuiManager guiManager = GuiManager.getInstance();
 
 
+    public GUIGameList() {
+        this.connectionAlert = new JLabel("The connection with the server is not active");
+    }
+
     /**
      * Loads the information on the panel that shows the list of available
      * games, and allows the player to join an existing game or to join a new
@@ -51,6 +56,8 @@ public class GUIGameList extends JPanel {
      *
      */
     public void load() {
+        add(this.connectionAlert);
+        this.setVisible(false);
         stateMessage.setFont(new Font("Arial", Font.BOLD, 22));
         stateMessage.setForeground(Color.WHITE);
         stateMessage.setAlignmentX(CENTER_ALIGNMENT);
@@ -200,5 +207,9 @@ public class GUIGameList extends JPanel {
 
     public void startableGame() {
         this.startButton.setVisible(true);
+    }
+
+    public void alertConnectionProblem(boolean isConnectionActive) {
+        this.connectionAlert.setVisible(isConnectionActive);
     }
 }

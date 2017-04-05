@@ -35,6 +35,7 @@ public class ClientState extends State implements Serializable {
     public String lastChatMessage;
     public PSClientNotification currentPubSubNotification;
     public long gameListPollingPeriod;
+    public boolean connectionActive;
 
     public ClientState() {
         this.tcpPort = 29999;

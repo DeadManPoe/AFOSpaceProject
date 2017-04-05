@@ -21,9 +21,13 @@ import java.util.List;
  * @version 1.0
  */
 public class GUIGamePane extends JPanel {
-    private static final long serialVersionUID = 1L;
+
+
+    private final JLabel connectionAlert;
 
     private transient GuiInteractionManager gui;
+
+
 
     private DefaultListModel<String> logModel;
     private JList<String> logPane;
@@ -55,6 +59,7 @@ public class GUIGamePane extends JPanel {
     private ObjectCard selectedObjectCard;
 
     public GUIGamePane() {
+        this.connectionAlert = new JLabel("The connection with the server is not active");
         mapPanel = new GUIMap();
         logModel = new DefaultListModel<String>();
         logPane = new JList<String>(logModel);
@@ -135,7 +140,8 @@ public class GUIGamePane extends JPanel {
      * Inits the gui for the user displaying the mapName game map
      */
     public void load(String mapName) {
-
+        add(this.connectionAlert);
+        this.connectionAlert.setVisible(false);
         mapPanel.displayGameMap(mapName);
 
         GridBagConstraints c = new GridBagConstraints();
@@ -294,5 +300,9 @@ public class GUIGamePane extends JPanel {
      */
     public void showEndTurnButton(boolean show) {
         this.endTurnButton.setEnabled(show);
+    }
+
+    public void alertConnectionProblem(boolean isConnectionActive) {
+        this.connectionAlert.setVisible(isConnectionActive);
     }
 }

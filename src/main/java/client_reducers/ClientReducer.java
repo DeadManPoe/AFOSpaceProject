@@ -54,8 +54,16 @@ public class ClientReducer implements Reducer {
                 return this.askAttack(action,castedState);
             case "@CLIENT_SUPPRESS":
                 return this.suppress(action, castedState);
+            case "@CLIENT_SET_CONNECTION_ACTIVE":
+                return this.setConnectionActive(action, castedState);
 
         }
+        return state;
+    }
+
+    private State setConnectionActive(StoreAction action, ClientState state) {
+        ClientSetConnectionActiveAction castedAction = (ClientSetConnectionActiveAction) action;
+        state.connectionActive = castedAction.isConnectionActive;
         return state;
     }
 

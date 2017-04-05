@@ -318,13 +318,15 @@ public class InteractionManager {
         this.clientStore.dispatchAction(new ClientSetAvailableGamesAction(avGames));
     }
 
-    public void getGames() throws IOException{
-        RemoteMethodCall methodCall = null;
+    public void getGames(){
         try {
-            methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("getGames",new ArrayList<Object>()));
+            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("getGames",new ArrayList<Object>()));
             this.processRemoteInvocation(methodCall);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
+        }
+        catch (IOException e1){
+            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
 
 

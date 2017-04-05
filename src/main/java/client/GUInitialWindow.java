@@ -54,11 +54,7 @@ public class GUInitialWindow extends JPanel {
 		connectButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-                try {
-                    interactionManager.getGames();
-                } catch (IOException e1) {
-                    alertConnectionProblem(true);
-                }
+               interactionManager.getGames();
             }
 		});
 	}

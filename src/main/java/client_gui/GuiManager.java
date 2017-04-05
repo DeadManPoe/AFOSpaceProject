@@ -4,6 +4,7 @@ import client.*;
 import client_store.ClientStore;
 import client_store.InteractionManager;
 import client_store_actions.ClientSetAvailableGamesAction;
+import client_store_actions.ClientSetConnectionActiveAction;
 import client_store_actions.ClientSetCurrentMessage;
 import client_store_actions.ClientSetCurrentPubSubNotificationAction;
 import common.*;
@@ -434,6 +435,10 @@ public class GuiManager implements Observer {
                 this.setAvailableGamesReaction(action);
                 break;
             }
+            case "@CLIENT_SET_CONNECTION_ACTIVE": {
+                this.setConnectionActiveReaction(action);
+                break;
+            }
             case "@CLIENT_START_GAME":
                 String welcomeMsg = "Welcome, " + ClientStore.getInstance().getState().player.name + " you're "
                         + ClientStore.getInstance().getState().player.playerType;
@@ -485,8 +490,20 @@ public class GuiManager implements Observer {
     }
 
     /**
+     * Make the different gui components of the app signal the absence of a connection
+     * with the server
+     * @param action The {@link server_store.StoreAction} that has caused this behavior
+     */
+    private void setConnectionActiveReaction(StoreAction action) {
+        ClientSetConnectionActiveAction castedAction = (ClientSetConnectionActiveAction) action;
+        this.guiInitialWindow.alertConnectionProblem(castedAction.isConnectionActive);
+        this.guiGameList.alertConnectionProblem(castedAction.isConnectionActive);
+        this.guiGamePane.alertConnectionProblem(castedAction.isConnectionActive);
+    }
+
+    /**
      * Switches to the {@link client.GUIGameList} view from the {@link client.GUInitialWindow}
-     * @param action The Store Action that has caused this behavior
+     * @param action The {@link server_store.StoreAction} that has caused this behavior
      */
     private void setAvailableGamesReaction(StoreAction action) {
         ClientSetAvailableGamesAction castedAction = (ClientSetAvailableGamesAction) action;
