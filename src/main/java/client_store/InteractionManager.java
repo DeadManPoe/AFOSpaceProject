@@ -111,6 +111,7 @@ public class InteractionManager {
     public void move(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         Sector currentSector = this.clientStore.getState().player.currentSector;
+        RRClientNotification currentReqResponseNotification = this.clientStore.getState().currentReqRespNotification;
         this.clientStore.dispatchAction(new ClientAskAttackAction(false));
         ArrayList<Object> parameters = new ArrayList<Object>();
         StoreAction action = new MoveAction(targetSector);
@@ -123,6 +124,18 @@ public class InteractionManager {
                 this.clientStore.dispatchAction(new ClientMoveAction(targetSector));
             } else {
                 this.clientStore.dispatchAction(new ClientMoveAction(currentSector));
+            }
+            List<Card> drawnCards = currentReqResponseNotification.getDrawnCards();
+            if (drawnCards.size() == 1){
+                this.clientStore.dispatchAction(
+                        new ClientSetDrawnSectorObjectCard(
+                                (SectorCard) drawnCards.get(0),null));
+            }
+            else if (drawnCards.size() == 2){
+                this.clientStore.dispatchAction(
+                        new ClientSetDrawnSectorObjectCard(
+                                (SectorCard) drawnCards.get(0),
+                                (ObjectCard) drawnCards.get(1)));
             }
 
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {

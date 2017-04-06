@@ -2,7 +2,6 @@ package client_gui;
 
 import client.*;
 import client_store.ClientStore;
-import client_store.InteractionManager;
 import client_store_actions.*;
 import common.*;
 import it.polimi.ingsw.cg_19.PlayerType;
@@ -156,64 +155,6 @@ public class GuiManager implements Observer {
 
     public JFrame getFrame() {
         return this.mainFrame;
-    }
-
-    private void nextState(){
-        PrivateDeck clientPrivateDeck = this.clientStore.getState().player.privateDeck;
-        List<Card> drawnCards = this.clientStore.getState().currentReqRespNotification.getDrawnCards();
-        SectorCard drawnSectorCard = null;
-        ObjectCard drawnObjectCard = null;
-        CardSplashScreen cardSplashScreen = new CardSplashScreen(this.mainFrame);
-
-        if (drawnCards.size() == 1){
-            drawnSectorCard = (SectorCard) drawnCards.get(0);
-        }
-        else if (drawnCards.size() == 2){
-            drawnSectorCard = (SectorCard) drawnCards.get(0);
-            drawnObjectCard = (ObjectCard) drawnCards.get(1);
-        }
-
-        cardSplashScreen.showCards(drawnSectorCard, drawnObjectCard);
-
-        if ( drawnObjectCard != null){
-            this.guiGamePane.addCardToPanel(drawnObjectCard);
-        }
-
-        if (drawnSectorCard instanceof GlobalNoiseSectorCard){
-            this.guiGamePane
-                    .setStateMessage("Select a sector for the global noise card");
-            this.guiGamePane.getMapPane().changeMapMenu(
-                    MenuType.NOISE_MENU);
-        }
-        else if ( drawnSectorCard instanceof LocalNoiseSectorCard){
-            this.guiGamePane.setStateMessage("You will make noise in your sector");
-            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-            if (clientPrivateDeck.getSize() > 3){
-                this.manyCardHandler();
-            }
-            else {
-                this.guiGamePane.showEndTurnButton(true);
-            }
-        }
-        else if ( drawnSectorCard instanceof SilenceSectorCard){
-            this.guiGamePane.setStateMessage("You will make no noise");
-            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-            if (clientPrivateDeck.getSize() > 3){
-                this.manyCardHandler();
-            }
-            else {
-                this.guiGamePane.showEndTurnButton(true);
-            }
-        }
-        else {
-            if (clientPrivateDeck.getSize() > 3){
-                this.manyCardHandler();
-            }
-            else {
-                this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-                this.guiGamePane.showEndTurnButton(true);
-            }
-        }
     }
 
     private void verifyPrivateDeck() {
@@ -514,6 +455,9 @@ public class GuiManager implements Observer {
             case "@CLIENT_MOVE_TO_SECTOR":
                 this.moveToSectorReaction();
                 break;
+            case "@CLIENT_SET_DRAWN_SECTOR_OBJECT_CARD":
+                this.setDrawnSectorObjectCardReaction(action);
+                break;
             case "@CLIENT_PUBLISH_MSG": {
                 ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
                 this.guiGamePane.appendMsg(castedAction.payload);
@@ -541,12 +485,59 @@ public class GuiManager implements Observer {
         }
     }
 
+    private void setDrawnSectorObjectCardReaction(StoreAction action) {
+        ClientSetDrawnSectorObjectCard castedAction = (ClientSetDrawnSectorObjectCard) action;
+        CardSplashScreen cardSplashScreen = new CardSplashScreen(this.mainFrame);
+        cardSplashScreen.showCards(castedAction.drawnSectorCard, castedAction.drawnObjectCard);
+        PrivateDeck clientPrivateDeck = this.clientStore.getState().player.privateDeck;
+
+        if (castedAction.drawnSectorCard instanceof GlobalNoiseSectorCard){
+            this.guiGamePane
+                    .setStateMessage("Select a sector for the global noise card");
+            this.guiGamePane.getMapPane().changeMapMenu(
+                    MenuType.NOISE_MENU);
+            this.guiGamePane.showEndTurnButton(false);
+        }
+        else if ( castedAction.drawnSectorCard instanceof LocalNoiseSectorCard){
+            this.guiGamePane.setStateMessage("You will make noise in your sector");
+            if (clientPrivateDeck.getSize() > 3){
+                this.manyCardHandler();
+            }
+            else {
+                this.guiGamePane.showEndTurnButton(true);
+            }
+        }
+        else if ( castedAction.drawnSectorCard instanceof SilenceSectorCard){
+            this.guiGamePane.setStateMessage("You will make no noise");
+            if (clientPrivateDeck.getSize() > 3){
+                this.manyCardHandler();
+            }
+            else {
+                this.guiGamePane.showEndTurnButton(true);
+            }
+        }
+        else {
+            if (clientPrivateDeck.getSize() > 3){
+                this.manyCardHandler();
+            }
+            else {
+                this.guiGamePane.showEndTurnButton(true);
+            }
+        }
+
+        if (castedAction.drawnObjectCard != null){
+            this.guiGamePane.addCardToPanel(castedAction.drawnObjectCard);
+        }
+
+    }
+
     private void moveToSectorReaction() {
         Player player = this.clientStore.getState().player;
         this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
         if (player.hasMoved){
             this.updatePosition();
-            this.nextState();
+            this.guiGamePane.showEndTurnButton(true);
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
         }
     }
 

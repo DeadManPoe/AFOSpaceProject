@@ -1,6 +1,7 @@
 package client;
 
 import client_gui.GuiManager;
+import client_store.InteractionManager;
 import common.ObjectCard;
 
 import javax.swing.*;
@@ -24,10 +25,8 @@ public class GUIGamePane extends JPanel {
 
 
     private final JLabel connectionAlert = new JLabel("The connection with the server is not active");;
-    private final JLabel infoMsg = new JLabel("");
-
-    private transient GuiInteractionManager gui;
-
+    private final JLabel infoMsg = new JLabel();
+    private final InteractionManager interactionManager = InteractionManager.getInstance();
 
 
     private DefaultListModel<String> logModel;
@@ -111,7 +110,7 @@ public class GUIGamePane extends JPanel {
         useCardItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                guiManager.useObjectCard(selectedObjectCard);
+                interactionManager.useObjCard(selectedObjectCard);
             }
         });
         humanUseOnlyItem.addActionListener(useCardItem.getActionListeners()[0]);

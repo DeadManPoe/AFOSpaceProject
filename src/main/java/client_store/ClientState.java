@@ -1,9 +1,6 @@
 package client_store;
 
-import common.GamePublicData;
-import common.PSClientNotification;
-import common.PlayerToken;
-import common.RRClientNotification;
+import common.*;
 import it.polimi.ingsw.cg_19.GameMap;
 import server_store.Player;
 import client_store.PubSubHandler;
@@ -36,11 +33,12 @@ public class ClientState extends State implements Serializable {
     public PSClientNotification currentPubSubNotification;
     public long gameListPollingPeriod;
     public boolean connectionActive;
+    public SectorCard drawnSectorCard;
 
     public ClientState() {
         this.tcpPort = 29999;
         this.host = "localhost";
-        this.player = new Player(null,null,null);
+        this.player = new Player(null,null);
         this.gameListPollingPeriod = 5000;
     }
 

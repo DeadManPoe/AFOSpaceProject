@@ -52,7 +52,18 @@ public class ClientReducer implements Reducer {
                 return this.suppress(action, castedState);
             case "@CLIENT_SET_CONNECTION_ACTIVE":
                 return this.setConnectionActive(action, castedState);
+            case "@CLIENT_SET_DRAWN_SECTOR_OBJECT_CARD":
+                return this.setDrawnSectorObjectCard(action, castedState);
 
+        }
+        return state;
+    }
+
+
+    private State setDrawnSectorObjectCard(StoreAction action, ClientState state) {
+        ClientSetDrawnSectorObjectCard castedAction = (ClientSetDrawnSectorObjectCard) action;
+        if (castedAction.drawnObjectCard != null){
+            state.player.privateDeck.addCard(castedAction.drawnObjectCard);
         }
         return state;
     }
