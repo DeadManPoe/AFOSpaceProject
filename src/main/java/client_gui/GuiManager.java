@@ -163,6 +163,7 @@ public class GuiManager implements Observer {
         List<Card> drawnCards = this.clientStore.getState().currentReqRespNotification.getDrawnCards();
         SectorCard drawnSectorCard = null;
         ObjectCard drawnObjectCard = null;
+        CardSplashScreen cardSplashScreen = new CardSplashScreen(this.mainFrame);
 
         if (drawnCards.size() == 1){
             drawnSectorCard = (SectorCard) drawnCards.get(0);
@@ -171,6 +172,8 @@ public class GuiManager implements Observer {
             drawnSectorCard = (SectorCard) drawnCards.get(0);
             drawnObjectCard = (ObjectCard) drawnCards.get(1);
         }
+
+        cardSplashScreen.showCards(drawnSectorCard, drawnObjectCard);
 
         if ( drawnObjectCard != null){
             this.guiGamePane.addCardToPanel(drawnObjectCard);
