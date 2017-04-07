@@ -458,6 +458,9 @@ public class GuiManager implements Observer {
             case "@CLIENT_SET_DRAWN_SECTOR_OBJECT_CARD":
                 this.setDrawnSectorObjectCardReaction(action);
                 break;
+            case "@CLIENT_USE_OBJECT_CARD":
+                this.useObjectCardReaction(action);
+                break;
             case "@CLIENT_PUBLISH_MSG": {
                 ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
                 this.guiGamePane.appendMsg(castedAction.payload);
@@ -482,6 +485,24 @@ public class GuiManager implements Observer {
             case "@CLIENT_STARTABLE_GAME":
                 this.guiGameList.startableGame();
                 break;
+        }
+    }
+
+    private void useObjectCardReaction(StoreAction action) {
+        ClientUseObjectCard castedAction = (ClientUseObjectCard) action;
+
+        if (castedAction.objectCard != null){
+            this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
+        }
+    }
+
+    private void moveToSectorReaction() {
+        Player player = this.clientStore.getState().player;
+        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
+        if (player.hasMoved){
+            this.updatePosition();
+            this.guiGamePane.showEndTurnButton(true);
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
         }
     }
 
@@ -524,21 +545,10 @@ public class GuiManager implements Observer {
                 this.guiGamePane.showEndTurnButton(true);
             }
         }
-
         if (castedAction.drawnObjectCard != null){
             this.guiGamePane.addCardToPanel(castedAction.drawnObjectCard);
         }
 
-    }
-
-    private void moveToSectorReaction() {
-        Player player = this.clientStore.getState().player;
-        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        if (player.hasMoved){
-            this.updatePosition();
-            this.guiGamePane.showEndTurnButton(true);
-            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-        }
     }
 
     /**

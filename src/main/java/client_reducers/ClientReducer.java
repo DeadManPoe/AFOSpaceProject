@@ -28,8 +28,8 @@ public class ClientReducer implements Reducer {
                 return this.moveToSector(action,castedState);
             case "@CLIENT_TELEPORT":
                 return this.teleport(action,castedState);
-            case "@CLIENT_REMOVE_OBJ_CARD":
-                return this.removeObjCard(action,castedState);
+            case "@CLIENT_USE_OBJECT_CARD":
+                return this.useObjectCard(action,castedState);
             case "@CLIENT_SET_PLAYER":
                 return this.setPlayer(action,castedState);
             case "@CLIENT_END_TURN":
@@ -135,9 +135,11 @@ public class ClientReducer implements Reducer {
         return state;
     }
 
-    private State removeObjCard(StoreAction action, ClientState state) {
-        ClientRemoveObjCardAction castedAction = (ClientRemoveObjCardAction) action;
-        state.player.privateDeck.removeCard(castedAction.payload);
+    private State useObjectCard(StoreAction action, ClientState state) {
+        ClientUseObjectCard castedAction = (ClientUseObjectCard) action;
+        if ( castedAction.objectCard != null){
+            state.player.privateDeck.removeCard(castedAction.objectCard);
+        }
         return state;
     }
 

@@ -150,11 +150,9 @@ public class InteractionManager {
         this.clientStore.dispatchAction(new ClientStartableGameAction());
     }
 
-    public void useObjCard(int objectCardIndex) throws IOException, ClassNotFoundException {
-        int cardsAmount = this.clientStore.getState().player.privateDeck.getSize();
-        if (objectCardIndex <= cardsAmount && objectCardIndex > 0) {
-            ObjectCard objectCard = this.clientStore.getState().player.privateDeck.getCard(
-                    objectCardIndex - 1);
+    public void useObjCard(ObjectCard objectCard){
+        Player player = this.clientStore.getState().player;
+        if (player.privateDeck.getContent().contains(objectCard)){
             if (objectCard instanceof LightsObjectCard) {
                 this.clientStore.dispatchAction(new ClientAskLightsAction(true));
             } else if (objectCard instanceof AttackObjectCard) {
@@ -163,26 +161,34 @@ public class InteractionManager {
                 ArrayList<Object> parameters = new ArrayList<>();
                 StoreAction action = new UseObjAction(objectCard);
                 parameters.add(action);
-                parameters.add(this.clientStore.getState().player.playerToken);
-                RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
+                parameters.add(player.playerToken);
+                RemoteMethodCall methodCall = null;
                 try {
+                    methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
                     this.processRemoteInvocation(methodCall);
-                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     e.printStackTrace();
                 }
-                if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
-                    this.clientStore.dispatchAction(new ClientRemoveObjCardAction(objectCard));
+                catch ( IOException e1){
+                    this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
+                }
+                if (this.clientStore.getState().currentReqRespNotification.getActionResult()){
+                    this.clientStore.dispatchAction(new ClientUseObjectCard(objectCard));
                     if (objectCard instanceof TeleportObjectCard) {
                         this.clientStore.dispatchAction(new ClientTeleportAction());
                     } else if (objectCard instanceof SuppressorObjectCard) {
                         this.clientStore.dispatchAction(new ClientSuppressAction(true));
                     }
                 }
+                else {
+                    this.clientStore.dispatchAction(new ClientUseObjectCard(null));
+                }
+
             }
-        } else {
-            throw new IllegalArgumentException(
-                    "Undifined card, please try again");
         }
+
+
+
     }
 
     public void allowTurn() {
@@ -235,7 +241,7 @@ public class InteractionManager {
                 e.printStackTrace();
             }
             this.clientStore.dispatchAction(new ClientAskLightsAction(false));
-            this.clientStore.dispatchAction(new ClientRemoveObjCardAction(lightsCard));
+            this.clientStore.dispatchAction(new ClientUseObjectCard(lightsCard));
         } else {
             throw new IllegalArgumentException(
                     "Undefined sector, please try again");
@@ -275,7 +281,7 @@ public class InteractionManager {
             }
 
             if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
-                this.clientStore.dispatchAction(new ClientRemoveObjCardAction(objectCardToDiscard));
+                this.clientStore.dispatchAction(new ClientUseObjectCard(objectCardToDiscard));
             }
 
         } else {
