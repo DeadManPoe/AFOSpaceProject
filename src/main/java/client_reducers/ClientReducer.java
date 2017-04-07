@@ -22,8 +22,8 @@ public class ClientReducer implements Reducer {
         switch (action.getType()){
             case "@CLIENT_START_GAME":
                 return this.startGame(action,castedState);
-            case "@CLIENT_ALLOW_TURN":
-                return this.allowTurn(action,castedState);
+            case "@CLIENT_START_TURN":
+                return this.startTurn(action,castedState);
             case "@CLIENT_MOVE_TO_SECTOR":
                 return this.moveToSector(action,castedState);
             case "@CLIENT_TELEPORT_TO_STARTING_SECTOR":
@@ -46,8 +46,6 @@ public class ClientReducer implements Reducer {
                 return this.setRR(action,castedState);
             case "@CLIENT_SET_CURRENT_PUBSUB_NOTIFICATION":
                 return this.setPS(action,castedState);
-            case "@CLIENT_DENY_TURN":
-                return this.denyTurn(action,castedState);
             case "@CLIENT_ASK_SECTOR_TO_LIGHT":
                 return this.askSectorToLight(action,castedState);
             case "@CLIENT_ASK_SECTOR_TO_ATTACK":
@@ -143,6 +141,10 @@ public class ClientReducer implements Reducer {
     private State endTurn(StoreAction action, ClientState state) {
         state.isMyTurn = false;
         state.player.hasMoved = false;
+        state.player.isAdrenalined = false;
+        state.player.isSedated = false;
+        state.askAttack = false;
+        state.askLights = false;
         return state;
     }
 
@@ -186,7 +188,7 @@ public class ClientReducer implements Reducer {
         return state;
     }
 
-    private State allowTurn(StoreAction action, ClientState state){
+    private State startTurn(StoreAction action, ClientState state){
         state.isMyTurn = true;
         return state;
     }

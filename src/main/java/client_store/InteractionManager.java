@@ -195,7 +195,7 @@ public class InteractionManager {
     }
 
     public void allowTurn() {
-        this.clientStore.dispatchAction(new ClientAllowTurnAction());
+        this.clientStore.dispatchAction(new ClientStartTurnAction());
     }
 
     public void globalNoise(Coordinate coordinate, boolean hasObject) {

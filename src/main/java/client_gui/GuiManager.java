@@ -471,6 +471,12 @@ public class GuiManager implements Observer {
             case "@CLIENT_DISCARD_OBJECT_CARD":
                 this.discardObjectCardReaction(action);
                 break;
+            case "@CLIENT_END_TURN":
+                this.endTurnReaction();
+                break;
+            case "@CLIENT_START_TURN":
+                this.startTurnReaction();
+                break;
             case "@CLIENT_PUBLISH_MSG": {
                 ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
                 this.guiGamePane.appendMsg(castedAction.payload);
@@ -495,6 +501,25 @@ public class GuiManager implements Observer {
                 this.guiGameList.startableGame();
                 break;
         }
+    }
+
+    private void startTurnReaction() {
+        Player player = this.clientStore.getState().player;
+        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
+        if (player.playerToken.playerType.equals(PlayerType.ALIEN)){
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.ALIEN_INITIAL);
+        }
+        else {
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.HUMAN_INITIAL);
+            this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_MENU);
+        }
+    }
+
+    private void endTurnReaction() {
+        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
+        this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+        this.guiGamePane.changeCardMenu(MenuType.EMPTY);
+        this.guiGamePane.showEndTurnButton(false);
     }
 
     private void discardObjectCardReaction(StoreAction action) {
