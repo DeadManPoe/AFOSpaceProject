@@ -56,8 +56,25 @@ public class ClientReducer implements Reducer {
                 return this.setConnectionActive(action, castedState);
             case "@CLIENT_SET_DRAWN_SECTOR_OBJECT_CARD":
                 return this.setDrawnSectorObjectCard(action, castedState);
+            case "@CLIENT_SET_PLAYER_STATE":
+                return this.setPlayerState(action, castedState);
+            case "@CLIENT_SET_WINNERS":
+                return this.setWinners(action, castedState);
 
         }
+        return state;
+    }
+
+    private State setWinners(StoreAction action, ClientState state) {
+        ClientSetWinnersAction castedAction = (ClientSetWinnersAction) action;
+        state.aliensHaveWon = castedAction.aliensHaveWon;
+        state.humansHaveWon = castedAction.humansHaveWon;
+
+    }
+
+    private State setPlayerState(StoreAction action, ClientState state) {
+        ClientSetPlayerState castedAction = (ClientSetPlayerState) action;
+        state.player.playerState = castedAction.playerState;
         return state;
     }
 
@@ -91,7 +108,7 @@ public class ClientReducer implements Reducer {
 
     private State suppress(StoreAction action, ClientState state) {
         ClientSuppressAction castedAction = (ClientSuppressAction) action;
-        state.player.isSedated = castedAction.payload;
+        state.player.isSedated = castedAction.isSuppressed;
         return state;
     }
 
@@ -126,7 +143,7 @@ public class ClientReducer implements Reducer {
 
 
     private State publishMsg(StoreAction action, ClientState state) {
-        ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
+        ClientSetCurrentChatMessage castedAction = (ClientSetCurrentChatMessage) action;
         state.lastChatMessage = castedAction.payload;
         return state;
     }

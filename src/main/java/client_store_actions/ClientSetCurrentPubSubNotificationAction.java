@@ -8,10 +8,10 @@ import server_store.StoreAction;
  */
 public class ClientSetCurrentPubSubNotificationAction extends StoreAction {
 
-    public PSClientNotification payload;
+    public final PSClientNotification psNotification;
 
-    public ClientSetCurrentPubSubNotificationAction(PSClientNotification notification) {
+    public ClientSetCurrentPubSubNotificationAction(PSClientNotification psNotification) {
         this.type = "@CLIENT_SET_CURRENT_PUBSUB_NOTIFICATION";
-        this.payload = notification;
+        this.psNotification = psNotification;
     }
 }

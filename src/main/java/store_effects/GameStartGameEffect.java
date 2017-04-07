@@ -40,7 +40,7 @@ public class GameStartGameEffect implements Effect {
                 if (handler.getPlayerToken().getGameId().equals(gameId)){
                     handler.queueNotification(new RemoteMethodCall("setMapAndStartGame",parameters));
                     if (handler.getPlayerToken().equals(game.currentPlayer.playerToken)){
-                        handler.queueNotification(new RemoteMethodCall("allowTurn", new ArrayList<Object>()));
+                        handler.queueNotification(new RemoteMethodCall("startTurn", new ArrayList<Object>()));
                     }
                 }
             }

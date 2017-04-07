@@ -1,6 +1,7 @@
 package client;
 
 import common.Coordinate;
+import common.Sector;
 
 import javax.swing.JLabel;
 
@@ -14,7 +15,7 @@ import javax.swing.JLabel;
 public class SectorLabel extends JLabel {
 	private static final long serialVersionUID = 1L;
 
-	private Coordinate coordinate;
+	private Sector referredSector;
 	private String image;
 
 	/**
@@ -22,13 +23,13 @@ public class SectorLabel extends JLabel {
 	 * map. This sector is constructed from its coordinate and its associated
 	 * image
 	 * 
-	 * @param coordinate
+	 * @param sector
 	 *            the coordinate of the sector
 	 * @param image
 	 *            the filename of the image associated with the sector
 	 */
-	public SectorLabel(Coordinate coordinate, String image) {
-		this.coordinate = coordinate;
+	public SectorLabel(Sector sector, String image) {
+		this.referredSector = sector;
 		this.image = image;
 	}
 
@@ -37,8 +38,8 @@ public class SectorLabel extends JLabel {
 	 * 
 	 * @return the sector's coordinate
 	 */
-	public Coordinate getCoordinate() {
-		return this.coordinate;
+	public Sector getReferredSector() {
+		return this.referredSector;
 	}
 
 	/**

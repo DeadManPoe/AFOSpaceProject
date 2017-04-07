@@ -34,6 +34,8 @@ public class ClientState extends State implements Serializable {
     public long gameListPollingPeriod;
     public boolean connectionActive;
     public SectorCard drawnSectorCard;
+    public boolean aliensHaveWon;
+    public boolean humansHaveWon;
 
     public ClientState() {
         this.tcpPort = 29999;

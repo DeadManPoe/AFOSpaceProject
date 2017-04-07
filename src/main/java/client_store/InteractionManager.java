@@ -2,6 +2,7 @@ package client_store;
 
 import client_store_actions.*;
 import common.*;
+import it.polimi.ingsw.cg_19.PlayerState;
 import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.Player;
 import server_store.StoreAction;
@@ -38,7 +39,28 @@ public class InteractionManager {
 
     public void sendPubNotification(ClientNotification psNotification) {
         PSClientNotification notification = (PSClientNotification) psNotification;
-        this.clientStore.dispatchAction(new ClientSetCurrentPubSubNotificationAction(notification));
+        Player player = this.clientStore.getState().player;
+        if (notification.getEscapedPlayer() != null){
+            if (notification.getEscapedPlayer().equals(player.playerToken)){
+                this.clientStore.dispatchAction(new ClientSetPlayerState(PlayerState.ESCAPED));
+            }
+        }
+        if (notification.getDeadPlayers().contains(player.playerToken)){
+            this.clientStore.dispatchAction(new ClientSetPlayerState(PlayerState.DEAD));
+        }
+        else if (notification.getAttackedPlayers().contains(player.playerToken)){
+            this.clientStore.dispatchAction(new ClientUseObjectCard(new DefenseObjectCard()));
+        }
+        if (notification.getAlienWins() && notification.getHumanWins()){
+            this.clientStore.dispatchAction(new ClientSetWinnersAction(true,true));
+        }
+        else if (notification.getAlienWins()){
+            this.clientStore.dispatchAction(new ClientSetWinnersAction(true,false));
+        }
+        else if (notification.getHumanWins()){
+            this.clientStore.dispatchAction(new ClientSetWinnersAction(false,true));
+        }
+        //this.clientStore.dispatchAction(new ClientSetCurrentPubSubNotificationAction(notification));
     }
 
 
@@ -101,7 +123,7 @@ public class InteractionManager {
     }
 
     public void publishChatMsg(String msg) {
-        ClientStore.getInstance().dispatchAction(new ClientSetCurrentMessage(msg));
+        ClientStore.getInstance().dispatchAction(new ClientSetCurrentChatMessage(msg));
     }
 
     public void denyTurn() {
@@ -207,16 +229,16 @@ public class InteractionManager {
             StoreAction action = new UseSectorCardAction(globalNoiseCard);
             parameters.add(action);
             parameters.add(this.clientStore.getState().player.playerToken);
-            RemoteMethodCall methodCall = null;
             try {
-                methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            try {
+                RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
                 this.processRemoteInvocation(methodCall);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
                 e.printStackTrace();
+            } catch (IOException e1) {
+                this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
+            }
+            if (this.clientStore.getState().currentReqRespNotification.getActionResult()){
+                this.clientStore.dispatchAction(new ClientSetDrawnSectorObjectCard(null,null));
             }
         } else {
             throw new IllegalArgumentException(

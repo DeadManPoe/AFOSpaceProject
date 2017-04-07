@@ -4,6 +4,7 @@ import client.*;
 import client_store.ClientStore;
 import client_store_actions.*;
 import common.*;
+import it.polimi.ingsw.cg_19.PlayerState;
 import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.Player;
 import server_store.StoreAction;
@@ -477,15 +478,20 @@ public class GuiManager implements Observer {
             case "@CLIENT_START_TURN":
                 this.startTurnReaction();
                 break;
-            case "@CLIENT_PUBLISH_MSG": {
-                ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
-                this.guiGamePane.appendMsg(castedAction.payload);
+            case "@CLIENT_PUBLISH_CHAT_MSG": {
+                this.publishChatMessageReaction(action);
                 break;
             }
-            case "@CLIENT_ALLOW_TURN":
-                updateGuiState();
+            case "@CLIENT_SET_PLAYER_STATE": {
+                this.setPlayerStateReaction(action);
                 break;
+            }
+            case "@CLIENT_SET_WINNERS": {
+                this.setWinnersReaction(action);
+                break;
+            }
             case "@CLIENT_SET_CURRENT_PUBSUB_NOTIFICATION":
+                this.setCurrentPubSubNotification(action);
                 ClientSetCurrentPubSubNotificationAction castedAction = (ClientSetCurrentPubSubNotificationAction) action;
                 this.guiGamePane.appendMsg(castedAction.payload.getMessage());
                 this.processPSNotification(castedAction.payload);
@@ -494,13 +500,96 @@ public class GuiManager implements Observer {
                 //ClientSetCurrentReqRespNotificationAction castedAction = (ClientSetCurrentReqRespNotificationAction) action;
                 //this.guiGamePane.setStateMessage(castedAction.payload.getMessage());
                 break;
-            case "@CLIENT_DENY_TURN":
-                this.updateGuiState();
-                break;
             case "@CLIENT_STARTABLE_GAME":
                 this.guiGameList.startableGame();
                 break;
         }
+    }
+
+    private void setWinnersReaction(StoreAction action) {
+        ClientSetWinnersAction castedAction = (ClientSetWinnersAction) action;
+        if (castedAction.humansHaveWon && castedAction.aliensHaveWon){
+            this.guiGamePane.setStateMessage("Aliens and Humans have won");
+        }
+        else if (castedAction.humansHaveWon){
+            this.guiGamePane.setStateMessage("Humans have won");
+        }
+        else {
+            this.guiGamePane.setStateMessage("Aliens have won");
+        }
+        this.guiGamePane.changeCardMenu(MenuType.EMPTY);
+        this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+        this.guiGamePane.refreshCardPanel(new ArrayList<ObjectCard>());
+        this.guiGamePane.showEndTurnButton(false);
+    }
+
+    private void setPlayerStateReaction(StoreAction action) {
+        ClientSetPlayerState castedAction = (ClientSetPlayerState) action;
+        if (castedAction.playerState.equals(PlayerState.ESCAPED)){
+            this.guiGamePane.setStateMessage("You've ESCAPED!");
+            this.guiGamePane.changeCardMenu(MenuType.EMPTY);
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+            this.guiGamePane.refreshCardPanel(new ArrayList<ObjectCard>());
+            this.guiGamePane.showEndTurnButton(false);
+        }
+        else if (castedAction.playerState.equals(PlayerState.DEAD)){
+            this.guiGamePane.setStateMessage("You're DEAD!");
+            this.guiGamePane.changeCardMenu(MenuType.EMPTY);
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+            this.guiGamePane.refreshCardPanel(new ArrayList<ObjectCard>());
+            this.guiGamePane.showEndTurnButton(false);
+        }
+    }
+
+    private void setCurrentPubSubNotification(StoreAction action) {
+        ClientSetCurrentPubSubNotificationAction castedAction = (ClientSetCurrentPubSubNotificationAction) action;
+        PlayerToken playerToken = ClientStore.getInstance().getState().player.playerToken;
+        PSClientNotification psNotification = castedAction.psNotification;
+        if (psNotification.getEscapedPlayer() != null) {
+            if (castedAction.psNotification.getEscapedPlayer().equals(playerToken)) {
+                this.guiGamePane.setStateMessage("You're ESCAPED!");
+                this.guiGamePane.changeCardMenu(MenuType.EMPTY);
+                this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+                this.guiGamePane.showEndTurnButton(false);
+            }
+        }
+
+        if (psNotification.getAlienWins() && psNotification.getHumanWins()){
+            new GUIFinalWindow(this.mainFrame,"HumanAlienW.png",true);
+        }
+        else if (psNotification.getHumanWins()){
+            new GUIFinalWindow(this.mainFrame, "HumanW.png",
+                    true);
+        }
+        else if (psNotification.getAlienWins()){
+            new GUIFinalWindow(this.mainFrame, "AlienW.png",
+                    true);
+        }
+        if (psNotification.getDeadPlayers().contains(playerToken)) {
+            this.guiGamePane.setStateMessage("You're DEAD!");
+            this.guiGamePane.changeCardMenu(MenuType.EMPTY);
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+            this.guiGamePane.showEndTurnButton(false);
+        }
+        if (psNotification.getAttackedPlayers().contains(playerToken)) {
+            JOptionPane.showMessageDialog(mainFrame, "You've used your Defence Object card, You're still alive!");
+            ObjectCard toRemove = null;
+            for (ObjectCard c : ClientStore.getInstance().getState().player.privateDeck.getContent()) {
+                if (c instanceof DefenseObjectCard) {
+                    toRemove = c;
+                    break;
+                }
+            }
+            ClientStore.getInstance().getState().player.privateDeck.getContent().remove(toRemove);
+            this.guiGamePane.refreshCardPanel();
+            this.updateCardsPanel();
+            this.guiGamePane.setStateMessage("You're safe!");
+        }
+    }
+
+    private void publishChatMessageReaction(StoreAction action) {
+        ClientSetCurrentChatMessage castedAction = (ClientSetCurrentChatMessage) action;
+        this.guiGamePane.appendMsg(castedAction.message);
     }
 
     private void startTurnReaction() {
@@ -554,7 +643,12 @@ public class GuiManager implements Observer {
 
     private void useObjectCardReaction(StoreAction action) {
         ClientUseObjectCard castedAction = (ClientUseObjectCard) action;
-        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
+        if (castedAction.objectCard instanceof DefenseObjectCard){
+            this.guiGamePane.setStateMessage("You have succesfully defended from an attack");
+        }
+        else {
+            this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
+        }
         if (castedAction.objectCard != null){
             this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.privateDeck.getContent());
         }
@@ -602,6 +696,7 @@ public class GuiManager implements Observer {
             }
         }
         else {
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
             if (clientPrivateDeck.getSize() > 3){
                 this.manyCardHandler();
             }

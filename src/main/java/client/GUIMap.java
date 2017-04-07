@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import client_gui.GuiManager;
+import client_store.InteractionManager;
 import it.polimi.ingsw.cg_19.GameMap;
 
 import javax.swing.ImageIcon;
@@ -38,8 +39,7 @@ import factories.GameMapFactory;
  */
 public class GUIMap extends JLayeredPane {
 	static final long serialVersionUID = 1L;
-	private transient final GuiManager guiManager = GuiManager.getInstance();
-
+	private final InteractionManager interactionManager = InteractionManager.getInstance();
 	private transient List<SectorLabel> sectorsList;
 	private transient List<SectorLabel> lightedSectors;
 
@@ -84,7 +84,7 @@ public class GUIMap extends JLayeredPane {
 		alienMoveItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				guiManager.move(selectedSector.getCoordinate());
+				interactionManager.move(selectedSector.getReferredSector().getCoordinate());
 			}
 		});
 
@@ -93,27 +93,27 @@ public class GUIMap extends JLayeredPane {
 		attackItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				guiManager.attack(selectedSector.getCoordinate());
+				interactionManager.attack(selectedSector.getReferredSector().getCoordinate());
 			}
 		});
 		humanAttack.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				guiManager.attack(selectedSector.getCoordinate());
+				interactionManager.attack(selectedSector.getReferredSector().getCoordinate());
 			}
 		});
 
 		noiseItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				guiManager.noise(selectedSector.getCoordinate());
+				interactionManager.globalNoise(selectedSector.getReferredSector().getCoordinate(), true);
 			}
 		});
 
 		lightItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-                guiManager.lights(selectedSector.getCoordinate());
+                interactionManager.lights(selectedSector.getReferredSector().getCoordinate());
 			}
 		});
 

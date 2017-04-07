@@ -59,7 +59,7 @@ public class GameMakeActionEffect implements Effect {
                     handler.queueNotification(new RemoteMethodCall("sendPubNotification", parameters));
 
                     if (castedAction.payload.action.getType().equals("@GAMEACTION_END_TURN") && game.currentPlayer.playerToken.equals(handler.getPlayerToken())) {
-                        handler.queueNotification(new RemoteMethodCall("allowTurn", new ArrayList<Object>()));
+                        handler.queueNotification(new RemoteMethodCall("startTurn", new ArrayList<Object>()));
                     }
 
                 }
