@@ -267,31 +267,26 @@ public class InteractionManager {
         }
     }
 
-    public void discardCard(int objectCardIndex) {
-        int cardsAmount = this.clientStore.getState().player.privateDeck.getSize();
-        if (objectCardIndex <= cardsAmount && objectCardIndex > 0) {
-            ObjectCard objectCardToDiscard = this.clientStore.getState().player.privateDeck.getCard(
-                    objectCardIndex - 1);
+    public void discardCard(ObjectCard objectCard) {
+        Player player = this.clientStore.getState().player;
+        if (player.privateDeck.getContent().contains(objectCard)){
             ArrayList<Object> parameters = new ArrayList<Object>();
-            StoreAction action = new DiscardAction(objectCardToDiscard);
+            StoreAction action = new DiscardAction(objectCard);
             parameters.add(action);
-            parameters.add(this.clientStore.getState().player.playerToken);
+            parameters.add(player.playerToken);
             try {
                 RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
                 this.processRemoteInvocation(remoteMethodCall);
-            } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
-
-            if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
-                this.clientStore.dispatchAction(new ClientUseObjectCard(objectCardToDiscard));
+            catch (IOException e1){
+                this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
             }
-
-        } else {
-            throw new IllegalArgumentException(
-                    "Undifined card, please try again");
+            if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
+                this.clientStore.dispatchAction(new ClientDiscardObjectCardAction(objectCard));
+            }
         }
-
     }
 
     public void sendMessage(String message) {

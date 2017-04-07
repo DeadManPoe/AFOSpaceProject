@@ -121,7 +121,7 @@ public class GuiManager implements Observer {
         boolean hasAttacked = ClientStore.getInstance().getState().askAttack;
         if (!hasAttacked){
             this.updatePosition();
-            this.guiGamePane.removeAllCardsFromPanel();
+            this.guiGamePane.refreshCardPanel();
             this.updateCardsPanel();
             try {
                 this.handleAction();
@@ -322,7 +322,7 @@ public class GuiManager implements Observer {
                 }
             }
             ClientStore.getInstance().getState().player.privateDeck.getContent().remove(toRemove);
-            this.guiGamePane.removeAllCardsFromPanel();
+            this.guiGamePane.refreshCardPanel();
             this.updateCardsPanel();
             this.guiGamePane.setStateMessage("You're safe!");
         }
@@ -381,7 +381,7 @@ public class GuiManager implements Observer {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        this.guiGamePane.removeAllCardsFromPanel();
+        this.guiGamePane.refreshCardPanel();
         this.updateCardsPanel();
         this.guiGamePane.setStateMessage(ClientStore.getInstance().getState().currentReqRespNotification.getMessage());
     }
@@ -397,7 +397,7 @@ public class GuiManager implements Observer {
             e.printStackTrace();
         }
         this.updatePosition();
-        this.guiGamePane.removeAllCardsFromPanel();
+        this.guiGamePane.refreshCardPanel();
         this.updateCardsPanel();
         try {
             this.handleAction();
@@ -418,7 +418,7 @@ public class GuiManager implements Observer {
     public void discard(ObjectCard card) {
         int index = ClientStore.getInstance().getState().player.privateDeck.getContent().indexOf(card);
         this.interactionManager.discardCard(index + 1);
-        this.guiGamePane.removeAllCardsFromPanel();
+        this.guiGamePane.refreshCardPanel();
         this.updateCardsPanel();
         try {
             this.handleAction();
@@ -468,6 +468,9 @@ public class GuiManager implements Observer {
             case "@CLIENT_TELEPORT_TO_STARTING_SECTOR":
                 this.teleportToStartingSectorReaction();
                 break;
+            case "@CLIENT_DISCARD_OBJECT_CARD":
+                this.discardObjectCardReaction(action);
+                break;
             case "@CLIENT_PUBLISH_MSG": {
                 ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
                 this.guiGamePane.appendMsg(castedAction.payload);
@@ -491,6 +494,14 @@ public class GuiManager implements Observer {
             case "@CLIENT_STARTABLE_GAME":
                 this.guiGameList.startableGame();
                 break;
+        }
+    }
+
+    private void discardObjectCardReaction(StoreAction action) {
+        ClientDiscardObjectCardAction castedAction = (ClientDiscardObjectCardAction) action;
+        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
+        if (castedAction.discardedObjectCard != null){
+            this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.privateDeck.getContent());
         }
     }
 
@@ -518,8 +529,9 @@ public class GuiManager implements Observer {
 
     private void useObjectCardReaction(StoreAction action) {
         ClientUseObjectCard castedAction = (ClientUseObjectCard) action;
+        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
         if (castedAction.objectCard != null){
-            this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
+            this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.privateDeck.getContent());
         }
     }
 

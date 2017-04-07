@@ -1,9 +1,7 @@
 package client;
 
 import common.*;
-import it.polimi.ingsw.cg_19.Player;
 import it.polimi.ingsw.cg_19.PlayerType;
-import it.polimi.ingsw.cg_19.RescueType;
 
 import java.awt.Color;
 import java.awt.GridBagLayout;
@@ -19,7 +17,6 @@ import java.util.logging.Level;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 /**
  * This class is the component that manages the interaction between the user and
@@ -492,7 +489,7 @@ public class GuiInteractionManager implements Observer {
 				}
 			}
 			this.client.getPrivateDeck().getContent().remove(toRemove);
-			this.GUIGamePane.removeAllCardsFromPanel();
+			this.GUIGamePane.refreshCardPanel();
 			this.updateCardsPanel();
 			this.GUIGamePane.setStateMessage("You're safe!");
 		}
@@ -533,7 +530,7 @@ public class GuiInteractionManager implements Observer {
 			NotBoundException {
 		this.client.attack(coords.getX(), coords.getY(), humanAttack);
 		this.updatePosition();
-		this.GUIGamePane.removeAllCardsFromPanel();
+		this.GUIGamePane.refreshCardPanel();
 		this.updateCardsPanel();
 		this.handleAction(this.client.getCurrentNotification());
 	}
@@ -561,7 +558,7 @@ public class GuiInteractionManager implements Observer {
 		this.updateLightedSector(this.client.getCurrentNotification()
 				.getLightedSectors());
 		this.handleAction(this.client.getCurrentNotification());
-		this.GUIGamePane.removeAllCardsFromPanel();
+		this.GUIGamePane.refreshCardPanel();
 		this.updateCardsPanel();
 		this.GUIGamePane.setStateMessage("You've lighted sector "
 				+ coords.getX() + "" + coords.getY());
@@ -576,7 +573,7 @@ public class GuiInteractionManager implements Observer {
 		int index = client.getPrivateDeck().getContent().indexOf(card);
 		this.client.useObjCard(index + 1);
 		this.updatePosition();
-		this.GUIGamePane.removeAllCardsFromPanel();
+		this.GUIGamePane.refreshCardPanel();
 		this.updateCardsPanel();
 		this.handleAction(this.client.getCurrentNotification());
 		if (!this.client.getCurrentNotification().getActionResult())
@@ -595,7 +592,7 @@ public class GuiInteractionManager implements Observer {
 			ClassNotFoundException, IOException, NotBoundException {
 		int index = client.getPrivateDeck().getContent().indexOf(card);
 		this.client.discardCard(index + 1);
-		this.GUIGamePane.removeAllCardsFromPanel();
+		this.GUIGamePane.refreshCardPanel();
 		this.updateCardsPanel();
 		this.handleAction(this.client.getCurrentNotification());
 		this.GUIGamePane.setStateMessage("You've discarded an object card");

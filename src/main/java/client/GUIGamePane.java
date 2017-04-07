@@ -3,6 +3,7 @@ package client;
 import client_gui.GuiManager;
 import client_store.InteractionManager;
 import common.ObjectCard;
+import common.PrivateDeck;
 
 import javax.swing.*;
 import java.awt.*;
@@ -118,7 +119,8 @@ public class GUIGamePane extends JPanel {
         alienDiscardItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                guiManager.discard(selectedObjectCard);
+
+                interactionManager.discard(selectedObjectCard);
             }
         });
         humanDiscardItem.addActionListener(alienDiscardItem
@@ -254,9 +256,11 @@ public class GUIGamePane extends JPanel {
     /**
      * Removes all the cards from the card panel
      */
-    public void removeAllCardsFromPanel() {
+    public void refreshCardPanel(List<ObjectCard> objectCards) {
         cardsPane.removeAll();
-        cardsPane.repaint();
+        for (ObjectCard objectCard : objectCards){
+            this.addCardToPanel(objectCard);
+        }
     }
 
     /**

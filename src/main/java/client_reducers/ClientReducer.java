@@ -34,6 +34,8 @@ public class ClientReducer implements Reducer {
                 return this.setPlayer(action,castedState);
             case "@CLIENT_ADRENALINE":
                 return this.adrenaline(action,castedState);
+            case "@CLIENT_DISCARD_OBJECT_CARD":
+                return this.discardObjectCard(action, castedState);
             case "@CLIENT_END_TURN":
                 return this.endTurn(action,castedState);
             case "@CLIENT_SET_AVAILABLE_GAMES":
@@ -57,6 +59,14 @@ public class ClientReducer implements Reducer {
             case "@CLIENT_SET_DRAWN_SECTOR_OBJECT_CARD":
                 return this.setDrawnSectorObjectCard(action, castedState);
 
+        }
+        return state;
+    }
+
+    private State discardObjectCard(StoreAction action, ClientState state) {
+        ClientDiscardObjectCardAction castedAction = (ClientDiscardObjectCardAction) action;
+        if (castedAction.discardedObjectCard != null){
+            state.player.privateDeck.removeCard(castedAction.discardedObjectCard);
         }
         return state;
     }
