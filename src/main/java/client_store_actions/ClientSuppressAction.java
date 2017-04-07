@@ -7,10 +7,10 @@ import server_store.StoreAction;
  */
 public class ClientSuppressAction extends StoreAction {
 
-    public boolean payload;
+    public final boolean isSuppressed;
 
     public ClientSuppressAction(boolean isSuppressed) {
         this.type = "@CLIENT_SUPPRESS";
-        this.payload = isSuppressed;
+        this.isSuppressed = isSuppressed;
     }
 }

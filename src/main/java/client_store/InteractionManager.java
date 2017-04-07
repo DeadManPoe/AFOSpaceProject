@@ -154,7 +154,7 @@ public class InteractionManager {
         Player player = this.clientStore.getState().player;
         if (player.privateDeck.getContent().contains(objectCard)){
             if (objectCard instanceof LightsObjectCard) {
-                this.clientStore.dispatchAction(new ClientAskLightsAction(true));
+                this.clientStore.dispatchAction(new ClientAskSectorToLightAction(true));
             } else if (objectCard instanceof AttackObjectCard) {
                 this.clientStore.dispatchAction(new ClientAskAttackAction(true));
             } else {
@@ -175,9 +175,12 @@ public class InteractionManager {
                 if (this.clientStore.getState().currentReqRespNotification.getActionResult()){
                     this.clientStore.dispatchAction(new ClientUseObjectCard(objectCard));
                     if (objectCard instanceof TeleportObjectCard) {
-                        this.clientStore.dispatchAction(new ClientTeleportAction());
+                        this.clientStore.dispatchAction(new ClientTeleportToStartingSectorAction());
                     } else if (objectCard instanceof SuppressorObjectCard) {
                         this.clientStore.dispatchAction(new ClientSuppressAction(true));
+                    }
+                    else if (objectCard instanceof AdrenalineObjectCard){
+                        this.clientStore.dispatchAction(new ClientAdrenlineAction());
                     }
                 }
                 else {
@@ -240,7 +243,7 @@ public class InteractionManager {
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
-            this.clientStore.dispatchAction(new ClientAskLightsAction(false));
+            this.clientStore.dispatchAction(new ClientAskSectorToLightAction(false));
             this.clientStore.dispatchAction(new ClientUseObjectCard(lightsCard));
         } else {
             throw new IllegalArgumentException(

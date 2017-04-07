@@ -441,14 +441,12 @@ public class GuiManager implements Observer {
     public void update(Observable o, Object arg) {
         StoreAction action = (StoreAction) arg;
         switch (action.getType()) {
-            case "@CLIENT_SET_AVAILABLE_GAMES": {
+            case "@CLIENT_SET_AVAILABLE_GAMES":
                 this.setAvailableGamesReaction(action);
                 break;
-            }
-            case "@CLIENT_SET_CONNECTION_ACTIVE": {
+            case "@CLIENT_SET_CONNECTION_ACTIVE":
                 this.setConnectionActiveReaction(action);
                 break;
-            }
             case "@CLIENT_START_GAME":
                 this.startGameReaction();
                 break;
@@ -461,6 +459,15 @@ public class GuiManager implements Observer {
             case "@CLIENT_USE_OBJECT_CARD":
                 this.useObjectCardReaction(action);
                 break;
+            case "@CLIENT_ASK_FOR_SECTOR_TO_LIGHT":
+                this.askForSectorToLightReaction(action);
+                break;
+            case "@CLIENT_ASK_FOR_SECTOR_TO_ATTACK":
+                this.askForSectorToAttackReaction(action);
+                break;
+            case "@CLIENT_TELEPORT_TO_STARTING_SECTOR":
+                this.teleportToStartingSectorReaction();
+                break;
             case "@CLIENT_PUBLISH_MSG": {
                 ClientSetCurrentMessage castedAction = (ClientSetCurrentMessage) action;
                 this.guiGamePane.appendMsg(castedAction.payload);
@@ -469,12 +476,11 @@ public class GuiManager implements Observer {
             case "@CLIENT_ALLOW_TURN":
                 updateGuiState();
                 break;
-            case "@CLIENT_SET_CURRENT_PUBSUB_NOTIFICATION": {
+            case "@CLIENT_SET_CURRENT_PUBSUB_NOTIFICATION":
                 ClientSetCurrentPubSubNotificationAction castedAction = (ClientSetCurrentPubSubNotificationAction) action;
                 this.guiGamePane.appendMsg(castedAction.payload.getMessage());
                 this.processPSNotification(castedAction.payload);
                 break;
-            }
             case "@CLIENT_SET_CURRENT_REQRESP_NOTIFICATION":
                 //ClientSetCurrentReqRespNotificationAction castedAction = (ClientSetCurrentReqRespNotificationAction) action;
                 //this.guiGamePane.setStateMessage(castedAction.payload.getMessage());
@@ -488,9 +494,30 @@ public class GuiManager implements Observer {
         }
     }
 
+    private void teleportToStartingSectorReaction() {
+        Player player = this.clientStore.getState().player;
+        this.guiGamePane.getMapPane().delightAllSectors();
+        this.guiGamePane.getMapPane().lightSector(player.currentSector.getCoordinate(),"Y",player.name);
+    }
+
+    private void askForSectorToAttackReaction(StoreAction action) {
+        ClientAskAttackAction castedAction = (ClientAskAttackAction) action;
+        if (castedAction.toBeAsked){
+            this.guiGamePane.setStateMessage("Indicate the sector to attack");
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.ATTACK_MENU);
+        }
+    }
+
+    private void askForSectorToLightReaction(StoreAction action) {
+        ClientAskSectorToLightAction castedAction = (ClientAskSectorToLightAction) action;
+        if (castedAction.toBeAsked){
+            this.guiGamePane.setStateMessage("Indicate the sector to light");
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.LIGHT_MENU);
+        }
+    }
+
     private void useObjectCardReaction(StoreAction action) {
         ClientUseObjectCard castedAction = (ClientUseObjectCard) action;
-
         if (castedAction.objectCard != null){
             this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
         }

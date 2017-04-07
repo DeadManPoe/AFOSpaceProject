@@ -26,12 +26,14 @@ public class ClientReducer implements Reducer {
                 return this.allowTurn(action,castedState);
             case "@CLIENT_MOVE_TO_SECTOR":
                 return this.moveToSector(action,castedState);
-            case "@CLIENT_TELEPORT":
-                return this.teleport(action,castedState);
+            case "@CLIENT_TELEPORT_TO_STARTING_SECTOR":
+                return this.teleportToStartingSector(action,castedState);
             case "@CLIENT_USE_OBJECT_CARD":
                 return this.useObjectCard(action,castedState);
             case "@CLIENT_SET_PLAYER":
                 return this.setPlayer(action,castedState);
+            case "@CLIENT_ADRENALINE":
+                return this.adrenaline(action,castedState);
             case "@CLIENT_END_TURN":
                 return this.endTurn(action,castedState);
             case "@CLIENT_SET_AVAILABLE_GAMES":
@@ -44,9 +46,9 @@ public class ClientReducer implements Reducer {
                 return this.setPS(action,castedState);
             case "@CLIENT_DENY_TURN":
                 return this.denyTurn(action,castedState);
-            case "@CLIENT_ASK_LIGHTS":
-                return this.askLights(action,castedState);
-            case "@CLIENT_ASK_ATTACK":
+            case "@CLIENT_ASK_SECTOR_TO_LIGHT":
+                return this.askSectorToLight(action,castedState);
+            case "@CLIENT_ASK_SECTOR_TO_ATTACK":
                 return this.askAttack(action,castedState);
             case "@CLIENT_SUPPRESS":
                 return this.suppress(action, castedState);
@@ -56,6 +58,11 @@ public class ClientReducer implements Reducer {
                 return this.setDrawnSectorObjectCard(action, castedState);
 
         }
+        return state;
+    }
+
+    private State adrenaline(StoreAction action, ClientState state) {
+        state.player.isAdrenalined = true;
         return state;
     }
 
@@ -80,14 +87,14 @@ public class ClientReducer implements Reducer {
         return state;
     }
 
-    private State askLights(StoreAction action, ClientState state) {
-        ClientAskLightsAction castedAction = (ClientAskLightsAction) action;
-        state.askLights = castedAction.payload;
+    private State askSectorToLight(StoreAction action, ClientState state) {
+        ClientAskSectorToLightAction castedAction = (ClientAskSectorToLightAction) action;
+        state.askLights = castedAction.toBeAsked;
         return state;
     }
     private State askAttack(StoreAction action, ClientState state){
         ClientAskAttackAction castedAction = (ClientAskAttackAction) action;
-        state.askAttack = castedAction.payload;
+        state.askAttack = castedAction.toBeAsked;
         return state;
     }
 
@@ -143,7 +150,7 @@ public class ClientReducer implements Reducer {
         return state;
     }
 
-    private State teleport(StoreAction action, ClientState state) {
+    private State teleportToStartingSector(StoreAction action, ClientState state) {
         state.player.currentSector = state.gameMap.getHumanSector();
         return state;
     }
