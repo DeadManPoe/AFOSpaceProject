@@ -11,14 +11,14 @@ import server_store.StoreAction;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.List;
-import java.util.Timer;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by giorgiopea on 27/03/17.
+ * A manager that orchestrates all the gui components of this application.
+ * It observes the state of this application and implements view business logic in response to state changes.
  */
 public class GuiManager implements Observer {
 
@@ -37,6 +37,9 @@ public class GuiManager implements Observer {
         ClientStore.getInstance().observeState(this);
     }
 
+    /**
+     * Inits all the gui components of the application
+     */
     public void initGuiComponents() {
         this.mainFrame = new JFrame("Escape from aliens in the outer space");
         this.guiInitialWindow = new GUInitialWindow();
@@ -51,7 +54,9 @@ public class GuiManager implements Observer {
         this.guiInitialWindow.setVisible(true);
     }
 
-
+    /**
+     * Shows on the {@link GUIMap} the new position of the client.
+     */
     private void updatePosition() {
         Coordinate newCoordinates = this.clientStore.getState().player.currentSector.getCoordinate();
         String playerName = this.clientStore.getState().player.name;
@@ -66,7 +71,10 @@ public class GuiManager implements Observer {
     }
 
 
-
+    /**
+     * Changes the card/map menus as a consequence of the excessive number of object
+     * card in the client's private deck, so that the client is forced to discard or use one of those.
+     */
     private void manyCardHandler() {
         PlayerType playerType = this.clientStore.getState().player.playerToken.playerType;
         if (playerType.equals(PlayerType.HUMAN)) {
@@ -79,29 +87,6 @@ public class GuiManager implements Observer {
         this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
     }
 
-    private void showMessageBox(String message) {
-        JOptionPane.showMessageDialog(mainFrame, message);
-    }
-
-
-
-    /**
-     * Updates the map panel after using a light object card It displays the
-     * lighted sector and evidence the player in that sector
-     *
-     * @param sectors The list of sectord to light
-     */
-    private void updateLightedSector(List<Sector> sectors) {
-        String nameList = "";
-        for (Sector s : sectors) {
-            nameList = "";
-            for (server_store.Player p : s.getPlayers()) {
-                nameList += " " + p.name;
-            }
-            this.guiGamePane.getMapPane().lightSector(s.getCoordinate(), "",
-                    nameList);
-        }
-    }
 
     @Override
     public void update(Observable o, Object arg) {
@@ -160,15 +145,20 @@ public class GuiManager implements Observer {
                 break;
         }
     }
+
+    /**
+     * A reaction to the fact that either humans or aliens or both have won the game.
+     * This reaction includes displaying some messages, updating card/map menus and disabling the 'end turn' button.
+     *
+     * @param action The action that has triggered this reaction.
+     */
     private void setWinnersReaction(StoreAction action) {
         ClientSetWinnersAction castedAction = (ClientSetWinnersAction) action;
-        if (castedAction.humansHaveWon && castedAction.aliensHaveWon){
+        if (castedAction.humansHaveWon && castedAction.aliensHaveWon) {
             this.guiGamePane.setStateMessage("Aliens and Humans have won");
-        }
-        else if (castedAction.humansHaveWon){
+        } else if (castedAction.humansHaveWon) {
             this.guiGamePane.setStateMessage("Humans have won");
-        }
-        else {
+        } else {
             this.guiGamePane.setStateMessage("Aliens have won");
         }
         this.guiGamePane.changeCardMenu(MenuType.EMPTY);
@@ -177,16 +167,21 @@ public class GuiManager implements Observer {
         this.guiGamePane.showEndTurnButton(false);
     }
 
+    /**
+     * A reaction to some changes in the game state of the client.
+     * This reaction includes updating card/map menus, refreshing the object cards panel and displaying some messages.
+     *
+     * @param action The action that has triggered this reaction.
+     */
     private void setPlayerStateReaction(StoreAction action) {
         ClientSetPlayerState castedAction = (ClientSetPlayerState) action;
-        if (castedAction.playerState.equals(PlayerState.ESCAPED)){
+        if (castedAction.playerState.equals(PlayerState.ESCAPED)) {
             this.guiGamePane.setStateMessage("You've ESCAPED!");
             this.guiGamePane.changeCardMenu(MenuType.EMPTY);
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
             this.guiGamePane.refreshCardPanel(new ArrayList<ObjectCard>());
             this.guiGamePane.showEndTurnButton(false);
-        }
-        else if (castedAction.playerState.equals(PlayerState.DEAD)){
+        } else if (castedAction.playerState.equals(PlayerState.DEAD)) {
             this.guiGamePane.setStateMessage("You're DEAD!");
             this.guiGamePane.changeCardMenu(MenuType.EMPTY);
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
@@ -194,136 +189,190 @@ public class GuiManager implements Observer {
             this.guiGamePane.showEndTurnButton(false);
         }
     }
+
+    /**
+     * A reaction to publishing a message in the game chat by the client.
+     * This reaction includes showing the actual message in the chat panel .
+     *
+     * @param action The action that has triggered this reaction.
+     */
     private void publishChatMessageReaction(StoreAction action) {
         ClientSetCurrentChatMessage castedAction = (ClientSetCurrentChatMessage) action;
         this.guiGamePane.appendMsg(castedAction.message);
     }
 
+    /**
+     * A reaction to starting his turn by the client.
+     * This reaction includes setting/resetting of cards/map menus.
+     */
     private void startTurnReaction() {
         Player player = this.clientStore.getState().player;
         this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        if (player.playerToken.playerType.equals(PlayerType.ALIEN)){
+        if (player.playerToken.playerType.equals(PlayerType.ALIEN)) {
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.ALIEN_INITIAL);
-        }
-        else {
+        } else {
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.HUMAN_INITIAL);
             this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_MENU);
         }
     }
 
+    /**
+     * A reaction to ending his turn by the client.
+     * This reaction includes setting/resetting cards/map menus and disabling the end turn button.
+     *
+     * @param action The action that has triggered this reaction.
+     */
     private void endTurnReaction(StoreAction action) {
         ClientEndTurnAction castedAction = (ClientEndTurnAction) action;
         this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        if (castedAction.isActionServerValidated){
+        if (castedAction.isActionServerValidated) {
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
             this.guiGamePane.changeCardMenu(MenuType.EMPTY);
             this.guiGamePane.showEndTurnButton(false);
         }
     }
 
+    /**
+     * A reaction to discarding object card by the client.
+     * This reaction includes refreshing the object card panel.
+     *
+     * @param action The action that has triggered this reaction.
+     */
     private void discardObjectCardReaction(StoreAction action) {
         ClientDiscardObjectCardAction castedAction = (ClientDiscardObjectCardAction) action;
         this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        if (castedAction.isActionServerValidated){
+        if (castedAction.isActionServerValidated) {
             this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.privateDeck.getContent());
         }
     }
 
+    /**
+     * A reaction to using a teleport object card by the client.
+     * This reaction includes moving the client to his original sector.
+     */
     private void teleportToStartingSectorReaction() {
         Player player = this.clientStore.getState().player;
         this.guiGamePane.getMapPane().delightAllSectors();
-        this.guiGamePane.getMapPane().lightSector(player.currentSector.getCoordinate(),"Y",player.name);
+        this.guiGamePane.getMapPane().lightSector(player.currentSector.getCoordinate(), "Y", player.name);
     }
 
+    /**
+     * A reaction to using an attack object card by the client.
+     * This reaction includes asking to the client what sector he wants to attack and
+     * setting/resetting cards/map menus.
+     *
+     * @param action The action that has triggered this reaction.
+     */
     private void askForSectorToAttackReaction(StoreAction action) {
         ClientAskAttackAction castedAction = (ClientAskAttackAction) action;
-        if (castedAction.toBeAsked){
+        if (castedAction.toBeAsked) {
             this.guiGamePane.setStateMessage("Indicate the sector to attack");
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.ATTACK_MENU);
         }
     }
 
+    /**
+     * A reaction to using a lights sector card by the client. This
+     * reaction includes asking to the client what sector he wants to light and includes setting/resetting
+     * cards/map menus.
+     *
+     * @param action The action that has triggered this reaction.
+     */
     private void askForSectorToLightReaction(StoreAction action) {
         ClientAskSectorToLightAction castedAction = (ClientAskSectorToLightAction) action;
-        if (castedAction.toBeAsked){
+        if (castedAction.toBeAsked) {
             this.guiGamePane.setStateMessage("Indicate the sector to light");
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.LIGHT_MENU);
         }
     }
 
+    /**
+     * A reaction to using an object card by the client.
+     * This reaction includes updating the object cards shown in the card panel and includes displaying various messages.
+     *
+     * @param action The action that has triggered this reaction.
+     */
     private void useObjectCardReaction(StoreAction action) {
         ClientUseObjectCard castedAction = (ClientUseObjectCard) action;
         this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        if (castedAction.isServerValidated){
-            if (castedAction.objectCard instanceof DefenseObjectCard){
+        if (castedAction.isServerValidated) {
+            if (castedAction.objectCard instanceof DefenseObjectCard) {
                 this.guiGamePane.setStateMessage("You have succesfully defended from an attack");
             }
-            if (castedAction.objectCard instanceof LightsObjectCard){
-                for (Sector sector : this.clientStore.getState().currentReqRespNotification.getLightedSectors()){
-                    this.guiGamePane.getMapPane().lightSector(sector.getCoordinate(),"A","Here there's an alien");
+            if (castedAction.objectCard instanceof LightsObjectCard) {
+                for (Sector sector : this.clientStore.getState().currentReqRespNotification.getLightedSectors()) {
+                    this.guiGamePane.getMapPane().lightSector(sector.getCoordinate(), "A", "Here there's an alien");
                 }
             }
             this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.privateDeck.getContent());
         }
     }
 
-
+    /**
+     * A reaction to moving to a sector by the client. This reaction includes
+     * updating gui components so that the new position of the client is shown on the map, and
+     * includes setting/resetting map/cards menus
+     *
+     * @param action The action that has triggered this reaction.
+     */
     private void moveToSectorReaction(StoreAction action) {
         ClientMoveToSectorAction castedAction = (ClientMoveToSectorAction) action;
         this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        if (castedAction.isServerValidated){
+        if (castedAction.isServerValidated) {
             this.updatePosition();
             this.guiGamePane.showEndTurnButton(true);
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
         }
     }
 
+    /**
+     * A reaction to object/sector cards by the client. This reaction includes
+     * setting/resetting map/card menus and verifying if there are too many object cards and
+     * so one must be discarded
+     *
+     * @param action The action that has triggered this reaction.
+     */
     private void setDrawnSectorObjectCardReaction(StoreAction action) {
         ClientSetDrawnSectorObjectCard castedAction = (ClientSetDrawnSectorObjectCard) action;
         CardSplashScreen cardSplashScreen = new CardSplashScreen(this.mainFrame);
         cardSplashScreen.showCards(castedAction.drawnSectorCard, castedAction.drawnObjectCard);
         PrivateDeck clientPrivateDeck = this.clientStore.getState().player.privateDeck;
 
-        if (!castedAction.isActionServerValidated){
+        //The action has not been validated by the server so only a message is shown
+        if (!castedAction.isActionServerValidated) {
             this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
             return;
         }
 
-        if (castedAction.drawnSectorCard instanceof GlobalNoiseSectorCard){
+        if (castedAction.drawnSectorCard instanceof GlobalNoiseSectorCard) {
             this.guiGamePane
                     .setStateMessage("Select a sector for the global noise card");
             this.guiGamePane.getMapPane().changeMapMenu(
                     MenuType.NOISE_MENU);
             this.guiGamePane.showEndTurnButton(false);
-        }
-        else if ( castedAction.drawnSectorCard instanceof LocalNoiseSectorCard){
+        } else if (castedAction.drawnSectorCard instanceof LocalNoiseSectorCard) {
             this.guiGamePane.setStateMessage("You will make noise in your sector");
-            if (clientPrivateDeck.getSize() > 3){
+            if (clientPrivateDeck.getSize() > 3) {
                 this.manyCardHandler();
-            }
-            else {
+            } else {
                 this.guiGamePane.showEndTurnButton(true);
             }
-        }
-        else if ( castedAction.drawnSectorCard instanceof SilenceSectorCard){
+        } else if (castedAction.drawnSectorCard instanceof SilenceSectorCard) {
             this.guiGamePane.setStateMessage("You will make no noise");
-            if (clientPrivateDeck.getSize() > 3){
+            if (clientPrivateDeck.getSize() > 3) {
                 this.manyCardHandler();
-            }
-            else {
+            } else {
                 this.guiGamePane.showEndTurnButton(true);
             }
-        }
-        else {
+        } else {
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-            if (clientPrivateDeck.getSize() > 3){
+            if (clientPrivateDeck.getSize() > 3) {
                 this.manyCardHandler();
-            }
-            else {
+            } else {
                 this.guiGamePane.showEndTurnButton(true);
             }
         }
-        if (castedAction.drawnObjectCard != null){
+        if (castedAction.drawnObjectCard != null) {
             this.guiGamePane.addCardToPanel(castedAction.drawnObjectCard);
         }
 
@@ -335,12 +384,11 @@ public class GuiManager implements Observer {
      */
     private void startGameReaction() {
         Player player = this.clientStore.getState().player;
-        String characterInfoMsg = "";
-        if (player.playerToken.playerType.equals(PlayerType.ALIEN)){
+        String characterInfoMsg;
+        if (player.playerToken.playerType.equals(PlayerType.ALIEN)) {
             characterInfoMsg = player.name + " | ALIEN";
             this.guiGamePane.setSectorMenu(MenuType.ALIEN_INITIAL);
-        }
-        else {
+        } else {
             characterInfoMsg = player.name + " | HUMAN";
             this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
         }
@@ -356,9 +404,10 @@ public class GuiManager implements Observer {
     }
 
     /**
-     * Make the different gui components of the app signal the absence of a connection
-     * with the server
-     * @param action The {@link server_store.StoreAction} that has caused this behavior
+     * Makes the different gui components of the app signal the absence of a connection
+     * with the server.
+     *
+     * @param action The {@link server_store.StoreAction} that has caused this behavior.
      */
     private void setConnectionActiveReaction(StoreAction action) {
         ClientSetConnectionActiveAction castedAction = (ClientSetConnectionActiveAction) action;
@@ -368,8 +417,9 @@ public class GuiManager implements Observer {
     }
 
     /**
-     * Switches to the {@link client.GUIGameList} view from the {@link client.GUInitialWindow}
-     * @param action The {@link server_store.StoreAction} that has caused this behavior
+     * Switches to the {@link client.GUIGameList} view from the {@link client.GUInitialWindow}.
+     *
+     * @param action The {@link server_store.StoreAction} that has caused this behavior.
      */
     private void setAvailableGamesReaction(StoreAction action) {
         ClientSetAvailableGamesAction castedAction = (ClientSetAvailableGamesAction) action;

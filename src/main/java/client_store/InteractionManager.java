@@ -497,15 +497,7 @@ public class InteractionManager {
                     .getMethodParameters();
             Class<?>[] parametersClasses = new Class[parameters.size()];
             for (int i = 0; i < parameters.size(); i++) {
-                if (parameters.get(i).getClass().getName().contains("action")
-                        || parameters.get(i).getClass().getName()
-                        .contains("ClientNotification")) {
-                    parametersClasses[i] = parameters.get(i).getClass()
-                            .getSuperclass();
-                } else {
-                    parametersClasses[i] = parameters.get(i).getClass();
-                }
-
+                parametersClasses[i] = parameters.get(i).getClass();
             }
             this.getClass().getDeclaredMethod(methodName, parametersClasses)
                     .invoke(this, parameters.toArray());
