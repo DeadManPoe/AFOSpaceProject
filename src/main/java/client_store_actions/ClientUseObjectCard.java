@@ -8,10 +8,12 @@ import server_store.StoreAction;
  */
 public class ClientUseObjectCard extends StoreAction {
 
-    public ObjectCard objectCard;
+    public final ObjectCard objectCard;
+    public final boolean isServerValidated;
 
-    public ClientUseObjectCard(ObjectCard objectCard) {
-        this.type = "@CLIENT_USE_OBJECT_CARD";
+    public ClientUseObjectCard(ObjectCard objectCard, boolean isServerValidated) {
+        super("@CLIENT_USE_OBJECT_CARD");
         this.objectCard = objectCard;
+        this.isServerValidated = isServerValidated;
     }
 }

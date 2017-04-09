@@ -621,13 +621,11 @@ public class GuiManager implements Observer {
 
     private void useObjectCardReaction(StoreAction action) {
         ClientUseObjectCard castedAction = (ClientUseObjectCard) action;
-        if (castedAction.objectCard instanceof DefenseObjectCard){
-            this.guiGamePane.setStateMessage("You have succesfully defended from an attack");
-        }
-        else {
-            this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        }
-        if (castedAction.objectCard != null){
+        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
+        if (castedAction.isServerValidated){
+            if (castedAction.objectCard instanceof DefenseObjectCard){
+                this.guiGamePane.setStateMessage("You have succesfully defended from an attack");
+            }
             this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.privateDeck.getContent());
         }
     }

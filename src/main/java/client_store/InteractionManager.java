@@ -173,6 +173,10 @@ public class InteractionManager {
         this.clientStore.dispatchAction(new ClientStartableGameAction());
     }
 
+    /**
+     * Makes the client use an object card. This action is validated by contacting the game server
+     * @param objectCard The object card to be used
+     */
     public void useObjCard(ObjectCard objectCard){
         Player player = this.clientStore.getState().player;
         if (player.privateDeck.getContent().contains(objectCard)){
@@ -195,8 +199,9 @@ public class InteractionManager {
                 catch ( IOException e1){
                     this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
                 }
-                if (this.clientStore.getState().currentReqRespNotification.getActionResult()){
-                    this.clientStore.dispatchAction(new ClientUseObjectCard(objectCard));
+                boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
+                this.clientStore.dispatchAction(new ClientUseObjectCard(objectCard,isActionServerValidated));
+                if (isActionServerValidated){
                     if (objectCard instanceof TeleportObjectCard) {
                         this.clientStore.dispatchAction(new ClientTeleportToStartingSectorAction());
                     } else if (objectCard instanceof SuppressorObjectCard) {
@@ -205,9 +210,6 @@ public class InteractionManager {
                     else if (objectCard instanceof AdrenalineObjectCard){
                         this.clientStore.dispatchAction(new ClientAdrenlineAction());
                     }
-                }
-                else {
-                    this.clientStore.dispatchAction(new ClientUseObjectCard(null));
                 }
 
             }

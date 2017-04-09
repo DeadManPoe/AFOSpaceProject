@@ -173,7 +173,7 @@ public class ClientReducer implements Reducer {
 
     private State useObjectCard(StoreAction action, ClientState state) {
         ClientUseObjectCard castedAction = (ClientUseObjectCard) action;
-        if ( castedAction.objectCard != null){
+        if ( castedAction.isServerValidated){
             state.player.privateDeck.removeCard(castedAction.objectCard);
         }
         return state;
