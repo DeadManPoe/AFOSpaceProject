@@ -19,7 +19,7 @@ public class PlayerTokenTest {
 	public void testPlayerToken() {
 		PlayerType type = PlayerType.HUMAN;
 		PlayerToken token = new PlayerToken(type,null);
-		assertEquals(type, token.getPlayerType());
+		assertEquals(type, token.playerType);
 	}
 
 	/**

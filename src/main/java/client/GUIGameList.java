@@ -5,26 +5,14 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import client_gui.GuiManager;
-import client_store.ClientStore;
-import client_store.InteractionManager;
 import common.GamePublicData;
-import server.GameStatus;
 
 /**
  * Represents the panel that shows the list of available games
@@ -51,11 +39,9 @@ public class GUIGameList extends JPanel {
      */
     public void load() {
         add(this.connectionAlert);
-        this.setVisible(false);
         stateMessage.setFont(new Font("Arial", Font.BOLD, 22));
         stateMessage.setForeground(Color.WHITE);
         stateMessage.setAlignmentX(CENTER_ALIGNMENT);
-
 
         gameTables = new JTable();
         this.gameList = new DefaultTableModel(){

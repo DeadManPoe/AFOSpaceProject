@@ -1,18 +1,17 @@
 package client_store_effects;
 
-import client.GamePollingThread;
 import client.ClientState;
 import server_store.Effect;
 import server_store.State;
 import server_store.StoreAction;
 
 /**
- * Created by giorgiopea on 05/04/17.
+ * Created by giorgiopea on 09/04/17.
  */
-public class SetAvailableGamesEffect implements Effect {
+public class ClientStartGameEffect implements Effect {
     @Override
     public void apply(StoreAction action, State state) {
         ClientState castedState = (ClientState) state;
-
+        castedState.gamePollingTimer.cancel();
     }
 }

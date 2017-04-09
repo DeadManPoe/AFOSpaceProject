@@ -1,10 +1,9 @@
-package client_store;
+package client;
 
 import common.*;
 import it.polimi.ingsw.cg_19.GameMap;
 import server_store.Player;
-import client_store.PubSubHandler;
-import server_store.ReqRespHandler;
+import client.PubSubHandler;
 import server_store.State;
 
 import java.io.Serializable;
@@ -41,7 +40,7 @@ public class ClientState extends State implements Serializable {
         this.tcpPort = 29999;
         this.host = "localhost";
         this.player = new Player(null,null);
-        this.gameListPollingPeriod = 5000;
+        this.gameListPollingPeriod = 10000;
     }
 
     @Override
@@ -55,10 +54,18 @@ public class ClientState extends State implements Serializable {
                 ", gameMap=" + gameMap +
                 ", isGameStarted=" + isGameStarted +
                 ", isMyTurn=" + isMyTurn +
+                ", startableGame=" + startableGame +
                 ", currentReqRespNotification=" + currentReqRespNotification +
                 ", askLights=" + askLights +
                 ", askAttack=" + askAttack +
                 ", gamePollingTimer=" + gamePollingTimer +
+                ", lastChatMessage='" + lastChatMessage + '\'' +
+                ", currentPubSubNotification=" + currentPubSubNotification +
+                ", gameListPollingPeriod=" + gameListPollingPeriod +
+                ", connectionActive=" + connectionActive +
+                ", drawnSectorCard=" + drawnSectorCard +
+                ", aliensHaveWon=" + aliensHaveWon +
+                ", humansHaveWon=" + humansHaveWon +
                 '}';
     }
 }

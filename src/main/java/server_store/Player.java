@@ -26,10 +26,12 @@ public class Player implements Serializable {
     public volatile String name;
 
     public Player(String name, PlayerToken playerToken) {
-        if (playerToken.playerType == PlayerType.HUMAN) {
-            this.speed = 1;
-        } else {
-            this.speed = 2;
+        if (playerToken != null){
+            if (playerToken.playerType == PlayerType.HUMAN) {
+                this.speed = 1;
+            } else {
+                this.speed = 2;
+            }
         }
         this.playerState = PlayerState.ALIVE;
         this.privateDeck = new PrivateDeck();

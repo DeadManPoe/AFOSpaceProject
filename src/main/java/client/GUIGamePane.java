@@ -1,7 +1,5 @@
 package client;
 
-import client_gui.GuiManager;
-import client_store.InteractionManager;
 import common.ObjectCard;
 
 import javax.swing.*;

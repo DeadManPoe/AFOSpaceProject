@@ -1,7 +1,7 @@
 package client_reducers;
 
-import client_store.ClientState;
-import client_store.PubSubHandler;
+import client.ClientState;
+import client.PubSubHandler;
 import client_store_actions.ClientAddPubSubHandlerAction;
 import server_store.Reducer;
 import server_store.State;

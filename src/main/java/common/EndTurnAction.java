@@ -12,6 +12,6 @@ import server_store.StoreAction;
 public class EndTurnAction extends StoreAction {
 
     public EndTurnAction() {
-        this.type ="@GAMEACTION_END_TURN";
+        super("@GAMEACTION_END_TURN");
     }
 }

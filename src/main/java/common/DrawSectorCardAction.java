@@ -12,6 +12,6 @@ import server_store.StoreAction;
 public class DrawSectorCardAction extends StoreAction {
 
 	public DrawSectorCardAction() {
-        this.type = "@GAMEACTION_DRAW_SECTOR_CARD";
+        super("@GAMEACTION_DRAW_SECTOR_CARD");
 	}
 }

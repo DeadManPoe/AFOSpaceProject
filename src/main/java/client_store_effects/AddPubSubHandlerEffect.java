@@ -1,6 +1,6 @@
 package client_store_effects;
 
-import client_store.ClientState;
+import client.ClientState;
 import server_store.Effect;
 import server_store.State;
 import server_store.StoreAction;

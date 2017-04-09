@@ -1,15 +1,8 @@
 package client;
 
-import client_gui.GuiManager;
-import client_store.InteractionManager;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.rmi.NotBoundException;
-import java.util.logging.Level;
 
 import javax.swing.*;
 

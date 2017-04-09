@@ -15,7 +15,7 @@ public class MoveAttackAction extends StoreAction {
     public Sector payload;
 
 	public MoveAttackAction(Sector target) {
-        this.type = "@GAMEACTION_MOVE_ATTACK";
+        super("@GAMEACTION_MOVE_ATTACK");
         this.payload = target;
 	}
 }

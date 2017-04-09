@@ -1,5 +1,6 @@
-package client_store;
+package client;
 
+import client_store.ClientStore;
 import client_store_actions.*;
 import common.*;
 import it.polimi.ingsw.cg_19.PlayerState;

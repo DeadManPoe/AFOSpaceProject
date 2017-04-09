@@ -1,9 +1,9 @@
-package client_store;
+package client;
 
+import client_store.ClientStore;
 import client_store_actions.ClientSetConnectionActiveAction;
 import common.RemoteMethodCall;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.lang.reflect.InvocationTargetException;

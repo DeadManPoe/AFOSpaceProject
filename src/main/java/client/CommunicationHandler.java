@@ -1,15 +1,13 @@
-package client_store;
+package client;
 
+import client_store.ClientStore;
 import client_store_actions.ClientAddPubSubHandlerAction;
 import common.RemoteMethodCall;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
-import java.rmi.NotBoundException;
-import java.util.concurrent.ExecutorService;
 
 /**
  * Created by giorgiopea on 25/03/17.

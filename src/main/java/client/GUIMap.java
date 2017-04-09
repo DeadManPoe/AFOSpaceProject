@@ -8,7 +8,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import client_store.InteractionManager;
 import it.polimi.ingsw.cg_19.GameMap;
 
 import javax.swing.ImageIcon;

@@ -1,6 +1,7 @@
 package client_reducers;
 
-import client_store.ClientState;
+import client.ClientState;
+import client.GamePollingThread;
 import client_store_actions.*;
 import factories.GameMapFactory;
 import it.polimi.ingsw.cg_19.PlayerType;
@@ -146,7 +147,10 @@ public class ClientReducer implements Reducer {
     private State setAvailableGames(StoreAction action, ClientState state) {
         ClientSetAvailableGamesAction castedAction = (ClientSetAvailableGamesAction) action;
         state.availableGames = castedAction.availableGames;
-        state.gamePollingTimer = new Timer();
+        if (state.gamePollingTimer == null){
+            state.gamePollingTimer = new Timer();
+            state.gamePollingTimer.scheduleAtFixedRate(new GamePollingThread(),10000,state.gameListPollingPeriod);
+        }
         return state;
     }
 
@@ -201,7 +205,6 @@ public class ClientReducer implements Reducer {
         } else {
             player.currentSector = state.gameMap.getHumanSector();
         }
-        state.gamePollingTimer.cancel();
         return state;
     }
 

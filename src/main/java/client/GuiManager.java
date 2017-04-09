@@ -1,6 +1,5 @@
-package client_gui;
+package client;
 
-import client.*;
 import client_store.ClientStore;
 import client_store_actions.*;
 import common.*;
@@ -42,14 +41,16 @@ public class GuiManager implements Observer {
      */
     public void initGuiComponents() {
         this.mainFrame = new JFrame("Escape from aliens in the outer space");
+        this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.mainFrame.setLocationByPlatform(true);
+        this.mainFrame.pack();
+        this.mainFrame.setExtendedState(this.mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         this.guiInitialWindow = new GUInitialWindow();
         this.guiGameList = new GUIGameList();
-        this.guiGameList
-                .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
-        this.guiGameList.setBackground(Color.BLACK);
         this.guiGamePane = new GUIGamePane();
         this.guiGamePane.setLayout(new GridBagLayout());
         this.guiInitialWindow.load();
+        this.mainFrame.setVisible(true);
         mainFrame.getContentPane().add(this.guiInitialWindow);
         this.guiInitialWindow.setVisible(true);
     }
@@ -411,9 +412,9 @@ public class GuiManager implements Observer {
      */
     private void setConnectionActiveReaction(StoreAction action) {
         ClientSetConnectionActiveAction castedAction = (ClientSetConnectionActiveAction) action;
-        this.guiInitialWindow.alertConnectionProblem(castedAction.isConnectionActive);
-        this.guiGameList.alertConnectionProblem(castedAction.isConnectionActive);
-        this.guiGamePane.alertConnectionProblem(castedAction.isConnectionActive);
+        this.guiInitialWindow.alertConnectionProblem(!castedAction.isConnectionActive);
+        this.guiGameList.alertConnectionProblem(!castedAction.isConnectionActive);
+        this.guiGamePane.alertConnectionProblem(!castedAction.isConnectionActive);
     }
 
     /**
@@ -423,13 +424,19 @@ public class GuiManager implements Observer {
      */
     private void setAvailableGamesReaction(StoreAction action) {
         ClientSetAvailableGamesAction castedAction = (ClientSetAvailableGamesAction) action;
-        this.mainFrame.remove(this.guiInitialWindow);
-        this.guiGameList.load();
         this.guiGameList.setGameListContent(castedAction.availableGames);
-        mainFrame.getContentPane().add(this.guiGameList);
-        this.guiGameList.setVisible(true);
-        this.mainFrame.validate();
-        this.mainFrame.repaint();
+        if (!this.guiGameList.isVisible()){
+            this.guiInitialWindow.setVisible(false);
+            this.guiGameList
+                    .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
+            this.guiGameList.setBackground(Color.BLACK);
+            this.guiGameList.load();
+            mainFrame.getContentPane().add(this.guiGameList);
+            this.guiGameList.setVisible(true);
+            this.mainFrame.repaint();
+        }
+
+
     }
 
 }

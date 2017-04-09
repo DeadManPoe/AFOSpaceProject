@@ -13,7 +13,7 @@ public class MoveAction extends StoreAction {
     public Sector payload;
 
     public MoveAction(Sector target) {
-        this.type = "@GAMEACTION_MOVE";
+        super("@GAMEACTION_MOVE");
         this.payload = target;
     }
 }

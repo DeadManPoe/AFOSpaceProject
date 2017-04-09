@@ -1,18 +1,11 @@
 package client_store;
 
+import client.ClientState;
 import client_reducers.ClientReducer;
 import client_store_effects.AddPubSubHandlerEffect;
+import client_store_effects.ClientStartGameEffect;
 import client_store_effects.SetAvailableGamesEffect;
-import com.sun.security.ntlm.Client;
 import server_store.*;
-import store_effects.GameAddPlayerEffect;
-import store_effects.GameMakeActionEffect;
-import store_effects.GameStartGameEffect;
-import store_effects.GameTurnTimeoutExpiredEffect;
-import store_reducers.CommunicationReducer;
-import store_reducers.GameActionReducer;
-import store_reducers.GameReducer;
-import store_reducers.GamesReducer;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -86,7 +79,6 @@ public class ClientStore {
     }
 
     public void init(ClientState initialState) {
-
         this.observableState = new ObservableClientState(initialState);
     }
 
@@ -101,6 +93,7 @@ public class ClientStore {
     private void registerEffects(){
         this.registerEffect(new AddPubSubHandlerEffect(),"@COMMUNICATION_ADD_PUB_SUB_HANDLER");
         this.registerEffect(new SetAvailableGamesEffect(),"@CLIENT_SET_AVAILABLE_GAMES");
+        this.registerEffect(new ClientStartGameEffect(), "@CLIENT_START_GAME");
     }
 
 
