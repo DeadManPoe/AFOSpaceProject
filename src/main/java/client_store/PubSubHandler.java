@@ -11,7 +11,10 @@ import java.net.Socket;
 
 /**
  * Created by giorgiopea on 25/03/17.
- *
+ * A thread that listens for incoming data from a given socket input stream.
+ * This data is always supposed to be a {@link RemoteMethodCall} object, which embeds
+ * a method name and a list of arguments, so that a method that matches them can be invoked
+ * in the context of the {@link InteractionManager}.
  */
 public class PubSubHandler extends Thread {
 
@@ -32,6 +35,7 @@ public class PubSubHandler extends Thread {
                 e.printStackTrace();
             }
             catch (IOException e){
+                //The connection is down
                 ClientStore.getInstance().dispatchAction(new ClientSetConnectionActiveAction(false));
             }
         }

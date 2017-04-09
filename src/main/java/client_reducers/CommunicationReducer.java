@@ -40,7 +40,7 @@ public class CommunicationReducer implements Reducer {
 
     private State addPubSubHandler(StoreAction action, ClientState state) {
         ClientAddPubSubHandlerAction castedAction = (ClientAddPubSubHandlerAction) action;
-        state.currentPubSubHandler = new PubSubHandler(castedAction.payload.socket, castedAction.payload.inputStream);
+        state.currentPubSubHandler = new PubSubHandler(castedAction.socket, castedAction.inputStream);
         return state;
     }
 }
