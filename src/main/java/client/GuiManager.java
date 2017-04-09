@@ -53,6 +53,7 @@ public class GuiManager implements Observer {
         this.mainFrame.setVisible(true);
         mainFrame.getContentPane().add(this.guiInitialWindow);
         this.guiInitialWindow.setVisible(true);
+        this.guiGameList.setVisible(false);
     }
 
     /**
