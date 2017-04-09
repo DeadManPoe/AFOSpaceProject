@@ -11,10 +11,12 @@ public class ClientSetDrawnSectorObjectCard extends StoreAction {
 
     public final SectorCard drawnSectorCard;
     public final ObjectCard drawnObjectCard;
+    public final boolean isActionServerValidated;
 
-    public ClientSetDrawnSectorObjectCard(SectorCard drawnSectorCard, ObjectCard drawnObjectCard) {
-        this.type = "@CLIENT_SET_DRAWN_SECTOR_OBJECT_CARD";
+    public ClientSetDrawnSectorObjectCard(SectorCard drawnSectorCard, ObjectCard drawnObjectCard, boolean isActionServerValidated) {
+        super("@CLIENT_SET_DRAWN_SECTOR_OBJECT_CARD");
         this.drawnSectorCard = drawnSectorCard;
         this.drawnObjectCard = drawnObjectCard;
+        this.isActionServerValidated = isActionServerValidated;
     }
 }

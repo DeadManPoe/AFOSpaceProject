@@ -592,7 +592,7 @@ public class GuiManager implements Observer {
     private void discardObjectCardReaction(StoreAction action) {
         ClientDiscardObjectCardAction castedAction = (ClientDiscardObjectCardAction) action;
         this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        if (castedAction.discardedObjectCard != null){
+        if (castedAction.isActionServerValidated){
             this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.privateDeck.getContent());
         }
     }
@@ -646,6 +646,11 @@ public class GuiManager implements Observer {
         CardSplashScreen cardSplashScreen = new CardSplashScreen(this.mainFrame);
         cardSplashScreen.showCards(castedAction.drawnSectorCard, castedAction.drawnObjectCard);
         PrivateDeck clientPrivateDeck = this.clientStore.getState().player.privateDeck;
+
+        if (!castedAction.isActionServerValidated){
+            this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
+            return;
+        }
 
         if (castedAction.drawnSectorCard instanceof GlobalNoiseSectorCard){
             this.guiGamePane

@@ -138,6 +138,8 @@ public class InteractionManager {
     public void moveToSector(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         RRClientNotification currentReqResponseNotification = this.clientStore.getState().currentReqRespNotification;
+        boolean isActionServerValidated = currentReqResponseNotification.getActionResult();
+        List<Card> drawnCards = currentReqResponseNotification.getDrawnCards();
         this.clientStore.dispatchAction(new ClientAskAttackAction(false));
         ArrayList<Object> parameters = new ArrayList<Object>();
         StoreAction action = new MoveAction(targetSector);
@@ -146,25 +148,24 @@ public class InteractionManager {
         try {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
             this.processRemoteInvocation(methodCall);
-            boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
-            this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector, isActionServerValidated));
-            List<Card> drawnCards = currentReqResponseNotification.getDrawnCards();
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IOException e1) {
+            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
+        }
+        this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector, isActionServerValidated));
+        if (isActionServerValidated){
             if (drawnCards.size() == 1){
                 this.clientStore.dispatchAction(
                         new ClientSetDrawnSectorObjectCard(
-                                (SectorCard) drawnCards.get(0),null));
+                                (SectorCard) drawnCards.get(0),null,true));
             }
             else if (drawnCards.size() == 2){
                 this.clientStore.dispatchAction(
                         new ClientSetDrawnSectorObjectCard(
                                 (SectorCard) drawnCards.get(0),
-                                (ObjectCard) drawnCards.get(1)));
+                                (ObjectCard) drawnCards.get(1),true));
             }
-
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IOException e1) {
-            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
 
     }
@@ -240,9 +241,8 @@ public class InteractionManager {
             } catch (IOException e1) {
                 this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
             }
-            if (this.clientStore.getState().currentReqRespNotification.getActionResult()){
-                this.clientStore.dispatchAction(new ClientSetDrawnSectorObjectCard(null,null));
-            }
+            boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
+            this.clientStore.dispatchAction(new ClientSetDrawnSectorObjectCard(null,null, isActionServerValidated));
         } else {
             throw new IllegalArgumentException(
                     "The sector you have indicated does not exists, please try again");
@@ -251,6 +251,7 @@ public class InteractionManager {
 
     public void lights(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
+        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         if (targetSector != null) {
             ObjectCard lightsCard = new LightsObjectCard(targetSector);
             ArrayList<Object> parameters = new ArrayList<Object>();
@@ -260,16 +261,17 @@ public class InteractionManager {
             RemoteMethodCall remoteMethodCall = null;
             try {
                 remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            try {
                 this.processRemoteInvocation(remoteMethodCall);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
-            this.clientStore.dispatchAction(new ClientAskSectorToLightAction(false));
-            this.clientStore.dispatchAction(new ClientUseObjectCard(lightsCard));
+            catch (IOException e1) {
+                this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
+            }
+            this.clientStore.dispatchAction(new ClientUseObjectCard(lightsCard,isActionServerValidated));
+            if (isActionServerValidated){
+                this.clientStore.dispatchAction(new ClientAskSectorToLightAction(false));
+            }
         } else {
             throw new IllegalArgumentException(
                     "Undefined sector, please try again");
@@ -294,6 +296,7 @@ public class InteractionManager {
 
     public void discardCard(ObjectCard objectCard) {
         Player player = this.clientStore.getState().player;
+        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         if (player.privateDeck.getContent().contains(objectCard)){
             ArrayList<Object> parameters = new ArrayList<Object>();
             StoreAction action = new DiscardAction(objectCard);
@@ -308,9 +311,7 @@ public class InteractionManager {
             catch (IOException e1){
                 this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
             }
-            if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
-                this.clientStore.dispatchAction(new ClientDiscardObjectCardAction(objectCard));
-            }
+            this.clientStore.dispatchAction(new ClientDiscardObjectCardAction(objectCard,isActionServerValidated));
         }
     }
 
@@ -330,8 +331,8 @@ public class InteractionManager {
     public void attack(Coordinate coordinate) {
         Player player = this.clientStore.getState().player;
         boolean humanAttack = player.playerToken.playerType.equals(PlayerType.HUMAN);
+        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
-        Sector currentSector = player.currentSector;
         ArrayList<Object> parameters = new ArrayList<Object>();
         AttackObjectCard card;
         if (humanAttack) {
@@ -353,11 +354,7 @@ public class InteractionManager {
         } catch (IOException e1) {
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
-        if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
-            this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector));
-        } else {
-            this.clientStore.dispatchAction(new ClientMoveToSectorAction(currentSector));
-        }
+        this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector,isActionServerValidated));
 
     }
 

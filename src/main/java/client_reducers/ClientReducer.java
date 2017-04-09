@@ -80,7 +80,7 @@ public class ClientReducer implements Reducer {
 
     private State discardObjectCard(StoreAction action, ClientState state) {
         ClientDiscardObjectCardAction castedAction = (ClientDiscardObjectCardAction) action;
-        if (castedAction.discardedObjectCard != null){
+        if (castedAction.isActionServerValidated){
             state.player.privateDeck.removeCard(castedAction.discardedObjectCard);
         }
         return state;
@@ -94,7 +94,7 @@ public class ClientReducer implements Reducer {
 
     private State setDrawnSectorObjectCard(StoreAction action, ClientState state) {
         ClientSetDrawnSectorObjectCard castedAction = (ClientSetDrawnSectorObjectCard) action;
-        if (castedAction.drawnObjectCard != null){
+        if (castedAction.drawnObjectCard != null && castedAction.isActionServerValidated){
             state.player.privateDeck.addCard(castedAction.drawnObjectCard);
         }
         return state;
