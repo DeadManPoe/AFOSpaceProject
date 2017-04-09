@@ -10,7 +10,7 @@ public class ClientSuppressAction extends StoreAction {
     public final boolean isSuppressed;
 
     public ClientSuppressAction(boolean isSuppressed) {
-        this.type = "@CLIENT_SUPPRESS";
+        super("@CLIENT_SUPPRESS");
         this.isSuppressed = isSuppressed;
     }
 }

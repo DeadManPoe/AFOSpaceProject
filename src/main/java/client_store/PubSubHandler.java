@@ -1,5 +1,6 @@
 package client_store;
 
+import client_store_actions.ClientSetConnectionActiveAction;
 import common.RemoteMethodCall;
 
 import javax.swing.*;
@@ -27,8 +28,11 @@ public class PubSubHandler extends Thread {
             try {
                 RemoteMethodCall methodCall = (RemoteMethodCall) this.inputStream.readObject();
                 InteractionManager.getInstance().processRemoteInvocation(methodCall);
-            } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
+            }
+            catch (IOException e){
+                ClientStore.getInstance().dispatchAction(new ClientSetConnectionActiveAction(false));
             }
         }
     }

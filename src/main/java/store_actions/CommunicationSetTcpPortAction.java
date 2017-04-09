@@ -9,7 +9,7 @@ public class CommunicationSetTcpPortAction extends StoreAction {
     private Integer payload;
 
     public CommunicationSetTcpPortAction(Integer tcpPort) {
-        this.type = "@COMMUNICATION_SET_TCPORT";
+        super("@COMMUNICATION_SET_TCPORT");
         this.payload = tcpPort;
 
     }

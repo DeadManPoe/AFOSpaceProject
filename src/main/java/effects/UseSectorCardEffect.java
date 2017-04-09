@@ -27,9 +27,7 @@ public class UseSectorCardEffect extends ActionEffect {
 		try {
 			Method executeMethod = mapper.getEffect(castedAction.payload).getMethod("executeEffect", Game.class, SectorCard.class);
 			return (boolean)  executeMethod.invoke(null,game, castedAction.payload);
-		} catch (InstantiationException | IllegalAccessException e) {
-
-		} catch (NoSuchMethodException | InvocationTargetException e) {
+		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
 			e.printStackTrace();
 
 		}

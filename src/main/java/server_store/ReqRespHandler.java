@@ -146,12 +146,12 @@ public class ReqRespHandler extends Thread {
     }
     public void subscribe(PlayerToken playerToken) throws IOException {
         this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(objectOutputStream, playerToken)));
-        //this.serverStore.dispatchAction(new GameStartGameAction(playerToken.getGameId()));
+        //this.serverStore.dispatchAction(new GameStartGameAction(playerToken.gameId));
         this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
         for (Game game : serverStore.getState().getGames()){
-            if (game.gamePublicData.getId() == playerToken.getGameId()){
+            if (game.gamePublicData.getId() == playerToken.gameId){
                 if(game.players.size() == 8){
-                    this.serverStore.dispatchAction(new GameStartGameAction(playerToken.getGameId()));
+                    this.serverStore.dispatchAction(new GameStartGameAction(playerToken.gameId));
                     break;
                 }
                 else if(game.players.size() == 2){
@@ -165,8 +165,8 @@ public class ReqRespHandler extends Thread {
     public void onDemandGameStart(PlayerToken playerToken){
         List<Game> games = ServerStore.getInstance().getState().getGames();
         for ( Game game : games){
-            if (game.gamePublicData.getId() == playerToken.getGameId()
-                    && game.currentPlayer.playerToken.getUUID().equals(playerToken.getUUID())){
+            if (game.gamePublicData.getId() == playerToken.gameId
+                    && game.currentPlayer.playerToken.equals(playerToken)){
                 ServerStore.getInstance().dispatchAction(new GameStartGameAction(game.gamePublicData.getId()));
                 ServerStore.getInstance().dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
                 break;
@@ -176,7 +176,7 @@ public class ReqRespHandler extends Thread {
 
     private void startableGame(Game game) {
         for (PubSubHandler handler : ServerStore.getInstance().getState().getPubSubHandlers()){
-            if (handler.getPlayerToken().getUUID().equals(game.currentPlayer.playerToken.getUUID())){
+            if (handler.getPlayerToken().equals(game.currentPlayer.playerToken)){
                 handler.queueNotification(new RemoteMethodCall("signalStartableGame",new ArrayList<Object>()));
                 break;
             }
@@ -214,9 +214,9 @@ public class ReqRespHandler extends Thread {
                                      PlayerToken token) throws IOException {
         String playerName = "";
         for (Game game : this.serverStore.getState().getGames()){
-            if (game.gamePublicData.getId() == token.getGameId()){
+            if (game.gamePublicData.getId() == token.gameId){
                 for (Player player : game.players){
-                    if (player.playerToken.getUUID().equals(token.getUUID())){
+                    if (player.playerToken.equals(token)){
                        playerName = player.name;
                         break;
                     }
@@ -225,7 +225,7 @@ public class ReqRespHandler extends Thread {
             }
         }
         for (PubSubHandler handler : this.serverStore.getState().getPubSubHandlers()){
-            if(handler.getPlayerToken().getGameId().equals(token.getGameId())){
+            if(handler.getPlayerToken().gameId.equals(token.gameId)){
                 ArrayList<Object> parameters = new ArrayList<>();
                 parameters.add(playerName+" says: "+message);
                 handler.queueNotification(new RemoteMethodCall("publishChatMsg",parameters));

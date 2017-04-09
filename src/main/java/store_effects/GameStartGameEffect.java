@@ -37,7 +37,7 @@ public class GameStartGameEffect implements Effect {
             game.currentTimer.schedule(new TurnTimeout(gameId),castedState.getTurnTimeout());
             parameters.add(game.gameMap.getName());
             for (PubSubHandler handler : castedState.getPubSubHandlers()){
-                if (handler.getPlayerToken().getGameId().equals(gameId)){
+                if (handler.getPlayerToken().gameId.equals(gameId)){
                     handler.queueNotification(new RemoteMethodCall("setMapAndStartGame",parameters));
                     if (handler.getPlayerToken().equals(game.currentPlayer.playerToken)){
                         handler.queueNotification(new RemoteMethodCall("startTurn", new ArrayList<Object>()));

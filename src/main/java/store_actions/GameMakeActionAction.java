@@ -14,7 +14,7 @@ public class GameMakeActionAction extends StoreAction {
     public GameMakeActionActionPayload payload;
 
     public GameMakeActionAction(PlayerToken playerToken, UUID uuid, StoreAction action) {
-        this.type = "@GAME_MAKE_ACTION";
+        super("@GAME_MAKE_ACTION");
         this.payload = new GameMakeActionActionPayload(playerToken,uuid,action);
     }
 }

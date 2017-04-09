@@ -10,7 +10,7 @@ public class GamesEndGameAction extends StoreAction {
     Integer payload;
 
     public GamesEndGameAction(Integer gameId) {
-        this.type = "@GAMES_END_GAME";
+        super("@GAMES_END_GAME");
         this.payload = gameId;
     }
 

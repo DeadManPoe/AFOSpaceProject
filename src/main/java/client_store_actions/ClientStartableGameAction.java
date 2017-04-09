@@ -8,6 +8,6 @@ import server_store.StoreAction;
 public class ClientStartableGameAction extends StoreAction {
 
     public ClientStartableGameAction() {
-        this.type = "@CLIENT_STARTABLE_GAME";
+        super("@CLIENT_STARTABLE_GAME");
     }
 }

@@ -15,8 +15,7 @@ public class CommunicationReducer implements Reducer {
     @Override
     public ServerState reduce(StoreAction action, State state) {
         ServerState castedState = (ServerState) state;
-        String actionType = action.getType();
-        switch (actionType) {
+        switch (action.type) {
             case "@COMMUNICATION_SET_TCPORT":
                 this.setTcpPort(action, castedState);
                 break;
@@ -64,7 +63,7 @@ public class CommunicationReducer implements Reducer {
     private ServerState removePubSubHandler(StoreAction action, ServerState state) {
         CommunicationRemovePubSubHandlerAction castedAction = (CommunicationRemovePubSubHandlerAction) action;
         for (int i=0; i<state.getPubSubHandlers().size(); i++){
-            if(state.getPubSubHandlers().get(i).getPlayerToken().getGameId().equals(castedAction.getPayload())){
+            if(state.getPubSubHandlers().get(i).getPlayerToken().gameId.equals(castedAction.getPayload())){
                 state.getPubSubHandlers().remove(i);
                 return state;
             }

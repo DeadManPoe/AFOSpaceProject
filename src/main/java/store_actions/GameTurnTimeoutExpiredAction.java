@@ -10,7 +10,7 @@ public class GameTurnTimeoutExpiredAction extends StoreAction {
     private Integer payload;
 
     public GameTurnTimeoutExpiredAction(Integer gameId) {
-        this.type = "@GAME_TURNTIMEOUT_EXPIRED";
+        super("@GAME_TURNTIMEOUT_EXPIRED");
         this.payload = gameId;
     }
 

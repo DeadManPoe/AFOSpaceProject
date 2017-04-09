@@ -52,7 +52,7 @@ public class GameMap {
 	 * @param startingHorizontalCoord
 	 *            considering a table like representation of the map, the map's
 	 *            starting horizontal coordinate
-	 * @param startingVerticolCoord
+	 * @param startingVerticalCoord
 	 *            considering a table like representation of the map, the map's
 	 *            starting vertical coordinate of the map
 	 * @param horizontalLength

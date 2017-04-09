@@ -20,7 +20,7 @@ public class GamesReducer implements Reducer {
     @Override
     public ServerState reduce(StoreAction action, State state) {
         ServerState castedState = (ServerState) state;
-        String actionType = action.getType();
+        String actionType = action.type;
 
         if(actionType.equals("@GAMES_ADD_GAME")){
             this.addGame(action,castedState);
@@ -46,7 +46,7 @@ public class GamesReducer implements Reducer {
             }
         }
         for (int i=0; i<state.getPubSubHandlers().size(); i++){
-            if(state.getPubSubHandlers().get(i).getPlayerToken().getGameId().equals(castedAction.getPayload())){
+            if(state.getPubSubHandlers().get(i).getPlayerToken().gameId.equals(castedAction.getPayload())){
                 state.getPubSubHandlers().remove(i);
             }
         }

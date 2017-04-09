@@ -25,7 +25,7 @@ public class GameMakeActionEffect implements Effect {
         GameMakeActionAction castedAction = (GameMakeActionAction) action;
         Game game = null;
         for (Game c_game : castedState.getGames()) {
-            if (c_game.gamePublicData.getId() == castedAction.payload.playerToken.getGameId()) {
+            if (c_game.gamePublicData.getId() == castedAction.payload.playerToken.gameId) {
                 game = c_game;
                 break;
             }
@@ -53,19 +53,19 @@ public class GameMakeActionEffect implements Effect {
                 }
             }
             for (PubSubHandler handler : castedState.getPubSubHandlers()) {
-                if (handler.getPlayerToken().getGameId() == game.gamePublicData.getId()) {
+                if (handler.getPlayerToken().gameId == game.gamePublicData.getId()) {
                     ArrayList<Object> parameters = new ArrayList<>();
                     parameters.add(game.lastPSclientNotification);
                     handler.queueNotification(new RemoteMethodCall("sendPubNotification", parameters));
 
-                    if (castedAction.payload.action.getType().equals("@GAMEACTION_END_TURN") && game.currentPlayer.playerToken.equals(handler.getPlayerToken())) {
+                    if (castedAction.payload.action.type.equals("@GAMEACTION_END_TURN") && game.currentPlayer.playerToken.equals(handler.getPlayerToken())) {
                         handler.queueNotification(new RemoteMethodCall("startTurn", new ArrayList<Object>()));
                     }
 
                 }
             }
             if (!game.didAlienWin && !game.didHumansWin) {
-                game.currentTimer.schedule(new TurnTimeout(castedAction.payload.playerToken.getGameId()), castedState.getTurnTimeout());
+                game.currentTimer.schedule(new TurnTimeout(castedAction.payload.playerToken.gameId), castedState.getTurnTimeout());
             } else {
                 ServerStore.getInstance().dispatchAction(new GamesEndGameAction(game.gamePublicData.getId()));
             }

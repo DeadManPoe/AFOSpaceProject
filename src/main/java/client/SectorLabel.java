@@ -13,9 +13,8 @@ import javax.swing.JLabel;
  * @author Giorgio Pea
  */
 public class SectorLabel extends JLabel {
-	private static final long serialVersionUID = 1L;
 
-	private Sector referredSector;
+	private Coordinate coordinate;
 	private String image;
 
 	/**
@@ -23,13 +22,13 @@ public class SectorLabel extends JLabel {
 	 * map. This sector is constructed from its coordinate and its associated
 	 * image
 	 * 
-	 * @param sector
+	 * @param coordinate
 	 *            the coordinate of the sector
 	 * @param image
 	 *            the filename of the image associated with the sector
 	 */
-	public SectorLabel(Sector sector, String image) {
-		this.referredSector = sector;
+	public SectorLabel(Coordinate coordinate, String image) {
+		this.coordinate = coordinate;
 		this.image = image;
 	}
 
@@ -38,8 +37,8 @@ public class SectorLabel extends JLabel {
 	 * 
 	 * @return the sector's coordinate
 	 */
-	public Sector getReferredSector() {
-		return this.referredSector;
+	public Coordinate getCoordinate() {
+		return this.coordinate;
 	}
 
 	/**

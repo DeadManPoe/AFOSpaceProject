@@ -12,7 +12,7 @@ public class GameActionAction extends StoreAction {
     public StoreAction action;
 
     public GameActionAction(StoreAction action, Game game) {
-        this.type = action.getType();
+        super(action.type);
         this.action = action;
         this.game = game;
     }

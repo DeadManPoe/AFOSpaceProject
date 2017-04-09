@@ -12,7 +12,7 @@ public class CommunicationRemoveReqRespHandlerAction extends StoreAction {
     private UUID payload;
 
     public CommunicationRemoveReqRespHandlerAction(UUID handlerUUID) {
-        this.type = "@COMMUNICATION_REMOVE_REQRESP_HANDLER";
+        super("@COMMUNICATION_REMOVE_REQRESP_HANDLER");
         this.payload = handlerUUID;
     }
 

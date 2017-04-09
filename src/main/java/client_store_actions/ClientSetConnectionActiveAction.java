@@ -7,10 +7,10 @@ import server_store.StoreAction;
  */
 public class ClientSetConnectionActiveAction extends StoreAction {
 
-    public boolean isConnectionActive;
+    public final boolean isConnectionActive;
 
     public ClientSetConnectionActiveAction(boolean isConnectionActive) {
-        this.type = "@CLIENT_SET_CONNECTION_ACTIVE";
+        super("@CLIENT_SET_CONNECTION_ACTIVE");
         this.isConnectionActive = isConnectionActive;
     }
 }

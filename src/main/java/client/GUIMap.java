@@ -76,7 +76,7 @@ public class GUIMap extends JLayeredPane {
 		alienMoveItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				interactionManager.moveToSector(selectedSector.getReferredSector().getCoordinate());
+				interactionManager.moveToSector(selectedSector.getCoordinate());
 			}
 		});
 
@@ -85,27 +85,27 @@ public class GUIMap extends JLayeredPane {
 		attackItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				interactionManager.attack(selectedSector.getReferredSector().getCoordinate());
+				interactionManager.attack(selectedSector.getCoordinate());
 			}
 		});
 		humanAttack.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				interactionManager.attack(selectedSector.getReferredSector().getCoordinate());
+				interactionManager.attack(selectedSector.getCoordinate());
 			}
 		});
 
 		noiseItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				interactionManager.globalNoise(selectedSector.getReferredSector().getCoordinate(), true);
+				interactionManager.globalNoise(selectedSector.getCoordinate(), true);
 			}
 		});
 
 		lightItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-                interactionManager.lights(selectedSector.getReferredSector().getCoordinate());
+                interactionManager.lights(selectedSector.getCoordinate());
 			}
 		});
 

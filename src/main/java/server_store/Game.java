@@ -4,12 +4,7 @@ import common.*;
 import decks.ObjectDeck;
 import decks.RescueDeck;
 import decks.SectorDeck;
-import factories.FermiGameMapFactory;
-import factories.GalileiGameMapFactory;
-import factories.GalvaniGameMapFactory;
 import it.polimi.ingsw.cg_19.GameMap;
-import it.polimi.ingsw.cg_19.Player;
-import server.SubscriberHandler;
 
 import java.util.*;
 

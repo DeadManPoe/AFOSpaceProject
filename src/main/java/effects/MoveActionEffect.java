@@ -58,7 +58,7 @@ public class MoveActionEffect extends ActionEffect {
             // of the player
             if (map.checkSectorAdiacency(sourceSector, targetSector,
                     currentPlayer.speed+adrenalineBooster,currentPlayer.isAdrenalined)
-                    && verifyMoveLegality(sourceSector,targetSector,currentPlayer.playerType) ) {
+                    && verifyMoveLegality(sourceSector,targetSector,currentPlayer.playerToken.playerType) ) {
                 // This two lines implements the move
                 sourceSector.removePlayer(currentPlayer);
                 currentPlayer.currentSector = targetSector;

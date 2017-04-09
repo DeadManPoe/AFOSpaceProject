@@ -48,7 +48,7 @@ public class ServerStore {
     }
 
     public void dispatchAction(StoreAction action) {
-        String prefix = action.getType().substring(0, action.getType().indexOf("_"));
+        String prefix = action.type.substring(0, action.type.indexOf("_"));
         Reducer reducer = this.actionTypeToReducer.get(prefix);
         if (reducer != null) {
             storeLogger.info((new Timestamp(System.currentTimeMillis())).toString());
@@ -63,7 +63,7 @@ public class ServerStore {
 
     }
     private void dispatchEffect(StoreAction action) {
-        Effect effect = this.actionTypeToEffect.get(action.getType());
+        Effect effect = this.actionTypeToEffect.get(action.type);
         if (effect != null) {
             effect.apply(action,this.getState());
         }

@@ -10,7 +10,7 @@ public class CommunicationRemovePubSubHandlerAction extends StoreAction {
     private Integer payload;
 
     public CommunicationRemovePubSubHandlerAction(Integer gameId) {
-        this.type = "@COMMUNICATION_REMOVE_PUBSUB_HANDLER";
+        super("@COMMUNICATION_REMOVE_PUBSUB_HANDLER");
         this.payload = gameId;
     }
 

@@ -25,7 +25,7 @@ public class GameActionReducer implements Reducer {
         try {
             //From the class of the effect associated with the in-game action, by using reflection, the executeEffect
             //method is invoked with the necessary arguments
-            Method executeMethod = GameActionMapper.getInstance().getEffect(castedAction.getType()).getMethod("executeEffect", Game.class, StoreAction.class);
+            Method executeMethod = GameActionMapper.getInstance().getEffect(castedAction.type).getMethod("executeEffect", Game.class, StoreAction.class);
             castedAction.game.lastActionResult = (boolean) executeMethod.invoke(null,castedAction.game, castedAction.action);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();

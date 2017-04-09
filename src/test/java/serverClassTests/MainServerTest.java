@@ -1,13 +1,5 @@
 package serverClassTests;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-
-import org.junit.Test;
-
-import server.ServerConnection;
-
 /**
  * Some test for the MainServer class
  * 

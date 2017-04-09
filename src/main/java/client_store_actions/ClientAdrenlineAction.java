@@ -8,6 +8,6 @@ import server_store.StoreAction;
 public class ClientAdrenlineAction extends StoreAction {
 
     public ClientAdrenlineAction() {
-        this.type = "@CLIENT_ADRENALINE";
+        super("@CLIENT_ADRENALINE");
     }
 }

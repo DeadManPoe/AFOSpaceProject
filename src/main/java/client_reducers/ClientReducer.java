@@ -23,7 +23,7 @@ public class ClientReducer implements Reducer {
             case "@CLIENT_START_GAME":
                 return this.startGame(action,castedState);
             case "@CLIENT_START_TURN":
-                return this.startTurn(action,castedState);
+                return this.startTurn(castedState);
             case "@CLIENT_MOVE_TO_SECTOR":
                 return this.moveToSector(action,castedState);
             case "@CLIENT_TELEPORT_TO_STARTING_SECTOR":
@@ -33,7 +33,7 @@ public class ClientReducer implements Reducer {
             case "@CLIENT_SET_PLAYER":
                 return this.setPlayer(action,castedState);
             case "@CLIENT_ADRENALINE":
-                return this.adrenaline(action,castedState);
+                return this.adrenaline(castedState);
             case "@CLIENT_DISCARD_OBJECT_CARD":
                 return this.discardObjectCard(action, castedState);
             case "@CLIENT_END_TURN":
@@ -69,7 +69,7 @@ public class ClientReducer implements Reducer {
         ClientSetWinnersAction castedAction = (ClientSetWinnersAction) action;
         state.aliensHaveWon = castedAction.aliensHaveWon;
         state.humansHaveWon = castedAction.humansHaveWon;
-
+        return state;
     }
 
     private State setPlayerState(StoreAction action, ClientState state) {
@@ -86,7 +86,7 @@ public class ClientReducer implements Reducer {
         return state;
     }
 
-    private State adrenaline(StoreAction action, ClientState state) {
+    private State adrenaline(ClientState state) {
         state.player.isAdrenalined = true;
         return state;
     }
@@ -123,20 +123,15 @@ public class ClientReducer implements Reducer {
         return state;
     }
 
-    private State denyTurn(StoreAction action, ClientState state) {
-        state.isMyTurn = false;
-        return state;
-    }
-
     private State setPS(StoreAction action, ClientState state) {
         ClientSetCurrentPubSubNotificationAction castedAction = (ClientSetCurrentPubSubNotificationAction) action;
-        state.currentPubSubNotification = castedAction.payload;
+        state.currentPubSubNotification = castedAction.psNotification;
         return state;
     }
 
     private State setRR(StoreAction action, ClientState state) {
         ClientSetCurrentReqRespNotificationAction castedAction = (ClientSetCurrentReqRespNotificationAction) action;
-        state.currentReqRespNotification = castedAction.payload;
+        state.currentReqRespNotification = castedAction.rrClientNotification;
         return state;
     }
 
@@ -144,7 +139,7 @@ public class ClientReducer implements Reducer {
 
     private State publishMsg(StoreAction action, ClientState state) {
         ClientSetCurrentChatMessage castedAction = (ClientSetCurrentChatMessage) action;
-        state.lastChatMessage = castedAction.payload;
+        state.lastChatMessage = castedAction.message;
         return state;
     }
 
@@ -156,12 +151,15 @@ public class ClientReducer implements Reducer {
     }
 
     private State endTurn(StoreAction action, ClientState state) {
-        state.isMyTurn = false;
-        state.player.hasMoved = false;
-        state.player.isAdrenalined = false;
-        state.player.isSedated = false;
-        state.askAttack = false;
-        state.askLights = false;
+        ClientEndTurnAction castedAction = (ClientEndTurnAction) action;
+        if (castedAction.isActionServerValidated){
+            state.isMyTurn = false;
+            state.player.hasMoved = false;
+            state.player.isAdrenalined = false;
+            state.player.isSedated = false;
+            state.askAttack = false;
+            state.askLights = false;
+        }
         return state;
     }
 
@@ -207,7 +205,7 @@ public class ClientReducer implements Reducer {
         return state;
     }
 
-    private State startTurn(StoreAction action, ClientState state){
+    private State startTurn(ClientState state){
         state.isMyTurn = true;
         return state;
     }

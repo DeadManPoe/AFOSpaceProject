@@ -127,7 +127,7 @@ public class GUIGameList extends JPanel {
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                guiManager.forwardMethod("onDemandGameStart", new ArrayList<>());
+               interactionManager.onDemandGameStart();
             }
         });
     }

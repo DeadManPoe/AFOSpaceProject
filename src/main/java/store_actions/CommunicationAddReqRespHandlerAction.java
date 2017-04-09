@@ -11,7 +11,7 @@ public class CommunicationAddReqRespHandlerAction extends StoreAction {
     private ReqRespHandler payload;
 
     public CommunicationAddReqRespHandlerAction(ReqRespHandler reqRespHandler) {
-        this.type = "@COMMUNICATION_ADD_REQRESP_HANDLER";
+        super("@COMMUNICATION_ADD_REQRESP_HANDLER");
         this.payload = reqRespHandler;
     }
 

@@ -23,9 +23,6 @@ import common.RemoteMethodCall;
 import common.Sector;
 import common.SectorType;
 import common.SilenceSectorCard;
-import client.Client;
-import client.ClientConnection;
-import client.ClientRemoteServices;
 
 public class ClientRemoteServicesTests {
 	private ClientRemoteServices clientServices;

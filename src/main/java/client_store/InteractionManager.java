@@ -6,15 +6,16 @@ import it.polimi.ingsw.cg_19.PlayerState;
 import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.Player;
 import server_store.StoreAction;
+import store_actions.CommunicationRemovePubSubHandlerAction;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by giorgiopea on 25/03/17.
+ *
  */
 public class InteractionManager {
 
@@ -31,13 +32,13 @@ public class InteractionManager {
         this.communicationHandler = CommunicationHandler.getInstance();
     }
 
-    public void sendNotification(ClientNotification clientNotification)
-            throws RemoteException, IOException {
+    private void sendNotification(ClientNotification clientNotification)
+            throws IOException {
         RRClientNotification rrClientNotification = (RRClientNotification) clientNotification;
         this.clientStore.dispatchAction(new ClientSetCurrentReqRespNotificationAction(rrClientNotification));
     }
 
-    public void sendPubNotification(ClientNotification psNotification) {
+    private void sendPubNotification(ClientNotification psNotification) {
         PSClientNotification notification = (PSClientNotification) psNotification;
         Player player = this.clientStore.getState().player;
         if (notification.getEscapedPlayer() != null){
@@ -49,18 +50,13 @@ public class InteractionManager {
             this.clientStore.dispatchAction(new ClientSetPlayerState(PlayerState.DEAD));
         }
         else if (notification.getAttackedPlayers().contains(player.playerToken)){
-            this.clientStore.dispatchAction(new ClientUseObjectCard(new DefenseObjectCard()));
+            this.clientStore.dispatchAction(new ClientUseObjectCard(new DefenseObjectCard(),true));
         }
-        if (notification.getAlienWins() && notification.getHumanWins()){
-            this.clientStore.dispatchAction(new ClientSetWinnersAction(true,true));
+        if (notification.getHumanWins() || notification.getAlienWins()){
+            this.clientStore.dispatchAction(new ClientSetWinnersAction(notification.getAlienWins(),notification.getHumanWins()));
+            this.clientStore.dispatchAction(new ClientRemovePubSubHandlerAction());
         }
-        else if (notification.getAlienWins()){
-            this.clientStore.dispatchAction(new ClientSetWinnersAction(true,false));
-        }
-        else if (notification.getHumanWins()){
-            this.clientStore.dispatchAction(new ClientSetWinnersAction(false,true));
-        }
-        //this.clientStore.dispatchAction(new ClientSetCurrentPubSubNotificationAction(notification));
+
     }
 
 
@@ -71,8 +67,10 @@ public class InteractionManager {
         parameters.add(playerToken);
         try {
             this.communicationHandler.newComSession(new RemoteMethodCall("subscribe", parameters));
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
     }
 
@@ -83,8 +81,11 @@ public class InteractionManager {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("onDemandGameStart", parameters));
             this.processRemoteInvocation(methodCall);
 
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
+        }
+        catch (IOException e){
+            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
     }
 
@@ -123,12 +124,9 @@ public class InteractionManager {
     }
 
     public void publishChatMsg(String msg) {
-        ClientStore.getInstance().dispatchAction(new ClientSetCurrentChatMessage(msg));
+        this.clientStore.dispatchAction(new ClientSetCurrentChatMessage(msg));
     }
 
-    public void denyTurn() {
-        ClientStore.getInstance().dispatchAction(new ClientDenyTurnAction());
-    }
 
     /**
      * Moves the client to the sector at the given coordinates and executes the other logic related to this action.
@@ -141,7 +139,7 @@ public class InteractionManager {
         boolean isActionServerValidated = currentReqResponseNotification.getActionResult();
         List<Card> drawnCards = currentReqResponseNotification.getDrawnCards();
         this.clientStore.dispatchAction(new ClientAskAttackAction(false));
-        ArrayList<Object> parameters = new ArrayList<Object>();
+        ArrayList<Object> parameters = new ArrayList<>();
         StoreAction action = new MoveAction(targetSector);
         parameters.add(action);
         parameters.add(this.clientStore.getState().player.playerToken);
@@ -229,7 +227,7 @@ public class InteractionManager {
         if (targetSector != null) {
             SectorCard globalNoiseCard = new GlobalNoiseSectorCard(hasObject,
                     targetSector);
-            ArrayList<Object> parameters = new ArrayList<Object>();
+            ArrayList<Object> parameters = new ArrayList<>();
             StoreAction action = new UseSectorCardAction(globalNoiseCard);
             parameters.add(action);
             parameters.add(this.clientStore.getState().player.playerToken);
@@ -254,7 +252,7 @@ public class InteractionManager {
         boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         if (targetSector != null) {
             ObjectCard lightsCard = new LightsObjectCard(targetSector);
-            ArrayList<Object> parameters = new ArrayList<Object>();
+            ArrayList<Object> parameters = new ArrayList<>();
             StoreAction action = new UseObjAction(lightsCard);
             parameters.add(action);
             parameters.add(this.clientStore.getState().player.playerToken);
@@ -280,25 +278,27 @@ public class InteractionManager {
     }
 
     public void endTurn() {
-        ArrayList<Object> parameters = new ArrayList<Object>();
+        ArrayList<Object> parameters = new ArrayList<>();
         StoreAction action = new EndTurnAction();
+        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         parameters.add(action);
         parameters.add(this.clientStore.getState().player.playerToken);
         try {
             this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
-            this.clientStore.dispatchAction(new ClientEndTurnAction());
+        catch (IOException e){
+            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
+        this.clientStore.dispatchAction(new ClientEndTurnAction(isActionServerValidated));
     }
 
     public void discardCard(ObjectCard objectCard) {
         Player player = this.clientStore.getState().player;
         boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         if (player.privateDeck.getContent().contains(objectCard)){
-            ArrayList<Object> parameters = new ArrayList<Object>();
+            ArrayList<Object> parameters = new ArrayList<>();
             StoreAction action = new DiscardAction(objectCard);
             parameters.add(action);
             parameters.add(player.playerToken);
@@ -316,15 +316,18 @@ public class InteractionManager {
     }
 
     public void sendMessage(String message) {
-        ArrayList<Object> parameters = new ArrayList<Object>();
+        ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(message);
         parameters.add(this.clientStore.getState().player.playerToken);
         try {
             RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("publishGlobalMessage", parameters));
             this.processRemoteInvocation(remoteMethodCall);
 
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
+        }
+        catch (IOException e){
+            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
     }
 
@@ -333,7 +336,7 @@ public class InteractionManager {
         boolean humanAttack = player.playerToken.playerType.equals(PlayerType.HUMAN);
         boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
-        ArrayList<Object> parameters = new ArrayList<Object>();
+        ArrayList<Object> parameters = new ArrayList<>();
         AttackObjectCard card;
         if (humanAttack) {
             card = new AttackObjectCard(targetSector);
@@ -364,7 +367,7 @@ public class InteractionManager {
 
     public void getGames() {
         try {
-            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("getGames", new ArrayList<Object>()));
+            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("getGames", new ArrayList<>()));
             this.processRemoteInvocation(methodCall);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
@@ -396,14 +399,6 @@ public class InteractionManager {
                     .invoke(this, parameters.toArray());
         }
 
-    }
-
-    public void executeMethod(String methodName, List<Object> parameters) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Class<?>[] parametersClasses = new Class[parameters.size()];
-        for (int i = 0; i < parametersClasses.length; i++) {
-            parametersClasses[i] = parameters.get(i).getClass();
-        }
-        this.getClass().getDeclaredMethod(methodName, parametersClasses).invoke(this, parameters.toArray());
     }
 
 }

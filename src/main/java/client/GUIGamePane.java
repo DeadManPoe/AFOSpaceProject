@@ -3,7 +3,6 @@ package client;
 import client_gui.GuiManager;
 import client_store.InteractionManager;
 import common.ObjectCard;
-import common.PrivateDeck;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +10,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,7 +29,6 @@ public class GUIGamePane extends JPanel {
 
 
     private DefaultListModel<String> logModel;
-    private JList<String> logPane;
     private JScrollPane logScrollPane;
 
     private JLabel stateLabel;
@@ -62,8 +59,8 @@ public class GUIGamePane extends JPanel {
     public GUIGamePane() {
 
         mapPanel = new GUIMap();
-        logModel = new DefaultListModel<String>();
-        logPane = new JList<String>(logModel);
+        logModel = new DefaultListModel<>();
+        JList<String> logPane = new JList<>(logModel);
         logScrollPane = new JScrollPane();
         logScrollPane.setViewportView(logPane);
         holdingPanel = new JPanel();
@@ -93,16 +90,14 @@ public class GUIGamePane extends JPanel {
         endTurnButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                guiManager.endTurn();
+                interactionManager.endTurn();
             }
         });
 
         msgButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                List<Object> parameters = new ArrayList<>();
-                parameters.add(chatTextField.getText());
-                guiManager.forwardMethod("sendMessage", parameters);
+                interactionManager.sendMessage(chatTextField.getText());
                 chatTextField.setText("");
             }
         });
@@ -119,8 +114,7 @@ public class GUIGamePane extends JPanel {
         alienDiscardItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                interactionManager.discard(selectedObjectCard);
+                interactionManager.discardCard(selectedObjectCard);
             }
         });
         humanDiscardItem.addActionListener(alienDiscardItem

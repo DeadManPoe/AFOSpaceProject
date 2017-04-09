@@ -10,7 +10,7 @@ public class ClientAskSectorToLightAction extends StoreAction {
     public final boolean toBeAsked;
 
     public ClientAskSectorToLightAction(boolean toBeAsked) {
-        this.type = "@CLIENT_ASK_SECTOR_TO_LIGHT";
+        super("@CLIENT_ASK_SECTOR_TO_LIGHT");
         this.toBeAsked = toBeAsked;
     }
 }

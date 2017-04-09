@@ -8,6 +8,6 @@ import server_store.StoreAction;
 public class ClientTeleportToStartingSectorAction extends StoreAction {
 
     public ClientTeleportToStartingSectorAction() {
-        this.type = "@CLIENT_TELEPORT_TO_STARTING_SECTOR";
+        super("@CLIENT_TELEPORT_TO_STARTING_SECTOR");
     }
 }

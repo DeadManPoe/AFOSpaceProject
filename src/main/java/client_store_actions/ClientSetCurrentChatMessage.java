@@ -8,7 +8,7 @@ import server_store.StoreAction;
 public class ClientSetCurrentChatMessage extends StoreAction {
     public final String message;
     public ClientSetCurrentChatMessage(String msg) {
-        this.type = "@CLIENT_PUBLISH_CHAT_MSG";
+        super("@CLIENT_PUBLISH_CHAT_MSG");
         this.message = msg;
     }
 }

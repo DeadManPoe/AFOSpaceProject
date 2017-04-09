@@ -8,6 +8,6 @@ import server_store.StoreAction;
 public class ClientStartTurnAction extends StoreAction {
 
     public ClientStartTurnAction() {
-        this.type = "@CLIENT_START_TURN";
+        super("@CLIENT_START_TURN");
     }
 }

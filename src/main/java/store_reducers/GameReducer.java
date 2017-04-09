@@ -31,8 +31,7 @@ public class GameReducer implements Reducer {
     @Override
     public ServerState reduce(StoreAction action, State state) {
         ServerState castedState = (ServerState) state;
-        String actionType = action.getType();
-        switch (actionType) {
+        switch (action.type) {
             case "@GAME_ADD_PLAYER":
                 this.addPlayer(action, castedState);
                 break;
@@ -94,7 +93,7 @@ public class GameReducer implements Reducer {
                 game.gameMap = GameMapFactory.provideCorrectFactory(game.mapName).makeMap();
 
                 for (Player player : game.players) {
-                    if (player.playerType.equals(PlayerType.HUMAN)) {
+                    if (player.playerToken.playerType.equals(PlayerType.HUMAN)) {
                         player.currentSector = game.gameMap.getHumanSector();
                         game.gameMap.getHumanSector().addPlayer(player);
                     } else {
@@ -102,7 +101,7 @@ public class GameReducer implements Reducer {
                         game.gameMap.getAlienSector().addPlayer(player);
                     }
                 }
-                if (game.currentPlayer.playerType.equals(PlayerType.HUMAN)) {
+                if (game.currentPlayer.playerToken.playerType.equals(PlayerType.HUMAN)) {
                     game.nextActions = HumanTurn.getInitialActions();
                 } else {
                     game.nextActions = AlienTurn.getInitialActions();
@@ -129,12 +128,12 @@ public class GameReducer implements Reducer {
         GameMakeActionAction castedAction = (GameMakeActionAction) action;
         StoreAction gameAction = castedAction.payload.action;
         for (Game game : state.getGames()) {
-            if (game.gamePublicData.getId() == castedAction.payload.playerToken.getGameId()) {
+            if (game.gamePublicData.getId() == castedAction.payload.playerToken.gameId) {
                 game.lastPSclientNotification = new PSClientNotification();
                 game.lastRRclientNotification = new RRClientNotification();
                 Player actualPlayer = null;
                 for (Player player : game.players) {
-                    if (player.playerToken.getUUID().equals(castedAction.payload.playerToken.getUUID())) {
+                    if (player.playerToken.equals(castedAction.payload.playerToken)) {
                         actualPlayer = player;
                         break;
                     }
@@ -143,20 +142,20 @@ public class GameReducer implements Reducer {
                     game.lastRRclientNotification.setActionResult(false);
                 } else {
                     // If the player is ok then check if the action is ok
-                    if (game.nextActions.contains(gameAction.getType())) {
+                    if (game.nextActions.contains(gameAction.type)) {
 
                         // Executes the action's associated logic and get the result
                         ServerStore.getInstance().dispatchAction(new GameActionAction(gameAction, game));
                         if (game.lastActionResult) {
                             if (!game.lastAction.getClass().equals(EndTurnAction.class)) {
-                                if (actualPlayer.playerType.equals(PlayerType.HUMAN)) {
+                                if (actualPlayer.playerToken.playerType.equals(PlayerType.HUMAN)) {
                                     game.nextActions = HumanTurn.nextAction(game.lastAction, actualPlayer);
                                 } else {
                                     game.nextActions = AlienTurn.nextAction(game.lastAction, actualPlayer);
                                 }
 
                             } else {
-                                if (actualPlayer.playerType.equals(PlayerType.HUMAN)) {
+                                if (actualPlayer.playerToken.playerType.equals(PlayerType.HUMAN)) {
                                     game.nextActions = AlienTurn.getInitialActions();
                                 } else {
                                     game.nextActions = HumanTurn.getInitialActions();
@@ -194,7 +193,7 @@ public class GameReducer implements Reducer {
             if (game.gamePublicData.getId() == castedAction.getPayload().getGameId()) {
                 PlayerType playerType = assignTypeToPlayer(game.players.size() + 1);
                 playerToken = new PlayerToken(playerType, castedAction.getPayload().getGameId());
-                server_store.Player player = new server_store.Player(playerType, castedAction.getPayload().getPlayerName(), playerToken);
+                server_store.Player player = new server_store.Player(castedAction.getPayload().getPlayerName(),playerToken);
                 game.players.add(player);
                 game.gamePublicData.addPlayer();
                 if (game.currentPlayer == null) {
@@ -282,7 +281,7 @@ public class GameReducer implements Reducer {
     private boolean checkStateAll(PlayerType playerType, PlayerState state, List<Player> players) {
         for (Player player : players) {
             if (!player.playerState.equals(state)
-                    && player.playerType.equals(playerType))
+                    && player.playerToken.playerType.equals(playerType))
                 return false;
         }
         return true;

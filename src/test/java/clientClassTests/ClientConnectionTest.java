@@ -1,10 +1,6 @@
 package clientClassTests;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
-
-import client.ClientConnection;
 
 public class ClientConnectionTest {
 		private ClientConnection clientConnection;

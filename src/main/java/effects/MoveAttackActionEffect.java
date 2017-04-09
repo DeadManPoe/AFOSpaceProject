@@ -54,7 +54,7 @@ public class MoveAttackActionEffect extends ActionEffect {
 
         if (!sourceSector.equals(castedAction.payload)) {
             if (game.gameMap.checkSectorAdiacency(sourceSector,targetSector,currentPlayer.speed,currentPlayer.isAdrenalined)
-                    && verifyMoveLegality(sourceSector,targetSector,currentPlayer.playerType)) {
+                    && verifyMoveLegality(sourceSector,targetSector,currentPlayer.playerToken.playerType)) {
 
                 // For each player contained in the target sector
                 for (Player player : targetSector.getPlayers()) {
@@ -64,7 +64,7 @@ public class MoveAttackActionEffect extends ActionEffect {
                     Iterator<ObjectCard> iterator = privateDeckContent
                             .iterator();
                     boolean defenseFound = false;
-                    if (player.playerType == PlayerType.HUMAN) {
+                    if (player.playerToken.playerType == PlayerType.HUMAN) {
                         while (iterator.hasNext()) {
                             ObjectCard objectCard = iterator.next();
                             if (objectCard instanceof DefenseObjectCard) {
@@ -89,7 +89,7 @@ public class MoveAttackActionEffect extends ActionEffect {
                                 + targetSector.getCoordinate().toString()
                                 + " and so " + player.name + " is dead.";
                     } else {
-                        if (game.currentPlayer.playerType == PlayerType.ALIEN) {
+                        if (game.currentPlayer.playerToken.playerType == PlayerType.ALIEN) {
                             game.currentPlayer.speed = 3;
                         }
                         // Otherwise p has been attacked

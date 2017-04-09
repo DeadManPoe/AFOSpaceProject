@@ -51,7 +51,7 @@ public class CommunicationHandler implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         StoreAction lastAction = (StoreAction) arg;
-        if(lastAction.getType().equals("@COMMUNICATION_ADD_PUBSUB_HANDLER")){
+        if(lastAction.type.equals("@COMMUNICATION_ADD_PUBSUB_HANDLER")){
             CommunicationAddPubSubHandlerAction castedAction = (CommunicationAddPubSubHandlerAction) lastAction;
             this.pubSubThreadPool.submit(castedAction.getPayload());
         }

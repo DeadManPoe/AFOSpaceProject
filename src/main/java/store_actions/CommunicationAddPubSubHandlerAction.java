@@ -11,7 +11,7 @@ public class CommunicationAddPubSubHandlerAction extends StoreAction {
     private PubSubHandler payload;
 
     public CommunicationAddPubSubHandlerAction(PubSubHandler pubSubHandler) {
-        this.type = "@COMMUNICATION_ADD_PUBSUB_HANDLER";
+        super("@COMMUNICATION_ADD_PUBSUB_HANDLER");
         this.payload = pubSubHandler;
     }
 

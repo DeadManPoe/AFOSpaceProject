@@ -12,7 +12,7 @@ public class ClientSetPlayerAction extends StoreAction {
     public final PlayerToken playerToken;
 
     public ClientSetPlayerAction(String playerName, PlayerToken playerToken) {
-        this.type = "@CLIENT_SET_PLAYER";
+        super("@CLIENT_SET_PLAYER");
         this.playerName = playerName;
         this.playerToken = playerToken;
     }

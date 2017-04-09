@@ -50,33 +50,6 @@ public class GuiManager implements Observer {
         mainFrame.getContentPane().add(this.guiInitialWindow);
         this.guiInitialWindow.setVisible(true);
     }
-    public void connectAndDisplayGames() {
-        try {
-            this.guiInitialWindow.alertConnectionProblem(false);
-            interactionManager.getGames();
-            this.guiInitialWindow.setVisible(false);
-            this.guiGameList
-                    .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
-            this.guiGameList.setBackground(Color.BLACK);
-            this.guiGameList.load();
-            mainFrame.getContentPane().add(this.guiGameList);
-            this.guiGameList.setVisible(true);
-            ClientStore.getInstance().getState().gamePollingTimer = new Timer();
-            ClientStore.getInstance().getState().gamePollingTimer.scheduleAtFixedRate(new GamePollingThread(), 0, 10000);
-        } catch (IOException | ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            e.printStackTrace();
-            this.guiInitialWindow.alertConnectionProblem(true);
-        }
-
-    }
-
-    public void forwardMethod(String methodName, List<Object> parameters) {
-        try {
-            this.interactionManager.executeMethod(methodName, parameters);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     private void updatePosition() {
@@ -87,155 +60,12 @@ public class GuiManager implements Observer {
                 playerName);
     }
 
-    private void updateCardsPanel() {
-        PrivateDeck privateDeck = ClientStore.getInstance().getState().player.privateDeck;
-        for (ObjectCard card : privateDeck.getContent()) {
-            this.guiGamePane.addCardToPanel(card);
-        }
-        this.guiGamePane.repaint();
-    }
-
-    public void attack(Coordinate coords) {
-        this.interactionManager.attack(coords);
-        boolean hasAttacked = ClientStore.getInstance().getState().askAttack;
-        if (!hasAttacked){
-            this.updatePosition();
-            this.guiGamePane.refreshCardPanel();
-            this.updateCardsPanel();
-            try {
-                this.handleAction();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            this.guiGamePane.setStateMessage(ClientStore.getInstance().getState().currentReqRespNotification.getMessage());
-        }
-        else {
-            this.guiGamePane.setStateMessage("You cannot attack in that sector!");
-        }
-
-    }
-
-    public void move(Coordinate coordinate) {
-        this.interactionManager.move(coordinate);
-        boolean hasMoved = ClientStore.getInstance().getState().player.hasMoved;
-
-        if (hasMoved) {
-            this.updatePosition();
-            this.guiGamePane.setStateMessage("You have moved to sector "+ClientStore.getInstance().getState().player.currentSector.getCoordinate());
-            try {
-                this.handleAction();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        } else {
-            this.guiGamePane.setStateMessage("You cannot moveToSector in that sector!");
-        }
-    }
 
     public JFrame getFrame() {
         return this.mainFrame;
     }
 
-    private void verifyPrivateDeck() {
-        Player player = this.clientStore.getState().player;
-        if (player.privateDeck.getSize() > 3){
-            if (player.playerToken.playerType.equals(PlayerType.HUMAN)) {
-                this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_DISC_MENU);
-            } else {
-                this.guiGamePane.changeCardMenu(MenuType.ALIEN_CARD_MENU);
-            }
-            this.guiGamePane.setStateMessage("Use or discard an object card");
-        }
-    }
 
-
-    private void handleAction() throws ClassNotFoundException {
-        Card firstCard, secondCard = null;
-        boolean isAskingLights = ClientStore.getInstance().getState().askLights;
-        boolean isAskingAttack = ClientStore.getInstance().getState().askAttack;
-        boolean hasMoved = ClientStore.getInstance().getState().player.hasMoved;
-        PlayerType playerType = ClientStore.getInstance().getState().player.playerType;
-        RRClientNotification currentReqRespNotification = ClientStore.getInstance().getState().currentReqRespNotification;
-        PrivateDeck clientPrivateDeck = ClientStore.getInstance().getState().player.privateDeck;
-
-        List<Card> drawedCards = currentReqRespNotification.getDrawnCards();
-
-        if (isAskingLights) {
-            this.guiGamePane
-                    .setStateMessage("Select a sector for the light card");
-            this.guiGamePane.getMapPane().changeMapMenu(
-                    MenuType.LIGHT_MENU);
-        } else if (isAskingAttack) {
-            this.guiGamePane
-                    .setStateMessage("Select a sector fot the attack card");
-            this.guiGamePane.getMapPane().changeMapMenu(
-                    MenuType.ATTACK_MENU);
-        } else if (!drawedCards.isEmpty()) {
-            firstCard = drawedCards.get(0);
-            if (drawedCards.size() > 1) {
-                secondCard = drawedCards.get(1);
-                clientPrivateDeck.addCard(
-                        (ObjectCard) secondCard);
-                this.guiGamePane
-                        .addCardToPanel((ObjectCard) secondCard);
-            }
-
-            CardSplashScreen splash = new CardSplashScreen(firstCard,
-                    secondCard, mainFrame);
-
-            if (firstCard instanceof GlobalNoiseSectorCard) {
-                this.guiGamePane
-                        .setStateMessage("Select a sector for the global noise card");
-                this.guiGamePane.getMapPane().changeMapMenu(
-                        MenuType.NOISE_MENU);
-                this.guiGamePane.changeCardMenu(MenuType.EMPTY);
-                // I've drawn a object card
-            }
-            else {
-                if (firstCard instanceof SilenceSectorCard){
-                    this.guiGamePane
-                            .setStateMessage("You will not reveal any clue about your position");
-                    this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-                }
-                if (firstCard instanceof LocalNoiseSectorCard){
-                    this.guiGamePane.setStateMessage("You have revealed your position");
-                    this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-                }
-                if (clientPrivateDeck.getSize() > 3){
-                    this.manyCardHandler(playerType);
-                }
-                else {
-                    this.guiGamePane.showEndTurnButton(true);
-                }
-
-            }
-        } else {
-            if (clientPrivateDeck.getSize() > 3) {
-                this.manyCardHandler(playerType);
-            } else if (playerType.equals(PlayerType.HUMAN)) {
-                if (hasMoved) {
-                    this.guiGamePane.showEndTurnButton(true);
-                    this.guiGamePane.getMapPane().changeMapMenu(
-                            MenuType.EMPTY);
-                    this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_MENU);
-                } else {
-                    this.guiGamePane.getMapPane().changeMapMenu(
-                            MenuType.HUMAN_INITIAL);
-                    this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_MENU);
-                }
-
-            } else {
-                if (hasMoved) {
-                    this.guiGamePane.showEndTurnButton(true);
-                    this.guiGamePane.getMapPane().changeMapMenu(
-                            MenuType.EMPTY);
-                } else {
-                    this.guiGamePane.getMapPane().changeMapMenu(
-                            MenuType.ALIEN_INITIAL);
-                }
-            }
-        }
-    }
 
     private void manyCardHandler() {
         PlayerType playerType = this.clientStore.getState().player.playerToken.playerType;
@@ -254,81 +84,6 @@ public class GuiManager implements Observer {
     }
 
 
-    private void processPSNotification(PSClientNotification notification) {
-        PlayerToken playerToken = ClientStore.getInstance().getState().player.playerToken;
-        if (notification.getEscapedPlayer() != null) {
-            if (notification.getEscapedPlayer().equals(playerToken)) {
-                this.guiGamePane.setStateMessage("You're ESCAPED!");
-                this.guiGamePane.changeCardMenu(MenuType.EMPTY);
-                this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-                this.guiGamePane.showEndTurnButton(false);
-            }
-        }
-
-        if (notification.getAlienWins()) {
-            if (notification.getHumanWins()) {
-                GUIFinalWindow finalWindow = new GUIFinalWindow(this.mainFrame,
-                        "HumanAlienW.png", true);
-            } else {
-                GUIFinalWindow finalWindow = new GUIFinalWindow(this.mainFrame,
-                        "AlienW.png", true);
-            }
-        } else if (notification.getHumanWins()) {
-            GUIFinalWindow finalWindow;
-            if (notification.getAlienWins()) {
-                finalWindow = new GUIFinalWindow(this.mainFrame,
-                        "HumanAlienW.png", true);
-            } else {
-                finalWindow = new GUIFinalWindow(this.mainFrame, "HumanW.png",
-                        true);
-            }
-        }
-        if (notification.getDeadPlayers().contains(playerToken)) {
-            GUIFinalWindow deadWindow = new GUIFinalWindow(this.mainFrame,
-                    "dead.jpg", false);
-            this.guiGamePane.setStateMessage("You're DEAD!");
-            this.guiGamePane.changeCardMenu(MenuType.EMPTY);
-            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-            this.guiGamePane.showEndTurnButton(false);
-        } else if (notification.getAttackedPlayers()
-                .contains(playerToken)) {
-            this.showMessageBox("You've used your Defence Object card, You're still alive!");
-            ObjectCard toRemove = null;
-            for (ObjectCard c : ClientStore.getInstance().getState().player.privateDeck.getContent()) {
-                if (c instanceof DefenseObjectCard) {
-                    toRemove = c;
-                    break;
-                }
-            }
-            ClientStore.getInstance().getState().player.privateDeck.getContent().remove(toRemove);
-            this.guiGamePane.refreshCardPanel();
-            this.updateCardsPanel();
-            this.guiGamePane.setStateMessage("You're safe!");
-        }
-    }
-
-    private void endGame(boolean humansHaveWon, boolean aliensHaveWon) {
-        //Go to final window
-    }
-
-    public void joinNewGame(String mapName, String playerName) {
-        interactionManager.joinNewGame(mapName, playerName);
-    }
-
-    /**
-     * Produces a noise effect to the given coordinates
-     */
-    public void noise(Coordinate coords) {
-        this.interactionManager.globalNoise(coords, true);
-        this.guiGamePane.setStateMessage("You've made noise on sector "
-                + coords.getX() + "" + coords.getY());
-        try {
-            this.handleAction();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     /**
      * Updates the map panel after using a light object card It displays the
@@ -348,78 +103,10 @@ public class GuiManager implements Observer {
         }
     }
 
-    /**
-     * Produces a light effect to the given coordinates
-     */
-    public void lights(Coordinate coords) {
-        this.interactionManager.lights(coords);
-        this.updateLightedSector(ClientStore.getInstance().getState().currentReqRespNotification
-                .getLightedSectors());
-        try {
-            this.handleAction();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        this.guiGamePane.refreshCardPanel();
-        this.updateCardsPanel();
-        this.guiGamePane.setStateMessage(ClientStore.getInstance().getState().currentReqRespNotification.getMessage());
-    }
-
-    /**
-     * Allows the client to use an object card
-     */
-    public void useObjectCard(ObjectCard card) {
-        int index = ClientStore.getInstance().getState().player.privateDeck.getContent().indexOf(card);
-        try {
-            this.interactionManager.useObjCard(index + 1);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        this.updatePosition();
-        this.guiGamePane.refreshCardPanel();
-        this.updateCardsPanel();
-        try {
-            this.handleAction();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (!ClientStore.getInstance().getState().currentReqRespNotification.getActionResult())
-            this.guiGamePane.setStateMessage("You cannot use this card!");
-        else {
-            if (!(card instanceof LightsObjectCard) && !(card instanceof AttackObjectCard))
-                this.guiGamePane.setStateMessage("You've used an object card!");
-        }
-    }
-
-    /**
-     * Allows the client to discard an object card
-     */
-    public void discard(ObjectCard card) {
-        int index = ClientStore.getInstance().getState().player.privateDeck.getContent().indexOf(card);
-        this.interactionManager.discardCard(index + 1);
-        this.guiGamePane.refreshCardPanel();
-        this.updateCardsPanel();
-        try {
-            this.handleAction();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        this.guiGamePane.setStateMessage("You've discarded an object card");
-    }
-
-    /**
-     * Allows the user to terminate its turn
-     */
-    public void endTurn() {
-        this.interactionManager.endTurn();
-        this.updateGuiState();
-        this.guiGamePane.showEndTurnButton(false);
-    }
-
     @Override
     public void update(Observable o, Object arg) {
         StoreAction action = (StoreAction) arg;
-        switch (action.getType()) {
+        switch (action.type) {
             case "@CLIENT_SET_AVAILABLE_GAMES":
                 this.setAvailableGamesReaction(action);
                 break;
@@ -451,7 +138,7 @@ public class GuiManager implements Observer {
                 this.discardObjectCardReaction(action);
                 break;
             case "@CLIENT_END_TURN":
-                this.endTurnReaction();
+                this.endTurnReaction(action);
                 break;
             case "@CLIENT_START_TURN":
                 this.startTurnReaction();
@@ -468,22 +155,11 @@ public class GuiManager implements Observer {
                 this.setWinnersReaction(action);
                 break;
             }
-            case "@CLIENT_SET_CURRENT_PUBSUB_NOTIFICATION":
-                this.setCurrentPubSubNotification(action);
-                ClientSetCurrentPubSubNotificationAction castedAction = (ClientSetCurrentPubSubNotificationAction) action;
-                this.guiGamePane.appendMsg(castedAction.payload.getMessage());
-                this.processPSNotification(castedAction.payload);
-                break;
-            case "@CLIENT_SET_CURRENT_REQRESP_NOTIFICATION":
-                //ClientSetCurrentReqRespNotificationAction castedAction = (ClientSetCurrentReqRespNotificationAction) action;
-                //this.guiGamePane.setStateMessage(castedAction.payload.getMessage());
-                break;
             case "@CLIENT_STARTABLE_GAME":
                 this.guiGameList.startableGame();
                 break;
         }
     }
-
     private void setWinnersReaction(StoreAction action) {
         ClientSetWinnersAction castedAction = (ClientSetWinnersAction) action;
         if (castedAction.humansHaveWon && castedAction.aliensHaveWon){
@@ -518,53 +194,6 @@ public class GuiManager implements Observer {
             this.guiGamePane.showEndTurnButton(false);
         }
     }
-
-    private void setCurrentPubSubNotification(StoreAction action) {
-        ClientSetCurrentPubSubNotificationAction castedAction = (ClientSetCurrentPubSubNotificationAction) action;
-        PlayerToken playerToken = ClientStore.getInstance().getState().player.playerToken;
-        PSClientNotification psNotification = castedAction.psNotification;
-        if (psNotification.getEscapedPlayer() != null) {
-            if (castedAction.psNotification.getEscapedPlayer().equals(playerToken)) {
-                this.guiGamePane.setStateMessage("You're ESCAPED!");
-                this.guiGamePane.changeCardMenu(MenuType.EMPTY);
-                this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-                this.guiGamePane.showEndTurnButton(false);
-            }
-        }
-
-        if (psNotification.getAlienWins() && psNotification.getHumanWins()){
-            new GUIFinalWindow(this.mainFrame,"HumanAlienW.png",true);
-        }
-        else if (psNotification.getHumanWins()){
-            new GUIFinalWindow(this.mainFrame, "HumanW.png",
-                    true);
-        }
-        else if (psNotification.getAlienWins()){
-            new GUIFinalWindow(this.mainFrame, "AlienW.png",
-                    true);
-        }
-        if (psNotification.getDeadPlayers().contains(playerToken)) {
-            this.guiGamePane.setStateMessage("You're DEAD!");
-            this.guiGamePane.changeCardMenu(MenuType.EMPTY);
-            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-            this.guiGamePane.showEndTurnButton(false);
-        }
-        if (psNotification.getAttackedPlayers().contains(playerToken)) {
-            JOptionPane.showMessageDialog(mainFrame, "You've used your Defence Object card, You're still alive!");
-            ObjectCard toRemove = null;
-            for (ObjectCard c : ClientStore.getInstance().getState().player.privateDeck.getContent()) {
-                if (c instanceof DefenseObjectCard) {
-                    toRemove = c;
-                    break;
-                }
-            }
-            ClientStore.getInstance().getState().player.privateDeck.getContent().remove(toRemove);
-            this.guiGamePane.refreshCardPanel();
-            this.updateCardsPanel();
-            this.guiGamePane.setStateMessage("You're safe!");
-        }
-    }
-
     private void publishChatMessageReaction(StoreAction action) {
         ClientSetCurrentChatMessage castedAction = (ClientSetCurrentChatMessage) action;
         this.guiGamePane.appendMsg(castedAction.message);
@@ -582,11 +211,14 @@ public class GuiManager implements Observer {
         }
     }
 
-    private void endTurnReaction() {
+    private void endTurnReaction(StoreAction action) {
+        ClientEndTurnAction castedAction = (ClientEndTurnAction) action;
         this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-        this.guiGamePane.changeCardMenu(MenuType.EMPTY);
-        this.guiGamePane.showEndTurnButton(false);
+        if (castedAction.isActionServerValidated){
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+            this.guiGamePane.changeCardMenu(MenuType.EMPTY);
+            this.guiGamePane.showEndTurnButton(false);
+        }
     }
 
     private void discardObjectCardReaction(StoreAction action) {
@@ -625,6 +257,11 @@ public class GuiManager implements Observer {
         if (castedAction.isServerValidated){
             if (castedAction.objectCard instanceof DefenseObjectCard){
                 this.guiGamePane.setStateMessage("You have succesfully defended from an attack");
+            }
+            if (castedAction.objectCard instanceof LightsObjectCard){
+                for (Sector sector : this.clientStore.getState().currentReqRespNotification.getLightedSectors()){
+                    this.guiGamePane.getMapPane().lightSector(sector.getCoordinate(),"A","Here there's an alien");
+                }
             }
             this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.privateDeck.getContent());
         }

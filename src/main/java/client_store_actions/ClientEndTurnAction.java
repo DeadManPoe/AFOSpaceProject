@@ -4,10 +4,14 @@ import server_store.StoreAction;
 
 /**
  * Created by giorgiopea on 25/03/17.
+ *
  */
 public class ClientEndTurnAction extends StoreAction {
 
-    public ClientEndTurnAction() {
-        this.type = "@CLIENT_END_TURN";
+    public final boolean isActionServerValidated;
+
+    public ClientEndTurnAction(boolean isActionServerValidated) {
+        super("@CLIENT_END_TURN");
+        this.isActionServerValidated = isActionServerValidated;
     }
 }

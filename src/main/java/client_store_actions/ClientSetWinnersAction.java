@@ -12,7 +12,7 @@ public class ClientSetWinnersAction extends StoreAction {
     public final boolean humansHaveWon;
 
     public ClientSetWinnersAction(boolean aliensHaveWon, boolean humansHaveWon) {
-        this.type = "@CLIENT_SET_WINNNERS";
+        super("@CLIENT_SET_WINNNERS");
         this.aliensHaveWon = aliensHaveWon;
         this.humansHaveWon = humansHaveWon;
     }

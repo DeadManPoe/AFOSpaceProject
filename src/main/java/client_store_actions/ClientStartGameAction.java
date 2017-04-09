@@ -10,7 +10,7 @@ public class ClientStartGameAction extends StoreAction {
     public final String gameMapName;
 
     public ClientStartGameAction(String gameMapName) {
-        this.type = "@CLIENT_START_GAME";
+        super("@CLIENT_START_GAME");
         this.gameMapName = gameMapName;
     }
 }

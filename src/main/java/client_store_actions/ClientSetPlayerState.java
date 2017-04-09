@@ -12,7 +12,7 @@ public class ClientSetPlayerState extends StoreAction {
 
     public ClientSetPlayerState(PlayerState playerState)
     {
-        this.type = "@CLIENT_SET_PLAYER_STATE";
+        super("@CLIENT_SET_PLAYER_STATE");
         this.playerState = playerState;
     }
 }
