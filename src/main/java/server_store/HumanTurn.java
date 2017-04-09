@@ -22,7 +22,7 @@ public class HumanTurn extends Turn {
     public static List<String> nextAction(StoreAction action, Player currentPlayer){
         List<String> nextActions = new ArrayList<>();
 
-        // Actions to be set after a move action
+        // Actions to be set after a moveToSector action
         if (action.type.equals("@GAMEACTION_MOVE")) {
             MoveAction move = (MoveAction) action;
             SectorType sectorType = move.payload.getSectorType();

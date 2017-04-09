@@ -49,7 +49,7 @@ public class UseObjCardEffect extends ActionEffect {
         ObjectCardsMapper mapper = new ObjectCardsMapper();
         RRClientNotification clientNotification = new RRClientNotification();
         PSClientNotification psNotification = new PSClientNotification();
-        // Checks if the card can be played before move or after move
+        // Checks if the card can be played before moveToSector or after moveToSector
         if (!game.currentPlayer.hasMoved) {
             if (!beforeMoveCards.contains(castedAction.payload.getClass()))
                 return false;

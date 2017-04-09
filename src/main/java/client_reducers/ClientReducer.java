@@ -19,7 +19,7 @@ public class ClientReducer implements Reducer {
     @Override
     public State reduce(StoreAction action, State state) {
         ClientState castedState = (ClientState) state;
-        switch (action.getType()){
+        switch (action.type){
             case "@CLIENT_START_GAME":
                 return this.startGame(action,castedState);
             case "@CLIENT_START_TURN":
@@ -185,9 +185,11 @@ public class ClientReducer implements Reducer {
     }
 
     private State moveToSector(StoreAction action, ClientState state) {
-        ClientMoveAction castedAction = (ClientMoveAction) action;
-        state.player.hasMoved = !castedAction.targetSector.equals(state.player.currentSector);
-        state.player.currentSector = castedAction.targetSector;
+        ClientMoveToSectorAction castedAction = (ClientMoveToSectorAction) action;
+        if (castedAction.isServerValidated){
+            state.player.hasMoved = !castedAction.targetSector.equals(state.player.currentSector);
+            state.player.currentSector = castedAction.targetSector;
+        }
         return state;
     }
 

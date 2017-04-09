@@ -195,7 +195,7 @@ public class CliInteractionManager implements Observer {
 				System.out.println(e.getMessage());
 				this.useObjectCard();
 			} catch ( SecurityException e) {
-				ClientLogger.getLogger().log(Level.SEVERE, "com error | move ",
+				ClientLogger.getLogger().log(Level.SEVERE, "com error | moveToSector ",
 						e);
 				System.out
 						.println("A communication error with the server occured, please try again. If the problem persist contact us");
@@ -205,11 +205,11 @@ public class CliInteractionManager implements Observer {
 	}
 
 	/**
-	 * Manages the client's request to move to a specific sector
+	 * Manages the client's request to moveToSector to a specific sector
 	 * 
 	 */
 	public void move() {
-		System.out.println("Specify the sector in which you want to move:");
+		System.out.println("Specify the sector in which you want to moveToSector:");
 		String input = this.requestInput();
 		try {
 			char horCoord = input.charAt(0);
@@ -223,7 +223,7 @@ public class CliInteractionManager implements Observer {
 		} catch (IllegalAccessException | InvocationTargetException
 				| NoSuchMethodException | SecurityException
 				| ClassNotFoundException | IOException | NotBoundException e) {
-			ClientLogger.getLogger().log(Level.SEVERE, "com error | move ", e);
+			ClientLogger.getLogger().log(Level.SEVERE, "com error | moveToSector ", e);
 			System.out
 					.println("A communication error with the server occured, please try again. If the problem persist contact us");
 		}

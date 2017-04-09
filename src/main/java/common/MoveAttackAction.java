@@ -3,7 +3,7 @@ package common;
 import server_store.StoreAction;
 
 /**
- * Represents a move action combined with an attack
+ * Represents a moveToSector action combined with an attack
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea

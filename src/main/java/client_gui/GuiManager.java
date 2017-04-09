@@ -50,28 +50,6 @@ public class GuiManager implements Observer {
         mainFrame.getContentPane().add(this.guiInitialWindow);
         this.guiInitialWindow.setVisible(true);
     }
-
-    private void updateGuiState() {
-        boolean isMyTurn = ClientStore.getInstance().getState().isMyTurn;
-        PlayerType playerType = ClientStore.getInstance().getState().player.playerType;
-        if (isMyTurn) {
-            this.guiGamePane.setStateMessage("It's your turn!");
-            if (playerType.equals(PlayerType.HUMAN)) {
-                this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_MENU);
-                this.guiGamePane.getMapPane().changeMapMenu(
-                        MenuType.HUMAN_INITIAL);
-            } else {
-                this.guiGamePane.changeCardMenu(MenuType.EMPTY);
-                this.guiGamePane.getMapPane().changeMapMenu(
-                        MenuType.ALIEN_INITIAL);
-            }
-        } else {
-            this.guiGamePane.setStateMessage("Waiting your turn!");
-            this.guiGamePane.changeCardMenu(MenuType.EMPTY);
-            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-        }
-    }
-
     public void connectAndDisplayGames() {
         try {
             this.guiInitialWindow.alertConnectionProblem(false);
@@ -150,7 +128,7 @@ public class GuiManager implements Observer {
                 e.printStackTrace();
             }
         } else {
-            this.guiGamePane.setStateMessage("You cannot move in that sector!");
+            this.guiGamePane.setStateMessage("You cannot moveToSector in that sector!");
         }
     }
 
@@ -452,7 +430,7 @@ public class GuiManager implements Observer {
                 this.startGameReaction();
                 break;
             case "@CLIENT_MOVE_TO_SECTOR":
-                this.moveToSectorReaction();
+                this.moveToSectorReaction(action);
                 break;
             case "@CLIENT_SET_DRAWN_SECTOR_OBJECT_CARD":
                 this.setDrawnSectorObjectCardReaction(action);
@@ -654,10 +632,11 @@ public class GuiManager implements Observer {
         }
     }
 
-    private void moveToSectorReaction() {
-        Player player = this.clientStore.getState().player;
+
+    private void moveToSectorReaction(StoreAction action) {
+        ClientMoveToSectorAction castedAction = (ClientMoveToSectorAction) action;
         this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        if (player.hasMoved){
+        if (castedAction.isServerValidated){
             this.updatePosition();
             this.guiGamePane.showEndTurnButton(true);
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);

@@ -18,7 +18,7 @@ public class AdrenalineObjCardEffect extends ObjectCardEffect {
 	public static boolean executeEffect(Game game, ObjectCard card) {
 		server_store.Player currentPlayer = game.currentPlayer;
 		// Notifications setting
-		game.lastRRclientNotification.setMessage("You will move by two sector this turn\n");
+		game.lastRRclientNotification.setMessage("You will moveToSector by two sector this turn\n");
 		game.lastPSclientNotification.setMessage("[GLOBAL MESSAGE]: "
 				+ currentPlayer.name
 				+ " has used an adrenaline object card\n");

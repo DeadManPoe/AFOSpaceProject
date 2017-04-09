@@ -364,7 +364,7 @@ public class GuiInteractionManager implements Observer {
 	}
 
 	/**
-	 * Allows the user to move on the given(target) sector
+	 * Allows the user to moveToSector on the given(target) sector
 	 */
 	public void move(Coordinate target) throws IllegalAccessException,
 			InvocationTargetException, NoSuchMethodException,
@@ -375,7 +375,7 @@ public class GuiInteractionManager implements Observer {
 			this.client.setHasMoved(true);
 		this.handleAction(client.getCurrentNotification());
 		if (!this.client.getCurrentNotification().getActionResult())
-			this.GUIGamePane.setStateMessage("You cannot move in that sector!");
+			this.GUIGamePane.setStateMessage("You cannot moveToSector in that sector!");
 	}
 
 	/**

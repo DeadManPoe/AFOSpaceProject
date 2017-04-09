@@ -5,14 +5,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.rmi.NotBoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
-import client_gui.GuiManager;
 import client_store.InteractionManager;
 import it.polimi.ingsw.cg_19.GameMap;
 
@@ -25,9 +20,6 @@ import javax.swing.JPopupMenu;
 import common.Coordinate;
 import common.Sector;
 import common.SectorType;
-import factories.FermiGameMapFactory;
-import factories.GalileiGameMapFactory;
-import factories.GalvaniGameMapFactory;
 import factories.GameMapFactory;
 
 /**
@@ -84,7 +76,7 @@ public class GUIMap extends JLayeredPane {
 		alienMoveItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				interactionManager.move(selectedSector.getReferredSector().getCoordinate());
+				interactionManager.moveToSector(selectedSector.getReferredSector().getCoordinate());
 			}
 		});
 

@@ -130,9 +130,13 @@ public class InteractionManager {
         ClientStore.getInstance().dispatchAction(new ClientDenyTurnAction());
     }
 
-    public void move(Coordinate coordinate) {
+    /**
+     * Moves the client to the sector at the given coordinates and executes the other logic related to this action.
+     * This action is validated by contacting the game server
+     * @param coordinate The coordinates of the sector to move to
+     */
+    public void moveToSector(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
-        Sector currentSector = this.clientStore.getState().player.currentSector;
         RRClientNotification currentReqResponseNotification = this.clientStore.getState().currentReqRespNotification;
         this.clientStore.dispatchAction(new ClientAskAttackAction(false));
         ArrayList<Object> parameters = new ArrayList<Object>();
@@ -142,11 +146,8 @@ public class InteractionManager {
         try {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
             this.processRemoteInvocation(methodCall);
-            if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
-                this.clientStore.dispatchAction(new ClientMoveAction(targetSector));
-            } else {
-                this.clientStore.dispatchAction(new ClientMoveAction(currentSector));
-            }
+            boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
+            this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector, isActionServerValidated));
             List<Card> drawnCards = currentReqResponseNotification.getDrawnCards();
             if (drawnCards.size() == 1){
                 this.clientStore.dispatchAction(
@@ -351,9 +352,9 @@ public class InteractionManager {
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
         if (this.clientStore.getState().currentReqRespNotification.getActionResult()) {
-            this.clientStore.dispatchAction(new ClientMoveAction(targetSector));
+            this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector));
         } else {
-            this.clientStore.dispatchAction(new ClientMoveAction(currentSector));
+            this.clientStore.dispatchAction(new ClientMoveToSectorAction(currentSector));
         }
 
     }

@@ -367,13 +367,13 @@ public class Client extends Observable {
 	}
 
 	/**
-	 * Processes a move action request by the client. This processing consists
+	 * Processes a moveToSector action request by the client. This processing consists
 	 * in a remote method call to the server
 	 * 
 	 * @param horCoord
-	 *            the horizontal coordinate of the sector in which to move
+	 *            the horizontal coordinate of the sector in which to moveToSector
 	 * @param vertCoord
-	 *            the vertical coordinate of the sector in which to move
+	 *            the vertical coordinate of the sector in which to moveToSector
 	 * @throws IllegalAccessException
 	 *             signals a com. error
 	 * @throws IllegalArgumentException
