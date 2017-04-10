@@ -29,7 +29,7 @@ public class EndTurnEffect extends ActionEffect {
         game.currentPlayer.hasMoved = false;
         // Set the new current player
 
-
+        game.lastRRclientNotification.setMessage(game.lastRRclientNotification.getMessage()+ "\nYou have ended your turn");
         game.lastPSclientNotification = new PSClientNotification();
         game.lastPSclientNotification.setMessage("\n[GLOBAL MESSAGE]: "
                 + game.currentPlayer.name

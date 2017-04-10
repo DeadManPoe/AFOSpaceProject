@@ -185,7 +185,6 @@ public class InteractionManager {
      */
     public void moveToSector(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
-        RRClientNotification currentReqResponseNotification = this.clientStore.getState().currentReqRespNotification;
         this.clientStore.dispatchAction(new ClientAskAttackAction(false));
         ArrayList<Object> parameters = new ArrayList<>();
         StoreAction action = new MoveAction(targetSector);
@@ -200,8 +199,8 @@ public class InteractionManager {
             //If connection is down
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
-        boolean isActionServerValidated = currentReqResponseNotification.getActionResult();
-        List<Card> drawnCards = currentReqResponseNotification.getDrawnCards();
+        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
+        List<Card> drawnCards = this.clientStore.getState().currentReqRespNotification.getDrawnCards();
         this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector, isActionServerValidated));
         if (isActionServerValidated) {
             if (drawnCards.size() == 1) {

@@ -63,7 +63,7 @@ public class MoveActionEffect extends ActionEffect {
                 sourceSector.removePlayer(currentPlayer);
                 currentPlayer.currentSector = targetSector;
                 targetSector.addPlayer(currentPlayer);
-                game.lastPSclientNotification.setMessage("You have moved to sector "
+                game.lastRRclientNotification.setMessage("You have moved to sector "
                         + targetSector.getCoordinate().toString());
                 game.lastPSclientNotification.setMessage("[GLOBAL MESSAGE]: "
                         + currentPlayer.name + " has moved.");

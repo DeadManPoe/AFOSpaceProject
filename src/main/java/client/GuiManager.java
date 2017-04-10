@@ -112,7 +112,7 @@ public class GuiManager implements Observer {
             case "@CLIENT_USE_OBJECT_CARD":
                 this.useObjectCardReaction(action);
                 break;
-            case "@CLIENT_ASK_FOR_SECTOR_TO_LIGHT":
+            case "@CLIENT_ASK_SECTOR_TO_LIGHT":
                 this.askForSectorToLightReaction(action);
                 break;
             case "@CLIENT_ASK_FOR_SECTOR_TO_ATTACK":
