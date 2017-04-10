@@ -187,7 +187,6 @@ public class InteractionManager {
     public void moveToSector(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         RRClientNotification currentReqResponseNotification = this.clientStore.getState().currentReqRespNotification;
-        boolean isActionServerValidated = currentReqResponseNotification.getActionResult();
         List<Card> drawnCards = currentReqResponseNotification.getDrawnCards();
         this.clientStore.dispatchAction(new ClientAskAttackAction(false));
         ArrayList<Object> parameters = new ArrayList<>();
@@ -203,6 +202,7 @@ public class InteractionManager {
             //If connection is down
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
+        boolean isActionServerValidated = currentReqResponseNotification.getActionResult();
         this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector, isActionServerValidated));
         if (isActionServerValidated) {
             if (drawnCards.size() == 1) {
@@ -321,7 +321,6 @@ public class InteractionManager {
      */
     public void lights(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
-        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         if (targetSector != null) {
             ObjectCard lightsCard = new LightsObjectCard(targetSector);
             ArrayList<Object> parameters = new ArrayList<>();
@@ -338,6 +337,7 @@ public class InteractionManager {
                 //If connection is down
                 this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
             }
+            boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
             this.clientStore.dispatchAction(new ClientUseObjectCard(lightsCard, isActionServerValidated));
             if (isActionServerValidated) {
                 this.clientStore.dispatchAction(new ClientAskSectorToLightAction(false));
@@ -355,7 +355,6 @@ public class InteractionManager {
     public void endTurn() {
         ArrayList<Object> parameters = new ArrayList<>();
         StoreAction action = new EndTurnAction();
-        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         parameters.add(action);
         parameters.add(this.clientStore.getState().player.playerToken);
         try {
@@ -366,6 +365,7 @@ public class InteractionManager {
             //If connection is down
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
+        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         this.clientStore.dispatchAction(new ClientEndTurnAction(isActionServerValidated));
     }
 
@@ -376,7 +376,6 @@ public class InteractionManager {
      */
     public void discardCard(ObjectCard objectCard) {
         Player player = this.clientStore.getState().player;
-        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         if (player.privateDeck.getContent().contains(objectCard)) {
             ArrayList<Object> parameters = new ArrayList<>();
             StoreAction action = new DiscardAction(objectCard);
@@ -391,6 +390,7 @@ public class InteractionManager {
                 //If connection is down
                 this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
             }
+            boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
             this.clientStore.dispatchAction(new ClientDiscardObjectCardAction(objectCard, isActionServerValidated));
         }
     }
@@ -424,7 +424,6 @@ public class InteractionManager {
     public void attack(Coordinate coordinate) {
         Player player = this.clientStore.getState().player;
         boolean humanAttack = player.playerToken.playerType.equals(PlayerType.HUMAN);
-        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         ArrayList<Object> parameters = new ArrayList<>();
         AttackObjectCard card;
@@ -448,6 +447,7 @@ public class InteractionManager {
             //If connection is down
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
+        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector, isActionServerValidated));
 
     }

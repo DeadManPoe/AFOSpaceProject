@@ -209,7 +209,14 @@ public class GuiManager implements Observer {
      */
     private void startTurnReaction() {
         Player player = this.clientStore.getState().player;
-        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
+        String message;
+        if (player.playerToken.playerType.equals(PlayerType.ALIEN)){
+            message = player.name + " now is your turn: move or attack";
+        }
+        else {
+            message = player.name + "now is your turn: move or use an object card";
+        }
+        this.guiGamePane.setStateMessage(message);
         if (player.playerToken.playerType.equals(PlayerType.ALIEN)) {
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.ALIEN_INITIAL);
         } else {
