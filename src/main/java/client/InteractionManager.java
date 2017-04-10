@@ -276,7 +276,7 @@ public class InteractionManager {
      * Allows the client to act on the game as consequence of a favorable turn switch.
      * This method is invoked indirectly using reflection.
      */
-    private void allowTurn() {
+    private void startTurn() {
         this.clientStore.dispatchAction(new ClientStartTurnAction());
     }
 
