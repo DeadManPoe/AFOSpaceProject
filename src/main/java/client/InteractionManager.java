@@ -40,10 +40,9 @@ public class InteractionManager {
      * in response to a client request.
      * This method is invoked indirectly using reflection.
      *
-     * @param clientNotification The produced notification
+     * @param rrClientNotification The produced notification
      */
-    private void syncNotification(ClientNotification clientNotification) {
-        RRClientNotification rrClientNotification = (RRClientNotification) clientNotification;
+    private void syncNotification(RRClientNotification rrClientNotification) {
         this.clientStore.dispatchAction(new ClientSetCurrentReqRespNotificationAction(rrClientNotification));
     }
 
@@ -54,7 +53,7 @@ public class InteractionManager {
      * @param psNotification The produced notification
      * @see PubSubHandler
      */
-    private void asyncNotification(ClientNotification psNotification) {
+    private void asyncNotification(PSClientNotification psNotification) {
         PSClientNotification notification = (PSClientNotification) psNotification;
         Player player = this.clientStore.getState().player;
         if (notification.getEscapedPlayer() != null) {
@@ -187,7 +186,6 @@ public class InteractionManager {
     public void moveToSector(Coordinate coordinate) {
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         RRClientNotification currentReqResponseNotification = this.clientStore.getState().currentReqRespNotification;
-        List<Card> drawnCards = currentReqResponseNotification.getDrawnCards();
         this.clientStore.dispatchAction(new ClientAskAttackAction(false));
         ArrayList<Object> parameters = new ArrayList<>();
         StoreAction action = new MoveAction(targetSector);
@@ -203,6 +201,7 @@ public class InteractionManager {
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
         boolean isActionServerValidated = currentReqResponseNotification.getActionResult();
+        List<Card> drawnCards = currentReqResponseNotification.getDrawnCards();
         this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector, isActionServerValidated));
         if (isActionServerValidated) {
             if (drawnCards.size() == 1) {

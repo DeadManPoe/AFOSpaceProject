@@ -48,7 +48,7 @@ public class GameMakeActionEffect implements Effect {
                 if (handler.getUuid().equals(castedAction.payload.reqRespHandlerUUID)) {
                     ArrayList<Object> parameters = new ArrayList<>();
                     parameters.add(game.lastRRclientNotification);
-                    handler.addRemoteMethodCallToQueue(new RemoteMethodCall("sendNotification", parameters));
+                    handler.addRemoteMethodCallToQueue(new RemoteMethodCall("syncNotification", parameters));
                     break;
                 }
             }
@@ -56,7 +56,7 @@ public class GameMakeActionEffect implements Effect {
                 if (handler.getPlayerToken().gameId == game.gamePublicData.getId()) {
                     ArrayList<Object> parameters = new ArrayList<>();
                     parameters.add(game.lastPSclientNotification);
-                    handler.queueNotification(new RemoteMethodCall("sendPubNotification", parameters));
+                    handler.queueNotification(new RemoteMethodCall("asyncNotification", parameters));
 
                     if (castedAction.payload.action.type.equals("@GAMEACTION_END_TURN") && game.currentPlayer.playerToken.equals(handler.getPlayerToken())) {
                         handler.queueNotification(new RemoteMethodCall("startTurn", new ArrayList<Object>()));
