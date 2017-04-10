@@ -146,6 +146,7 @@ public class GUIGameList extends JPanel {
                             gameTables.getSelectedRow(), 0);
                     stateMessage.setText("Waiting for others players...");
                     interactionManager.joinGame(gameId, playerName);
+                    buttonPanel.setVisible(false);
                 } else {
                     JOptionPane.showMessageDialog(guiManager.getFrame(),
                             "Please insert a valid name",
@@ -175,7 +176,7 @@ public class GUIGameList extends JPanel {
                         "Galilei");
                 if(mapName != null){
                     stateMessage.setText("Waiting for others players...");
-                    this.interactionManager.joinNewGame(mapName,playerName);
+                    this.interactionManager.joinNewGame(mapName.toUpperCase(),playerName);
                     buttonPanel.setVisible(false);
                 }
 

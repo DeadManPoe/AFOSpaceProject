@@ -182,7 +182,7 @@ public class GameMap {
 				return s;
 			}
 		}
-		throw new NoSuchElementException("No sector with the given coordinates exists");
+		return null;
 	}
 
 	/**

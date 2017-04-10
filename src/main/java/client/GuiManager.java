@@ -101,7 +101,7 @@ public class GuiManager implements Observer {
                 this.setConnectionActiveReaction(action);
                 break;
             case "@CLIENT_START_GAME":
-                this.startGameReaction();
+                this.startGameReaction(action);
                 break;
             case "@CLIENT_MOVE_TO_SECTOR":
                 this.moveToSectorReaction(action);
@@ -384,7 +384,8 @@ public class GuiManager implements Observer {
      * Switches to the {@link client.GUIGamePane} view from the {@link client.GUIGameList} and
      * acts on this view in response to the starting of the game
      */
-    private void startGameReaction() {
+    private void startGameReaction(StoreAction action) {
+        ClientStartGameAction castedAction = (ClientStartGameAction) action;
         Player player = this.clientStore.getState().player;
         String characterInfoMsg;
         if (player.playerToken.playerType.equals(PlayerType.ALIEN)) {
@@ -395,7 +396,7 @@ public class GuiManager implements Observer {
             this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
         }
         this.mainFrame.remove(this.guiGameList);
-        this.guiGamePane.load("dasd");
+        this.guiGamePane.load(castedAction.gameMapName);
         this.mainFrame.add(this.guiGamePane);
         this.guiGamePane.setVisible(true);
         this.guiGamePane.setInfoMsg(characterInfoMsg);
