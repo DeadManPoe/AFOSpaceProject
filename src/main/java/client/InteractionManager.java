@@ -56,6 +56,7 @@ public class InteractionManager {
     private void asyncNotification(PSClientNotification psNotification) {
         PSClientNotification notification = (PSClientNotification) psNotification;
         Player player = this.clientStore.getState().player;
+        this.clientStore.dispatchAction(new ClientSetCurrentChatMessage(notification.getMessage()));
         if (notification.getEscapedPlayer() != null) {
             if (notification.getEscapedPlayer().equals(player.playerToken)) {
                 this.clientStore.dispatchAction(new ClientSetPlayerState(PlayerState.ESCAPED));
@@ -356,8 +357,9 @@ public class InteractionManager {
         parameters.add(action);
         parameters.add(this.clientStore.getState().player.playerToken);
         try {
-            this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
-        } catch (ClassNotFoundException e) {
+            RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
+            this.processRemoteInvocation(remoteMethodCall);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         } catch (IOException e) {
             //If connection is down

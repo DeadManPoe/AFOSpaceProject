@@ -167,6 +167,11 @@ public class GuiManager implements Observer {
         this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
         this.guiGamePane.refreshCardPanel(new ArrayList<ObjectCard>());
         this.guiGamePane.showEndTurnButton(false);
+        this.mainFrame.remove(this.guiGamePane);
+        this.mainFrame.add(this.guiGameList);
+        this.guiGameList.setVisible(true);
+        this.mainFrame.validate();
+        this.mainFrame.repaint();
     }
 
     /**
@@ -346,7 +351,6 @@ public class GuiManager implements Observer {
         CardSplashScreen cardSplashScreen = new CardSplashScreen(this.mainFrame);
         cardSplashScreen.showCards(castedAction.drawnSectorCard, castedAction.drawnObjectCard);
         PrivateDeck clientPrivateDeck = this.clientStore.getState().player.privateDeck;
-
         //The action has not been validated by the server so only a message is shown
         if (!castedAction.isActionServerValidated) {
             this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
@@ -374,6 +378,7 @@ public class GuiManager implements Observer {
                 this.guiGamePane.showEndTurnButton(true);
             }
         } else {
+            this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
             if (clientPrivateDeck.getSize() > 3) {
                 this.manyCardHandler();
@@ -435,13 +440,14 @@ public class GuiManager implements Observer {
         ClientSetAvailableGamesAction castedAction = (ClientSetAvailableGamesAction) action;
         this.guiGameList.setGameListContent(castedAction.availableGames);
         if (!this.guiGameList.isVisible()){
-            this.guiInitialWindow.setVisible(false);
+            this.mainFrame.remove(this.guiInitialWindow);
             this.guiGameList
                     .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
             this.guiGameList.setBackground(Color.BLACK);
             this.guiGameList.load();
             mainFrame.getContentPane().add(this.guiGameList);
             this.guiGameList.setVisible(true);
+            this.mainFrame.validate();
             this.mainFrame.repaint();
         }
 

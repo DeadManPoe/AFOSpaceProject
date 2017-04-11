@@ -24,16 +24,16 @@ public class ObjectDeckFactory extends DeckFactory {
 	public Deck makeDeck() {
 		List<Card> deck = new ArrayList<Card>();
 		// Object cards insertion
-		//deck.add(new AttackObjectCard(null));
-		//deck.add(new AttackObjectCard(null));
-		//deck.add(new TeleportObjectCard());
-		/*deck.add(new AdrenalineObjectCard());
+		deck.add(new AttackObjectCard(null));
+		deck.add(new AttackObjectCard(null));
+		deck.add(new TeleportObjectCard());
 		deck.add(new AdrenalineObjectCard());
-		deck.add(new AdrenalineObjectCard());*/
-		/*deck.add(new SuppressorObjectCard());
+		deck.add(new AdrenalineObjectCard());
+		deck.add(new AdrenalineObjectCard());
 		deck.add(new SuppressorObjectCard());
-		deck.add(new SuppressorObjectCard());*/
-		//deck.add(new DefenseObjectCard());
+		deck.add(new SuppressorObjectCard());
+		deck.add(new SuppressorObjectCard());
+		deck.add(new DefenseObjectCard());
 		deck.add(new LightsObjectCard(null));
 		deck.add(new LightsObjectCard(null));
 		deck.add(new LightsObjectCard(null));

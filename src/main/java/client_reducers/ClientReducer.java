@@ -149,7 +149,7 @@ public class ClientReducer implements Reducer {
         state.availableGames = castedAction.availableGames;
         if (state.gamePollingTimer == null){
             state.gamePollingTimer = new Timer();
-            state.gamePollingTimer.scheduleAtFixedRate(new GamePollingThread(),10000,state.gameListPollingPeriod);
+            state.gamePollingTimer.scheduleAtFixedRate(new GamePollingThread(),1000,state.gameListPollingPeriod);
         }
         return state;
     }
