@@ -182,13 +182,14 @@ public class GuiManager implements Observer {
      */
     private void setPlayerStateReaction(StoreAction action) {
         ClientSetPlayerState castedAction = (ClientSetPlayerState) action;
+        PSClientNotification psClientNotification = this.clientStore.getState().currentPubSubNotification;
         if (castedAction.playerState.equals(PlayerState.ESCAPED)) {
             this.guiGamePane.setStateMessage("You've ESCAPED!");
             this.guiGamePane.changeCardMenu(MenuType.EMPTY);
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
             this.guiGamePane.refreshCardPanel(new ArrayList<ObjectCard>());
             this.guiGamePane.showEndTurnButton(false);
-        } else if (castedAction.playerState.equals(PlayerState.DEAD)) {
+        } else if (castedAction.playerState.equals(PlayerState.DEAD) && !(psClientNotification.getAlienWins() || psClientNotification.getHumanWins())) {
             this.guiGamePane.setStateMessage("You're DEAD!");
             this.guiGamePane.changeCardMenu(MenuType.EMPTY);
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);

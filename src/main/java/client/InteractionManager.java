@@ -56,6 +56,10 @@ public class InteractionManager {
     private void asyncNotification(PSClientNotification psNotification) {
         PSClientNotification notification = (PSClientNotification) psNotification;
         Player player = this.clientStore.getState().player;
+        if (notification.getHumanWins() || notification.getAlienWins()) {
+            this.clientStore.dispatchAction(new ClientSetWinnersAction(notification.getAlienWins(), notification.getHumanWins()));
+            this.clientStore.dispatchAction(new ClientRemovePubSubHandlerAction());
+        }
         this.clientStore.dispatchAction(new ClientSetCurrentChatMessage(notification.getMessage()));
         if (notification.getEscapedPlayer() != null) {
             if (notification.getEscapedPlayer().equals(player.playerToken)) {
@@ -66,10 +70,6 @@ public class InteractionManager {
             this.clientStore.dispatchAction(new ClientSetPlayerState(PlayerState.DEAD));
         } else if (notification.getAttackedPlayers().contains(player.playerToken)) {
             this.clientStore.dispatchAction(new ClientUseObjectCard(new DefenseObjectCard(), true));
-        }
-        if (notification.getHumanWins() || notification.getAlienWins()) {
-            this.clientStore.dispatchAction(new ClientSetWinnersAction(notification.getAlienWins(), notification.getHumanWins()));
-            this.clientStore.dispatchAction(new ClientRemovePubSubHandlerAction());
         }
 
     }
