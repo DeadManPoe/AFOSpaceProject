@@ -27,7 +27,7 @@ public class ClientState extends State implements Serializable {
     public RRClientNotification currentReqRespNotification;
     public boolean askLights;
     public boolean askAttack;
-    public Timer gamePollingTimer;
+    public StatefulTimer gamePollingTimer;
     public String lastChatMessage;
     public PSClientNotification currentPubSubNotification;
     public long gameListPollingPeriod;

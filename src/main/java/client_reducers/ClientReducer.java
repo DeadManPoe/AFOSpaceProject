@@ -3,6 +3,7 @@ package client_reducers;
 import client.ClientState;
 import client.GamePollingThread;
 import client_store_actions.*;
+import common.StatefulTimer;
 import factories.GameMapFactory;
 import it.polimi.ingsw.cg_19.PlayerType;
 import server_store.Player;
@@ -148,8 +149,7 @@ public class ClientReducer implements Reducer {
         ClientSetAvailableGamesAction castedAction = (ClientSetAvailableGamesAction) action;
         state.availableGames = castedAction.availableGames;
         if (state.gamePollingTimer == null){
-            state.gamePollingTimer = new Timer();
-            state.gamePollingTimer.scheduleAtFixedRate(new GamePollingThread(),1000,state.gameListPollingPeriod);
+            state.gamePollingTimer = new StatefulTimer();
         }
         return state;
     }
