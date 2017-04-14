@@ -21,6 +21,7 @@ public class Game {
     public RescueDeck rescueDeck;
     public SectorDeck sectorDeck;
     public server_store.Player currentPlayer;
+    public server_store.Player previousPlayer;
     public int turnNumber;
     public GamePublicData gamePublicData;
     public String mapName;

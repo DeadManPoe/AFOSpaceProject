@@ -369,6 +369,13 @@ public class InteractionManager {
         this.clientStore.dispatchAction(new ClientEndTurnAction(isActionServerValidated));
     }
 
+    private void forceEndTurn(){
+        RRClientNotification clientNotification = new RRClientNotification();
+        clientNotification.setMessage("You have taken too much to act, you will skip your turn");
+        this.clientStore.dispatchAction(new ClientSetCurrentReqRespNotificationAction(clientNotification));
+        this.clientStore.dispatchAction(new ClientEndTurnAction(true));
+    }
+
     /**
      * Makes the client discard a given object card. This action is validated and registered by contacting the game server.
      *

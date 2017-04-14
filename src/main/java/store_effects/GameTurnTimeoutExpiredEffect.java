@@ -41,6 +41,9 @@ public class GameTurnTimeoutExpiredEffect implements Effect {
                     if (handler.getPlayerToken().equals(game_.currentPlayer.playerToken)){
                         handler.queueNotification(new RemoteMethodCall("startTurn", new ArrayList<>()));
                     }
+                    if (handler.getPlayerToken().equals(game_.previousPlayer.playerToken)){
+                        handler.queueNotification(new RemoteMethodCall("forceEndTurn", new ArrayList<>()));
+                    }
                     handler.queueNotification(new RemoteMethodCall("asyncNotification",parameters));
 
                 }

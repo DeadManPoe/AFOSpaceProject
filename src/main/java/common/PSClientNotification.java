@@ -24,7 +24,8 @@ public class PSClientNotification extends ClientNotification implements
 	private boolean alienWins;
 	private PlayerToken escapedPlayer;
 
-	/**
+
+    /**
 	 * Constructs a notification o be delivered to all the subscribers of a
 	 * topic in the logic of the publisher-subscriber pattern. An empty list of
 	 * dead players and attacked players is automatically created as well

@@ -5,10 +5,7 @@ import common.PSClientNotification;
 import common.RRClientNotification;
 import it.polimi.ingsw.cg_19.PlayerState;
 import server_store.Game;
-import server_store.ServerState;
 import server_store.StoreAction;
-
-import java.util.ArrayList;
 
 /**
  * Represents the effect associated to the action of ending a turn.
@@ -22,14 +19,16 @@ import java.util.ArrayList;
 
 public class EndTurnEffect extends ActionEffect {
 
+
     public static boolean executeEffect(Game game, StoreAction action) {
         EndTurnAction castedAction = (EndTurnAction) action;
         game.currentPlayer.isAdrenalined = false;
         game.currentPlayer.isSedated = false;
         game.currentPlayer.hasMoved = false;
         // Set the new current player
-
-        game.lastRRclientNotification.setMessage(game.lastRRclientNotification.getMessage()+ "\nYou have ended your turn");
+        game.lastRRclientNotification = new RRClientNotification();
+        game.lastPSclientNotification = new PSClientNotification();
+        game.lastRRclientNotification.setMessage("\nYou have ended your turn");
         game.lastPSclientNotification = new PSClientNotification();
         game.lastPSclientNotification.setMessage("\n[GLOBAL MESSAGE]: "
                 + game.currentPlayer.name
@@ -37,7 +36,6 @@ public class EndTurnEffect extends ActionEffect {
 
         shiftCurrentplayer(game);
         game.lastPSclientNotification.setMessage(game.lastPSclientNotification.getMessage() + game.currentPlayer.name + " now is your turn");
-
         // Notify the client
         game.lastAction = castedAction;
         return true;
@@ -51,6 +49,7 @@ public class EndTurnEffect extends ActionEffect {
                 currentPlayerIndex = 0;
         } while (game.players.get(currentPlayerIndex).playerState == PlayerState.DEAD);
 
+        game.previousPlayer = game.currentPlayer;
         game.currentPlayer = game.players.get(currentPlayerIndex);
     }
 
