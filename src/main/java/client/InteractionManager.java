@@ -34,6 +34,10 @@ public class InteractionManager {
         this.clientStore = ClientStore.getInstance();
         this.communicationHandler = CommunicationHandler.getInstance();
     }
+    public InteractionManager(CommunicationHandler communicationHandler){
+        this.clientStore = ClientStore.getInstance();
+        this.communicationHandler = communicationHandler;
+    }
 
     /**
      * Handles a synchronous notification that has been produced by the server
