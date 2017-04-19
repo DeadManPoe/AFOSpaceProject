@@ -23,7 +23,6 @@ import common.RemoteMethodCall;
  * @see ServerServicesViaRmiInt
  * @see GameManager
  * @see MainServer
- * @see GameOld
  * @author Andrea Sessa
  * @author Giorgio Pea
  */

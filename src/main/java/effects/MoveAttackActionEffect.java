@@ -3,10 +3,7 @@ package effects;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import it.polimi.ingsw.cg_19.Game;
-import it.polimi.ingsw.cg_19.Player;
-import it.polimi.ingsw.cg_19.PlayerState;
-import it.polimi.ingsw.cg_19.PlayerType;
+import it.polimi.ingsw.cg_19.*;
 import common.DefenseObjectCard;
 import common.MoveAttackAction;
 import common.ObjectCard;
@@ -67,9 +64,8 @@ public class MoveAttackActionEffect extends ActionEffect {
 		String psMessage = "";
 
 		if (!sourceSector.equals(moveAttackAction.getTarget())) {
-			if (game.getMap().checkSectorAdiacency(sourceSector, targetSector,
-					currentPlayer.getSpeed(), 0, currentPlayer.getPlayerType(),
-					sourceSector, currentPlayer.isAdrenaline())) {
+			if (game.getMap().checkSectorAdiacency(sourceSector,targetSector,currentPlayer.getSpeed(),
+                    currentPlayer.isAdrenaline()) && this.verifyMoveLegality(sourceSector, targetSector, currentPlayer.getPlayerType())) {
 				
 				// For each player contained in the target sector
 				for (Player player : targetSector.getPlayers()) {
@@ -153,5 +149,21 @@ public class MoveAttackActionEffect extends ActionEffect {
 
 		return false;
 	}
+    private boolean verifyMoveLegality(Sector source, Sector target, PlayerType playerType){
+        if (source.equals(target)){
+            return false;
+        }
+        if (playerType.equals(PlayerType.HUMAN) &&
+                (target.getSectorLegality().equals(SectorLegality.NONE))){
+            return false;
+        }
+        else if (playerType.equals(PlayerType.ALIEN) &&
+                (target.getSectorLegality().equals(SectorLegality.NONE)
+                        || target.getSectorLegality().equals(SectorLegality.HUMAN))){
+            return false;
+        }
+        return true;
+
+    }
 
 }

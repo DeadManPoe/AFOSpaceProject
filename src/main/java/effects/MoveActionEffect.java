@@ -49,6 +49,10 @@ public class MoveActionEffect extends ActionEffect {
 		// Retrieve a reference of the map
 		GameMap map = game.getMap();
 		Player currentPlayer = game.getCurrentPlayer();
+		int adrenalineBooster = 0;
+        if (currentPlayer.isAdrenaline()){
+            adrenalineBooster = 1;
+        }
 		// Checks the source != target
 		if (!currentPlayer.getSector().equals(moveAction.getTarget())) {
 			// Retrieve the "true" reference of source and target
@@ -58,9 +62,7 @@ public class MoveActionEffect extends ActionEffect {
 					.getCoordinate());
 			// Checks that source and target are adjacent according to the speed
 			// of the player
-			if (map.checkSectorAdiacency(sourceSector, targetSector,
-					currentPlayer.getSpeed(), 0, currentPlayer.getPlayerType(),
-					sourceSector, currentPlayer.isAdrenaline())) {
+			if (map.checkSectorAdiacency(sourceSector,targetSector, currentPlayer.getSpeed() + adrenalineBooster, currentPlayer.isAdrenaline())) {
 				// This two lines implements the move
 				sourceSector.removePlayer(currentPlayer);
 				currentPlayer.setSector(targetSector);
