@@ -19,6 +19,11 @@ public class PlayerToken implements Serializable {
 	// The universally unique identifier of the player
 	private final UUID playerId;
 	private final PlayerType playerType;
+	private final int gameId;
+
+	public int getGameId() {
+		return gameId;
+	}
 
 	/**
 	 * Constructs a token that identifies in an unique way a player. This token
@@ -29,9 +34,10 @@ public class PlayerToken implements Serializable {
 	 *            the type of the player the token refers to
 	 * @see PlayerType
 	 */
-	public PlayerToken(PlayerType playerType) {
+	public PlayerToken(PlayerType playerType, int gameId) {
 		this.playerId = UUID.randomUUID();
 		this.playerType = playerType;
+		this.gameId = gameId;
 	}
 
 	/**

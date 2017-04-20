@@ -67,9 +67,7 @@ public class ServerServicesViaSocket {
 	 * 
 	 * @param gameMapName
 	 *            the name of map to be associated with the new game
-	 * @param playerToken
 	 *            the client/player unique identifier
-	 * @throws IOException
 	 */
 	public synchronized void joinNewGame(String gameMapName, String playerName)
 			throws IOException {
@@ -77,17 +75,7 @@ public class ServerServicesViaSocket {
 		this.gameManager.addGame(game);
 		PlayerToken playerToken = game.addPlayer(playerName);
 		this.gameManager.addPlayerToGame(playerToken, game.getId());
-		ArrayList<Object> parameters = new ArrayList<Object>();
-		parameters.add(playerToken);
-		server.getSocketDataExchange().sendData(
-				new RemoteMethodCall("sendToken", parameters));
-		SubscriberHandler handler = server.getSocketDataExchange().keepAlive();
-		game.addSubscriber(handler);
-
-		parameters.clear();
-		parameters.add("You've joined a new game");
-		game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
-
+		//Insert here a notification of success
 	}
 
 	/**
@@ -96,23 +84,11 @@ public class ServerServicesViaSocket {
 	 * 
 	 * @param gameId
 	 *            the id of game the client wants to join
-	 * @param playerToken
-	 *            the client/player unique identifier
-	 * @throws IOException
 	 */
 	public synchronized void joinGame(Integer gameId, String playerName) throws IOException {
 		Game game = this.gameManager.getGame(gameId);
 		PlayerToken playerToken = game.addPlayer(playerName);
 		this.gameManager.addPlayerToGame(playerToken, gameId);
-		ArrayList<Object> parameters = new ArrayList<Object>();
-		parameters.add(playerToken);
-		server.getSocketDataExchange().sendData(
-				new RemoteMethodCall("sendToken", parameters));
-		game.addSubscriber(server.getSocketDataExchange().keepAlive());
-		parameters.clear();
-		parameters.add("A new player joined the game");
-		game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
-		// game.startGame();
 	}
 
 	/**
@@ -223,5 +199,28 @@ public class ServerServicesViaSocket {
 		this.getClass().getDeclaredMethod(methodName, parametersClasses)
 				.invoke(this, parameters.toArray());
 	}
+    public void publishGlobalMessage(String message,
+                                     PlayerToken token) throws IOException {
+        String playerName = "";
+        Game game = this.gameManager.getGame(token.)
+        for (Game game : this.serverStore.getState().getGames()){
+            if (game.gamePublicData.getId() == token.gameId){
+                for (Player player : game.players){
+                    if (player.playerToken.equals(token)){
+                        playerName = player.name;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        for (PubSubHandler handler : this.serverStore.getState().getPubSubHandlers()){
+            if(handler.getPlayerToken().gameId.equals(token.gameId)){
+                ArrayList<Object> parameters = new ArrayList<>();
+                parameters.add(playerName+" says: "+message);
+                handler.queueNotification(new RemoteMethodCall("publishChatMsg",parameters));
+            }
+        }
+    }
 
 }
