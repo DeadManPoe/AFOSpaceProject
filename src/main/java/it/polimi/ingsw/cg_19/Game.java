@@ -1,6 +1,8 @@
 package it.polimi.ingsw.cg_19;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import effects.EndTurnEffect;
 import server.*;
@@ -98,6 +100,7 @@ public class Game extends Observable {
 	 *            the game's associated map
 	 */
 	public Game(GameMap gameMap) {
+        this.clientMethodsNamesProvider = ClientMethodsNamesProvider.getInstance();
 		this.pubSubHandlers = new ArrayList<>();
 		this.gameMap = gameMap;
 		this.players = new ArrayList<>();
@@ -158,7 +161,7 @@ public class Game extends Observable {
 	/**
 	 * Adds a player to the game
 	 *
-	 * @param subHandler
+	 * @param playerName
 	 *            the thread that will handle the pub/sub communication with the
 	 *            client
 	 * @return the unique identifier(token) of the player inserted
@@ -359,11 +362,8 @@ public class Game extends Observable {
 
 						// Reset the timeout
 
-						timer.purge();
 						timer.cancel();
-						timeout.cancel();
-						timer = new Timer();
-						timeout = new TurnTimeout(this, timer);
+						timeout = new TurnTimeout(this);
 						timer.schedule(timeout, TURN_TIMEOUT);
 					}
 					boolean winH = checkWinConditions(PlayerType.HUMAN);
@@ -385,11 +385,9 @@ public class Game extends Observable {
 						psNotification.setHumanWins(winH);
 						this.gameManager.endGame(this);
 					}
-					for (PubSubHandler pubSubHandler : this.pubSubHandlers){
-                        ArrayList<Object> parameters = new ArrayList<>();
-                        parameters.add(psNotification);
-                        pubSubHandler.queueNotification(new RemoteMethodCall("asyncNotification",parameters));
-                    }
+                    ArrayList<Object> parameters = new ArrayList<>();
+                    parameters.add(psNotification);
+                    this.notifySubscribers(new RemoteMethodCall(this.clientMethodsNamesProvider.asyncNotification(),parameters));
 				}
 			} else {
 				clientNotification.setActionResult(false);
@@ -479,7 +477,7 @@ public class Game extends Observable {
 		int count = 0;
 		for (Player p : players) {
 			if (p.getPlayerState() == PlayerState.ALIVE
-					&& p.getPlayerType() == type)
+					&& p.getPlayerToken().getPlayerType() == type)
 				count++;
 		}
 		return count;
@@ -536,26 +534,18 @@ public class Game extends Observable {
 	 * @return true if all the players of a given player type are in the given
 	 *         state
 	 */
-	private boolean checkStateAll(PlayerType playerType, PlayerState state) {
+	private boolean checkStateAll(PlayerType playerType, PlayerState playerState) {
 		for (Player player : players) {
-			if (player.getPlayerState() != state
-					&& player.getPlayerType() == playerType)
-				return false;
+			if (player.getPlayerState() != playerState
+					&& player.getPlayerToken().getPlayerType() == playerType){
+                return false;
+            }
 		}
 		return true;
 	}
 
 
-	/**
-	 * Sets the game's associated game manager
-	 * 
-	 * @see GameManager
-	 * @param gameManager
-	 *            the game manager to be associated with the game
-	 */
-	public void setGameManager(GameManager gameManager) {
-		this.gameManager = gameManager;
-	}
+
     public List<PubSubHandler> getPubSubHandlers() {
         return pubSubHandlers;
     }
@@ -563,7 +553,6 @@ public class Game extends Observable {
     public void addPubSubHandler(PubSubHandler pubSubHandler) {
 		this.pubSubHandlers.add(pubSubHandler);
     }
-
     public List<Player> getPlayers() {
         return players;
     }

@@ -10,12 +10,12 @@ import common.Action;
  * @author Andrea Sessa
  * @author Giorgio Pea
  */
-public abstract class Turn {
+public interface Turn {
 	// The game the turn refers to
-	protected final Game game;
+	//protected final Game game;
 	// The list of the possible initial actions for the turn in terms of class
 	// names
-	protected List<Class<? extends Action>> initialActions;
+	//protected List<Class<? extends Action>> initialActions;
 
 	/**
 	 * Constructs a generic turn in the game. This turn is constructed from a
@@ -24,27 +24,27 @@ public abstract class Turn {
 	 * @param game
 	 *            the game the turn refers to
 	 */
-	public Turn(Game game) {
-		this.game = game;
-	}
+	//public Turn(Game game) {
+		//this.game = game;
+	//}
 
 	/**
 	 * Gets the game this turn refers to
 	 * 
 	 * @return the game this turn refers to
 	 */
-	public Game getGame() {
-		return game;
-	}
+	//public Game getGame() {
+		//return game;
+	//}
 
 	/**
 	 * Gets the list of possible initial actions defined for the turn
 	 * 
 	 * @return the list of possible initial actions defined for the turn
 	 */
-	public List<Class<? extends Action>> getInitialActions() {
-		return this.initialActions;
-	}
+	//public List<Class<? extends Action>> getInitialActions() {
+		//return this.initialActions;
+	//}
 
 	/**
 	 * Gets the list of actions that follow the given one in the turn
@@ -54,5 +54,7 @@ public abstract class Turn {
 	 * @return the list of actions that follow the above mentioned in the turn.
 	 *         If the action above mentioned is null, an empty list is return
 	 */
-	public abstract List<Class<? extends Action>> getNextActions(Action action);
+	//public abstract static List<Class<? extends Action>> getNextActions(Action action);
+
+	public static List<Class<? extends Action>> getInitialAction();
 }
