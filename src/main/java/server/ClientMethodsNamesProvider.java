@@ -19,4 +19,8 @@ public class ClientMethodsNamesProvider {
     public String syncNotification(){
         return "syncNotification";
     }
+
+    public String signalStartableGame() {
+        return "signalStartableGame";
+    }
 }

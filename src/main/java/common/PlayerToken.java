@@ -39,16 +39,6 @@ public class PlayerToken implements Serializable {
 		this.playerType = playerType;
 		this.gameId = gameId;
 	}
-
-	/**
-	 * Gets the universal unique identifier of the player the token refers to
-	 * 
-	 * @return the universal unique identifier of the player the token refers to
-	 */
-	public UUID getUUID() {
-		return this.playerId;
-	}
-
 	/**
 	 * Gets the type of the player the token refers to
 	 * 

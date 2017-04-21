@@ -17,6 +17,7 @@ public class RRClientNotification extends ClientNotification {
 	private boolean actionResult;
 	private final ArrayList<Card> drawedCards;
 	private final ArrayList<Sector> lightedSectors;
+	private final PlayerToken playerToken;
 
 	/**
 	 * Constructs a notification to be delivered to a single client in response
@@ -35,7 +36,7 @@ public class RRClientNotification extends ClientNotification {
 	 *            sevtor card
 	 */
 	public RRClientNotification(boolean actionResult,
-			ArrayList<Card> drawedCards, ArrayList<Sector> sectors) {
+			ArrayList<Card> drawedCards, ArrayList<Sector> sectors, PlayerToken playerToken) {
 		super("");
 		this.actionResult = actionResult;
 		this.drawedCards = drawedCards;

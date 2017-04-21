@@ -1,10 +1,6 @@
 package server;
 
-import client.Client;
-import common.GamePublicData;
-import common.PlayerToken;
-import common.RRClientNotification;
-import common.RemoteMethodCall;
+import common.*;
 import it.polimi.ingsw.cg_19.Game;
 import it.polimi.ingsw.cg_19.Player;
 
@@ -15,11 +11,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by giorgiopea on 19/04/17.
+ *
  */
 public class ReqRespHandler extends Thread {
 
@@ -29,14 +24,12 @@ public class ReqRespHandler extends Thread {
     private ObjectOutputStream objectOutputStream;
     private final CommunicationHandler communicationHandler;
     private final ClientMethodsNamesProvider clientMethodsNamesProvider;
-    private final Queue<RemoteMethodCall> buffer;
 
     public ReqRespHandler(Socket socket) {
         this.communicationHandler = CommunicationHandler.getInstance();
         this.gameManager = GameManager.getInstance();
         this.clientMethodsNamesProvider = ClientMethodsNamesProvider.getInstance();
         this.socket = socket;
-        this.buffer = new ConcurrentLinkedQueue<>();
         try {
             this.objectInputStream = new ObjectInputStream(socket.getInputStream());
             this.objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -100,6 +93,7 @@ public class ReqRespHandler extends Thread {
         parameters.add(gamesList);
         this.sendData(
                 new RemoteMethodCall(this.clientMethodsNamesProvider.sendAvailableGames(), parameters));
+        this.closeDataFlow();
     }
 
     /**
@@ -110,15 +104,15 @@ public class ReqRespHandler extends Thread {
      * @param playerName  the client/player unique identifier
      * @throws IOException
      */
-    public void joinNewGame(String gameMapName, String playerName)
+    private void joinNewGame(String gameMapName, String playerName)
             throws IOException {
         Game game = new Game(gameMapName);
         this.gameManager.addGame(game);
-        game.addPlayer(playerName);
+        PlayerToken playerToken = game.addPlayer(playerName);
         ArrayList<Object> parameters = new ArrayList<Object>();
-        parameters.add(new RRClientNotification(true, null, null));
+        parameters.add(new RRClientNotification(true, null, null,playerToken));
         this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(),parameters));
-
+        this.closeDataFlow();
     }
 
     /**
@@ -129,40 +123,42 @@ public class ReqRespHandler extends Thread {
      * @param playerName the client/player unique identifier
      * @throws IOException
      */
-    public void joinGame(int gameId, String playerName) throws IOException {
+    private void joinGame(int gameId, String playerName) throws IOException {
         Game game = this.gameManager.getGame(gameId);
-        game.addPlayer(playerName);
+        PlayerToken playerToken = game.addPlayer(playerName);
         ArrayList<Object> parameters = new ArrayList<Object>();
-        parameters.add(new RRClientNotification(true, null, null));
+        parameters.add(new RRClientNotification(true, null, null,playerToken));
         this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(),parameters));
+        this.closeDataFlow();
     }
-    public void subscribe(int gameId) throws IOException {
+    private void subscribe(PlayerToken playerToken) throws IOException {
         Game game = this.gameManager.getGame(playerToken.getGameId());
-        PubSubHandler pubSubHandler = new PubSubHandler();
+        PubSubHandler pubSubHandler = new PubSubHandler(this.objectOutputStream, playerToken);
         game.addPubSubHandler(pubSubHandler);
         this.communicationHandler.addPubSubHandler(pubSubHandler);
-    }
-    public void onDemandGameStart(PlayerToken playerToken){
-        List<Game> games = ServerStore.getInstance().getState().getGames();
-        for ( Game game : games){
-            if (game.gamePublicData.getId() == playerToken.gameId
-                    && game.currentPlayer.playerToken.equals(playerToken)){
-                ServerStore.getInstance().dispatchAction(new GameStartGameAction(game.gamePublicData.getId()));
-                ServerStore.getInstance().dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
-                break;
+        ArrayList<Object> parameters = new ArrayList<>();
+        parameters.add(new RRClientNotification(true,null,null,null));
+        this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));
+        if (game.getPlayers().size() == 2){
+            for (PubSubHandler _pubSubHandler : game.getPubSubHandlers()){
+                if (_pubSubHandler.getPlayerToken().equals(game.getCurrentPlayer().getPlayerToken())){
+                    _pubSubHandler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.signalStartableGame(), new ArrayList<Object>()));
+                    break;
+                }
             }
         }
-    }
-
-    private void startableGame(Game game) {
-        for (PubSubHandler handler : ServerStore.getInstance().getState().getPubSubHandlers()){
-            if (handler.getPlayerToken().equals(game.currentPlayer.playerToken)){
-                handler.queueNotification(new RemoteMethodCall("signalStartableGame",new ArrayList<Object>()));
-                break;
-            }
+        else if (game.getPlayers().size() == 8){
+            game.startGame();
         }
     }
+    private void onDemandGameStart(PlayerToken playerToken) throws IOException {
+        Game game = this.gameManager.getGame(playerToken.getGameId());
 
+        ArrayList<Object> parameters = new ArrayList<>();
+        parameters.add(new RRClientNotification(true,null,null,null));
+        this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));
+        game.startGame();
+    }
     /**
      * A service that processes the specified action sent by the client/player
      * and notifies the client/player
@@ -174,9 +170,12 @@ public class ReqRespHandler extends Thread {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    public void makeAction(StoreAction action, PlayerToken playerToken)
-            throws IOException, InstantiationException, IllegalAccessException {
-        this.serverStore.dispatchAction(new GameMakeActionAction(playerToken, this.uuid, action));
+    public void makeAction(Action action, PlayerToken playerToken) throws IOException {
+        Game game = this.gameManager.getGame(playerToken.getGameId());
+        ArrayList<Object> parameters = new ArrayList<>();
+        parameters.add((RRClientNotification) game.makeAction(action,playerToken));
+        this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(),parameters));
+        this.closeDataFlow();
     }
 
     /**
@@ -185,59 +184,38 @@ public class ReqRespHandler extends Thread {
      *
      * @param message the text message to be delivered to all the subscribers of a
      *                specific topic in the logic of the pub/sub pattern
-     * @param token   the token of the player who wants to send the text message.
+     * @param playerToken   the token of the player who wants to send the text message.
      *                From this token the topic(a game), whose subscribers have to
      *                be delivered the text message, is derived.
      * @throws IOException
      */
     public void publishGlobalMessage(String message,
-                                     PlayerToken token) throws IOException {
-        String playerName = "";
-        Game game = gameManager.getGame(token.getGameId());
-        for (Player player : game.)
-        for (PubSubHandler handler : this.serverStore.getState().getPubSubHandlers()){
-            if(handler.getPlayerToken().gameId.equals(token.gameId)){
-                ArrayList<Object> parameters = new ArrayList<>();
-                parameters.add(playerName+" says: "+message);
-                handler.queueNotification(new RemoteMethodCall("publishChatMsg",parameters));
-            }
+                                     PlayerToken playerToken) throws IOException {
+        Game game = this.gameManager.getGame(playerToken.getGameId());
+        Player player = game.getPlayer(playerToken);
+        ArrayList<Object> parameters = new ArrayList<>();
+        for (PubSubHandler handler : game.getPubSubHandlers()){
+            parameters.add(player.getName()+" says: "+message);
+            handler.queueNotification(new RemoteMethodCall("publishChatMsg",parameters));
         }
+        parameters.clear();
+        parameters.add(new RRClientNotification(true,null,null,null));
+        this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));
+        this.closeDataFlow();
     }
-
-    public void addRemoteMethodCallToQueue(RemoteMethodCall remoteMethodCall){
-        buffer.add(remoteMethodCall);
-        synchronized (buffer) {
-            buffer.notify();
-        }
-    }
-
-
     @Override
     public void run() {
-        boolean mustRun = true;
-        while (mustRun) {
+        try {
+            this.performReceivedMethodCall(this.receiveData());
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException | ClassNotFoundException e) {
+            e.printStackTrace();
             try {
-                this.performReceivedMethodCall(this.receiveData());
-                RemoteMethodCall remoteMethodCall = buffer.poll();
-                if (remoteMethodCall != null) {
-                    this.sendData(remoteMethodCall);
-                    if (!remoteMethodCall.getMethodName().equals("subscribe") ){
-                        closeDataFlow();
-                    }
-                    mustRun = false;
-                } else {
-                    // If there are no incoming remote method calls the thread
-                    // waits
-                    synchronized (buffer) {
-                        buffer.wait();
-                    }
-
-                }
-
-            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassNotFoundException | IOException | InterruptedException e) {
-                e.printStackTrace();
+                this.objectOutputStream.close();
+                this.objectInputStream.close();
+                this.socket.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
-
 
         }
     }

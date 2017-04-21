@@ -1,12 +1,6 @@
 package it.polimi.ingsw.cg_19;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Set;
-import java.util.Timer;
+import java.util.*;
 
 import server.GameManager;
 import server.GameStatus;
@@ -181,13 +175,13 @@ public class Game extends Observable {
 	 */
 	public synchronized PlayerToken addPlayer(String playerName) {
 		PlayerType playerType = assignTypeToPlayer(players.size() + 1);
-		PlayerToken playerToken = new PlayerToken(playerType);
-		Player player = new Player(playerType, playerName);
-		playerTokenToPlayerMap.put(playerToken, player);
+		PlayerToken playerToken = new PlayerToken(playerType, this.gamePublicData.getId());
+		Player player = new Player(playerName, playerToken);
 		players.add(player);
 		gamePublicData.addPlayer();
-		if (currentPlayer == null)
-			this.currentPlayer = player;
+		if (currentPlayer == null){
+            this.currentPlayer = player;
+        }
 		return playerToken;
 	}
 
@@ -642,5 +636,21 @@ public class Game extends Observable {
 	}
     public List<PubSubHandler> getPubSubHandlers() {
         return pubSubHandlers;
+    }
+
+    public void addPubSubHandler(PubSubHandler pubSubHandler) {
+		this.pubSubHandlers.add(pubSubHandler);
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+    public Player getPlayer(PlayerToken playerToken) throws NoSuchElementException{
+        for (Player player : this.players){
+            if (player.getPlayerToken().equals(playerToken)){
+                return player;
+            }
+        }
+        throw NoSuchElementException("No player matches the given token");
     }
 }
