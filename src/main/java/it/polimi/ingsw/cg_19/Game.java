@@ -10,6 +10,7 @@ import java.util.Timer;
 
 import server.GameManager;
 import server.GameStatus;
+import server.PubSubHandler;
 import server.SubscriberHandler;
 import common.Action;
 import common.ClientNotification;
@@ -35,8 +36,10 @@ public class Game extends Observable {
 	private final static long TURN_TIMEOUT = 10 * 60 * 1000;
 
 	private volatile List<Player> players;
+	private final List<PubSubHandler> pubSubHandlers;
 
-	private volatile ObjectDeck objectDeck;
+
+    private volatile ObjectDeck objectDeck;
 	private volatile RescueDeck rescueDeck;
 	private volatile SectorDeck sectorDeck;
 	private volatile GameMap gameMap;
@@ -76,6 +79,7 @@ public class Game extends Observable {
 	 *            name of the game's associated map
 	 */
 	public Game(String gameMapName) {
+		this.pubSubHandlers = new ArrayList<>();
 		if (gameMapName.equals("GALILEI")) {
 			this.gameMapFactory = new GalileiGameMapFactory();
 		} else if (gameMapName.equals("FERMI")) {
@@ -106,6 +110,7 @@ public class Game extends Observable {
 	 *            the game's associated map
 	 */
 	public Game(GameMap gameMap) {
+		this.pubSubHandlers = new ArrayList<>();
 		this.gameMap = gameMap;
 		this.subscriberList = new ArrayList<SubscriberHandler>();
 		this.players = new ArrayList<Player>();
@@ -635,4 +640,7 @@ public class Game extends Observable {
 	public void setGameManager(GameManager gameManager) {
 		this.gameManager = gameManager;
 	}
+    public List<PubSubHandler> getPubSubHandlers() {
+        return pubSubHandlers;
+    }
 }

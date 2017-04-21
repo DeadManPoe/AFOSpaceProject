@@ -1,7 +1,9 @@
 package server;
 
+import client.Client;
 import common.GamePublicData;
 import common.PlayerToken;
+import common.RRClientNotification;
 import common.RemoteMethodCall;
 import it.polimi.ingsw.cg_19.Game;
 import it.polimi.ingsw.cg_19.Player;
@@ -25,10 +27,14 @@ public class ReqRespHandler extends Thread {
     private final GameManager gameManager;
     private ObjectInputStream objectInputStream;
     private ObjectOutputStream objectOutputStream;
+    private final CommunicationHandler communicationHandler;
+    private final ClientMethodsNamesProvider clientMethodsNamesProvider;
     private final Queue<RemoteMethodCall> buffer;
 
     public ReqRespHandler(Socket socket) {
+        this.communicationHandler = CommunicationHandler.getInstance();
         this.gameManager = GameManager.getInstance();
+        this.clientMethodsNamesProvider = ClientMethodsNamesProvider.getInstance();
         this.socket = socket;
         this.buffer = new ConcurrentLinkedQueue<>();
         try {
@@ -93,7 +99,7 @@ public class ReqRespHandler extends Thread {
         ArrayList<Object> parameters = new ArrayList<Object>();
         parameters.add(gamesList);
         this.sendData(
-                new RemoteMethodCall("sendAvailableGames", parameters));
+                new RemoteMethodCall(this.clientMethodsNamesProvider.sendAvailableGames(), parameters));
     }
 
     /**
@@ -108,18 +114,10 @@ public class ReqRespHandler extends Thread {
             throws IOException {
         Game game = new Game(gameMapName);
         this.gameManager.addGame(game);
-        PlayerToken playerToken = game.addPlayer(playerName);
-        this.gameManager.addPlayerToGame(playerToken, game.getId());
+        game.addPlayer(playerName);
         ArrayList<Object> parameters = new ArrayList<Object>();
-        parameters.add(playerToken);
-        this.sendData(
-                new RemoteMethodCall("sendToken", parameters));
-        SubscriberHandler handler = server.getSocketDataExchange().keepAlive();
-        game.addSubscriber(handler);
-
-        parameters.clear();
-        parameters.add("You've joined a new game");
-        game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
+        parameters.add(new RRClientNotification(true, null, null));
+        this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(),parameters));
 
     }
 
@@ -131,29 +129,18 @@ public class ReqRespHandler extends Thread {
      * @param playerName the client/player unique identifier
      * @throws IOException
      */
-    public void joinGame(Integer gameId, String playerName) throws IOException {
-        this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, gameId,playerName));
-        //this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(objectOutputStream, gameId)));
-        //this.serverStore.dispatchAction(new GameStartGameAction(gameId));
-        this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
+    public void joinGame(int gameId, String playerName) throws IOException {
+        Game game = this.gameManager.getGame(gameId);
+        game.addPlayer(playerName);
+        ArrayList<Object> parameters = new ArrayList<Object>();
+        parameters.add(new RRClientNotification(true, null, null));
+        this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(),parameters));
     }
-    public void subscribe(PlayerToken playerToken) throws IOException {
-        this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(objectOutputStream, playerToken)));
-        //this.serverStore.dispatchAction(new GameStartGameAction(playerToken.gameId));
-        this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
-        for (Game game : serverStore.getState().getGames()){
-            if (game.gamePublicData.getId() == playerToken.gameId){
-                if(game.players.size() == 8){
-                    this.serverStore.dispatchAction(new GameStartGameAction(playerToken.gameId));
-                    break;
-                }
-                else if(game.players.size() == 2){
-                    startableGame(game);
-                    break;
-                }
-            }
-        }
-
+    public void subscribe(int gameId) throws IOException {
+        Game game = this.gameManager.getGame(playerToken.getGameId());
+        PubSubHandler pubSubHandler = new PubSubHandler();
+        game.addPubSubHandler(pubSubHandler);
+        this.communicationHandler.addPubSubHandler(pubSubHandler);
     }
     public void onDemandGameStart(PlayerToken playerToken){
         List<Game> games = ServerStore.getInstance().getState().getGames();

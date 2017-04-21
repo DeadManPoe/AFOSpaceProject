@@ -10,24 +10,37 @@ import java.util.concurrent.Executors;
  * Created by giorgiopea on 19/04/17.
  */
 public class CommunicationHandler {
-    private final Integer tcp_port;
     private final ExecutorService reqRespThreadPool;
     private final ExecutorService pubSubThreadPool;
+    private boolean listeningFlag;
 
+    private static final CommunicationHandler instance = new CommunicationHandler();
 
-    public CommunicationHandler(int tcp_port) {
-        this.tcp_port = tcp_port;
-        this.reqRespThreadPool = Executors.newCachedThreadPool();
-        this.pubSubThreadPool = Executors.newCachedThreadPool();
+    public static CommunicationHandler getInstance(){
+        return instance;
     }
 
-    public void init() throws IOException {
-        ServerSocket serverSocket = new ServerSocket(this.tcp_port);
+    private CommunicationHandler() {
+        this.reqRespThreadPool = Executors.newCachedThreadPool();
+        this.pubSubThreadPool = Executors.newCachedThreadPool();
+        this.listeningFlag = true;
+    }
+
+    public void init(int tcpPort) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(tcpPort);
         Socket socket;
-        while(true){
+        while(this.listeningFlag){
             socket = serverSocket.accept();
-            ReqRespHandler reqRespHandler = new ReqRespHandler(socket);
+            ReqRespHandler reqRespHandler = new ReqRespHandler(socket,this);
             this.reqRespThreadPool.submit(reqRespHandler);
         }
+    }
+
+    public void setListeningFlag(boolean listeningFlag) {
+        this.listeningFlag = listeningFlag;
+    }
+
+    public void addPubSubHandler(PubSubHandler pubSubHandler){
+        this.pubSubThreadPool.submit(pubSubHandler);
     }
 }
