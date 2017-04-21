@@ -167,8 +167,6 @@ public class ReqRespHandler extends Thread {
      *                    game
      * @param playerToken the client/player unique identifier
      * @throws IOException
-     * @throws IllegalAccessException
-     * @throws InstantiationException
      */
     public void makeAction(Action action, PlayerToken playerToken) throws IOException {
         Game game = this.gameManager.getGame(playerToken.getGameId());

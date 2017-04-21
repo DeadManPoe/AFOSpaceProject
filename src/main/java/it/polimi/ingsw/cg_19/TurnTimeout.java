@@ -15,11 +15,9 @@ import client.ClientLogger;
  */
 public class TurnTimeout extends TimerTask {
 	private Game game;
-	private Timer timer;
 
-	public TurnTimeout(Game game, Timer timer) {
+	public TurnTimeout(Game game) {
 		this.game = game;
-		this.timer = timer;
 	}
 
 	public Game getGame() {
@@ -33,7 +31,5 @@ public class TurnTimeout extends TimerTask {
 		} catch (InstantiationException | IllegalAccessException e) {
 			ClientLogger.getLogger().log(Level.SEVERE, e.getMessage(), e);
 		}
-		timer.cancel();
-		timer.purge();
 	}
 }

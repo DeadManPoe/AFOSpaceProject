@@ -115,7 +115,7 @@ public class ServerServicesViaSocket {
 				new RemoteMethodCall("sendNotification", parameters));
 		parameters.clear();
 		parameters.add(notification[1]);
-		game.notifyListeners(new RemoteMethodCall("sendPubNotification",
+		game.notifySubscribers(new RemoteMethodCall("sendPubNotification",
 				parameters));
 	}
 
@@ -140,7 +140,7 @@ public class ServerServicesViaSocket {
 		parameters.add("[" + player.getName() + "]: " + message);
 		server.getSocketDataExchange().sendData(
 				new RemoteMethodCall("ackMessage"));
-		game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
+		game.notifySubscribers(new RemoteMethodCall("publishChatMsg", parameters));
 	}
 
 	/**

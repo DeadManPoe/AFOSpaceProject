@@ -74,7 +74,7 @@ public class EndTurnEffect extends ActionEffect {
 		game.setLastAction(action);
 		ArrayList<Object> parameters = new ArrayList<Object>();
 		parameters.add(game.fromPlayerToToken(game.getCurrentPlayer()));
-		game.notifyListeners(new RemoteMethodCall("allowTurn", parameters));
+		game.notifySubscribers(new RemoteMethodCall("allowTurn", parameters));
 		return true;
 	}
 

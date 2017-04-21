@@ -2,10 +2,8 @@ package it.polimi.ingsw.cg_19;
 
 import java.util.*;
 
-import server.GameManager;
-import server.GameStatus;
-import server.PubSubHandler;
-import server.SubscriberHandler;
+import effects.EndTurnEffect;
+import server.*;
 import common.Action;
 import common.ClientNotification;
 import common.EndTurnAction;
@@ -28,9 +26,11 @@ import factories.*;
  */
 public class Game extends Observable {
 	private final static long TURN_TIMEOUT = 10 * 60 * 1000;
+    private static int counter = 0;
 
 	private volatile List<Player> players;
 	private final List<PubSubHandler> pubSubHandlers;
+    private final ClientMethodsNamesProvider clientMethodsNamesProvider;
 
 
     private volatile ObjectDeck objectDeck;
@@ -45,15 +45,11 @@ public class Game extends Observable {
 
 	private volatile Turn turn;
 
-	// Communication related stuff
-	private static int counter = 0;
-	private volatile List<SubscriberHandler> subscriberList;
 
 	private TurnTimeout timeout;
 	private Timer timer;
 
 	private volatile GameMapFactory gameMapFactory;
-	private volatile Map<PlayerToken, Player> playerTokenToPlayerMap;
 	private volatile GamePublicData gamePublicData;
 
 	private volatile ActionMapper actionMapper;
@@ -74,6 +70,7 @@ public class Game extends Observable {
 	 */
 	public Game(String gameMapName) {
 		this.pubSubHandlers = new ArrayList<>();
+        this.clientMethodsNamesProvider = ClientMethodsNamesProvider.getInstance();
 		if (gameMapName.equals("GALILEI")) {
 			this.gameMapFactory = new GalileiGameMapFactory();
 		} else if (gameMapName.equals("FERMI")) {
@@ -83,13 +80,10 @@ public class Game extends Observable {
 		} else {
 			throw new IllegalArgumentException("The map's type is undefined");
 		}
-		this.subscriberList = new ArrayList<SubscriberHandler>();
-		this.players = new ArrayList<Player>();
-		this.playerTokenToPlayerMap = new HashMap<PlayerToken, Player>();
+		this.players = new ArrayList<>();
 		counter++;
 		this.gamePublicData = new GamePublicData(counter, "Game_" + counter);
 		this.turnNumber = 0;
-		players = new ArrayList<Player>();
 	}
 
 	/**
@@ -106,9 +100,7 @@ public class Game extends Observable {
 	public Game(GameMap gameMap) {
 		this.pubSubHandlers = new ArrayList<>();
 		this.gameMap = gameMap;
-		this.subscriberList = new ArrayList<SubscriberHandler>();
-		this.players = new ArrayList<Player>();
-		this.playerTokenToPlayerMap = new HashMap<PlayerToken, Player>();
+		this.players = new ArrayList<>();
 		counter++;
 		this.gamePublicData = new GamePublicData(counter, "Game_" + counter);
 		this.turnNumber = 0;
@@ -134,23 +126,21 @@ public class Game extends Observable {
 		deckFactory = new RescueDeckFactory();
 		this.rescueDeck = (RescueDeck) deckFactory.makeDeck();
 		this.gameMap = gameMapFactory.makeMap();
-		this.turnNumber = 0;
 		this.actionMapper = new ActionMapper();
 		ArrayList<Object> parameters = new ArrayList<Object>();
 		parameters.add(gameMap.getName());
-		parameters.add(this.fromPlayerToToken(currentPlayer));
 		// Setting players' starting sector
 		for (Player player : players) {
-			if (player.getPlayerType().equals(PlayerType.HUMAN)) {
-				player.setSector(gameMap.getHumanSector());
+			if (player.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
+				player.setCurrentSector(gameMap.getHumanSector());
 				gameMap.getHumanSector().addPlayer(player);
 			} else {
-				player.setSector(gameMap.getAlienSector());
+				player.setCurrentSector(gameMap.getAlienSector());
 				gameMap.getAlienSector().addPlayer(player);
 			}
 		}
 		// Init of the first game turn
-		if (currentPlayer.getPlayerType() == PlayerType.HUMAN) {
+		if (currentPlayer.getPlayerToken().getPlayerType() == PlayerType.HUMAN) {
 			turn = new HumanTurn(this);
 		} else {
 			turn = new AlienTurn(this);
@@ -158,11 +148,11 @@ public class Game extends Observable {
 		nextActions = turn.getInitialActions();
 		this.gamePublicData.setStatus(GameStatus.CLOSED);
 
-		timer = new Timer();
-		timeout = new TurnTimeout(this, timer);
-		timer.schedule(timeout, TURN_TIMEOUT);
+		this.timer = new Timer();
+		this.timeout = new TurnTimeout(this);
+		this.timer.schedule(timeout, TURN_TIMEOUT);
 		// Notification to the subscribers
-		this.notifyListeners(new RemoteMethodCall("sendMap", parameters));
+		this.notifySubscribers(new RemoteMethodCall(this.clientMethodsNamesProvider.sendMapAndStartGame(), parameters));
 	}
 
 	/**
@@ -184,21 +174,6 @@ public class Game extends Observable {
         }
 		return playerToken;
 	}
-
-	/**
-	 * Add a player to the game. This method is used only for test purposes
-	 * 
-	 * @param player
-	 *            the player to be added to the game
-	 */
-	public void addPlayer(Player player) {
-		this.players.add(player);
-		playerTokenToPlayerMap.put(new PlayerToken(player.getPlayerType()),
-				player);
-		if (currentPlayer == null)
-			this.currentPlayer = player;
-	}
-
 	/**
 	 * Produces a player type based on the number of players already in game .
 	 * If the number of players already in game is even, the returned player
@@ -225,17 +200,6 @@ public class Game extends Observable {
 	 */
 	public synchronized GamePublicData getPublicData() {
 		return gamePublicData;
-	}
-
-	/**
-	 * Gets the list of threads representing the game's subscribers in the logic
-	 * of the pub/sub pattern
-	 * 
-	 * @return the list of threads representing the game's subscribers in the
-	 *         logic of the pub/sub pattern
-	 */
-	public List<SubscriberHandler> getSubscriberHandlers() {
-		return this.subscriberList;
 	}
 
 	/**
@@ -343,7 +307,7 @@ public class Game extends Observable {
 	 * @see Action
 	 * @param action
 	 *            the action to be performed
-	 * @param token
+	 * @param playerToken
 	 *            the token of the player that wants to perform the action
 	 * @return an array of two notifications to be sent to the game's
 	 *         subscribers. The first one is to be sent only to the player that
@@ -355,26 +319,33 @@ public class Game extends Observable {
 	 *             if Action is null or not mapped to an effect
 	 */
 
-	public synchronized ClientNotification[] makeAction(Action action,
-			PlayerToken playerToken, boolean forced)
-			throws InstantiationException, IllegalAccessException {
+	public synchronized RRClientNotification makeAction(Action action,
+			PlayerToken playerToken) {
 		RRClientNotification clientNotification = new RRClientNotification();
 		PSClientNotification psNotification = new PSClientNotification();
-		Player actualPlayer = playerTokenToPlayerMap.get(playerToken);
+		Player actualPlayer = this.getPlayer(playerToken);
 		// if(turn.getInitialAction().contains(action.class)) &&
 		if (!currentPlayer.equals(actualPlayer)) {
 			clientNotification.setActionResult(false);
 		} else {
 			// If the player is ok then checks if the action is ok
-			if (nextActions.contains(action.getClass()) || forced) {
+			if (nextActions.contains(action.getClass())) {
 				// Retrieve the related effect
-				ActionEffect effect = actionMapper.getEffect(action);
+                ActionEffect effect = null;
+                try {
+                    effect = actionMapper.getEffect(action);
+                } catch (InstantiationException | IllegalAccessException e) {
+                    e.printStackTrace();
+                    clientNotification.setActionResult(false);
+                    return clientNotification;
+                }
 
-				// Executes the effect and get the result
+                // Executes the effect and get the result
 				boolean actionResult = effect.executeEffect(this,
 						clientNotification, psNotification);
 
 				if (actionResult) {
+                    clientNotification.setActionResult(true);
 					/*
 					 * If the last action has been and an end turn action the
 					 * there is no need to update the nextAction field
@@ -412,33 +383,22 @@ public class Game extends Observable {
 					if (winH || winA) {
 						psNotification.setAlienWins(winA);
 						psNotification.setHumanWins(winH);
-						clientNotification.setActionResult(true);
-						ClientNotification[] toReturn = { clientNotification,
-								psNotification };
-						this.gameManager.removeGame(this);
-						return toReturn;
+						this.gameManager.endGame(this);
 					}
-					clientNotification.setActionResult(true);
+					for (PubSubHandler pubSubHandler : this.pubSubHandlers){
+                        ArrayList<Object> parameters = new ArrayList<>();
+                        parameters.add(psNotification);
+                        pubSubHandler.queueNotification(new RemoteMethodCall("asyncNotification",parameters));
+                    }
 				}
 			} else {
 				clientNotification.setActionResult(false);
 			}
 
 		}
-		ClientNotification[] toReturn = { clientNotification, psNotification };
-		return toReturn;
-	}
 
-	/**
-	 * Performs a game action. This method is used only for test purposes
-	 * 
-	 * @see Game#makeAction
-	 */
-	public ClientNotification[] makeAction(Action action, Player player)
-			throws InstantiationException, IllegalAccessException {
-		return this.makeAction(action, fromPlayerToToken(player), false);
+		return clientNotification;
 	}
-
 	/**
 	 * Sets a new game's turn
 	 * 
@@ -467,25 +427,23 @@ public class Game extends Observable {
 	 */
 	public void timeoutUpdate() throws InstantiationException,
 			IllegalAccessException {
-
-		this.deleteObserver(subscriberList.get(players.indexOf(this
-				.getCurrentPlayer())));
-		this.subscriberList.remove(players.indexOf(this.getCurrentPlayer()));
-
-		Player exPlayer = this.getCurrentPlayer();
-		EndTurnAction action = new EndTurnAction();
-		ClientNotification[] notifications = this.makeAction(action,
-				fromPlayerToToken(this.getCurrentPlayer()), true);
-		ArrayList<Object> parameters = new ArrayList<Object>();
-		parameters.add(notifications[1]);
-		notifications[1].setMessage(notifications[1].getMessage()
-				+ "\n[GLOBAL MESSAGE]: " + exPlayer.getName()
-				+ " has disconnected!");
-		this.notifyListeners(new RemoteMethodCall("sendPubNotification",
-				parameters));
-
-		exPlayer.setPlayerState(PlayerState.DEAD);
-		this.players.remove(exPlayer);
+        Player previousPlayer = this.currentPlayer;
+        EndTurnEffect endTurnEffect = new EndTurnEffect();
+        PSClientNotification psClientNotification = new PSClientNotification();
+        RRClientNotification rrClientNotification = new RRClientNotification();
+        endTurnEffect.executeEffect(this,rrClientNotification,psClientNotification);
+        ArrayList<Object> parameters = new ArrayList<>();
+        this.timer.schedule(new TurnTimeout(this), TURN_TIMEOUT);
+        for (PubSubHandler handler : this.pubSubHandlers){
+            if (handler.getPlayerToken().equals(this.currentPlayer.getPlayerToken())){
+                handler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.startTurn(), new ArrayList<>()));
+            }
+            if (handler.getPlayerToken().equals(previousPlayer.getPlayerToken())){
+                handler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.forceEndTurn(), new ArrayList<>()));
+            }
+            parameters.add(psClientNotification);
+            handler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.asyncNotification(),parameters));
+        }
 	}
 
 	/**
@@ -496,9 +454,10 @@ public class Game extends Observable {
 	 *            the remote method call to be performed on the game's
 	 *            subscribers
 	 */
-	public synchronized void notifyListeners(RemoteMethodCall remoteMethodCall) {
-		this.setChanged();
-		this.notifyObservers(remoteMethodCall);
+	public synchronized void notifySubscribers(RemoteMethodCall remoteMethodCall) {
+		for (PubSubHandler pubSubHandler : this.pubSubHandlers){
+            pubSubHandler.queueNotification(remoteMethodCall);
+        }
 	}
 
 	/**
@@ -509,34 +468,6 @@ public class Game extends Observable {
 	public int getId() {
 		return this.gamePublicData.getId();
 	}
-
-	/**
-	 * Adds a subscriber to the game
-	 * 
-	 * @param handler
-	 *            the thread used by the game to communicate with the subscriber
-	 */
-	public synchronized void addSubscriber(SubscriberHandler handler) {
-		this.addObserver(handler);
-		subscriberList.add(handler);
-	}
-
-	/**
-	 * Return the unique identifier(token) of a given player
-	 * 
-	 * @param player
-	 *            the player whose unique identifier(token) is to be returned
-	 */
-	public PlayerToken fromPlayerToToken(Player player) {
-		Set<PlayerToken> tokens = playerTokenToPlayerMap.keySet();
-		for (PlayerToken t : tokens) {
-			if (playerTokenToPlayerMap.get(t).equals(player))
-				return t;
-		}
-		return null;
-
-	}
-
 	/**
 	 * Checks the number of player of PlayerType type still alive
 	 * 
@@ -614,15 +545,6 @@ public class Game extends Observable {
 		return true;
 	}
 
-	/**
-	 * Return the player that has the given unique identifier(token)
-	 * 
-	 * @return the player that has the given unique identifier(token)
-	 */
-	public Player fromTokenToPlayer(PlayerToken playerToken) {
-		return playerTokenToPlayerMap.get(playerToken);
-
-	}
 
 	/**
 	 * Sets the game's associated game manager
@@ -651,6 +573,6 @@ public class Game extends Observable {
                 return player;
             }
         }
-        throw NoSuchElementException("No player matches the given token");
+        throw new NoSuchElementException("No player matches the given token");
     }
 }

@@ -71,7 +71,7 @@ public class ServerServicesViaRmi implements ServerServicesViaRmiInt {
 		clientServices.sendNotification(notification[0]);
 		ArrayList<Object> parameters = new ArrayList<Object>();
 		parameters.add(notification[1]);
-		game.notifyListeners(new RemoteMethodCall("sendPubNotification",
+		game.notifySubscribers(new RemoteMethodCall("sendPubNotification",
 				parameters));
 
 	}
@@ -95,7 +95,7 @@ public class ServerServicesViaRmi implements ServerServicesViaRmiInt {
 		ArrayList<Object> parameters = new ArrayList<Object>();
 		parameters.add("You've joined a new game");
 
-		game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
+		game.notifySubscribers(new RemoteMethodCall("publishChatMsg", parameters));
 
 	}
 
@@ -114,7 +114,7 @@ public class ServerServicesViaRmi implements ServerServicesViaRmiInt {
 		game.addSubscriber(handler);
 		ArrayList<Object> parameters = new ArrayList<Object>();
 		parameters.add("A new player has joined the game");
-		game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
+		game.notifySubscribers(new RemoteMethodCall("publishChatMsg", parameters));
 		if (this.gameManager.getGame(gameId).getPublicData().getPlayersCount() == 8)
 			game.startGame();
 		// game.startGame();
@@ -133,7 +133,7 @@ public class ServerServicesViaRmi implements ServerServicesViaRmiInt {
 		clientServices.ackMessage();
 		ArrayList<Object> parameters = new ArrayList<Object>();
 		parameters.add("[" + player.getName() + "]: " + message);
-		game.notifyListeners(new RemoteMethodCall("publishChatMsg", parameters));
+		game.notifySubscribers(new RemoteMethodCall("publishChatMsg", parameters));
 	}
 
 	/**
