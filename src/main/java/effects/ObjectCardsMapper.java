@@ -25,6 +25,11 @@ import common.TeleportObjectCard;
  */
 public class ObjectCardsMapper {
 	private Map<Class<? extends ObjectCard>, Class<? extends ObjectCardEffect>> fromObjectCardToObjectCardEffect;
+	private static ObjectCardsMapper instance;
+
+	public static ObjectCardsMapper getInstance(){
+		return instance;
+	}
 
 	/**
 	 * Constructs a object card - object card effect mapper. This mapper is
@@ -32,7 +37,7 @@ public class ObjectCardsMapper {
 	 * cards effect class types, then, using reflection, from an object card is
 	 * possible to get an actual object card effect object
 	 */
-	public ObjectCardsMapper() {
+	private ObjectCardsMapper() {
 		fromObjectCardToObjectCardEffect = new HashMap<Class<? extends ObjectCard>, Class<? extends ObjectCardEffect>>();
 		fromObjectCardToObjectCardEffect.put(TeleportObjectCard.class,
 				TeleportObjCardEffect.class);

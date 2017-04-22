@@ -22,10 +22,9 @@ public class UseSectorCardEffect extends ActionEffect {
 
 	public static boolean executeEffect(Game game, StoreAction action) {
 		UseSectorCardAction castedAction = (UseSectorCardAction) action;
-		SectorCardsMapper mapper = new SectorCardsMapper();
 		game.lastAction = action;
 		try {
-			Method executeMethod = mapper.getEffect(castedAction.payload).getMethod("executeEffect", Game.class, SectorCard.class);
+			Method executeMethod = SectorCardsMapper.getInstance().getEffect(castedAction.payload).getMethod("executeEffect", Game.class, SectorCard.class);
 			return (boolean)  executeMethod.invoke(null,game, castedAction.payload);
 		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
 			e.printStackTrace();

@@ -46,7 +46,6 @@ public class UseObjCardEffect extends ActionEffect {
         if (beforeMoveCards.size() == 0 && afterMoveCards.size() == 0) {
             produceUtilsDataStructure();
         }
-        ObjectCardsMapper mapper = new ObjectCardsMapper();
         RRClientNotification clientNotification = new RRClientNotification();
         PSClientNotification psNotification = new PSClientNotification();
         // Checks if the card can be played before moveToSector or after moveToSector
@@ -70,7 +69,7 @@ public class UseObjCardEffect extends ActionEffect {
             game.lastAction = action;
             game.lastRRclientNotification = clientNotification;
             game.lastPSclientNotification = psNotification;
-            Method executeMethod = mapper.getEffect(castedAction.payload).getMethod("executeEffect", Game.class, ObjectCard.class);
+            Method executeMethod = ObjectCardsMapper.getInstance().getEffect(castedAction.payload).getMethod("executeEffect", Game.class, ObjectCard.class);
             return (boolean) executeMethod.invoke(null,game, castedAction.payload);
 
         } catch (InstantiationException | IllegalAccessException e) {
