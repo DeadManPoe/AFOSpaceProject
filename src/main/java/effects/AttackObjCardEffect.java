@@ -1,10 +1,6 @@
 package effects;
 
-import common.AttackObjectCard;
-import common.MoveAttackAction;
-import common.PSClientNotification;
-import common.RRClientNotification;
-import common.Sector;
+import common.*;
 import it.polimi.ingsw.cg_19.Game;
 
 /**
@@ -17,42 +13,14 @@ import it.polimi.ingsw.cg_19.Game;
  * @version 1.0
  */
 public class AttackObjCardEffect extends ObjectCardEffect {
-	/**
-	 * Constructs an effect of an attack object card. This effect is constructed
-	 * from an {@link common.AttackObjectCard}
-	 * 
-	 * @param attackObjectCard
-	 *            the {@link common.AttackObjectCard} that needs to be enriched
-	 *            with its effect
-	 */
-	public AttackObjCardEffect(AttackObjectCard attackObjectCard) {
-		super(attackObjectCard);
-	}
-
-	/**
-	 * Constructs an effect of an attack object card. This effect is constructed
-	 * from an {@link common.AttackObjectCard} that is null. This constructor is
-	 * only used for test purposes.
-	 * 
-	 */
-	public AttackObjCardEffect() {
-		this(null);
-	}
-
-	/**
-	 * @see ObjectCardEffect#executeEffect
-	 */
-	@Override
 	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
+								 RRClientNotification rrNotification,
+								 PSClientNotification psNotification, ObjectCard objectCard) {
 
 		AttackObjectCard card = (AttackObjectCard) objectCard;
 		Sector sectorToAttack = card.getAttackTarget();
 		// Executing an attack object card action effect is like executing a
 		// move and attack action effect
-		MoveAttackActionEffect effect = new MoveAttackActionEffect(
-				new MoveAttackAction(sectorToAttack));
-		return effect.executeEffect(game, rrNotification, psNotification);
+		return MoveAttackActionEffect.executeEffect(game, rrNotification, psNotification, new MoveAttackAction(sectorToAttack));
 	}
 }

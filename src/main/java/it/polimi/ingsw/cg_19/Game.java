@@ -1,6 +1,8 @@
 package it.polimi.ingsw.cg_19;
 
 import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
 
@@ -40,6 +42,7 @@ public class Game extends Observable {
     private volatile SectorDeck sectorDeck;
     private volatile GameMap gameMap;
     private volatile Player currentPlayer;
+    private volatile Player previousPlayer;
     private volatile int turnNumber;
 
     private volatile List<Class<? extends Action>> nextActions;
@@ -130,7 +133,6 @@ public class Game extends Observable {
         deckFactory = new RescueDeckFactory();
         this.rescueDeck = (RescueDeck) deckFactory.makeDeck();
         this.gameMap = gameMapFactory.makeMap();
-        this.actionMapper = new ActionMapper();
         ArrayList<Object> parameters = new ArrayList<Object>();
         parameters.add(gameMap.getName());
         // Setting players' starting sector
@@ -317,24 +319,22 @@ public class Game extends Observable {
         RRClientNotification clientNotification = new RRClientNotification();
         PSClientNotification psNotification = new PSClientNotification();
         Player actualPlayer = this.getPlayer(playerToken);
+        boolean actionResult = false;
         // if(turn.getInitialAction().contains(action.class)) &&
         if (!currentPlayer.equals(actualPlayer)) {
             clientNotification.setActionResult(false);
         } else {
             // If the player is ok then checks if the action is ok
             if (nextActions.contains(action.getClass())) {
-                ActionEffect effect;
+                Class<? extends ActionEffect> effect = actionMapper.getEffect(action.getClass());
                 try {
-                    effect = actionMapper.getEffect(action);
-                } catch (InstantiationException | IllegalAccessException e) {
+                    Method executeMethod = ActionMapper.getInstance().getEffect(action.getClass())
+                            .getMethod("executeEffect", Game.class, RRClientNotification.class,
+                                    PSClientNotification.class, Action.class);
+                    actionResult = (boolean) executeMethod.invoke(null,this, clientNotification,psNotification, action);
+                } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                     e.printStackTrace();
-                    clientNotification.setActionResult(false);
-                    return clientNotification;
                 }
-
-                // Executes the effect and get the result
-                boolean actionResult = effect.executeEffect(this,
-                        clientNotification, psNotification);
 
                 if (actionResult) {
                     clientNotification.setActionResult(true);
@@ -362,6 +362,11 @@ public class Game extends Observable {
                         timer.cancel();
                         timeout = new TurnTimeout(this);
                         timer.schedule(timeout, TURN_TIMEOUT);
+                        for (PubSubHandler pubSubHandler : this.pubSubHandlers){
+                            if (!pubSubHandler.getPlayerToken().equals(previousPlayer.getPlayerToken())){
+                                pubSubHandler.queueNotification(new RemoteMethodCall("allowTurn", new ArrayList<>()));
+                            }
+                        }
                     }
                     boolean winH = checkWinConditions(PlayerType.HUMAN);
                     boolean winA = checkWinConditions(PlayerType.ALIEN);
@@ -403,10 +408,9 @@ public class Game extends Observable {
     public void timeoutUpdate() throws InstantiationException,
             IllegalAccessException {
         Player previousPlayer = this.currentPlayer;
-        EndTurnEffect endTurnEffect = new EndTurnEffect();
         PSClientNotification psClientNotification = new PSClientNotification();
         RRClientNotification rrClientNotification = new RRClientNotification();
-        endTurnEffect.executeEffect(this, rrClientNotification, psClientNotification);
+        EndTurnEffect.executeEffect(this, rrClientNotification, psClientNotification,null);
         ArrayList<Object> parameters = new ArrayList<>();
         this.timer.schedule(new TurnTimeout(this), TURN_TIMEOUT);
         for (PubSubHandler handler : this.pubSubHandlers) {
@@ -513,5 +517,21 @@ public class Game extends Observable {
             }
         }
         throw new NoSuchElementException("No player matches the given token");
+    }
+
+    public void setNextActions(List<Class<? extends Action>> nextActions) {
+        this.nextActions = nextActions;
+    }
+
+    public void setCurrentPlayer(Player currentPlayer) {
+        this.currentPlayer = currentPlayer;
+    }
+
+    public Player getPreviousPlayer() {
+        return previousPlayer;
+    }
+
+    public void setPreviousPlayer(Player previousPlayer) {
+        this.previousPlayer = previousPlayer;
     }
 }

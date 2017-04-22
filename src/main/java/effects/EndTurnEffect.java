@@ -2,80 +2,56 @@ package effects;
 
 import java.util.ArrayList;
 
+import common.*;
 import it.polimi.ingsw.cg_19.AlienTurn;
 import it.polimi.ingsw.cg_19.Game;
 import it.polimi.ingsw.cg_19.HumanTurn;
 import it.polimi.ingsw.cg_19.Player;
 import it.polimi.ingsw.cg_19.PlayerState;
 import it.polimi.ingsw.cg_19.PlayerType;
-import common.EndTurnAction;
-import common.PSClientNotification;
-import common.RRClientNotification;
-import common.RemoteMethodCall;
 
 /**
  * Represents the effect associated to the action of ending a turn.
- * 
- * @see ActionEffect
- * @see EndTurnAction
+ *
  * @author Andrea Sessa
  * @author Giorgio Pea
- * 
  * @version 1.1
+ * @see ActionEffect
+ * @see EndTurnAction
  */
 
 public class EndTurnEffect extends ActionEffect {
+    public static boolean executeEffect(Game game,
+                                        RRClientNotification rrNotification,
+                                        PSClientNotification psNotification, Action action) {
+        EndTurnAction castedAction = (EndTurnAction) action;
+        Player currentPlayer = game.getCurrentPlayer();
+        currentPlayer.setAdrenalined(false);
+        currentPlayer.setSedated(false);
+        currentPlayer.setHasMoved(false);
+        rrNotification.setMessage("\nYou have ended your turn");
+        psNotification.setMessage("\n[GLOBAL MESSAGE]: "
+                + currentPlayer.getName()
+                + " has ended its turn.\n[GLOBAL MESSAGE]: ");
 
-	/**
-	 * Constructs the effect associated to the action of ending a turn. The
-	 * effect is constructed from a {@link common.EndTurnAction }
-	 * 
-	 * @param endTurnAction
-	 *            the {@link EndTurnAction } that needs to be enriched with its
-	 *            effect
-	 */
-	public EndTurnEffect(EndTurnAction endTurnAction) {
-		super(endTurnAction);
-	}
+        shiftCurrentplayer(game);
+        psNotification.setMessage(psNotification.getMessage() + currentPlayer.getName() + " now is your turn");
+        // Notify the client
+        game.setLastAction(castedAction);
 
-	/**
-	 * Constructs the effect associated to the action of ending a turn. The
-	 * effect is constructed from a {@link common.EndTurnAction } that is null.
-	 * This constructor is used only for test purposes.
-	 * 
-	 */
-	public EndTurnEffect() {
-		super(null);
-	}
+        return true;
+    }
 
-	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification clientNotification,
-			PSClientNotification psNotification) {
-		Player currentPlayer = game.getCurrentPlayer();
-		currentPlayer.setAdrenaline(false);
-		currentPlayer.setSedated(false);
-		currentPlayer.setHasMoved(false);
-		// Set the new current player
-		game.shiftCurrentplayer();
+    private static void shiftCurrentplayer(Game game) {
+        int currentPlayerIndex = game.getPlayers().indexOf(game.getCurrentPlayer());
+        do {
+            currentPlayerIndex++;
+            if (currentPlayerIndex == game.getPlayers().size())
+                currentPlayerIndex = 0;
+        } while (game.getPlayers().get(currentPlayerIndex).getPlayerState().equals(PlayerState.DEAD));
+        game.setPreviousPlayer(game.getCurrentPlayer());
+        game.setCurrentPlayer(game.getPlayers().get(currentPlayerIndex));
+    }
 
-		if (game.getCurrentPlayer().getPlayerType() == PlayerType.HUMAN) {
-			game.setTurn(new HumanTurn(game));
-		} else {
-			game.setTurn(new AlienTurn(game));
-		}
-		// Notify the client
-		if(game.getCurrentPlayer().getPlayerState() != PlayerState.ESCAPED) 
-			clientNotification.setMessage("You have ended your turn now wait until its your turn");
-		psNotification.setMessage(psNotification.getMessage()+"\n[GLOBAL MESSAGE]: "
-				+ currentPlayer.getName()
-				+ " has ended its turn.\n[GLOBAL MESSAGE]: "
-				+ game.getCurrentPlayer().getName() + " now is your turn");
-		game.setLastAction(action);
-		ArrayList<Object> parameters = new ArrayList<Object>();
-		parameters.add(game.fromPlayerToToken(game.getCurrentPlayer()));
-		game.notifySubscribers(new RemoteMethodCall("allowTurn", parameters));
-		return true;
-	}
 
 }

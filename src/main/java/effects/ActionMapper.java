@@ -30,15 +30,21 @@ public class ActionMapper {
 	// The mapper
 	private Map<Class<? extends Action>, Class<? extends ActionEffect>> fromActionToActionEffect;
 
+    private static ActionMapper instance = new ActionMapper();
+
+    public static ActionMapper getInstance(){
+        return instance;
+    }
+
 	/**
 	 * Constructs a action-effect mapper. This mapper is implemented as an hash
 	 * map that maps action class types to action-effect class types, then,
 	 * using reflection, from an action is possible to get an actual
 	 * action-effect object
 	 */
-	public ActionMapper() {
+	private ActionMapper() {
 		// Mapper init
-		fromActionToActionEffect = new HashMap<Class<? extends Action>, Class<? extends ActionEffect>>();
+		fromActionToActionEffect = new HashMap<>();
 		// Mapper filling
 		fromActionToActionEffect.put(MoveAction.class, MoveActionEffect.class);
 		fromActionToActionEffect.put(DrawSectorCardAction.class,
@@ -59,24 +65,12 @@ public class ActionMapper {
 	/**
 	 * Produces the action effect mapped to an action
 	 * 
-	 * @param action
+	 * @param actionClass
 	 *            the action for which retrieve the effect
 	 * @return the effect associated with the action
-	 * @throws InstantiationException
-	 *             if there's an error in the instantiation of the effect
-	 * @throws IllegalAccessException
-	 *             if there's an error in the instantiation of the effect
 	 */
-	public ActionEffect getEffect(Action action) throws InstantiationException,
-			IllegalAccessException {
-		/*
-		 * The action effect type is derived from the mapper and a new istance
-		 * of the action effect is created
-		 */
-		ActionEffect effect = fromActionToActionEffect.get(action.getClass())
-				.newInstance();
-		effect.setAction(action);
-		return effect;
+	public Class<? extends ActionEffect> getEffect(Class<? extends Action> actionClass){
+        return this.fromActionToActionEffect.get(actionClass);
 	}
 
 }

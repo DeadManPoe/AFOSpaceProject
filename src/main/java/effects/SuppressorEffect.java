@@ -1,5 +1,6 @@
 package effects;
 
+import common.ObjectCard;
 import it.polimi.ingsw.cg_19.Game;
 import it.polimi.ingsw.cg_19.Player;
 import common.PSClientNotification;
@@ -16,34 +17,9 @@ import common.SuppressorObjectCard;
  * @version 1.0
  */
 public class SuppressorEffect extends ObjectCardEffect {
-	/**
-	 * Constructs an effect of a suppressor object card. This effect is
-	 * constructed from a {@link common.SuppressorObjectCard}
-	 * 
-	 * @param suppressorObjectCard
-	 *            the {@link common.SuppressorObjectCard} that needs to be
-	 *            enriched with its effect
-	 */
-	public SuppressorEffect(SuppressorObjectCard suppressorObjectCard) {
-		super(suppressorObjectCard);
-	}
-
-	/**
-	 * Constructs an effect of a suppressor object card. This effect is
-	 * constructed from a {@link common.SuppressorObjectCard} that is null
-	 * 
-	 */
-	public SuppressorEffect() {
-		super(null);
-	}
-
-	/**
-	 * @see ObjectCardEffect#executeEffect(Game)
-	 */
-	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
+	public static boolean executeEffect(Game game,
+										RRClientNotification rrNotification,
+										PSClientNotification psNotification, ObjectCard objectCard) {
 		Player currentPlayer = game.getCurrentPlayer();
 		currentPlayer.setSedated(true);
 		rrNotification

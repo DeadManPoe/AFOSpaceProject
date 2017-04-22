@@ -51,7 +51,7 @@ public class AdrenalineObjCardEffect extends ObjectCardEffect {
 		psNotification.setMessage("[GLOBAL MESSAGE]: "
 				+ currentPlayer.getName()
 				+ " has used an adrenaline object card\n");
-		currentPlayer.setAdrenaline(true);
+		currentPlayer.setAdrenalined(true);
 		return true;
 	}
 }

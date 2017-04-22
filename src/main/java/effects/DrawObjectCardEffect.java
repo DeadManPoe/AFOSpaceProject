@@ -18,34 +18,7 @@ import it.polimi.ingsw.cg_19.Game;
  * @version 1.1
  */
 public class DrawObjectCardEffect extends ActionEffect {
-	/**
-	 * Constructs the effect of drawing an object card from the deck containing
-	 * object cards. This effect is constructed from a
-	 * {@link common.DrawObjectCardAction}
-	 * 
-	 * @param action
-	 *            the {@link common.DrawObjectCardAction} that needs to be
-	 *            enriched with its effect
-	 */
-	public DrawObjectCardEffect(DrawObjectCardAction drawObjectCardAction) {
-		super(drawObjectCardAction);
-	}
-
-	/**
-	 * Constructs the effect of drawing an object card from the deck containing
-	 * object cards. This effect is constructed from a
-	 * {@link common.DrawObjectCardAction} that is null. This constructor is
-	 * only used for test purposes.
-	 */
-	public DrawObjectCardEffect() {
-		this(null);
-	}
-
-	@Override
-	/**
-	 * @see ActionEffect#executeEffect
-	 */
-	public boolean executeEffect(Game game,
+	public static boolean executeEffect(Game game,
 			RRClientNotification rrNotification,
 			PSClientNotification psNotification) {
 		ObjectDeck objectDeck = game.getObjectDeck();

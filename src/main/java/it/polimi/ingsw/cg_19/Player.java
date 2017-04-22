@@ -14,7 +14,7 @@ import common.Sector;
  */
 public class Player {
 	private int speed;
-	public PlayerToken playerToken;
+	private PlayerToken playerToken;
 	// Player's current sector
 	private Sector currentSector;
 	// Player's state

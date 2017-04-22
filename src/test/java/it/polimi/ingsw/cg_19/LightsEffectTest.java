@@ -11,7 +11,7 @@ import common.PSClientNotification;
 import common.RRClientNotification;
 import common.Sector;
 import common.SectorType;
-import effects.LightObjectCardEffect;
+import effects.LightsObjectCardEffect;
 
 /**
  * Some tests for the LightEffect class
@@ -54,7 +54,7 @@ public class LightsEffectTest {
 
 		Game game = new Game(map);
 
-		LightObjectCardEffect effect = new LightObjectCardEffect(
+		LightsObjectCardEffect effect = new LightsObjectCardEffect(
 				new LightsObjectCard(source));
 		assertTrue(effect.executeEffect(game, n1, n2));
 		assertTrue(n1.getLightedSectors().contains(target));
@@ -69,7 +69,7 @@ public class LightsEffectTest {
 	public void testLightsEffectLight() {
 		LightsObjectCard card = new LightsObjectCard(new Sector(new Coordinate(
 				'A', 1), SectorType.SAFE));
-		LightObjectCardEffect effect = new LightObjectCardEffect(card);
+		LightsObjectCardEffect effect = new LightsObjectCardEffect(card);
 		assertEquals(card, effect.getObjectCard());
 	}
 

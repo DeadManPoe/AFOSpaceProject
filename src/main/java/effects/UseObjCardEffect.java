@@ -1,98 +1,78 @@
 package effects;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import common.AdrenalineObjectCard;
-import common.AttackObjectCard;
-import common.Card;
-import common.DefenseObjectCard;
-import common.LightsObjectCard;
-import common.PSClientNotification;
-import common.RRClientNotification;
-import common.SuppressorObjectCard;
-import common.TeleportObjectCard;
-import common.UseObjAction;
+import common.*;
 import it.polimi.ingsw.cg_19.Game;
 
 /**
  * This class represents the effect associated to a use object action
- * 
- * @see ActionEffect
- * @see UseObjAction
- * 
+ *
  * @author Andrea Sessa
  * @author Giorgio Pea
  * @version 1.0
+ * @see ActionEffect
+ * @see UseObjAction
  */
 public class UseObjCardEffect extends ActionEffect {
-	/**
-	 * Initializes the effect wrapping inside an UseObjAction
-	 * 
-	 * @param objectCard
-	 *            The action that needs to be enriched with its effect
-	 */
-	private List<Class<? extends Card>> beforeMoveCards = new ArrayList<Class<? extends Card>>();
-	private List<Class<? extends Card>> afterMoveCards = new ArrayList<Class<? extends Card>>();
+    /**
+     * Initializes the effect wrapping inside an UseObjAction
+     * <p>
+     * The action that needs to be enriched with its effect
+     */
+    private static List<Class<? extends Card>> beforeMoveCards = new ArrayList<>();
+    private static List<Class<? extends Card>> afterMoveCards = new ArrayList<>();
 
-	public UseObjCardEffect(UseObjAction useObjAction) {
-		super(useObjAction);
-		beforeMoveCards.add(AdrenalineObjectCard.class);
-		beforeMoveCards.add(SuppressorObjectCard.class);
-		beforeMoveCards.add(LightsObjectCard.class);
-		beforeMoveCards.add(TeleportObjectCard.class);
-		beforeMoveCards.add(DefenseObjectCard.class);
-		beforeMoveCards.add(AttackObjectCard.class);
+    private static void produceUtilsDataStructure() {
+        beforeMoveCards.add(AdrenalineObjectCard.class);
+        beforeMoveCards.add(SuppressorObjectCard.class);
+        beforeMoveCards.add(LightsObjectCard.class);
+        beforeMoveCards.add(TeleportObjectCard.class);
+        beforeMoveCards.add(DefenseObjectCard.class);
+        beforeMoveCards.add(AttackObjectCard.class);
+        afterMoveCards.add(LightsObjectCard.class);
+        afterMoveCards.add(TeleportObjectCard.class);
+    }
 
-		afterMoveCards.add(LightsObjectCard.class);
-		afterMoveCards.add(TeleportObjectCard.class);
-	}
 
-	/**
-	 * Construct a "default" UseObjActionEffect, objectAction is assumed null
-	 */
-	public UseObjCardEffect() {
-		this(null);
-	}
+    public static boolean executeEffect(Game game,
+                                        RRClientNotification rrNotification,
+                                        PSClientNotification psNotification, Action action) {
+        UseObjAction castedAction = (UseObjAction) action;
+        ObjectCard associatedCard = castedAction.getCard();
+        if (beforeMoveCards.size() == 0 && afterMoveCards.size() == 0) {
+            produceUtilsDataStructure();
+        }
+        ObjectCardsMapper mapper = new ObjectCardsMapper();
+        // Checks if the card can be played before moveToSector or after moveToSector
+        if (!game.getCurrentPlayer().isHasMoved()) {
+            if (!beforeMoveCards.contains(associatedCard.getClass()))
+                return false;
+        } else {
+            if (!afterMoveCards.contains(associatedCard.getClass()))
+                return false;
+        }
 
-	/**
-	 * @see ActionEffect#executeEffect(Game, List)
-	 */
-	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification clientNotification,
-			PSClientNotification psNotification) {
-		UseObjAction useAction = (UseObjAction) action;
-		ObjectCardsMapper mapper = new ObjectCardsMapper();
-		// Checks if the card can be played before move or after move
-		if (!game.getCurrentPlayer().hasMoved()) {
-			if (!beforeMoveCards.contains(useAction.getCard().getClass()))
-				return false;
-		} else {
-			if (!afterMoveCards.contains(useAction.getCard().getClass()))
-				return false;
-		}
+        try {
+            rrNotification.setMessage("You have used a "
+                    + associatedCard.toString());
+            psNotification.setMessage("[GLOBAL MESSAGE]: "
+                    + game.getCurrentPlayer().getName() + " has used a "
+                    + associatedCard.toString());
+            game.getObjectDeck().addToDiscard(associatedCard);
+            game.getCurrentPlayer().getPrivateDeck()
+                    .removeCard(associatedCard);
+            game.setLastAction(action);
+            Method executeMethod = mapper.getEffect(associatedCard.getClass()).getMethod("executeEffect",
+                    Game.class, RRClientNotification.class, PSClientNotification.class, ObjectCard.class);
+            return (boolean) executeMethod.invoke(null, game, rrNotification, psNotification, associatedCard);
 
-		try {
-			clientNotification.setMessage("You have used a"
-					+ useAction.getCard().toString());
-			psNotification.setMessage("[GLOBAL MESSAGE]: "
-					+ game.getCurrentPlayer().getName() + " has used a "
-					+ useAction.getCard().toString());
-			/*
-			 * ObjectCard card = useAction.getCard(); if(useAction.getCard()
-			 * instanceof LightObjectCard){ card = new LightObjectCard(null); }
-			 * else if(useAction.getCard() instanceof AttackObjectCard){ card =
-			 * new AttackObjectCard(null); }
-			 */
-			game.getObjectDeck().addToDiscard(useAction.getCard());
-			game.getCurrentPlayer().getPrivateDeck()
-					.removeCard(useAction.getCard());
-			game.setLastAction(action);
-			return mapper.getEffect(useAction.getCard()).executeEffect(game,
-					clientNotification, psNotification);
-		} catch (InstantiationException | IllegalAccessException e) {
-			return false;
-		}
-	}
+        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

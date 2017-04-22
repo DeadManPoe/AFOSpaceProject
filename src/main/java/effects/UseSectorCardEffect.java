@@ -1,13 +1,12 @@
 package effects;
 
+import common.*;
 import it.polimi.ingsw.cg_19.Game;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.logging.Level;
-
-import common.PSClientNotification;
-import common.RRClientNotification;
-import common.UseSectorCardAction;
 
 /**
  * Represents the effect of using a sector card
@@ -19,47 +18,20 @@ import common.UseSectorCardAction;
  * @version 1.0
  */
 public class UseSectorCardEffect extends ActionEffect {
-	/**
-	 * Constructs the effect of using a sector card. This effect is constructed
-	 * from a {@link common.UseSectorCardAction}
-	 * 
-	 * @param useSectorAction
-	 *            the action that needs to be enriched with its effect
-	 */
-	public UseSectorCardEffect(UseSectorCardAction useSectorAction) {
-		super(useSectorAction);
-	}
 
-	/**
-	 * Constructs the effect of using a sector card. This effect is constructed
-	 * from a {@link common.UseSectorCardAction} that is null
-	 * 
-	 */
-	public UseSectorCardEffect() {
-		this(null);
-	}
-
-	/**
-	 * @see ActionEffect#executeEffect(Game, List)
-	 */
-	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
-		UseSectorCardAction useAction = (UseSectorCardAction) action;
-		SectorCardsMapper mapper = new SectorCardsMapper();
+	public static boolean executeEffect(Game game,
+										RRClientNotification rrNotification,
+										PSClientNotification psNotification, Action action) {
+		UseSectorCardAction castedAction = (UseSectorCardAction) action;
+		SectorCardsMapper mapper = SectorCardsMapper.getInstance();
 		game.setLastAction(action);
 		try {
-			// Resolve and get the result of the sector card effect
-			return mapper.getEffect(useAction.getCard()).executeEffect(game,
-					rrNotification, psNotification);
-		} catch (InstantiationException | IllegalAccessException e) {
-			ServerLogger
-					.getLogger()
-					.log(Level.SEVERE,
-							"Error in executing an action effect | UseSectorCardEffect",
-							e);
-			return false;
+			Method executeMethod = mapper.getEffect(castedAction.getCard().getClass()).getMethod("executeEffect", Game.class, RRClientNotification.class, PSClientNotification.class, SectorCard.class);
+			return (boolean)  executeMethod.invoke(null,game, rrNotification, psNotification, castedAction.getCard());
+		} catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+			e.printStackTrace();
+
 		}
+		return false;
 	}
 }

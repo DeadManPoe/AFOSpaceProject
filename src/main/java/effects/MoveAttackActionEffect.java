@@ -2,15 +2,10 @@ package effects;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
+import common.*;
 import it.polimi.ingsw.cg_19.*;
-import common.DefenseObjectCard;
-import common.MoveAttackAction;
-import common.ObjectCard;
-import common.PSClientNotification;
-import common.PrivateDeck;
-import common.RRClientNotification;
-import common.Sector;
 
 /**
  * Represents the effect of moving a player and attacking the sector in which
@@ -24,63 +19,33 @@ import common.Sector;
  * @version 1.0
  */
 public class MoveAttackActionEffect extends ActionEffect {
-	/**
-	 * Constructs an effect of moving a player and attacking the sector in which
-	 * the player has arrived. This effect is constructed from a
-	 * {@link common.MoveAction}
-	 * 
-	 * @param moveAttackAction
-	 *            the {@link common.MoveAction} that needs to be enriched with
-	 *            its effect
-	 */
-	public MoveAttackActionEffect(MoveAttackAction moveAttackAction) {
-		super(moveAttackAction);
-	}
 
-	/**
-	 * Constructs an effect of moving a player and attacking the sector in which
-	 * the player has arrived. This effect is constructed from a <<<<<<< HEAD
-	 * {@link common.MoveAction} that is null ======= {@link common.MoveAction}
-	 * that is null. This constructor is used only for test purposes >>>>>>>
-	 * branch 'master' of https://Sessa93@bitbucket.org/Sessa93/progettois.git
-	 */
-	public MoveAttackActionEffect() {
-		super(null);
-	}
-
-	/**
-	 * @see ActionEffect#executeEffect
-	 */
-	@Override
-	public boolean executeEffect(Game game,
-			RRClientNotification rrNotification,
-			PSClientNotification psNotification) {
-		MoveAttackAction moveAttackAction = (MoveAttackAction) action;
-		Sector sourceSector = game.getCurrentPlayer().getSector();
-		Sector targetSector = game.getMap().getSectorByCoords(
-				moveAttackAction.getTarget().getCoordinate());
+	public static boolean executeEffect(Game game,
+										RRClientNotification rrNotification,
+										PSClientNotification psNotification, Action action) {
+		MoveAttackAction castedAction = (MoveAttackAction) action;
 		Player currentPlayer = game.getCurrentPlayer();
+		Sector sourceSector = currentPlayer.getCurrentSector();
+		Sector targetSector = game.getMap().getSectorByCoords(
+				castedAction.getTarget().getCoordinate());
+
 		String rrMessage = "";
 		String psMessage = "";
+		List<Player> deadPlayers = new ArrayList<>();
 
-		if (!sourceSector.equals(moveAttackAction.getTarget())) {
-			if (game.getMap().checkSectorAdiacency(sourceSector,targetSector,currentPlayer.getSpeed(),
-                    currentPlayer.isAdrenaline()) && this.verifyMoveLegality(sourceSector, targetSector, currentPlayer.getPlayerType())) {
-				
+		if (!sourceSector.equals(castedAction.getTarget())) {
+			if (game.getMap().checkSectorAdiacency(sourceSector,targetSector,currentPlayer.getSpeed(),currentPlayer.isAdrenalined())
+					&& verifyMoveLegality(sourceSector,targetSector,currentPlayer.getPlayerToken().getPlayerType())) {
+
 				// For each player contained in the target sector
 				for (Player player : targetSector.getPlayers()) {
-					/*
-					 * Checks if the player p has an defense card, if so then p
-					 * is safe and we removes the defense card from the private
-					 * deck of p
-					 */
 					PrivateDeck playerPrivateDeck = player.getPrivateDeck();
 					ArrayList<ObjectCard> privateDeckContent = new ArrayList<ObjectCard>(
 							playerPrivateDeck.getContent());
 					Iterator<ObjectCard> iterator = privateDeckContent
 							.iterator();
 					boolean defenseFound = false;
-					if (player.getPlayerType() == PlayerType.HUMAN) {
+					if (player.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
 						while (iterator.hasNext()) {
 							ObjectCard objectCard = iterator.next();
 							if (objectCard instanceof DefenseObjectCard) {
@@ -91,12 +56,11 @@ public class MoveAttackActionEffect extends ActionEffect {
 					}
 					// If no defense card has been found for p, then p is dead
 					if (!defenseFound) {
-						targetSector.removePlayer(player);
+						deadPlayers.add(player);
 						player.setPlayerState(PlayerState.DEAD);
-						player.setSector(null);
+						player.setCurrentSector(null);
 						// Notify the rest of the players
-						psNotification.addDeadPlayers(game
-								.fromPlayerToToken(player));
+						psNotification.addDeadPlayers(player.getPlayerToken());
 						rrMessage += "You have attacked sector "
 								+ targetSector.getCoordinate().toString()
 								+ " and so " + player.getName() + " is dead.";
@@ -106,12 +70,12 @@ public class MoveAttackActionEffect extends ActionEffect {
 								+ targetSector.getCoordinate().toString()
 								+ " and so " + player.getName() + " is dead.";
 					} else {
-						if(game.getCurrentPlayer().getPlayerType() == PlayerType.ALIEN) {
-							game.getCurrentPlayer().setSpeed(3);
+						if (currentPlayer.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
+							currentPlayer.setSpeed(3);
 						}
 						// Otherwise p has been attacked
-						psNotification.addAttackedPlayers(game
-								.fromPlayerToToken(player));
+						psNotification.addAttackedPlayers(player.getPlayerToken()
+						);
 						rrMessage += "You have attacked sector "
 								+ targetSector.getCoordinate().toString()
 								+ " and so " + player.getName()
@@ -136,12 +100,14 @@ public class MoveAttackActionEffect extends ActionEffect {
 				}
 				rrNotification.setMessage(rrMessage);
 				psNotification.setMessage(psMessage);
+				for (Player player : deadPlayers){
+					targetSector.removePlayer(player);
+				}
 				// Move the player that has attacked to the target sector
 				sourceSector.removePlayer(currentPlayer);
-				currentPlayer.setSector(targetSector);
+				currentPlayer.setCurrentSector(targetSector);
 				targetSector.addPlayer(currentPlayer);
-
-				game.setLastAction(moveAttackAction);
+				game.setLastAction( action);
 				currentPlayer.setHasMoved(true);
 				return true;
 			}
@@ -149,7 +115,7 @@ public class MoveAttackActionEffect extends ActionEffect {
 
 		return false;
 	}
-    private boolean verifyMoveLegality(Sector source, Sector target, PlayerType playerType){
+    private static boolean verifyMoveLegality(Sector source, Sector target, PlayerType playerType){
         if (source.equals(target)){
             return false;
         }

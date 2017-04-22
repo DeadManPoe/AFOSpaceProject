@@ -29,7 +29,7 @@ public class ObjectMapperTest {
 
 		// Assert the correct binding between object and effects
 		assertTrue(objectMapper.getEffect(new TeleportObjectCard()) instanceof TeleportObjCardEffect);
-		assertTrue(objectMapper.getEffect(new LightsObjectCard(null)) instanceof LightObjectCardEffect);
+		assertTrue(objectMapper.getEffect(new LightsObjectCard(null)) instanceof LightsObjectCardEffect);
 		assertTrue(objectMapper.getEffect(new AdrenalineObjectCard()) instanceof AdrenalineObjCardEffect);
 		assertTrue(objectMapper.getEffect(new SuppressorObjectCard()) instanceof SuppressorEffect);
 		assertTrue(objectMapper.getEffect(new AttackObjectCard(null)) instanceof AttackObjCardEffect);
