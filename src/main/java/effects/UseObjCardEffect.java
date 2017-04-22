@@ -46,7 +46,6 @@ public class UseObjCardEffect extends ActionEffect {
         if (beforeMoveCards.size() == 0 && afterMoveCards.size() == 0) {
             produceUtilsDataStructure();
         }
-        ObjectCardsMapper mapper = new ObjectCardsMapper();
         // Checks if the card can be played before moveToSector or after moveToSector
         if (!game.getCurrentPlayer().isHasMoved()) {
             if (!beforeMoveCards.contains(associatedCard.getClass()))
@@ -66,7 +65,7 @@ public class UseObjCardEffect extends ActionEffect {
             game.getCurrentPlayer().getPrivateDeck()
                     .removeCard(associatedCard);
             game.setLastAction(action);
-            Method executeMethod = mapper.getEffect(associatedCard.getClass()).getMethod("executeEffect",
+            Method executeMethod = ObjectCardsMapper.getInstance().getEffect(associatedCard.getClass()).getMethod("executeEffect",
                     Game.class, RRClientNotification.class, PSClientNotification.class, ObjectCard.class);
             return (boolean) executeMethod.invoke(null, game, rrNotification, psNotification, associatedCard);
 
