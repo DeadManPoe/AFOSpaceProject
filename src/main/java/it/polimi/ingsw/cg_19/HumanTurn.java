@@ -4,17 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import common.*;
-import common.SectorgetClass();
 
 /**
  * Represents a human turn in the game
- * 
- * @see Turn
+ *
  * @author Andrea Sessa
  * @author Giorgio Pea
  * @version 1.0
  */
-public class HumanTurn implements Turn {
+public class HumanTurn {
 
 		private static List<Class<? extends Action>> initialActions;
 		public static List<Class<? extends Action>> getInitialActions(){

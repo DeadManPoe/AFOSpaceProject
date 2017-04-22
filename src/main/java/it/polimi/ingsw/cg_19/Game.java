@@ -21,320 +21,309 @@ import factories.*;
 
 /**
  * Represents a generic game(non-immutable class)
- * 
+ *
  * @author Andrea Sessa
  * @author Giorgio Pea
  * @version 1.0
  */
 public class Game extends Observable {
-	private final static long TURN_TIMEOUT = 10 * 60 * 1000;
+    private final static long TURN_TIMEOUT = 10 * 60 * 1000;
     private static int counter = 0;
 
-	private volatile List<Player> players;
-	private final List<PubSubHandler> pubSubHandlers;
+    private volatile List<Player> players;
+    private final List<PubSubHandler> pubSubHandlers;
     private final ClientMethodsNamesProvider clientMethodsNamesProvider;
 
 
     private volatile ObjectDeck objectDeck;
-	private volatile RescueDeck rescueDeck;
-	private volatile SectorDeck sectorDeck;
-	private volatile GameMap gameMap;
-	private volatile Player currentPlayer;
-	private volatile int turnNumber;
+    private volatile RescueDeck rescueDeck;
+    private volatile SectorDeck sectorDeck;
+    private volatile GameMap gameMap;
+    private volatile Player currentPlayer;
+    private volatile int turnNumber;
 
-	private volatile List<Class<? extends Action>> nextActions;
-	private volatile Action lastAction;
+    private volatile List<Class<? extends Action>> nextActions;
+    private volatile Action lastAction;
 
-	private volatile Turn turn;
+    private TurnTimeout timeout;
+    private Timer timer;
 
+    private volatile GameMapFactory gameMapFactory;
+    private volatile GamePublicData gamePublicData;
 
-	private TurnTimeout timeout;
-	private Timer timer;
+    private volatile ActionMapper actionMapper;
 
-	private volatile GameMapFactory gameMapFactory;
-	private volatile GamePublicData gamePublicData;
+    private final GameManager gameManager;
 
-	private volatile ActionMapper actionMapper;
-
-	private volatile GameManager gameManager;
-
-	/**
-	 * Constructs a game from the name of its associated map. The resources of
-	 * the game are not initialized until the game is started. From the name of
-	 * the game's associated map the right map factory is automatically created
-	 * along with an empty list of players, an empty list of threads
-	 * representing the game's subscribers in the logic of the pub/sub pattern,
-	 * an empty container of the game's public data and an empty map between a
-	 * player's unique identifier and a player
-	 * 
-	 * @param gameMapName
-	 *            name of the game's associated map
-	 */
-	public Game(String gameMapName) {
-		this.pubSubHandlers = new ArrayList<>();
+    /**
+     * Constructs a game from the name of its associated map. The resources of
+     * the game are not initialized until the game is started. From the name of
+     * the game's associated map the right map factory is automatically created
+     * along with an empty list of players, an empty list of threads
+     * representing the game's subscribers in the logic of the pub/sub pattern,
+     * an empty container of the game's public data and an empty map between a
+     * player's unique identifier and a player
+     *
+     * @param gameMapName name of the game's associated map
+     */
+    public Game(String gameMapName) throws NoSuchElementException{
+        this.pubSubHandlers = new ArrayList<>();
         this.clientMethodsNamesProvider = ClientMethodsNamesProvider.getInstance();
-		if (gameMapName.equals("GALILEI")) {
-			this.gameMapFactory = new GalileiGameMapFactory();
-		} else if (gameMapName.equals("FERMI")) {
-			this.gameMapFactory = new FermiGameMapFactory();
-		} else if (gameMapName.equals("GALVANI")) {
-			this.gameMapFactory = new GalvaniGameMapFactory();
-		} else {
-			throw new IllegalArgumentException("The map's type is undefined");
-		}
-		this.players = new ArrayList<>();
-		counter++;
-		this.gamePublicData = new GamePublicData(counter, "Game_" + counter);
-		this.turnNumber = 0;
-	}
+        this.gameManager = GameManager.getInstance();
+        switch (gameMapName) {
+            case "GALILEI":
+                this.gameMapFactory = new GalileiGameMapFactory();
+                break;
+            case "FERMI":
+                this.gameMapFactory = new FermiGameMapFactory();
+                break;
+            case "GALVANI":
+                this.gameMapFactory = new GalvaniGameMapFactory();
+                break;
+            default:
+                throw new NoSuchElementException("No game map matches the given name");
+        }
+        this.players = new ArrayList<>();
+        counter++;
+        this.gamePublicData = new GamePublicData(counter, "Game_" + counter);
+        this.turnNumber = 0;
+    }
 
-	/**
-	 * Constructs a game from its associated map. The resources of the game are
-	 * not initialized until the game is started. an empty list of players, an
-	 * empty list of threads representing the game's subscribers in the logic of
-	 * the pub/sub pattern, an empty container of the game's public data and an
-	 * empty map between a player's unique identifier and a player are
-	 * automatically created. This constructor is only used for test purposes
-	 * 
-	 * @param gameMap
-	 *            the game's associated map
-	 */
-	public Game(GameMap gameMap) {
+    /**
+     * Constructs a game from its associated map. The resources of the game are
+     * not initialized until the game is started. an empty list of players, an
+     * empty list of threads representing the game's subscribers in the logic of
+     * the pub/sub pattern, an empty container of the game's public data and an
+     * empty map between a player's unique identifier and a player are
+     * automatically created. This constructor is only used for test purposes
+     *
+     * @param gameMap the game's associated map
+     */
+    public Game(GameMap gameMap) {
         this.clientMethodsNamesProvider = ClientMethodsNamesProvider.getInstance();
-		this.pubSubHandlers = new ArrayList<>();
-		this.gameMap = gameMap;
-		this.players = new ArrayList<>();
-		counter++;
-		this.gamePublicData = new GamePublicData(counter, "Game_" + counter);
-		this.turnNumber = 0;
-		DeckFactory deckFactory = new ObjectDeckFactory();
-		this.objectDeck = (ObjectDeck) deckFactory.makeDeck();
-		deckFactory = new SectorDeckFactory();
-		this.sectorDeck = (SectorDeck) deckFactory.makeDeck();
-		deckFactory = new RescueDeckFactory();
-		this.rescueDeck = (RescueDeck) deckFactory.makeDeck();
-	}
+        this.gameManager = GameManager.getInstance();
+        this.pubSubHandlers = new ArrayList<>();
+        this.gameMap = gameMap;
+        this.players = new ArrayList<>();
+        counter++;
+        this.gamePublicData = new GamePublicData(counter, "Game_" + counter);
+        this.turnNumber = 0;
+        DeckFactory deckFactory = new ObjectDeckFactory();
+        this.objectDeck = (ObjectDeck) deckFactory.makeDeck();
+        deckFactory = new SectorDeckFactory();
+        this.sectorDeck = (SectorDeck) deckFactory.makeDeck();
+        deckFactory = new RescueDeckFactory();
+        this.rescueDeck = (RescueDeck) deckFactory.makeDeck();
+    }
 
-	/**
-	 * Starts the game by initializing its resources and sending a remote method
-	 * call to all the game's subscribers to signal them that the game is going
-	 * to start
-	 */
-	public void startGame() {
-		// Resources init
-		DeckFactory deckFactory = new ObjectDeckFactory();
-		this.objectDeck = (ObjectDeck) deckFactory.makeDeck();
-		deckFactory = new SectorDeckFactory();
-		this.sectorDeck = (SectorDeck) deckFactory.makeDeck();
-		deckFactory = new RescueDeckFactory();
-		this.rescueDeck = (RescueDeck) deckFactory.makeDeck();
-		this.gameMap = gameMapFactory.makeMap();
-		this.actionMapper = new ActionMapper();
-		ArrayList<Object> parameters = new ArrayList<Object>();
-		parameters.add(gameMap.getName());
-		// Setting players' starting sector
-		for (Player player : players) {
-			if (player.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
-				player.setCurrentSector(gameMap.getHumanSector());
-				gameMap.getHumanSector().addPlayer(player);
-			} else {
-				player.setCurrentSector(gameMap.getAlienSector());
-				gameMap.getAlienSector().addPlayer(player);
-			}
-		}
-		// Init of the first game turn
-		if (currentPlayer.getPlayerToken().getPlayerType() == PlayerType.HUMAN) {
-			turn = new HumanTurn(this);
-		} else {
-			turn = new AlienTurn(this);
-		}
-		nextActions = turn.getInitialActions();
-		this.gamePublicData.setStatus(GameStatus.CLOSED);
+    /**
+     * Starts the game by initializing its resources and sending a remote method
+     * call to all the game's subscribers to signal them that the game is going
+     * to start
+     */
+    public void startGame() {
+        // Resources init
+        DeckFactory deckFactory = new ObjectDeckFactory();
+        this.objectDeck = (ObjectDeck) deckFactory.makeDeck();
+        deckFactory = new SectorDeckFactory();
+        this.sectorDeck = (SectorDeck) deckFactory.makeDeck();
+        deckFactory = new RescueDeckFactory();
+        this.rescueDeck = (RescueDeck) deckFactory.makeDeck();
+        this.gameMap = gameMapFactory.makeMap();
+        this.actionMapper = new ActionMapper();
+        ArrayList<Object> parameters = new ArrayList<Object>();
+        parameters.add(gameMap.getName());
+        // Setting players' starting sector
+        for (Player player : players) {
+            if (player.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
+                player.setCurrentSector(gameMap.getHumanSector());
+                gameMap.getHumanSector().addPlayer(player);
+            } else {
+                player.setCurrentSector(gameMap.getAlienSector());
+                gameMap.getAlienSector().addPlayer(player);
+            }
+        }
+        // Init of the first game turn
+        if (currentPlayer.getPlayerToken().getPlayerType() == PlayerType.HUMAN) {
+            this.nextActions = HumanTurn.getInitialActions();
+        } else {
+            this.nextActions = AlienTurn.getInitialActions();
+        }
+        this.gamePublicData.setStatus(GameStatus.CLOSED);
 
-		this.timer = new Timer();
-		this.timeout = new TurnTimeout(this);
-		this.timer.schedule(timeout, TURN_TIMEOUT);
-		// Notification to the subscribers
-		this.notifySubscribers(new RemoteMethodCall(this.clientMethodsNamesProvider.sendMapAndStartGame(), parameters));
-	}
+        this.timer = new Timer();
+        this.timeout = new TurnTimeout(this);
+        this.timer.schedule(timeout, TURN_TIMEOUT);
+        // Notification to the subscribers
+        this.notifySubscribers(new RemoteMethodCall(this.clientMethodsNamesProvider.sendMapAndStartGame(), parameters));
+    }
 
-	/**
-	 * Adds a player to the game
-	 *
-	 * @param playerName
-	 *            the thread that will handle the pub/sub communication with the
-	 *            client
-	 * @return the unique identifier(token) of the player inserted
-	 */
-	public synchronized PlayerToken addPlayer(String playerName) {
-		PlayerType playerType = assignTypeToPlayer(players.size() + 1);
-		PlayerToken playerToken = new PlayerToken(playerType, this.gamePublicData.getId());
-		Player player = new Player(playerName, playerToken);
-		players.add(player);
-		gamePublicData.addPlayer();
-		if (currentPlayer == null){
+    /**
+     * Adds a player to the game
+     *
+     * @param playerName the thread that will handle the pub/sub communication with the
+     *                   client
+     * @return the unique identifier(token) of the player inserted
+     */
+    public synchronized PlayerToken addPlayer(String playerName) {
+        PlayerType playerType = assignTypeToPlayer(players.size() + 1);
+        PlayerToken playerToken = new PlayerToken(playerType, this.gamePublicData.getId());
+        Player player = new Player(playerName, playerToken);
+        players.add(player);
+        gamePublicData.addPlayer();
+        if (currentPlayer == null) {
             this.currentPlayer = player;
         }
-		return playerToken;
-	}
-	/**
-	 * Produces a player type based on the number of players already in game .
-	 * If the number of players already in game is even, the returned player
-	 * type is "HUMAN", otherwise is "ALIEN". This procedure is adopted in order
-	 * to guarantee a balanced number of aliens and humans
-	 *
-	 * @param numberOfPlayers
-	 *            the number of players already in game
-	 * @return a player type, either "HUMAN" or "ALIEN"
-	 */
-	public PlayerType assignTypeToPlayer(int numberOfPlayers) {
-		if (numberOfPlayers % 2 == 0) {
-			return PlayerType.HUMAN;
-		} else {
-			return PlayerType.ALIEN;
-		}
+        return playerToken;
+    }
 
-	}
+    /**
+     * Produces a player type based on the number of players already in game .
+     * If the number of players already in game is even, the returned player
+     * type is "HUMAN", otherwise is "ALIEN". This procedure is adopted in order
+     * to guarantee a balanced number of aliens and humans
+     *
+     * @param numberOfPlayers the number of players already in game
+     * @return a player type, either "HUMAN" or "ALIEN"
+     */
+    public PlayerType assignTypeToPlayer(int numberOfPlayers) {
+        if (numberOfPlayers % 2 == 0) {
+            return PlayerType.HUMAN;
+        } else {
+            return PlayerType.ALIEN;
+        }
 
-	/**
-	 * Gets the public data of the game
-	 * 
-	 * @return the public data of the game
-	 */
-	public synchronized GamePublicData getPublicData() {
-		return gamePublicData;
-	}
+    }
 
-	/**
-	 * Sets the next current player in the game
-	 *
-	 */
-	public void shiftCurrentplayer() {
-		int currentPlayerIndex = players.indexOf(currentPlayer);
-		do {
-			currentPlayerIndex++;
-			if (currentPlayerIndex == players.size())
-				currentPlayerIndex = 0;
-		} while (players.get(currentPlayerIndex).getPlayerState() == PlayerState.DEAD);
+    /**
+     * Gets the public data of the game
+     *
+     * @return the public data of the game
+     */
+    public synchronized GamePublicData getPublicData() {
+        return gamePublicData;
+    }
 
-		this.currentPlayer = players.get(currentPlayerIndex);
-	}
+    /**
+     * Sets the next current player in the game
+     */
+    public void shiftCurrentplayer() {
+        int currentPlayerIndex = players.indexOf(currentPlayer);
+        do {
+            currentPlayerIndex++;
+            if (currentPlayerIndex == players.size())
+                currentPlayerIndex = 0;
+        } while (players.get(currentPlayerIndex).getPlayerState() == PlayerState.DEAD);
 
-	/**
-	 * Gets the game's current player
-	 * 
-	 * @return the game's current player
-	 */
-	public Player getCurrentPlayer() {
-		return this.currentPlayer;
-	}
+        this.currentPlayer = players.get(currentPlayerIndex);
+    }
 
-	/**
-	 * Gets the game's associated deck of object cards
-	 * 
-	 * @return the game's associated deck of object cards
-	 */
-	public ObjectDeck getObjectDeck() {
-		return objectDeck;
-	}
+    /**
+     * Gets the game's current player
+     *
+     * @return the game's current player
+     */
+    public Player getCurrentPlayer() {
+        return this.currentPlayer;
+    }
 
-	/**
-	 * Gets the game's associated deck of rescue cards
-	 * 
-	 * @return the game's associated deck of rescue cards
-	 */
-	public RescueDeck getRescueDeck() {
-		return rescueDeck;
-	}
+    /**
+     * Gets the game's associated deck of object cards
+     *
+     * @return the game's associated deck of object cards
+     */
+    public ObjectDeck getObjectDeck() {
+        return objectDeck;
+    }
 
-	/**
-	 * Gets the game's associated deck of sector cards
-	 * 
-	 * @return the game's associated deck of sector cards
-	 */
-	public SectorDeck getSectorDeck() {
-		return sectorDeck;
-	}
+    /**
+     * Gets the game's associated deck of rescue cards
+     *
+     * @return the game's associated deck of rescue cards
+     */
+    public RescueDeck getRescueDeck() {
+        return rescueDeck;
+    }
 
-	/**
-	 * Gets the game's associated map
-	 * 
-	 * @return the game's associated map
-	 */
-	public GameMap getMap() {
-		return this.gameMap;
-	}
+    /**
+     * Gets the game's associated deck of sector cards
+     *
+     * @return the game's associated deck of sector cards
+     */
+    public SectorDeck getSectorDeck() {
+        return sectorDeck;
+    }
 
-	/**
-	 * Gets the game's turn number
-	 * 
-	 * @return the game's turn number
-	 */
-	public int getTurnNumber() {
-		return turnNumber;
-	}
+    /**
+     * Gets the game's associated map
+     *
+     * @return the game's associated map
+     */
+    public GameMap getMap() {
+        return this.gameMap;
+    }
 
-	/**
-	 * Sets the game's turn number. This method is used only for test purposes
-	 * 
-	 * @param turnNumber
-	 *            the new game's turn number
-	 */
-	public void setTurnNumber(int turnNumber) {
-		this.turnNumber = turnNumber;
-	}
+    /**
+     * Gets the game's turn number
+     *
+     * @return the game's turn number
+     */
+    public int getTurnNumber() {
+        return turnNumber;
+    }
 
-	/**
-	 * Gets the game's last action performed
-	 * 
-	 * @return the game's last performed action
-	 */
-	public Action getLastAction() {
-		return lastAction;
-	}
+    /**
+     * Sets the game's turn number. This method is used only for test purposes
+     *
+     * @param turnNumber the new game's turn number
+     */
+    public void setTurnNumber(int turnNumber) {
+        this.turnNumber = turnNumber;
+    }
 
-	/**
-	 * Sets the game's last action performed
-	 * 
-	 * @param lastAction
-	 *            the new game's last action performed
-	 */
-	public void setLastAction(Action lastAction) {
-		this.lastAction = lastAction;
-	}
+    /**
+     * Gets the game's last action performed
+     *
+     * @return the game's last performed action
+     */
+    public Action getLastAction() {
+        return lastAction;
+    }
 
-	/**
-	 * Performs a game action
-	 * 
-	 * @see ClientNotification
-	 * @see Action
-	 * @param action
-	 *            the action to be performed
-	 * @param playerToken
-	 *            the token of the player that wants to perform the action
-	 * @return an array of two notifications to be sent to the game's
-	 *         subscribers. The first one is to be sent only to the player that
-	 *         wants to perform the action, the second one is to be sent to all
-	 *         the game's subscribers
-	 * @throws IllegalAccessException
-	 *             if Action is null or not mapped to an effect
-	 * @throws InstantiationException
-	 *             if Action is null or not mapped to an effect
-	 */
+    /**
+     * Sets the game's last action performed
+     *
+     * @param lastAction the new game's last action performed
+     */
+    public void setLastAction(Action lastAction) {
+        this.lastAction = lastAction;
+    }
 
-	public synchronized RRClientNotification makeAction(Action action,
-			PlayerToken playerToken) {
-		RRClientNotification clientNotification = new RRClientNotification();
-		PSClientNotification psNotification = new PSClientNotification();
-		Player actualPlayer = this.getPlayer(playerToken);
-		// if(turn.getInitialAction().contains(action.class)) &&
-		if (!currentPlayer.equals(actualPlayer)) {
-			clientNotification.setActionResult(false);
-		} else {
-			// If the player is ok then checks if the action is ok
-			if (nextActions.contains(action.getClass())) {
-				// Retrieve the related effect
-                ActionEffect effect = null;
+    /**
+     * Performs a game action
+     *
+     * @param action      the action to be performed
+     * @param playerToken the token of the player that wants to perform the action
+     * @return an array of two notifications to be sent to the game's
+     * subscribers. The first one is to be sent only to the player that
+     * wants to perform the action, the second one is to be sent to all
+     * the game's subscribers
+     * @see ClientNotification
+     * @see Action
+     */
+
+    public synchronized RRClientNotification makeAction(Action action,
+                                                        PlayerToken playerToken) {
+        RRClientNotification clientNotification = new RRClientNotification();
+        PSClientNotification psNotification = new PSClientNotification();
+        Player actualPlayer = this.getPlayer(playerToken);
+        // if(turn.getInitialAction().contains(action.class)) &&
+        if (!currentPlayer.equals(actualPlayer)) {
+            clientNotification.setActionResult(false);
+        } else {
+            // If the player is ok then checks if the action is ok
+            if (nextActions.contains(action.getClass())) {
+                ActionEffect effect;
                 try {
                     effect = actionMapper.getEffect(action);
                 } catch (InstantiationException | IllegalAccessException e) {
@@ -344,206 +333,165 @@ public class Game extends Observable {
                 }
 
                 // Executes the effect and get the result
-				boolean actionResult = effect.executeEffect(this,
-						clientNotification, psNotification);
+                boolean actionResult = effect.executeEffect(this,
+                        clientNotification, psNotification);
 
-				if (actionResult) {
+                if (actionResult) {
                     clientNotification.setActionResult(true);
-					/*
-					 * If the last action has been and an end turn action the
+                    /*
+                     * If the last action has been and an end turn action the
 					 * there is no need to update the nextAction field
 					 */
-					if (!lastAction.getClass().equals(EndTurnAction.class)) {
-						nextActions = turn.getNextActions(lastAction);
-					} else {
-						
-						nextActions = turn.getInitialActions();
-						turnNumber++;
+                    if (!lastAction.getClass().equals(EndTurnAction.class)) {
+                        if (actualPlayer.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
+                            nextActions = AlienTurn.nextAction(lastAction, actualPlayer);
+                        } else {
+                            nextActions = HumanTurn.nextAction(lastAction, actualPlayer);
+                        }
 
-						// Reset the timeout
+                    } else {
+                        if (actualPlayer.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
+                            nextActions = AlienTurn.getInitialActions();
+                        } else {
+                            nextActions = HumanTurn.getInitialActions();
+                        }
+                        turnNumber++;
 
-						timer.cancel();
-						timeout = new TurnTimeout(this);
-						timer.schedule(timeout, TURN_TIMEOUT);
-					}
-					boolean winH = checkWinConditions(PlayerType.HUMAN);
-					boolean winA = checkWinConditions(PlayerType.ALIEN);
+                        // Reset the timeout
 
-					if (winH) {
-						psNotification
-								.setMessage(psNotification.getMessage()
-										+ "\n[GLOBAL MESSAGE]: The game has ended, HUMANS WIN!");
-					}
-					if (winA) {
-						psNotification
-								.setMessage(psNotification.getMessage()
-										+ "\n[GLOBAL MESSAGE]: The game has ended, ALIENS WIN!");
+                        timer.cancel();
+                        timeout = new TurnTimeout(this);
+                        timer.schedule(timeout, TURN_TIMEOUT);
+                    }
+                    boolean winH = checkWinConditions(PlayerType.HUMAN);
+                    boolean winA = checkWinConditions(PlayerType.ALIEN);
 
-					}
-					if (winH || winA) {
-						psNotification.setAlienWins(winA);
-						psNotification.setHumanWins(winH);
-						this.gameManager.endGame(this);
-					}
+                    if (winH) {
+                        psNotification
+                                .setMessage(psNotification.getMessage()
+                                        + "\n[GLOBAL MESSAGE]: The game has ended, HUMANS WIN!");
+                    }
+                    if (winA) {
+                        psNotification
+                                .setMessage(psNotification.getMessage()
+                                        + "\n[GLOBAL MESSAGE]: The game has ended, ALIENS WIN!");
+
+                    }
+                    if (winH || winA) {
+                        psNotification.setAlienWins(winA);
+                        psNotification.setHumanWins(winH);
+                        this.gameManager.endGame(this);
+                    }
                     ArrayList<Object> parameters = new ArrayList<>();
                     parameters.add(psNotification);
-                    this.notifySubscribers(new RemoteMethodCall(this.clientMethodsNamesProvider.asyncNotification(),parameters));
-				}
-			} else {
-				clientNotification.setActionResult(false);
-			}
+                    this.notifySubscribers(new RemoteMethodCall(this.clientMethodsNamesProvider.asyncNotification(), parameters));
+                }
+            } else {
+                clientNotification.setActionResult(false);
+            }
 
-		}
+        }
 
-		return clientNotification;
-	}
-	/**
-	 * Sets a new game's turn
-	 * 
-	 * @param turn
-	 *            the new game's turn
-	 */
-	public void setTurn(Turn turn) {
-		this.turn = turn;
-	}
+        return clientNotification;
+    }
 
-	/**
-	 * Gets the game's current turn
-	 * 
-	 * @return the game's current turn
-	 */
-	public Turn getTurn() {
-		return this.turn;
-	}
-
-	/**
-	 * This method is called by the timeout thread when the current player has
-	 * not concluded its turn in time
-	 * 
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
-	 */
-	public void timeoutUpdate() throws InstantiationException,
-			IllegalAccessException {
+    /**
+     * This method is called by the timeout thread when the current player has
+     * not concluded its turn in time
+     *
+     */
+    public void timeoutUpdate() throws InstantiationException,
+            IllegalAccessException {
         Player previousPlayer = this.currentPlayer;
         EndTurnEffect endTurnEffect = new EndTurnEffect();
         PSClientNotification psClientNotification = new PSClientNotification();
         RRClientNotification rrClientNotification = new RRClientNotification();
-        endTurnEffect.executeEffect(this,rrClientNotification,psClientNotification);
+        endTurnEffect.executeEffect(this, rrClientNotification, psClientNotification);
         ArrayList<Object> parameters = new ArrayList<>();
         this.timer.schedule(new TurnTimeout(this), TURN_TIMEOUT);
-        for (PubSubHandler handler : this.pubSubHandlers){
-            if (handler.getPlayerToken().equals(this.currentPlayer.getPlayerToken())){
+        for (PubSubHandler handler : this.pubSubHandlers) {
+            if (handler.getPlayerToken().equals(this.currentPlayer.getPlayerToken())) {
                 handler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.startTurn(), new ArrayList<>()));
             }
-            if (handler.getPlayerToken().equals(previousPlayer.getPlayerToken())){
+            if (handler.getPlayerToken().equals(previousPlayer.getPlayerToken())) {
                 handler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.forceEndTurn(), new ArrayList<>()));
             }
             parameters.add(psClientNotification);
-            handler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.asyncNotification(),parameters));
+            handler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.asyncNotification(), parameters));
         }
-	}
+    }
 
-	/**
-	 * Notifies the game's subscribers with a remote method call that has to be
-	 * performed on them
-	 * 
-	 * @param remoteMethodCall
-	 *            the remote method call to be performed on the game's
-	 *            subscribers
-	 */
-	public synchronized void notifySubscribers(RemoteMethodCall remoteMethodCall) {
-		for (PubSubHandler pubSubHandler : this.pubSubHandlers){
+    /**
+     * Notifies the game's subscribers with a remote method call that has to be
+     * performed on them
+     *
+     * @param remoteMethodCall the remote method call to be performed on the game's
+     *                         subscribers
+     */
+    public synchronized void notifySubscribers(RemoteMethodCall remoteMethodCall) {
+        for (PubSubHandler pubSubHandler : this.pubSubHandlers) {
             pubSubHandler.queueNotification(remoteMethodCall);
         }
-	}
+    }
 
-	/**
-	 * Gets the game's id
-	 * 
-	 * @return the game's id
-	 */
-	public int getId() {
-		return this.gamePublicData.getId();
-	}
-	/**
-	 * Checks the number of player of PlayerType type still alive
-	 * 
-	 * @param type
-	 *            The type of the player
-	 * @return The number of alive player
-	 */
-	public int getNumOfAlivePlayer(PlayerType type) {
-		int count = 0;
-		for (Player p : players) {
-			if (p.getPlayerState() == PlayerState.ALIVE
-					&& p.getPlayerToken().getPlayerType() == type)
-				count++;
-		}
-		return count;
-	}
+    /**
+     * Gets the game's id
+     *
+     * @return the game's id
+     */
+    public int getId() {
+        return this.gamePublicData.getId();
+    }
 
-	/**
-	 * Checks if the game has finished
-	 * 
-	 * @return true if someone(Alien, Human or both) has won the game and the
-	 *         game has ended, false otherwise
-	 */
-	public boolean checkWinConditions(PlayerType playerType) {
-		if (playerType == PlayerType.HUMAN) {
-			// If all human players are escaped then Human wins!
-			if (checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED))
-				return true;
-			// Only one human player left with an escape possibility
-			else if (this.getNumOfAlivePlayer(PlayerType.ALIEN) == 0
-					&& this.getNumOfAlivePlayer(PlayerType.HUMAN) == 1
-					&& this.gameMap.existEscapes())
-				return true;
-			// All human player are dead or escaped
-			else if (!this.checkStateAll(PlayerType.HUMAN, PlayerState.DEAD)
-					&& this.getNumOfAlivePlayer(PlayerType.HUMAN) == 0)
-				return true;
-		} else {
-			// If all human player are all dead, alien wins!
-			if (this.getNumOfAlivePlayer(PlayerType.HUMAN) == 0
-					&& !checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED))
-				return true;
 
-			if (this.turnNumber == 39) {
-				// Some human player is still alive, but turn = 39, so alien
-				// wins
-				if (this.getNumOfAlivePlayer(PlayerType.HUMAN) > 0)
-					return true;
-				return false;
-			} else {
-				if (!this.gameMap.existEscapes()
-						&& this.getNumOfAlivePlayer(PlayerType.HUMAN) > 0)
-					return true;
-			}
-		}
-		return false;
-	}
+    /**
+     * Checks if the game has finished
+     *
+     * @return true if someone(Alien, Human or both) has won the game and the
+     * game has ended, false otherwise
+     */
+    public boolean checkWinConditions(PlayerType playerType) {
+        boolean allDeadHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.DEAD);
+        boolean allEscapedHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED);
+        boolean allDeadAliens = this.checkStateAll(PlayerType.ALIEN, PlayerState.DEAD);
+        boolean existEscapes = this.gameMap.existEscapes();
+        if (playerType == PlayerType.HUMAN) {
+            // If all human players are escaped then Human wins!
+            if (allEscapedHumans) {
+                return true;
+            } else if (!allDeadHumans && allDeadAliens) {
+                return true;
+            }
+            return false;
+        } else {
+            // If all human player are all dead, alien wins!
+            if (allDeadHumans) {
+                return true;
+            } else if (this.turnNumber == 39 && !allEscapedHumans) {
+                return true;
+            } else if (!allEscapedHumans && !existEscapes) {
+                return true;
+            }
+            return false;
+        }
+    }
 
-	/**
-	 * Checks if all the players of a given player's type are in the given state
-	 * 
-	 * @param playerType
-	 *            the player's type to be considered for the checking
-	 * @param playerState
-	 *            the state of a player to be consider for the checking
-	 * @return true if all the players of a given player type are in the given
-	 *         state
-	 */
-	private boolean checkStateAll(PlayerType playerType, PlayerState playerState) {
-		for (Player player : players) {
-			if (player.getPlayerState() != playerState
-					&& player.getPlayerToken().getPlayerType() == playerType){
+    /**
+     * Checks if all the players of a given player's type are in the given state
+     *
+     * @param playerType  the player's type to be considered for the checking
+     * @param playerState the state of a player to be consider for the checking
+     * @return true if all the players of a given player type are in the given
+     * state
+     */
+    private boolean checkStateAll(PlayerType playerType, PlayerState playerState) {
+        for (Player player : players) {
+            if (!player.getPlayerState().equals(playerState) && player.getPlayerToken().getPlayerType().equals(playerType)) {
                 return false;
             }
-		}
-		return true;
-	}
-
+        }
+        return true;
+    }
 
 
     public List<PubSubHandler> getPubSubHandlers() {
@@ -551,14 +499,16 @@ public class Game extends Observable {
     }
 
     public void addPubSubHandler(PubSubHandler pubSubHandler) {
-		this.pubSubHandlers.add(pubSubHandler);
+        this.pubSubHandlers.add(pubSubHandler);
     }
+
     public List<Player> getPlayers() {
         return players;
     }
-    public Player getPlayer(PlayerToken playerToken) throws NoSuchElementException{
-        for (Player player : this.players){
-            if (player.getPlayerToken().equals(playerToken)){
+
+    public Player getPlayer(PlayerToken playerToken) throws NoSuchElementException {
+        for (Player player : this.players) {
+            if (player.getPlayerToken().equals(playerToken)) {
                 return player;
             }
         }
