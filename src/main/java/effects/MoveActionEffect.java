@@ -39,7 +39,6 @@ public class MoveActionEffect extends ActionEffect {
     }
     public static boolean executeEffect(Game game, StoreAction action) {
         MoveAction moveAction = (MoveAction) action;
-        game.lastAction = moveAction;
         // Retrieve a reference of the map
         GameMap map = game.gameMap;
         Player currentPlayer = game.currentPlayer;
@@ -77,6 +76,7 @@ public class MoveActionEffect extends ActionEffect {
                     DrawRescueCardEffect.executeEffect(game);
                 }
                 game.currentPlayer.hasMoved = true;
+                game.lastAction = moveAction;
                 return true;
             }
 
