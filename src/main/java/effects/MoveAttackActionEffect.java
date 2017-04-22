@@ -32,7 +32,10 @@ public class MoveAttackActionEffect extends ActionEffect {
 		String rrMessage = "";
 		String psMessage = "";
 		List<Player> deadPlayers = new ArrayList<>();
-
+        int adrenalineBooster = 0;
+        if (currentPlayer.isAdrenalined()){
+            adrenalineBooster++;
+        }
 		if (!sourceSector.equals(castedAction.getTarget())) {
 			if (game.getMap().checkSectorAdiacency(sourceSector,targetSector,currentPlayer.getSpeed(),currentPlayer.isAdrenalined())
 					&& verifyMoveLegality(sourceSector,targetSector,currentPlayer.getPlayerToken().getPlayerType())) {
