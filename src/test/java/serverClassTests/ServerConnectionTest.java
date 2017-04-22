@@ -1,10 +1,6 @@
 package serverClassTests;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
-
-import server.ServerConnection;
 
 /**
  * Some tests for the ServerConnection class

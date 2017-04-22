@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import server.GameManager;
 import server.MainServer;
-import server.ServerConnection;
 
 /**
  * Some test for the MainServer class

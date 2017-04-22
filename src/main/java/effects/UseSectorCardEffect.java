@@ -5,7 +5,6 @@ import it.polimi.ingsw.cg_19.Game;
 import java.util.List;
 import java.util.logging.Level;
 
-import server.ServerLogger;
 import common.PSClientNotification;
 import common.RRClientNotification;
 import common.UseSectorCardAction;

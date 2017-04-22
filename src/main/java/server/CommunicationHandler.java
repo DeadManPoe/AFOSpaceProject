@@ -31,7 +31,7 @@ public class CommunicationHandler {
         Socket socket;
         while(this.listeningFlag){
             socket = serverSocket.accept();
-            ReqRespHandler reqRespHandler = new ReqRespHandler(socket,this);
+            ReqRespHandler reqRespHandler = new ReqRespHandler(socket);
             this.reqRespThreadPool.submit(reqRespHandler);
         }
     }

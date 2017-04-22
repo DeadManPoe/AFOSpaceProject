@@ -15,7 +15,6 @@ import org.jgrapht.UndirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
-import server.ServerLogger;
 import common.Coordinate;
 import common.Sector;
 import common.SectorType;
