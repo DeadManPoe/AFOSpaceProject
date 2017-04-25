@@ -5,12 +5,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.rmi.NotBoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 import it.polimi.ingsw.cg_19.GameMap;
 
@@ -23,22 +19,18 @@ import javax.swing.JPopupMenu;
 import common.Coordinate;
 import common.Sector;
 import common.SectorType;
-import factories.FermiGameMapFactory;
-import factories.GalileiGameMapFactory;
-import factories.GalvaniGameMapFactory;
 import factories.GameMapFactory;
 
 /**
  * Represents the panel in which is displayed the game map
- * 
+ *
  * @author Andrea Sessa
  * @author Giorgio Pea
  * @version 1.0
  */
 public class GUIMap extends JLayeredPane {
 	static final long serialVersionUID = 1L;
-	private transient final GuiInteractionManager gui;
-
+	private final ClientServices clientServices = ClientServices.getInstance();
 	private transient List<SectorLabel> sectorsList;
 	private transient List<SectorLabel> lightedSectors;
 
@@ -57,8 +49,7 @@ public class GUIMap extends JLayeredPane {
 	private JPopupMenu emptyMenu = new JPopupMenu();
 	private JPopupMenu humanAttackMenu = new JPopupMenu();
 
-	public GUIMap(final GuiInteractionManager gui) {
-		this.gui = gui;
+	public GUIMap() {
 
 		sectorsList = new ArrayList<SectorLabel>();
 		lightedSectors = new ArrayList<SectorLabel>();
@@ -84,14 +75,7 @@ public class GUIMap extends JLayeredPane {
 		alienMoveItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.move(selectedSector.getCoordinate());
-				} catch (IllegalAccessException | InvocationTargetException
-						| NoSuchMethodException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				clientServices.moveToSector(selectedSector.getCoordinate());
 			}
 		});
 
@@ -100,59 +84,27 @@ public class GUIMap extends JLayeredPane {
 		attackItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.attack(selectedSector.getCoordinate(), false);
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				clientServices.attack(selectedSector.getCoordinate());
 			}
 		});
 		humanAttack.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.attack(selectedSector.getCoordinate(), true);
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				clientServices.attack(selectedSector.getCoordinate());
 			}
 		});
 
 		noiseItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.noise(selectedSector.getCoordinate());
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				clientServices.globalNoise(selectedSector.getCoordinate(), true);
 			}
 		});
 
 		lightItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.light(selectedSector.getCoordinate());
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				clientServices.lights(selectedSector.getCoordinate());
 			}
 		});
 
@@ -183,6 +135,7 @@ public class GUIMap extends JLayeredPane {
 		backgroundLabel.setBounds(0, 0, 800, 600);
 		add(backgroundLabel);
 		this.setLayer(backgroundLabel, LAYER_BACKGROUND);
+
 
 		// Some offset to optimize the appearance of the sectors on the map
 		// panel
@@ -225,11 +178,12 @@ public class GUIMap extends JLayeredPane {
 							(char) i, j), label);
 				} else {
 					this.addSectorToGridLabel((i - 97) * factorX + 3, (j - 1)
-							* factorY + 26, image, new Coordinate((char) i, j),
+									* factorY + 26, image, new Coordinate((char) i, j),
 							label);
 				}
 			}
 		}
+		backgroundLabel.setVisible(true);
 	}
 
 	/**
@@ -237,7 +191,7 @@ public class GUIMap extends JLayeredPane {
 	 * to the map panel, adding the proper mouse click event
 	 */
 	private void addSectorToGridLabel(int x, int y, final String image,
-			Coordinate coords, boolean label) {
+									  Coordinate coords, boolean label) {
 		SectorLabel lbl = new SectorLabel(coords, image);
 		sectorsList.add(lbl);
 
@@ -290,7 +244,7 @@ public class GUIMap extends JLayeredPane {
 	 * is colored in red) in the highlighted sector is displayed the specified
 	 * text, and when the mouse hover on it the toolTipText will be displayed If
 	 * the specified sector doesn't exist the map appearance is unchanged
-	 * 
+	 *
 	 * @param coords
 	 *            The coordinates of the sector to highlight
 	 * @param text
@@ -322,7 +276,7 @@ public class GUIMap extends JLayeredPane {
 	 * Delight (on the GUI) the sector specified by coords, resets the
 	 * appearance of the given sectors if the specified sector doesn't exist the
 	 * map appearance is unchanged
-	 * 
+	 *
 	 * @param coords
 	 *            The coordinates of the sector to delight
 	 */
@@ -353,23 +307,23 @@ public class GUIMap extends JLayeredPane {
 	 */
 	public void changeMapMenu(MenuType mode) {
 		switch (mode) {
-		case HUMAN_INITIAL:
-			this.currentMapMenu = humanNormalMenu;
-			break;
-		case ALIEN_INITIAL:
-			this.currentMapMenu = alienNormalMenu;
-			break;
-		case LIGHT_MENU:
-			this.currentMapMenu = lightMenu;
-			break;
-		case NOISE_MENU:
-			this.currentMapMenu = noiseMenu;
-			break;
-		case ATTACK_MENU:
-			this.currentMapMenu = humanAttackMenu;
-			break;
-		default:
-			this.currentMapMenu = emptyMenu;
+			case HUMAN_INITIAL:
+				this.currentMapMenu = humanNormalMenu;
+				break;
+			case ALIEN_INITIAL:
+				this.currentMapMenu = alienNormalMenu;
+				break;
+			case LIGHT_MENU:
+				this.currentMapMenu = lightMenu;
+				break;
+			case NOISE_MENU:
+				this.currentMapMenu = noiseMenu;
+				break;
+			case ATTACK_MENU:
+				this.currentMapMenu = humanAttackMenu;
+				break;
+			default:
+				this.currentMapMenu = emptyMenu;
 		}
 	}
 

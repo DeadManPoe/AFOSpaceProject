@@ -1,52 +1,33 @@
 package client;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import common.ObjectCard;
+import it.polimi.ingsw.cg_19.GameMap;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.rmi.NotBoundException;
-import java.util.logging.Level;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.ScrollPaneConstants;
-
-import common.ObjectCard;
-import it.polimi.ingsw.cg_19.GameMap;
+import java.util.List;
 
 /**
  * Represents the main window in which are the map, log, cards, etc... are
  * displayed
- * 
+ *
  * @author Andrea Sessa
  * @author Giorgio Pea
  * @version 1.0
  */
 public class GUIGamePane extends JPanel {
-	private static final long serialVersionUID = 1L;
 
-	private transient GuiInteractionManager gui;
+
+	private final JLabel connectionAlert = new JLabel("The connection with the server is not active");;
+	private final JLabel infoMsg = new JLabel();
+	private final ClientServices clientServices = ClientServices.getInstance();
+
 
 	private DefaultListModel<String> logModel;
-	private JList<String> logPane;
 	private JScrollPane logScrollPane;
 
 	private JLabel stateLabel;
@@ -68,16 +49,17 @@ public class GUIGamePane extends JPanel {
 	private JPopupMenu alienCardMenu = new JPopupMenu();
 	private JPopupMenu emptyMenu = new JPopupMenu();
 	private JPopupMenu attackMenu = new JPopupMenu();
+	private final GuiManager guiManager = GuiManager.getInstance();
 
 	private JPopupMenu currentCardMenu = new JPopupMenu();
 
 	private ObjectCard selectedObjectCard;
 
-	public GUIGamePane(final GuiInteractionManager gui) {
-		mapPanel = new GUIMap(gui);
-		this.gui = gui;
-		logModel = new DefaultListModel<String>();
-		logPane = new JList<String>(logModel);
+	public GUIGamePane() {
+
+		mapPanel = new GUIMap();
+		logModel = new DefaultListModel<>();
+		JList<String> logPane = new JList<>(logModel);
 		logScrollPane = new JScrollPane();
 		logScrollPane.setViewportView(logPane);
 		holdingPanel = new JPanel();
@@ -107,30 +89,14 @@ public class GUIGamePane extends JPanel {
 		endTurnButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				try {
-					gui.endTurn();
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				clientServices.endTurn();
 			}
 		});
 
 		msgButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				try {
-					gui.sendGlobalMessage(chatTextField.getText());
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				clientServices.sendMessage(chatTextField.getText());
 				chatTextField.setText("");
 			}
 		});
@@ -139,15 +105,7 @@ public class GUIGamePane extends JPanel {
 		useCardItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.useObjectCard(selectedObjectCard);
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				clientServices.useObjCard(selectedObjectCard);
 			}
 		});
 		humanUseOnlyItem.addActionListener(useCardItem.getActionListeners()[0]);
@@ -155,15 +113,7 @@ public class GUIGamePane extends JPanel {
 		alienDiscardItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.discard(selectedObjectCard);
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				clientServices.discardCard(selectedObjectCard);
 			}
 		});
 		humanDiscardItem.addActionListener(alienDiscardItem
@@ -174,7 +124,7 @@ public class GUIGamePane extends JPanel {
 
 	/**
 	 * Gets the panel containing the game map
-	 * 
+	 *
 	 * @return the panel containing the game map
 	 */
 	public GUIMap getMapPane() {
@@ -184,9 +134,10 @@ public class GUIGamePane extends JPanel {
 	/**
 	 * Inits the gui for the user displaying the mapName game map
 	 */
-	public void load(GameMap gameMap) {
-
-		mapPanel.displayGameMap(gameMap);
+	public void load(GameMap map) {
+		add(this.connectionAlert);
+		this.connectionAlert.setVisible(false);
+		mapPanel.displayGameMap(map);
 
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -251,22 +202,22 @@ public class GUIGamePane extends JPanel {
 		c.gridx = 1;
 		c.anchor = GridBagConstraints.EAST;
 		add(rightPanel, c);
-
-		gui.getFrame().add(this);
 	}
 
 	/**
 	 * Appends a message to the editor pane
 	 */
 	public void appendMsg(String msg) {
-		this.logModel.addElement(msg);
+		String[] targetString = msg.split("\n");
+		for (String line : targetString) {
+			this.logModel.addElement(line);
+		}
 	}
 
 	/**
 	 * Changes the state message to be shown to the player
-	 * 
-	 * @param msg
-	 *            the new state message to be shown to the player
+	 *
+	 * @param msg the new state message to be shown to the player
 	 */
 	public void setStateMessage(String msg) {
 		this.stateLabel.setText(msg);
@@ -274,9 +225,8 @@ public class GUIGamePane extends JPanel {
 
 	/**
 	 * Displays an object card in the proper panel
-	 * 
-	 * @param objectCard
-	 *            the object card to display in the proper panel
+	 *
+	 * @param objectCard the object card to display in the proper panel
 	 */
 	public void addCardToPanel(ObjectCard objectCard) {
 		ResourceMapper mapper = new ResourceMapper();
@@ -299,32 +249,40 @@ public class GUIGamePane extends JPanel {
 	/**
 	 * Removes all the cards from the card panel
 	 */
-	public void removeAllCardsFromPanel() {
+	public void refreshCardPanel(List<ObjectCard> objectCards) {
 		cardsPane.removeAll();
-		cardsPane.repaint();
+		for (ObjectCard objectCard : objectCards){
+			this.addCardToPanel(objectCard);
+		}
 	}
 
 	/**
 	 * Changes the menu displayed when the user clicks on a object card label
-	 * 
-	 * @param type
-	 *            the type of the menu to be displayed
+	 *
+	 * @param type the type of the menu to be displayed
 	 */
 	public void changeCardMenu(MenuType type) {
 		switch (type) {
-		case HUMAN_USE_MENU:
-			this.currentCardMenu = this.humanUseCardMenu;
-			break;
-		case HUMAN_USE_DISC_MENU:
-			this.currentCardMenu = this.humanUseDiscCardMenu;
-			break;
-		case ALIEN_CARD_MENU:
-			this.currentCardMenu = alienCardMenu;
-			break;
-		default:
-			this.currentCardMenu = emptyMenu;
-			break;
+			case HUMAN_USE_MENU:
+				this.currentCardMenu = this.humanUseCardMenu;
+				break;
+			case HUMAN_USE_DISC_MENU:
+				this.currentCardMenu = this.humanUseDiscCardMenu;
+				break;
+			case ALIEN_CARD_MENU:
+				this.currentCardMenu = alienCardMenu;
+				break;
+			default:
+				this.currentCardMenu = emptyMenu;
+				break;
 		}
+	}
+	public void setInfoMsg(String infoMsg){
+		this.infoMsg.setText(infoMsg);
+	}
+
+	public void setSectorMenu(MenuType mode) {
+		this.mapPanel.changeMapMenu(mode);
 	}
 
 	/**
@@ -336,12 +294,15 @@ public class GUIGamePane extends JPanel {
 
 	/**
 	 * Enables or not the end turn button
-	 * 
-	 * @param show
-	 *            the flag that indicates if the end button should be enabled or
-	 *            not
+	 *
+	 * @param show the flag that indicates if the end button should be enabled or
+	 *             not
 	 */
 	public void showEndTurnButton(boolean show) {
 		this.endTurnButton.setEnabled(show);
+	}
+
+	public void alertConnectionProblem(boolean isConnectionActive) {
+		this.connectionAlert.setVisible(isConnectionActive);
 	}
 }

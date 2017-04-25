@@ -335,7 +335,7 @@ public class GuiManager {
      *
      * @param action The {@link server_store.StoreAction} that has caused this behavior.
      */
-    private void setAvailableGamesReaction(StoreAction action) {
+    private void setAvailableGamesReaction() {
 
         this.guiGameList.setGameListContent(this.client.getAvailableGames());
         if (!this.guiGameList.isVisible()){
