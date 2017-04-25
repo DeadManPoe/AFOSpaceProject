@@ -40,4 +40,8 @@ public class ClientMethodsNamesProvider {
     public String asyncNotification() {
         return "asyncNotification";
     }
+
+    public String subscribe() {
+        return "subscribe";
+    }
 }

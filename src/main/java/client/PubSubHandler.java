@@ -11,70 +11,45 @@ import common.RemoteMethodCall;
 /**
  * Represents a thread that handles async messages from the server in the logic
  * of the pub/sub pattern(the client is the subscriber)
- * 
- * @see ClientRemoteServices
+ *
  * @author Andrea Sessa
  * @author Giorgio Pea
+ * @see ClientRemoteServices
  */
 public class PubSubHandler extends Thread {
-	/** The socket used to receive async messages from the server */
-	private Socket socket;
-	/** The methods the client offers to the server in order to exchange data */
-	private ClientRemoteServices clientServices;
-	/** The object input stream associated with the socket of the thread */
-	private ObjectInputStream input;
 
-	/**
-	 * Constructs a thread that handles async messages from the server in the
-	 * logic of the pub/sub pattern(the client is the subscriber). The socket
-	 * used by the thead to communicate with the server is provided; the methods
-	 * the client offers to the server in order to exchange data are provided
-	 * 
-	 * @param socket
-	 *            the socket used by the thead to communicate with the server
-	 * @param clientServices
-	 *            the methods the client offers to the server in order to
-	 *            exchange data
-	 * @throws IOException
-	 */
-	public PubSubHandler(Socket socket, ClientRemoteServices clientServices)
-			throws IOException {
-		this.socket = socket;
-		this.clientServices = clientServices;
-		input = new ObjectInputStream(socket.getInputStream());
-	}
+    private final Socket socket;
+    private final ObjectInputStream inputStream;
+    private final ClientServices clientServices;
+    private boolean listeningFlag;
 
-	/**
-	 * Runs the thread. The thread waits for messages from the server and
-	 * processes them
-	 */
-	public void run() {
-		RemoteMethodCall methodCall;
+    public PubSubHandler(Socket socket, ObjectInputStream inputStream) {
+        this.socket = socket;
+        this.inputStream = inputStream;
+        this.listeningFlag = true;
+        this.clientServices = ClientServices.getInstance();
+    }
 
-		while (true) {
-			try {
-				methodCall = (RemoteMethodCall) input.readObject();
-				clientServices.processRemoteInvocation(methodCall);
-			} catch (ClassNotFoundException e) {
-				ClientLogger.getLogger().log(Level.SEVERE,
-						"reflection error on client | PubSubHandler", e);
-			} catch (IOException e) {
-				ClientLogger.getLogger().log(Level.SEVERE,
-						"com error on client | PubSubHandler", e);
-			} catch (IllegalAccessException e) {
-				ClientLogger.getLogger().log(Level.SEVERE,
-						"reflection error on client | PubSubHandler", e);
-			} catch (InvocationTargetException e) {
-				ClientLogger.getLogger().log(Level.SEVERE,
-						"reflection error on client | PubSubHandler", e);
-			} catch (NoSuchMethodException e) {
-				ClientLogger.getLogger().log(Level.SEVERE,
-						"reflection error on client | PubSubHandler", e);
-			} catch (SecurityException e) {
-				ClientLogger.getLogger().log(Level.SEVERE,
-						"com error on client | PubSubHandler", e);
-			}
+    private void setListeningFlag(boolean listeningFlag) {
+        this.listeningFlag = listeningFlag;
+    }
 
-		}
-	}
+    @Override
+    public void run() {
+        while (this.listeningFlag) {
+            try {
+                RemoteMethodCall remoteMethodCall = (RemoteMethodCall) this.inputStream.readObject();
+                this.clientServices.processRemoteInvocation(remoteMethodCall);
+            } catch (IOException | ClassNotFoundException | NoSuchMethodException |
+                    IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+                try {
+                    this.inputStream.close();
+                    this.socket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+    }
 }
