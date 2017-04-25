@@ -30,6 +30,7 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
 import common.ObjectCard;
+import it.polimi.ingsw.cg_19.GameMap;
 
 /**
  * Represents the main window in which are the map, log, cards, etc... are
@@ -183,9 +184,9 @@ public class GUIGamePane extends JPanel {
 	/**
 	 * Inits the gui for the user displaying the mapName game map
 	 */
-	public void load(String mapName) {
+	public void load(GameMap gameMap) {
 
-		mapPanel.displayGameMap(mapName);
+		mapPanel.displayGameMap(gameMap);
 
 		GridBagConstraints c = new GridBagConstraints();
 

@@ -4,6 +4,7 @@ import common.*;
 import factories.FermiGameMapFactory;
 import factories.GalileiGameMapFactory;
 import factories.GalvaniGameMapFactory;
+import factories.GameMapFactory;
 import it.polimi.ingsw.cg_19.GameMap;
 import it.polimi.ingsw.cg_19.Player;
 import it.polimi.ingsw.cg_19.PlayerType;
@@ -30,7 +31,7 @@ public class ClientServices {
     private ClientServices(){
         this.communicationHandler = CommunicationHandler.getInstance();
         this.serverMethodsNameProvider = ServerMethodsNameProvider.getInstance();
-        this.guiInteractionManager =
+        this.guiInteractionManager = GuiInteractionManager.getInstance();
 
     }
 
@@ -201,7 +202,7 @@ public class ClientServices {
      * This method is invoked indirectly using reflection.
      */
     private void startTurn() {
-        //this.clientStore.dispatchAction(new ClientStartTurnAction());
+
     }
 
     /**
@@ -367,16 +368,7 @@ public class ClientServices {
         client.setAvailableGames(availableGames);
     }
 
-    /**
-     * @see ClientRemoteServicesInterface#publishChatMsg
-     * @throws IOException
-     *             signals a com. error
-     * @throws RemoteException
-     *             signals a com. error
-     */
-    public void publishChatMsg(String msg) throws RemoteException {
-        client.displayMessage(msg);
-    }
+
 
 
     private void syncNotification(RRClientNotification clientNotification){
@@ -388,61 +380,34 @@ public class ClientServices {
         client.psNotify(psNotification);
     }
     /**
-     * @see ClientRemoteServicesInterface#sendMap
+     *
      */
-    public void sendMap(String mapName, PlayerToken playerToken) {
-        if (mapName.equals("GALILEI")) {
-            GalileiGameMapFactory factory = new GalileiGameMapFactory();
-            GameMap map = factory.makeMap();
-            client.setGameMap(map);
-            client.setPrivateDeck(new PrivateDeck());
-            if (client.getToken().getPlayerType().equals(PlayerType.ALIEN)) {
-                client.setCurrentSector(map.getAlienSector());
-            } else {
-                client.setCurrentSector(map.getHumanSector());
-            }
-
-        } else if (mapName.equals("FERMI")) {
-            FermiGameMapFactory factory = new FermiGameMapFactory();
-            GameMap map = factory.makeMap();
-            client.setGameMap(map);
-            client.setPrivateDeck(new PrivateDeck());
-            if (client.getToken().getPlayerType().equals(PlayerType.ALIEN)) {
-                client.setCurrentSector(map.getAlienSector());
-            } else {
-                client.setCurrentSector(map.getHumanSector());
-            }
-        } else if (mapName.equals("GALVANI")) {
-            GalvaniGameMapFactory factory = new GalvaniGameMapFactory();
-            GameMap map = factory.makeMap();
-            client.setGameMap(map);
-            client.setPrivateDeck(new PrivateDeck());
-            if (client.getToken().getPlayerType().equals(PlayerType.ALIEN)) {
-                client.setCurrentSector(map.getAlienSector());
-            } else {
-                client.setCurrentSector(map.getHumanSector());
-            }
+    public void setGameMapAndStart(String mapName) {
+        GameMap gameMap;
+        GameMapFactory factory;
+        switch (mapName) {
+            case "GALILEI":
+                factory = new GalileiGameMapFactory();
+                break;
+            case "FERMI":
+                factory = new FermiGameMapFactory();
+                break;
+            case "GALVANI":
+                factory = new GalvaniGameMapFactory();
+                break;
+            default:
+                throw new IllegalArgumentException("The type of map is undefined");
+        }
+        gameMap = factory.makeMap();
+        client.setGameMap(gameMap);
+        client.setPrivateDeck(new PrivateDeck());
+        if (client.getToken().getPlayerType().equals(PlayerType.ALIEN)) {
+            client.setCurrentSector(gameMap.getAlienSector());
         } else {
-            throw new IllegalArgumentException("The type of map is undefined");
+            client.setCurrentSector(gameMap.getHumanSector());
         }
-        if (playerToken.equals(client.getToken())) {
-            client.setIsMyTurn(true);
-        }
-        // START THE GAME
-        synchronized (client) {
-            client.setGameStarted(true);
-            client.notifyAll();
-        }
-    }
-
-    public void kick(PlayerToken playerToken) {
-        if (playerToken.equals(client.getToken())) {
-            client.shutdown();
-        }
-    }
-
-    private void allowTurn() {
-        this.client.setIsMyTurn(true);
+        client.setGameStarted(true);
+        guiInteractionManager.initGame(this.client.getGameMap());
     }
     /**
      * Makes the client send a chat message to the other players. This action is validated and registered by contacting the game server.
@@ -555,9 +520,7 @@ public class ClientServices {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(
                     new RemoteMethodCall(this.serverMethodsNameProvider.onDemandGameStart(), parameters));
             this.processRemoteInvocation(methodCall);
-            if (this.client.getCurrentNotification().getActionResult()){
-                //Start the game
-            }
+
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         } catch (IOException e) {

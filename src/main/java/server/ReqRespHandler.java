@@ -153,7 +153,6 @@ public class ReqRespHandler extends Thread {
     }
     private void onDemandGameStart(PlayerToken playerToken) throws IOException {
         Game game = this.gameManager.getGame(playerToken.getGameId());
-
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(new RRClientNotification(true,null,null,null));
         this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));

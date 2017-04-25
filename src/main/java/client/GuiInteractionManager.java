@@ -1,6 +1,7 @@
 package client;
 
 import common.*;
+import it.polimi.ingsw.cg_19.GameMap;
 import it.polimi.ingsw.cg_19.Player;
 import it.polimi.ingsw.cg_19.PlayerType;
 import it.polimi.ingsw.cg_19.RescueType;
@@ -39,25 +40,22 @@ public class GuiInteractionManager implements Observer {
 	private boolean myTurn;
 	
 	// The singleton instance of InteractionManager
-	private static GuiInteractionManager instance;
+	private static GuiInteractionManager instance = new GuiInteractionManager();
 	
 	/**
 	 * Constructs one and only one manager of the client-application
 	 * interaction. No more than one manager of the client-application
 	 * interaction could be constructed(pattern singleton). A manager of the
 	 * client-application interaction is constructed from a client
-	 * 
-	 * @param client
+	 *
 	 *            the client the interaction manager refers to
 	 * @return a singleton instance of interaction manager
 	 */
-	public static GuiInteractionManager init(Client client) {
-		if (instance == null)
-			instance = new GuiInteractionManager(client);
+	public static GuiInteractionManager getInstance() {
 		return instance;
 	}
 
-	private GuiInteractionManager(Client client) {
+	private GuiInteractionManager() {
 		mainFrame = new JFrame("Escape from aliens in the outer space");
 
 		this.client = client;
@@ -196,7 +194,7 @@ public class GuiInteractionManager implements Observer {
 	 * @param mapName
 	 *            The name of the map to load
 	 */
-	public void initGame(String mapName) {
+	public void initGame(GameMap gameMap) {
 		if (client.isGameEnded()) {
 			this.client.setGameEnded(false);
 			this.gameListWindow.setVisible(false);
@@ -214,7 +212,7 @@ public class GuiInteractionManager implements Observer {
 			 */
 			this.gameListWindow.setVisible(false);
 			this.GUIGamePane.setVisible(true);
-			this.GUIGamePane.load(mapName);
+			this.GUIGamePane.load(gameMap);
 			String welcomeMsg = "Welcome, " + playerName + " you're "
 					+ client.getToken().getPlayerType().toString();
 			if (client.getIsMyTurn())

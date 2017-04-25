@@ -35,6 +35,7 @@ import common.SectorCard;
 import common.TeleportObjectCard;
 import common.UseObjAction;
 import common.UseSectorCardAction;
+import it.polimi.ingsw.cg_19.PlayerState;
 
 /**
  * Represents a client in the client server communication layer of the
@@ -43,7 +44,7 @@ import common.UseSectorCardAction;
  * @author Andrea Sessa
  * @author Giorgio Pea
  */
-public class Client extends Observable {
+public class Client {
 	// The client's connection details
 	private ClientConnection connection;
 	// The client's unique identifier
@@ -88,21 +89,23 @@ public class Client extends Observable {
 	// File handler for the logger
 	private Handler fileHandler;
 
+	private static Client instance = new Client();
+    private PSClientNotification currentPsNotification;
+
+    public static Client getInstance(){
+        return instance;
+    }
+
 	/**
 	 * Constructs a client from its connection details. The services the client
 	 * offers to the server to exchange data are automatically created, along
 	 * with the client's visualization layer, and associated to the client.
 	 *
-	 * @see ClientConnection
-	 * @param connection
-	 *            the connection details the client has to know to communicate
-	 *            with the server
 	 * @throws IOException
 	 * @throws SecurityException
 	 */
-	public Client(ClientConnection connection) {
+	private Client() {
 		try {
-			this.connection = connection;
 			this.clientServices = new ClientRemoteServices(this);
 			this.comSession = new ComSession(this);
 			this.isGameStarted = false;
@@ -110,10 +113,7 @@ public class Client extends Observable {
 			ClientLogger.getLogger().addHandler(fileHandler);
 			this.fileHandler.setLevel(Level.ALL);
 			ClientLogger.getLogger().setLevel(Level.ALL);
-		} catch (RemoteException e) {
-			ClientLogger.getLogger().log(Level.SEVERE,
-					"error in rmi interface | Client ", e);
-		} catch (SecurityException e) {
+		} catch (RemoteException | SecurityException e) {
 			ClientLogger.getLogger().log(Level.SEVERE,
 					"error in rmi interface | Client ", e);
 		} catch (IOException e) {
@@ -1010,4 +1010,16 @@ public class Client extends Observable {
 	public void setHasEscaped(boolean hasEscaped) {
 		this.hasEscaped = hasEscaped;
 	}
+
+    public PSClientNotification getCurrentPubSubNotification() {
+        return this.currentPsNotification;
+    }
+    public void setCurrentPubSubNotification(PSClientNotification notification){
+        this.currentPsNotification = notification;
+    }
+
+
+    public PlayerState getPlayerState() {
+        return this.playerState;
+    }
 }
