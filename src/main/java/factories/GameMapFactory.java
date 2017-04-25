@@ -107,11 +107,9 @@ public abstract class GameMapFactory {
 			}
 			fileReaderBuffer.close();
 		} catch (FileNotFoundException e) {
-			ServerLogger.getLogger().log(Level.SEVERE,
-					"No map file | GameMapFactory", e);
+            e.printStackTrace();
 		} catch (IOException e) {
-			ServerLogger.getLogger().log(Level.SEVERE,
-					"Problem reading a map file | GameMapFactory", e);
+			e.printStackTrace();
 		}
 		try {
 			// Reading file and adding edges that connects the vertices(sectors)
@@ -158,11 +156,9 @@ public abstract class GameMapFactory {
 				j++;
 			}
 		} catch (FileNotFoundException e) {
-			ServerLogger.getLogger().log(Level.SEVERE,
-					"No map file | GameMapFactory", e);
+            e.printStackTrace();
 		} catch (IOException e) {
-			ServerLogger.getLogger().log(Level.SEVERE,
-					"Problem reading a map file | GameMapFactory", e);
+            e.printStackTrace();
 		}
 		return graph;
 	}

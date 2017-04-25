@@ -41,6 +41,7 @@ public class RRClientNotification extends ClientNotification {
 		this.actionResult = actionResult;
 		this.drawedCards = drawedCards;
 		this.lightedSectors = sectors;
+		this.playerToken = playerToken;
 	}
 
 	/**
@@ -53,7 +54,12 @@ public class RRClientNotification extends ClientNotification {
 	public RRClientNotification() {
 		super("");
 		this.drawedCards = new ArrayList<Card>();
-		this.lightedSectors = new ArrayList<Sector>();
+		this.lightedSectors = new ArrayList<>();
+        this.playerToken = null;
+	}
+
+	public PlayerToken getPlayerToken() {
+		return playerToken;
 	}
 
 	/**

@@ -25,7 +25,7 @@ public class GameTimeout extends TimerTask {
 
 	@Override
 	public void run() {
-		gameManager.update(game);
+		//gameManager.update(game);
 		this.cancel();
 		timer.cancel();
 		timer.purge();
