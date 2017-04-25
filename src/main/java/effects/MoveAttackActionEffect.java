@@ -37,7 +37,7 @@ public class MoveAttackActionEffect extends ActionEffect {
             adrenalineBooster++;
         }
 		if (!sourceSector.equals(castedAction.getTarget())) {
-			if (game.getMap().checkSectorAdiacency(sourceSector,targetSector,currentPlayer.getSpeed(),currentPlayer.isAdrenalined())
+			if (game.getMap().checkSectorAdiacency(sourceSector,targetSector,currentPlayer.getSpeed()+adrenalineBooster,currentPlayer.isAdrenalined())
 					&& verifyMoveLegality(sourceSector,targetSector,currentPlayer.getPlayerToken().getPlayerType())) {
 
 				// For each player contained in the target sector
