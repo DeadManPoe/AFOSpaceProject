@@ -21,7 +21,7 @@ public class TurnTimeoutTest {
 	public void testGetTime() {
 		Game game = new Game("FERMI");
 		Timer timer = new Timer();
-		TurnTimeout timeout = new TurnTimeout(game, timer);
+		TurnTimeout timeout = new TurnTimeout(game);
 		assertEquals(game, timeout.getGame());
 	}
 }

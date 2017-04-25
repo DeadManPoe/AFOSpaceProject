@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -13,18 +14,22 @@ import common.SectorType;
 import common.TeleportObjectCard;
 import effects.TeleportObjCardEffect;
 
+*/
 /**
  * Some tests for the teleport effect associated with the teleport object card
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
  * @see TeleportObjCardEffect
- */
+ *//*
+
 public class TeleportEffectTest {
 
-	/**
+	*/
+/**
 	 * Checks that the player is correctly moved to its starting sector
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() {
 		RRClientNotification stubNotification = new RRClientNotification();
@@ -68,3 +73,4 @@ public class TeleportEffectTest {
 	}
 
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -9,20 +10,24 @@ import org.junit.Test;
 
 import common.*;
 
+*/
 /**
  * Some tests for the HumanTurn class
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class HumanTurnTest {
 
-	/**
+	*/
+/**
 	 * Test for the constructor of HumanTurn and the getInitialAction It checks
 	 * that getInitialAction returns MoveAction and UseObjAction(the initial
 	 * moved for a human player) and also checks that the getGame returns the
 	 * same reference of the game passed to the constructor
-	 */
+	 *//*
+
 	@Test
 	public void testHumanTurn() {
 		// Create a simple graph containing one sector s1
@@ -45,13 +50,15 @@ public class HumanTurnTest {
 
 	}
 
-	/**
+	*/
+/**
 	 * Test for the getNextAction method It checks that given an action and a
 	 * particular game situation it always returns the correct next action for
 	 * the human player The test are made in two main different situations the
 	 * first with a player with less than 3 object card and the second with a
 	 * player that has collected 3 object card and has drawn the fourth
-	 */
+	 *//*
+
 	@Test
 	public void testGetNextActions() {
 		// Create a simple graph containing one sector s1
@@ -133,3 +140,4 @@ public class HumanTurnTest {
 				EndTurnAction.class));
 	}
 }
+*/

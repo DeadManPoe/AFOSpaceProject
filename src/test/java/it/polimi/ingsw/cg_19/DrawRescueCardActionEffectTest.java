@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -8,19 +9,23 @@ import common.PSClientNotification;
 import common.RRClientNotification;
 import effects.DrawRescueCardEffect;
 
+*/
 /**
  * Some tests for the DrawRescueCardActionEffect
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class DrawRescueCardActionEffectTest {
 
-	/**
+	*/
+/**
 	 * Test for the executionEffect method It checks if in a real game(the map
 	 * loaded is fermi) the effect of drawing a card from the rescue deck is
 	 * executed correctly
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() {
 		RRClientNotification clientNotification = new RRClientNotification();
@@ -46,21 +51,25 @@ public class DrawRescueCardActionEffectTest {
 				psNotification));
 	}
 
-	/**
+	*/
+/**
 	 * Test for getAction method It checks if given a DrawRescueCardActionEffect
 	 * initialized with a null action, the getAction method returns null
-	 */
+	 *//*
+
 	@Test
 	public void testDrawRescueCardActionEffect_1() {
 		DrawRescueCardEffect effect = new DrawRescueCardEffect();
 		assertEquals(null, effect.getAction());
 	}
 
-	/**
+	*/
+/**
 	 * Test for getAction method It checks if given a DrawRescueCardActionEffect
 	 * initialized with a not null action, the getAction method returns the
 	 * action correctly
-	 */
+	 *//*
+
 	@Test
 	public void testDrawRescueCardActionEffect_2() {
 		DrawRescueCardAction action = new DrawRescueCardAction();
@@ -69,3 +78,4 @@ public class DrawRescueCardActionEffectTest {
 	}
 
 }
+*/

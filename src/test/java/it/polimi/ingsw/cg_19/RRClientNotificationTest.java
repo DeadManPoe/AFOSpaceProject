@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -14,17 +15,21 @@ import common.RRClientNotification;
 import common.Sector;
 import common.SectorType;
 
+*/
 /**
  * Some tests for the RRClientNotification class
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class RRClientNotificationTest {
 
-	/**
+	*/
+/**
 	 * Tests that the constructor initializes the class correctly
-	 */
+	 *//*
+
 	@Test
 	public void testRRClientNotification() {
 		ArrayList<Card> drawedCards = new ArrayList<Card>();
@@ -38,9 +43,11 @@ public class RRClientNotificationTest {
 
 	}
 
-	/**
+	*/
+/**
 	 * Test the the set action result correctly updates the actionResult field
-	 */
+	 *//*
+
 	@Test
 	public void testSetActionResult() {
 		ArrayList<Card> drawedCards = new ArrayList<Card>();
@@ -51,9 +58,11 @@ public class RRClientNotificationTest {
 		assertFalse(rr.getActionResult());
 	}
 
-	/**
+	*/
+/**
 	 * Checks that the given card is correctly added to the list of drawedCards
-	 */
+	 *//*
+
 	@Test
 	public void testAddCard() {
 		ArrayList<Card> drawedCards = new ArrayList<Card>();
@@ -66,10 +75,12 @@ public class RRClientNotificationTest {
 		assertEquals(card, rr.getDrawnCards().get(0));
 	}
 
-	/**
+	*/
+/**
 	 * Checks that the given sector is correctly added to the list of lighted
 	 * sectors
-	 */
+	 *//*
+
 	@Test
 	public void testAddSector() {
 		ArrayList<Card> drawedCards = new ArrayList<Card>();
@@ -82,3 +93,4 @@ public class RRClientNotificationTest {
 	}
 
 }
+*/

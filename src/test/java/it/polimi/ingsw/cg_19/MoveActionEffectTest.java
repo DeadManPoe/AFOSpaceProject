@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -14,21 +15,25 @@ import common.SectorType;
 import effects.ActionEffect;
 import effects.ActionMapper;
 
+*/
 /**
  * Some test for the MoveActionTest class
- * 
+ *
  * @author Andrea Sessa
  * @author Giorgio Pea
  *
- */
+ *//*
+
 public class MoveActionEffectTest {
 
-	/**
+	*/
+/**
 	 * Test the executeEffect method with a safe sector as target
-	 * 
+	 *
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
-	 */
+	 *//*
+
 	@Test
 	public void executeActionTest() throws InstantiationException,
 			IllegalAccessException {
@@ -77,12 +82,14 @@ public class MoveActionEffectTest {
 
 	}
 
-	/**
+	*/
+/**
 	 * Test the executeEffect method with a dangerous sector as target
-	 * 
+	 *
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
-	 */
+	 *//*
+
 	@Test
 	public void executeActionTest_2() throws InstantiationException,
 			IllegalAccessException {
@@ -131,12 +138,14 @@ public class MoveActionEffectTest {
 
 	}
 
-	/**
+	*/
+/**
 	 * Test the executeEffect method with a rescue sector as target
-	 * 
+	 *
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
-	 */
+	 *//*
+
 	@Test
 	public void executeActionTest_3() throws InstantiationException,
 			IllegalAccessException {
@@ -186,3 +195,4 @@ public class MoveActionEffectTest {
 	}
 
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -8,19 +9,23 @@ import common.PSClientNotification;
 import common.RRClientNotification;
 import effects.DrawSectorCardEffect;
 
+*/
 /**
  * Some tests for the DrawActionFromSectorEfffect
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class DrawSectorCardActionEffectTest {
 
-	/**
+	*/
+/**
 	 * Test for the executeEffect() method It checks that in a "small" game with
 	 * two safe sector connected to each other the effect of the draw action is
 	 * executed correctly
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() {
 		RRClientNotification clientNotification = new RRClientNotification();
@@ -46,22 +51,26 @@ public class DrawSectorCardActionEffectTest {
 				psNotification));
 	}
 
-	/**
+	*/
+/**
 	 * Test for the getAction method It checks that given a
 	 * DrawActionFromSectorEffect initialized with null action the getAction
 	 * method return a null
-	 */
+	 *//*
+
 	@Test
 	public void testDrawActionFromSectorEffect_1() {
 		DrawSectorCardEffect effect = new DrawSectorCardEffect();
 		assertEquals(null, effect.getAction());
 	}
 
-	/**
+	*/
+/**
 	 * Test for the getAction method It checks that given a
 	 * DrawActionFromSectorEffect initialized with a given action the getAction
 	 * method returns it correctly
-	 */
+	 *//*
+
 	@Test
 	public void testDrawActionFromSectorEffect_2() {
 		DrawSectorCardAction action = new DrawSectorCardAction();
@@ -70,3 +79,4 @@ public class DrawSectorCardActionEffectTest {
 	}
 
 }
+*/

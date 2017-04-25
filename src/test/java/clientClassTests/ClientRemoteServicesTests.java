@@ -1,3 +1,4 @@
+/*
 package clientClassTests;
 
 import static org.junit.Assert.*;
@@ -123,3 +124,4 @@ public class ClientRemoteServicesTests {
 	}
 
 }
+*/

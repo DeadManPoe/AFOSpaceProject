@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -7,21 +8,25 @@ import org.junit.Test;
 import common.*;
 import effects.*;
 
+*/
 /**
  * Some tests for the ObjectMapper class
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
  * @see ObjectCardsMapper
- */
+ *//*
+
 public class ObjectMapperTest {
 
-	/**
+	*/
+/**
 	 * Checks the correct binding between ObjectCard and ObjectEffect
 	 * 
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
-	 */
+	 *//*
+
 	@Test
 	public void testGetEffect() throws InstantiationException,
 			IllegalAccessException {
@@ -37,3 +42,4 @@ public class ObjectMapperTest {
 	}
 
 }
+*/

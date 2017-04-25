@@ -1,20 +1,25 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
 import common.PlayerToken;
 
+*/
 /**
  * Some tests for the PlayerToken class
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class PlayerTokenTest {
 
-	/**
+	*/
+/**
 	 * Checks that the constructor initializes the player type correctly
-	 */
+	 *//*
+
 	@Test
 	public void testPlayerToken() {
 		PlayerType type = PlayerType.HUMAN;
@@ -22,9 +27,11 @@ public class PlayerTokenTest {
 		assertEquals(type, token.getPlayerType());
 	}
 
-	/**
+	*/
+/**
 	 * Test for the equals method
-	 */
+	 *//*
+
 	@Test
 	public void testEqualsObject() {
 		PlayerToken token_1 = new PlayerToken(PlayerType.HUMAN);
@@ -38,3 +45,4 @@ public class PlayerTokenTest {
 	}
 
 }
+*/

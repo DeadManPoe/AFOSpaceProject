@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -12,18 +13,22 @@ import common.Sector;
 import common.SectorType;
 import effects.LocalNoiseSectorCardEffect;
 
+*/
 /**
  * Some tests for the LocalNoiseEffect class
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
  *
- */
+ *//*
+
 public class LocalNoiseEffectTest {
 
-	/**
+	*/
+/**
 	 * Test for the executeEffect method
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() {
 		GameMap nullMap = null;
@@ -38,9 +43,11 @@ public class LocalNoiseEffectTest {
 		assertTrue(effect.executeEffect(g, n1, n2));
 	}
 
-	/**
+	*/
+/**
 	 * Test for the empty constructor
-	 */
+	 *//*
+
 	@Test
 	public void testLocalNoiseEffect() {
 		LocalNoiseSectorCardEffect effect = new LocalNoiseSectorCardEffect();
@@ -48,3 +55,4 @@ public class LocalNoiseEffectTest {
 	}
 
 }
+*/

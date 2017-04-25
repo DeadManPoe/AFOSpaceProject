@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -9,19 +10,23 @@ import common.PSClientNotification;
 import common.RRClientNotification;
 import effects.DrawObjectCardEffect;
 
+*/
 /**
  * Some test for the DrawObjectCardActionEffect
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
  *
- */
+ *//*
+
 public class DrawObjectCardEffectTest {
 
-	/**
+	*/
+/**
 	 * Test for the executeEffect method. This test checks that after drawing 25
 	 * card the 26th is null
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() {
 		RRClientNotification clientNotification = new RRClientNotification();
@@ -52,9 +57,11 @@ public class DrawObjectCardEffectTest {
 		assertTrue(psNotification.getMessage().contains("No more object cards"));
 	}
 
-	/**
+	*/
+/**
 	 * Test for the empty constructor
-	 */
+	 *//*
+
 	@Test
 	public void textDrawObjectCardEffect() {
 		DrawObjectCardEffect effect = new DrawObjectCardEffect();
@@ -62,3 +69,4 @@ public class DrawObjectCardEffectTest {
 	}
 
 }
+*/

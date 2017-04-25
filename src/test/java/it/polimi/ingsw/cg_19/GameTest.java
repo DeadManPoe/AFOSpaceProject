@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -13,18 +14,22 @@ import common.DrawObjectCardAction;
 import common.Sector;
 import common.SectorType;
 
+*/
 /**
  * Test for the Game class Not all method are tested because many interact with
  * RMI/Socket
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
- */
+ *//*
+
 public class GameTest {
 
-	/**
+	*/
+/**
 	 * Test for the constructor
-	 */
+	 *//*
+
 	@Test
 	public void testGame() {
 		Game game1 = new Game("GALILEI");
@@ -36,9 +41,11 @@ public class GameTest {
 		assertEquals(0, game3.getTurnNumber());
 	}
 
-	/**
+	*/
+/**
 	 * Test for the the method that assign a type(ALIEN/HUMAN) to the player
-	 */
+	 *//*
+
 	@Test
 	public void testAssignTypeToPlayer() {
 		Game game = new Game("FERMI");
@@ -46,18 +53,22 @@ public class GameTest {
 		assertEquals(PlayerType.HUMAN, game.assignTypeToPlayer(2));
 	}
 
-	/**
+	*/
+/**
 	 * Checks that with no player the fromPlayerToToken method returns null
-	 */
+	 *//*
+
 	@Test
 	public void testfromPlayerToToken() {
 		Game game = new Game("FERMI");
 		assertNull(game.fromPlayerToToken(null));
 	}
 
-	/**
+	*/
+/**
 	 * First test for the checkWinConditions method
-	 */
+	 *//*
+
 	@Test
 	public void testcheckWinConditions_1() {
 		UndirectedGraph<Sector, DefaultEdge> graph = new SimpleGraph<Sector, DefaultEdge>(
@@ -98,15 +109,19 @@ public class GameTest {
 		assertTrue(game.checkWinConditions(PlayerType.ALIEN));
 	}
 
-	/**
+	*/
+/**
 	 * Second test for the checkWinConditions method
-	 */
+	 *//*
+
 	@Test
 	public void testcheckWinConditions_2() {
-		/*
+		*/
+/*
 		 * Create a starting graph containing four sectors s1,s2,s3,s4then links
 		 * s1 and s2, s2 and s3, s3 and s4
-		 */
+		 *//*
+
 		UndirectedGraph<Sector, DefaultEdge> graph = new SimpleGraph<Sector, DefaultEdge>(
 				DefaultEdge.class);
 		Sector s1 = new Sector(new Coordinate('A', 1), SectorType.SAFE);
@@ -143,10 +158,12 @@ public class GameTest {
 		assertTrue(game.checkWinConditions(PlayerType.ALIEN));
 	}
 
-	/**
+	*/
+/**
 	 * Checks that the getCurrentPlayer method returns the correct current
 	 * player also after changing it
-	 */
+	 *//*
+
 	@Test
 	public void testGetCurrentPlayer() {
 		// Create a simple graph containing one sector s1
@@ -165,9 +182,11 @@ public class GameTest {
 		assertEquals(player, game.getCurrentPlayer());
 	}
 
-	/**
+	*/
+/**
 	 * Checks that the turn number is updated correctly
-	 */
+	 *//*
+
 	@Test
 	public void testGetSetTurnNumber() {
 		// Create a simple graph containing one sector s1
@@ -184,9 +203,11 @@ public class GameTest {
 		assertEquals(1, game.getTurnNumber());
 	}
 
-	/**
+	*/
+/**
 	 * Checks that the lastAction field is updated correctly
-	 */
+	 *//*
+
 	@Test
 	public void testGetSetLastAction() {
 		// Create a simple graph containing one sector s1
@@ -204,9 +225,11 @@ public class GameTest {
 		assertEquals(drawActionFromObject, game.getLastAction());
 	}
 
-	/**
+	*/
+/**
 	 * Checks that the turn field is updated correctly
-	 */
+	 *//*
+
 	@Test
 	public void testSetGetTurn() {
 		// Create a simple graph containing one sector s1
@@ -224,3 +247,4 @@ public class GameTest {
 		assertEquals(turn, game.getTurn());
 	}
 }
+*/

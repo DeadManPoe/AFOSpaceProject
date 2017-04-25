@@ -292,14 +292,13 @@ public class Client extends Observable {
 	 * that produces rmi remote data exchanges
 	 *
 	 * @see RemoteDataExchangeFactory
-	 * @see RmiRemoteDataExchangeFactory
 	 * @see SocketRemoteDataExchangeFactory
 	 * @param typeOfFactory
 	 *            the type of factory that has to be created
 	 */
 	public void buildDataRemoteExchangeFactory(String typeOfFactory) {
 		if (typeOfFactory.equals("RMI")) {
-			this.dataExcFactory = new RmiRemoteDataExchangeFactory(this);
+			this.dataExcFactory = null;//new RmiRemoteDataExchangeFactory(this);
 		} else if (typeOfFactory.equals("SOCKET")) {
 			this.dataExcFactory = new SocketRemoteDataExchangeFactory(this);
 		} else {
@@ -313,7 +312,6 @@ public class Client extends Observable {
 	 * server in the context of the pub/sub pattern
 	 *
 	 * @see PubSubHandler
-	 * @param inputStream
 	 *            the input stream from which the async notifications come
 	 * @param clientServices
 	 *            the services the client offers to the server to exchange data,

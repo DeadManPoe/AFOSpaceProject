@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -14,20 +15,24 @@ import common.Sector;
 import common.SectorType;
 import effects.AttackObjCardEffect;
 
+*/
 /**
  * Some tests for the AttackEffect class
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
  *
- */
+ *//*
+
 public class AttackEffectTest {
 
-	/**
+	*/
+/**
 	 * Test for the executeEffect method It simulates the use of an attack
 	 * object card on a "small" game The game has two safe sector connected to
 	 * each other
-	 */
+	 *//*
+
 	@Test
 	public void testExecuteEffect() {
 		RRClientNotification n1 = new RRClientNotification();
@@ -63,11 +68,13 @@ public class AttackEffectTest {
 		assertTrue(source.getPlayers().isEmpty());
 	}
 
-	/**
+	*/
+/**
 	 * Test for the getObjectCard() method It checks that given an AttackEffect
 	 * initialized with a given object card(card) the getObjectCard returns it
 	 * correctly
-	 */
+	 *//*
+
 	@Test
 	public void testAttackEffectAttackObjectCard() {
 		AttackObjectCard card = new AttackObjectCard(new Sector(new Coordinate(
@@ -77,3 +84,4 @@ public class AttackEffectTest {
 	}
 
 }
+*/

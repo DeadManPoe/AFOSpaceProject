@@ -1,3 +1,4 @@
+/*
 package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
@@ -7,19 +8,23 @@ import common.MoveAction;
 import common.Sector;
 import common.SectorType;
 
+*/
 /**
  * Some tests for the MoveAction class
  * 
  * @author Andrea Sessa
  * @author Giorgio Pea
  *
- */
+ *//*
+
 public class MoveActionTest {
 
-	/**
+	*/
+/**
 	 * Test for the getTarget method Checks if the target sector passed to the
 	 * constructor is returned correctly
-	 */
+	 *//*
+
 	@Test
 	public void testGetTarget() {
 		Sector target = new Sector(new Coordinate('A', 1), SectorType.SAFE);
@@ -27,9 +32,11 @@ public class MoveActionTest {
 		assertEquals(target, action.getTarget());
 	}
 
-	/**
+	*/
+/**
 	 * Test for the equals method
-	 */
+	 *//*
+
 	@Test
 	public void testEqualsObject() {
 		MoveAction action = new MoveAction(null);
@@ -38,13 +45,15 @@ public class MoveActionTest {
 		assertFalse(action.equals(new Player(PlayerType.ALIEN, "")));
 	}
 
-	/**
+	*/
+/**
 	 * Test for the toString method
-	 */
+	 *//*
+
 	@Test
 	public void testToString() {
 		MoveAction action = new MoveAction(null);
 		assertEquals("MoveAction [target=null]", action.toString());
 	}
 
-}
+}*/
