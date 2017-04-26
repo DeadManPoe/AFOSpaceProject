@@ -26,6 +26,7 @@ public class Player {
 	private volatile boolean hasMoved;
 	private volatile String name;
 
+
 	public Player(String name, PlayerToken playerToken) {
 		if (playerToken != null){
 			if (playerToken.getPlayerType() == PlayerType.HUMAN) {
@@ -103,5 +104,9 @@ public class Player {
 
     public void setHasMoved(boolean hasMoved) {
         this.hasMoved = hasMoved;
+    }
+
+    public void setPrivateDeck(PrivateDeck privateDeck) {
+        this.privateDeck = privateDeck;
     }
 }

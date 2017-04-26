@@ -1,21 +1,10 @@
 package client;
 
-import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.rmi.NotBoundException;
-import java.util.logging.Level;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * Represents the initial window of the GUI in which the user can choose the type of connection
@@ -25,22 +14,13 @@ import javax.swing.JPanel;
 public class GUInitialWindow extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	private transient GuiInteractionManager gui;
-	JComboBox<String> connectionMethodComboBox;
+	private final ClientServices clientServices = ClientServices.getInstance();
 
-	public GUInitialWindow(GuiInteractionManager gui) {
-		this.gui = gui;
-		String[] method = { "Socket", "RMI" };
-		connectionMethodComboBox = new JComboBox<String>(method);
-		connectionMethodComboBox.setMaximumSize(connectionMethodComboBox
-				.getPreferredSize());
-		connectionMethodComboBox.setAlignmentX(JComboBox.CENTER_ALIGNMENT);
-	}
-
+	private JLabel connectionProblemLabel;
 	/**
 	 * Load and display the panel
 	 */
-	public void Load() {
+	public void load() {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBackground(Color.BLACK);
 
@@ -49,28 +29,29 @@ public class GUInitialWindow extends JPanel {
 		title.setAlignmentX(JLabel.CENTER_ALIGNMENT);
 		add(title);
 
-		add(connectionMethodComboBox);
-
 		// Some space
 		add(Box.createRigidArea(new Dimension(0, 20)));
 
-		JButton connectButton = new JButton("Connect!");
+		JButton connectButton = new JButton("Connect");
 		connectButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
 		add(connectButton);
+
+		this.connectionProblemLabel = new JLabel();
+		this.connectionProblemLabel.setText("A connection problem happened, please try again.");
+		this.connectionProblemLabel.setForeground(Color.white);
+		this.connectionProblemLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+		this.connectionProblemLabel.setVisible(false);
+		// Some space
+		add(Box.createRigidArea(new Dimension(0, 20)));
+		add(this.connectionProblemLabel);
 		connectButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					gui.ConnectAction((String) connectionMethodComboBox
-							.getSelectedItem());
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
-						| SecurityException | ClassNotFoundException
-						| IOException | NotBoundException e1) {
-					ClientLogger.getLogger().log(Level.SEVERE, e1.getMessage(),
-							e1);
-				}
+				clientServices.getGames();
 			}
 		});
+	}
+	public void alertConnectionProblem(boolean visibility){
+		this.connectionProblemLabel.setVisible(visibility);
 	}
 }

@@ -9,8 +9,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 
@@ -19,11 +17,9 @@ import common.AttackObjectCard;
 import common.Coordinate;
 import common.DefenseObjectCard;
 import common.DiscardAction;
-import common.EndTurnAction;
 import common.GamePublicData;
 import common.GlobalNoiseSectorCard;
 import common.LightsObjectCard;
-import common.MoveAction;
 import common.MoveAttackAction;
 import common.ObjectCard;
 import common.PSClientNotification;
@@ -35,7 +31,9 @@ import common.SectorCard;
 import common.TeleportObjectCard;
 import common.UseObjAction;
 import common.UseSectorCardAction;
+import it.polimi.ingsw.cg_19.Player;
 import it.polimi.ingsw.cg_19.PlayerState;
+import it.polimi.ingsw.cg_19.PlayerType;
 
 /**
  * Represents a client in the client server communication layer of the
@@ -45,38 +43,18 @@ import it.polimi.ingsw.cg_19.PlayerState;
  * @author Giorgio Pea
  */
 public class Client {
-	// The client's connection details
-	private ClientConnection connection;
-	// The client's unique identifier
-	private PlayerToken token;
-	// A group of services the client offers to the server to exchange data
-	private ClientRemoteServices clientServices;
-	// A factory that produces communication sessions
-	private RemoteDataExchangeFactory dataExcFactory;
+    private Player player;
 	// The map of the game the client is playing
 	private GameMap gameMap;
-	// The client's(player's) private deck of object cards
-	private PrivateDeck privateDeck;
-	// The game map's sector in which the client(player) is located
-	private Sector currentSector;
-	// The current client's notification
-	private RRClientNotification currentNotification;
-	// The client's communication session
-	private ComSession comSession;
+	// The current rr notification
+	private RRClientNotification currentRrNotification;
+    // The current ps notification
+    private PSClientNotification currentPsNotification;
 	// A flag that indicates that the game is started
 	private boolean isGameStarted;
 	// A flag that indicates that the client holds the turn
 	private boolean isMyTurn;
-	// A flag that indicates that the client has to resolve a lights object
-	// effect
-	private boolean askLight;
-	// A flag that indicates that the game is end
-	private boolean isGameEnd;
-	// A flag that indicates if the player has moved
-	private boolean hasMoved;
-	// A flag that indicates if the player has asked to attack
-	private volatile boolean askAttack;
-	private volatile boolean isDead;
+    private boolean isGameEnded;
 	/*
 	 * A thread that handles async server notification in the logic of the
 	 * pub/sub pattern
@@ -84,13 +62,9 @@ public class Client {
 	private PubSubHandler pubSubHandler;
 	// The games the client could join
 	private ArrayList<GamePublicData> availableGames;
-	// A flag that if the player hasEscaped
-	private volatile boolean hasEscaped;
-	// File handler for the logger
-	private Handler fileHandler;
 
 	private static Client instance = new Client();
-    private PSClientNotification currentPsNotification;
+
 
     public static Client getInstance(){
         return instance;
@@ -105,23 +79,21 @@ public class Client {
 	 * @throws SecurityException
 	 */
 	private Client() {
-		try {
-			this.clientServices = new ClientRemoteServices(this);
-			this.comSession = new ComSession(this);
-			this.isGameStarted = false;
-			this.fileHandler = new FileHandler("clientLog.log");
-			ClientLogger.getLogger().addHandler(fileHandler);
-			this.fileHandler.setLevel(Level.ALL);
-			ClientLogger.getLogger().setLevel(Level.ALL);
-		} catch (RemoteException | SecurityException e) {
-			ClientLogger.getLogger().log(Level.SEVERE,
-					"error in rmi interface | Client ", e);
-		} catch (IOException e) {
-			ClientLogger.getLogger().log(Level.SEVERE,
-					"error in file logger | Client ", e);
-		}
-
+        this.isGameStarted = false;
+        this.isMyTurn = false;
 	}
+
+	public void setPlayer(PlayerToken playerToken, String playerName){
+        this.player = new Player(playerName, playerToken);
+        this.player.setPlayerState(PlayerState.ALIVE);
+    }
+
+    public PlayerToken getToken(){
+        return this.player.getPlayerToken();
+    }
+    public PlayerType getPlayerType(){
+        return this.player.getPlayerToken().getPlayerType();
+    }
 
 	/**
 	 * Gets the boolean that indicates if the game the client has joined has
@@ -147,62 +119,13 @@ public class Client {
 	}
 
 	public synchronized boolean isGameEnded() {
-		return this.isGameEnd;
+		return this.isGameEnded;
 	}
 
 	public synchronized void setGameEnded(boolean gameEnded) {
-		this.isGameEnd = gameEnded;
+		this.isGameEnded = gameEnded;
 	}
 
-	/**
-	 * Gets the client's unique identifier
-	 *
-	 * @see PlayerToken
-	 * @return the identifier of the client/player
-	 */
-	public PlayerToken getToken() {
-		return token;
-	}
-
-	/**
-	 * Sets the client's unique identifier
-	 *
-	 * @param token
-	 *            the identifier to be set for the client/player
-	 */
-	public void setToken(PlayerToken token) {
-		this.token = token;
-	}
-
-	/**
-	 * Gets the client's connection details
-	 *
-	 * @see ClientConnection
-	 * @return the connection details of the client
-	 */
-	public ClientConnection getConnection() {
-		return connection;
-	}
-
-	/**
-	 * Gets the services the client offers to the server to exchange data
-	 *
-	 * @see ClientRemoteServices
-	 * @return the services the client offers to the server to exchange data
-	 */
-	public ClientRemoteServices getClientServices() {
-		return clientServices;
-	}
-
-	/**
-	 * Gets the client's associated communication sessions factory
-	 *
-	 * @see RemoteDataExchangeFactory
-	 * @return the client's associated communication sessions factory
-	 */
-	public RemoteDataExchangeFactory getDataExcFactory() {
-		return dataExcFactory;
-	}
 
 	/**
 	 * Gets the map of the game the client is playing
@@ -226,13 +149,15 @@ public class Client {
 	/**
 	 * Sets the client's private deck of object cards
 	 *
-	 * @param privateDeck
 	 *            the new client's private deck of object cards
 	 */
-	public void setPrivateDeck(PrivateDeck privateDeck) {
-		this.privateDeck = privateDeck;
-
+	public PrivateDeck getPrivateDeck() {
+		return this.player.getPrivateDeck();
 	}
+	public void setPrivateDeck(PrivateDeck privateDeck){
+        this.player.setPrivateDeck(privateDeck);
+    }
+
 
 	/**
 	 * Sets the client's current notification to be handled
@@ -240,8 +165,8 @@ public class Client {
 	 * @param notification
 	 *            the new notification to be handled by the client
 	 */
-	public void setNotification(RRClientNotification notification) {
-		this.currentNotification = notification;
+	public void setCurrentRrNotification(RRClientNotification notification) {
+		this.currentRrNotification = notification;
 
 	}
 
@@ -251,7 +176,7 @@ public class Client {
 	 * @return the game map's sector in which the client(player) is located
 	 */
 	public Sector getCurrentSector() {
-		return this.currentSector;
+		return this.player.getCurrentSector();
 	}
 
 	/**
@@ -283,67 +208,19 @@ public class Client {
 	 *            the new game map's sector in which the client will be located
 	 */
 	public void setCurrentSector(Sector sector) {
-		this.currentSector = sector;
+		this.player.setCurrentSector(sector);
 	}
 
-	/**
-	 * Constructs the client's associated remote date exchange factory either as
-	 * a factory that produces socket based remote data exchanges, or a factory
-	 * that produces rmi remote data exchanges
-	 *
-	 * @see RemoteDataExchangeFactory
-	 * @see SocketRemoteDataExchangeFactory
-	 * @param typeOfFactory
-	 *            the type of factory that has to be created
-	 */
-	public void buildDataRemoteExchangeFactory(String typeOfFactory) {
-		if (typeOfFactory.equals("RMI")) {
-			this.dataExcFactory = null;//new RmiRemoteDataExchangeFactory(this);
-		} else if (typeOfFactory.equals("SOCKET")) {
-			this.dataExcFactory = new SocketRemoteDataExchangeFactory(this);
-		} else {
-			throw new IllegalArgumentException(
-					"No communication sessions factory for the type inserted");
-		}
-	}
-
-	/**
-	 * Constructs and starts a thread that handles async notifications from the
-	 * server in the context of the pub/sub pattern
-	 *
-	 * @see PubSubHandler
-	 *            the input stream from which the async notifications come
-	 * @param clientServices
-	 *            the services the client offers to the server to exchange data,
-	 *            in this case just notification related services will be used
-	 * @throws IOException
-	 */
-	public void startPubSub(Socket socket, ClientRemoteServices clientServices)
-			throws IOException {
-		this.pubSubHandler = new PubSubHandler(socket, clientServices);
-		pubSubHandler.start();
-	}
-
-	/**
+	/*
 	 * Gets the notification the client has received by the server in response
 	 * to a request
 	 * 
 	 * @return the notification the client has received by the server in
 	 *         response to
 	 */
-	public RRClientNotification getCurrentNotification() {
-		return currentNotification;
+	public RRClientNotification getCurrentRrNotification() {
+		return currentRrNotification;
 	}
-
-	/**
-	 * Gets the client's private deck
-	 * 
-	 * @return the client's private deck
-	 */
-	public PrivateDeck getPrivateDeck() {
-		return this.privateDeck;
-	}
-
 	/**
 	 * Gets the games the client could join
 	 * 
@@ -388,28 +265,10 @@ public class Client {
 	 * @throws NotBoundException
 	 *             signals a com. error
 	 */
-	public void move(char horCoord, int vertCoord)
-			throws IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException, NoSuchMethodException,
-			SecurityException, ClassNotFoundException, IOException,
-			NotBoundException {
-		Coordinate coordinate = new Coordinate(horCoord, vertCoord);
+	public void move(Coordinate coordinate){
 		Sector targetSector = this.getGameMap().getSectorByCoords(coordinate);
-		if (targetSector != null) {
-			ArrayList<Object> parameters = new ArrayList<Object>();
-			Action action = new MoveAction(targetSector);
-			parameters.add(action);
-			parameters.add(this.getToken());
-			this.comSession.start("makeAction", parameters);
-			if (this.currentNotification.getActionResult()) {
-				this.currentSector = new Sector(targetSector.getCoordinate(),
-						targetSector.getSectorType());
-				this.hasMoved = true;
-			}
-		} else {
-			throw new IllegalArgumentException(
-					"Undefined sector, please try again");
-		}
+		this.player.setHasMoved(true);
+        this.player.setCurrentSector(targetSector);
 	}
 
 	/**
@@ -454,7 +313,7 @@ public class Client {
 				parameters.add(action);
 				parameters.add(this.token);
 				this.comSession.start("makeAction", parameters);
-				if (this.getCurrentNotification().getActionResult()) {
+				if (this.getCurrentRrNotification().getActionResult()) {
 					this.getPrivateDeck().removeCard(objectCard);
 					if (objectCard instanceof TeleportObjectCard) {
 						this.setCurrentSector(this.gameMap.getHumanSector());
@@ -488,274 +347,13 @@ public class Client {
 	 * @throws NotBoundException
 	 *             signals a com. error
 	 */
-	public void endTurn() throws IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException,
-			NoSuchMethodException, SecurityException, ClassNotFoundException,
-			IOException, NotBoundException {
-		ArrayList<Object> parameters = new ArrayList<Object>();
-		Action action = new EndTurnAction();
-		parameters.add(action);
-		parameters.add(this.token);
-		this.comSession.start("makeAction", parameters);
-		if (this.getCurrentNotification().getActionResult()) {
-			this.setIsMyTurn(false);
-			this.hasMoved = false;
-		}
+	public void endTurn() {
+        this.player.setSedated(false);
+        this.player.setAdrenalined(false);
+		this.player.setHasMoved(false);
+        this.isMyTurn = false;
 	}
 
-	/**
-	 * Processes a request of joining a new game by the client. This processing
-	 * consists in a remote method call to the server
-	 * 
-	 * @param gameMapName
-	 *            the name of the map for the game
-	 * @param playerName
-	 *            the name of the player for the game
-	 * @throws RemoteException
-	 *             signals a com. error
-	 * @throws IllegalAccessException
-	 *             signals a com. error
-	 * @throws IllegalArgumentException
-	 *             signals a com. error
-	 * @throws InvocationTargetException
-	 *             signals a com. error
-	 * @throws NoSuchMethodException
-	 *             signals a com. error
-	 * @throws SecurityException
-	 *             signals a com. error
-	 * @throws ClassNotFoundException
-	 *             signals a com. error
-	 * @throws IOException
-	 *             signals a com. error
-	 * @throws NotBoundException
-	 *             signals a com. error
-	 */
-	public void joinNewGame(String gameMapName, String playerName)
-			throws RemoteException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException,
-			NoSuchMethodException, SecurityException, ClassNotFoundException,
-			IOException, NotBoundException {
-		ArrayList<Object> parameters = new ArrayList<Object>();
-		parameters.add(gameMapName);
-		parameters.add(playerName);
-		this.comSession.start("joinNewGame", parameters);
-	}
-
-	/**
-	 * Processes a request of joining an existing game by the client. This
-	 * processing consists in a remote method call to the server
-	 * 
-	 * @param gameId
-	 *            the id of the game to join
-	 * @param playerName
-	 *            the name of the player for the game
-	 * @throws IllegalAccessException
-	 *             signals a com. error
-	 * @throws IllegalArgumentException
-	 *             signals a com. error
-	 * @throws InvocationTargetException
-	 *             signals a com. error
-	 * @throws NoSuchMethodException
-	 *             signals a com. error
-	 * @throws SecurityException
-	 *             signals a com. error
-	 * @throws ClassNotFoundException
-	 *             signals a com. error
-	 * @throws IOException
-	 *             signals a com. error
-	 * @throws NotBoundException
-	 *             signals a com. error
-	 */
-	public void joinGame(int gameId, String playerName)
-			throws IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException, NoSuchMethodException,
-			SecurityException, ClassNotFoundException, IOException,
-			NotBoundException {
-		ArrayList<Object> parameters = new ArrayList<Object>();
-		parameters.add(gameId);
-		parameters.add(playerName);
-		this.comSession.start("joinGame", parameters);
-
-	}
-
-	/**
-	 * Processes the request of getting all the available games by the client.
-	 * This processing consists in a remote method call to the server
-	 * 
-	 * @return the list of all the available games
-	 * @throws RemoteException
-	 *             signals a com. error
-	 * @throws IllegalAccessException
-	 *             signals a com. error
-	 * @throws InvocationTargetException
-	 *             signals a com. error
-	 * @throws NoSuchMethodException
-	 *             signals a com. error
-	 * @throws SecurityException
-	 *             signals a com. error
-	 * @throws ClassNotFoundException
-	 *             signals a com. error
-	 * @throws IOException
-	 *             signals a com. error
-	 * @throws NotBoundException
-	 *             signals a com. error
-	 */
-	public List<GamePublicData> getGames() throws RemoteException,
-			IllegalAccessException, InvocationTargetException,
-			NoSuchMethodException, SecurityException, ClassNotFoundException,
-			IOException, NotBoundException, java.net.ConnectException, java.rmi.ConnectException {
-		this.comSession.start("getGames");
-		return this.availableGames;
-
-	}
-
-	/**
-	 * Processes a global noise sector card effect resolution request by the
-	 * client. This processing consists in a remote method call to the server
-	 * 
-	 * @param horCoord
-	 *            the horizontal coordinate of the sector of noise
-	 * @param vertCoord
-	 *            the vertical coordinate of the sector of noise
-	 * @param hasObject
-	 *            a boolean value that indicates if the card the effect is
-	 *            associated has an associated object card
-	 * @throws IllegalAccessException
-	 *             signals a com. error
-	 * @throws IllegalArgumentException
-	 *             signals a com. error
-	 * @throws InvocationTargetException
-	 *             signals a com. error
-	 * @throws NoSuchMethodException
-	 *             signals a com. error
-	 * @throws SecurityException
-	 *             signals a com. error
-	 * @throws ClassNotFoundException
-	 *             signals a com. error
-	 * @throws IOException
-	 *             signals a com. error
-	 * @throws NotBoundException
-	 *             signals a com. error
-	 */
-	public void globalNoise(char horCoord, int vertCoord, boolean hasObject)
-			throws IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException, NoSuchMethodException,
-			SecurityException, ClassNotFoundException, IOException,
-			NotBoundException {
-		Coordinate coordinate = new Coordinate(horCoord, vertCoord);
-		Sector targetSector = this.getGameMap().getSectorByCoords(coordinate);
-		if (targetSector != null) {
-			SectorCard globalNoiseCard = new GlobalNoiseSectorCard(hasObject,
-					targetSector);
-			ArrayList<Object> parameters = new ArrayList<Object>();
-			Action action = new UseSectorCardAction(globalNoiseCard);
-			parameters.add(action);
-			parameters.add(this.getToken());
-			this.comSession.start("makeAction", parameters);
-		} else {
-			throw new IllegalArgumentException(
-					"Undefined sector, please try again");
-		}
-	}
-
-	/**
-	 * Processing a discarding an object card request by the client. This
-	 * processing consists in a remote method call to the server
-	 * 
-	 * @param objectCardIndex
-	 *            the index of the object card to discard from the client's
-	 *            private deck
-	 * @throws IllegalAccessException
-	 *             signals a com. error
-	 * @throws IllegalArgumentException
-	 *             signals a com. error
-	 * @throws InvocationTargetException
-	 *             signals a com. error
-	 * @throws NoSuchMethodException
-	 *             signals a com. error
-	 * @throws SecurityException
-	 *             signals a com. error
-	 * @throws ClassNotFoundException
-	 *             signals a com. error
-	 * @throws IOException
-	 *             signals a com. error
-	 * @throws NotBoundException
-	 *             signals a com. error
-	 */
-	public void discardCard(int objectCardIndex) throws IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException,
-			NoSuchMethodException, SecurityException, ClassNotFoundException,
-			IOException, NotBoundException {
-		int cardsAmount = this.getPrivateDeck().getSize();
-		if (objectCardIndex <= cardsAmount && objectCardIndex > 0) {
-			ObjectCard objectCardToDiscard = this.getPrivateDeck().getCard(
-					objectCardIndex - 1);
-			ArrayList<Object> parameters = new ArrayList<Object>();
-			Action action = new DiscardAction(objectCardToDiscard);
-			parameters.add(action);
-			parameters.add(this.token);
-			this.comSession.start("makeAction", parameters);
-
-			if (this.getCurrentNotification().getActionResult()) {
-				this.getPrivateDeck().removeCard(objectCardToDiscard);
-			}
-
-		} else {
-			throw new IllegalArgumentException(
-					"Undifined card, please try again");
-		}
-
-	}
-
-	/**
-	 * Completes the effect of a lights object card. This completion consists in
-	 * a remote method call to the server
-	 * 
-	 * @param horCoord
-	 *            the horizontal coordinate of the sector indicated for the
-	 *            lights object card's effect
-	 * @param vertCoord
-	 *            the vertical coordinate of the sector indicated for the lights
-	 *            object card's effect
-	 * @throws IllegalAccessException
-	 *             signals a com. error
-	 * @throws IllegalArgumentException
-	 *             signals a com. error
-	 * @throws InvocationTargetException
-	 *             signals a com. error
-	 * @throws NoSuchMethodException
-	 *             signals a com. error
-	 * @throws SecurityException
-	 *             signals a com. error
-	 * @throws ClassNotFoundException
-	 *             signals a com. error
-	 * @throws IOException
-	 *             signals a com. error
-	 * @throws NotBoundException
-	 *             signals a com. error
-	 */
-	public void lights(char horCoord, int vertCoord)
-			throws IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException, NoSuchMethodException,
-			SecurityException, ClassNotFoundException, IOException,
-			NotBoundException {
-		Coordinate coordinate = new Coordinate(horCoord, vertCoord);
-		Sector targetSector = this.getGameMap().getSectorByCoords(coordinate);
-		if (targetSector != null) {
-			ObjectCard lightsCard = new LightsObjectCard(targetSector);
-			ArrayList<Object> parameters = new ArrayList<Object>();
-			Action action = new UseObjAction(lightsCard);
-			parameters.add(action);
-			parameters.add(this.getToken());
-			this.comSession.start("makeAction", parameters);
-			this.askLight = false;
-			this.getPrivateDeck().removeCard(lightsCard);
-		} else {
-			throw new IllegalArgumentException(
-					"Undefined sector, please try again");
-		}
-
-	}
 
 	/**
 	 * Gets the flag that indicates if the player has to complete a lights
@@ -866,7 +464,7 @@ public class Client {
 				parameters.add(this.getToken());
 				this.comSession.start("makeAction", parameters);
 			}
-			if (this.getCurrentNotification().getActionResult()) {
+			if (this.getCurrentRrNotification().getActionResult()) {
 				this.currentSector = targetSector;
 				this.privateDeck.removeCard(card);
 				this.hasMoved = true;
@@ -879,30 +477,8 @@ public class Client {
 
 	}
 
-	/**
-	 * Notify the GUI/CLI about incoming pub/sub delivered notifications
-	 * 
-	 * @see PSClientNotification
-	 * @param notification
-	 *            the notification to display
-	 */
-	public void psNotify(PSClientNotification notification) {
-		System.out.println(notification.getMessage());
-		this.setChanged();
-		this.notifyObservers(notification);
-	}
 
-	/**
-	 * Display a message on the GUI/CLI interface
-	 * 
-	 * @param msg
-	 *            the message to display
-	 */
-	public void displayMessage(String msg) {
-		System.out.println(msg);
-		this.setChanged();
-		this.notifyObservers(msg);
-	}
+
 
 	/**
 	 * Gets the flag that indicates if the client has moved or not
@@ -910,7 +486,7 @@ public class Client {
 	 * @return the flag that indicates if the client has moved or not
 	 */
 	public boolean getHasMoved() {
-		return hasMoved;
+		return this.player.isHasMoved();
 	}
 
 	/**
@@ -921,7 +497,7 @@ public class Client {
 	 *            or not
 	 */
 	public void setHasMoved(boolean hasMoved) {
-		this.hasMoved = hasMoved;
+		this.player.setHasMoved(hasMoved);
 	}
 
 	/**
@@ -972,45 +548,6 @@ public class Client {
 		}
 	}
 
-	/**
-	 * Sets the flag that indicates if the client is dead
-	 * 
-	 * @param isDead
-	 *            the new boolean value that indicates if the client is dead
-	 */
-	public void setIsDead(boolean isDead) {
-		this.isDead = isDead;
-	}
-
-	/**
-	 * Gets the flag that indicates if the client is dead
-	 * 
-	 * @return the flag that indicates if the client is dead
-	 */
-	public boolean getIsDead() {
-		return this.isDead;
-	}
-
-	/**
-	 * Gets the flag that indicates if the client has escaped from the aliens
-	 * 
-	 * @return the flag that indicates if the client has escaped from the aliens
-	 */
-	public boolean getHasEscaped() {
-		return this.hasEscaped;
-	}
-
-	/**
-	 * Sets the flag that indicates if the client has escaped from the aliens
-	 * 
-	 * @param hasEscaped
-	 *            the new boolean value that indicates if the client has escaped
-	 *            from the aliens
-	 */
-	public void setHasEscaped(boolean hasEscaped) {
-		this.hasEscaped = hasEscaped;
-	}
-
     public PSClientNotification getCurrentPubSubNotification() {
         return this.currentPsNotification;
     }
@@ -1020,6 +557,16 @@ public class Client {
 
 
     public PlayerState getPlayerState() {
-        return this.playerState;
+        return this.player.getPlayerState();
+    }
+
+    public void teleport() {
+        if (this.player.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)){
+            this.player.setCurrentSector(this.gameMap.getHumanSector());
+        }
+        else {
+            this.player.setCurrentSector(this.gameMap.getAlienSector());
+        }
+
     }
 }

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 /**
  * Created by giorgiopea on 25/04/17.
+ *
  */
 public class GuiManager {
 
@@ -80,11 +81,10 @@ public class GuiManager {
         this.guiGamePane.setStateMessage("Use or discard an object card");
         this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
     }
+
     /**
      * A reaction to the fact that either humans or aliens or both have won the game.
      * This reaction includes displaying some messages, updating card/map menus and disabling the 'end turn' button.
-     *
-     * @param action The action that has triggered this reaction.
      */
     private void setWinnersReaction(boolean humansHaveWon, boolean aliensHaveWon) {
         if (humansHaveWon && aliensHaveWon) {
@@ -108,8 +108,6 @@ public class GuiManager {
     /**
      * A reaction to some changes in the game state of the client.
      * This reaction includes updating card/map menus, refreshing the object cards panel and displaying some messages.
-     *
-     * @param action The action that has triggered this reaction.
      */
     private void setPlayerStateReaction() {
         PlayerState playerState = this.client.getPlayerState();
@@ -131,8 +129,7 @@ public class GuiManager {
 
     /**
      * A reaction to publishing a message in the game chat by the client.
-     * This reaction includes showing the actual message in the chat panel .
-     *
+     * This reaction includes showing the actual message in the chat panel.
      */
     public void publishChatMessage(String message) {
         this.guiGamePane.appendMsg(message);
@@ -145,11 +142,10 @@ public class GuiManager {
     public void startTurn() {
         String message;
         PlayerType playerType = this.client.getToken().getPlayerType();
-        if (playerType.equals(PlayerType.ALIEN)){
+        if (playerType.equals(PlayerType.ALIEN)) {
             message = /*name*/" now is your turn: move or attack";
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.ALIEN_INITIAL);
-        }
-        else {
+        } else {
             message = /*name*/ "now is your turn: move or use an object card";
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.HUMAN_INITIAL);
             this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_MENU);
@@ -160,14 +156,13 @@ public class GuiManager {
     /**
      * A reaction to ending his turn by the client.
      * This reaction includes setting/resetting cards/map menus and disabling the end turn button.
-     *
-     * @param action The action that has triggered this reaction.
      */
     public void endTurn() {
         this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
         this.guiGamePane.changeCardMenu(MenuType.EMPTY);
         this.guiGamePane.showEndTurnButton(false);
     }
+
     public void displayResponseMsg(String msg) {
         this.guiGamePane.setStateMessage(msg);
     }
@@ -175,8 +170,6 @@ public class GuiManager {
     /**
      * A reaction to discarding object card by the client.
      * This reaction includes refreshing the object card panel.
-     *
-     * @param action The action that has triggered this reaction.
      */
     public void discardObjectCardReaction() {
         this.guiGamePane.refreshCardPanel(this.client.getPrivateDeck().getContent());
@@ -195,8 +188,6 @@ public class GuiManager {
      * A reaction to using an attack object card by the client.
      * This reaction includes asking to the client what sector he wants to attack and
      * setting/resetting cards/map menus.
-     *
-     * @param action The action that has triggered this reaction.
      */
     public void askForSectorToAttackReaction() {
         this.guiGamePane.setStateMessage("Indicate the sector to attack");
@@ -207,8 +198,6 @@ public class GuiManager {
      * A reaction to using a lights sector card by the client. This
      * reaction includes asking to the client what sector he wants to light and includes setting/resetting
      * cards/map menus.
-     *
-     * @param action The action that has triggered this reaction.
      */
     public void askForSectorToLightReaction() {
         this.guiGamePane.setStateMessage("Indicate the sector to light");
@@ -218,15 +207,13 @@ public class GuiManager {
     /**
      * A reaction to using an object card by the client.
      * This reaction includes updating the object cards shown in the card panel and includes displaying various messages.
-     *
-     * @param action The action that has triggered this reaction.
      */
     public void useObjectCardReaction(ObjectCard objectCard) {
         if (objectCard instanceof DefenseObjectCard) {
             this.guiGamePane.setStateMessage("You have succesfully defended from an attack");
         }
         if (objectCard instanceof LightsObjectCard) {
-            for (Sector sector : this.client.getCurrentNotification().getLightedSectors()) {
+            for (Sector sector : this.client.getCurrentRrNotification().getLightedSectors()) {
                 this.guiGamePane.getMapPane().lightSector(sector.getCoordinate(), "A", "Here there's an alien");
             }
         }
@@ -237,8 +224,6 @@ public class GuiManager {
      * A reaction to moving to a sector by the client. This reaction includes
      * updating gui components so that the new position of the client is shown on the map, and
      * includes setting/resetting map/cards menus
-     *
-     * @param action The action that has triggered this reaction.
      */
     public void moveToSectorReaction() {
         this.updatePosition();
@@ -253,7 +238,7 @@ public class GuiManager {
      *
      * @param action The action that has triggered this reaction.
      */
-    private void setDrawnSectorObjectCardReaction(ObjectCard drawnObjectCard, SectorCard drawnSectorCard) {
+    public void setDrawnSectorObjectCardReaction(ObjectCard drawnObjectCard, SectorCard drawnSectorCard) {
         CardSplashScreen cardSplashScreen = new CardSplashScreen(this.mainFrame);
         cardSplashScreen.showCards(drawnSectorCard, drawnObjectCard);
         PrivateDeck clientPrivateDeck = this.client.getPrivateDeck();
@@ -280,7 +265,7 @@ public class GuiManager {
                 this.guiGamePane.showEndTurnButton(true);
             }
         } else {
-            this.guiGamePane.setStateMessage(this.client.getCurrentNotification().getMessage());
+            this.guiGamePane.setStateMessage(this.client.getCurrentRrNotification().getMessage());
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
             if (clientPrivateDeck.getSize() > 3) {
                 this.manyCardHandler();
@@ -298,7 +283,7 @@ public class GuiManager {
      * Switches to the {@link client.GUIGamePane} view from the {@link client.GUIGameList} and
      * acts on this view in response to the starting of the game
      */
-    private void startGameReaction() {
+    public void startGameReaction() {
         String characterInfoMsg;
         if (this.client.getToken().getPlayerType().equals(PlayerType.ALIEN)) {
             characterInfoMsg = /*name*/"" + " | ALIEN";
@@ -308,7 +293,7 @@ public class GuiManager {
             this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
         }
         this.mainFrame.remove(this.guiGameList);
-        this.guiGamePane.load(castedAction.gameMapName);
+        this.guiGamePane.load(this.client.getGameMap());
         this.mainFrame.add(this.guiGamePane);
         this.guiGamePane.setVisible(true);
         this.guiGamePane.setInfoMsg(characterInfoMsg);
@@ -321,10 +306,8 @@ public class GuiManager {
     /**
      * Makes the different gui components of the app signal the absence of a connection
      * with the server.
-     *
-     * @param action The {@link server_store.StoreAction} that has caused this behavior.
      */
-    private void setConnectionActiveReaction(boolean isConnectionActive) {
+    public void setConnectionActiveReaction(boolean isConnectionActive) {
         this.guiInitialWindow.alertConnectionProblem(isConnectionActive);
         this.guiGameList.alertConnectionProblem(isConnectionActive);
         this.guiGamePane.alertConnectionProblem(isConnectionActive);
@@ -332,13 +315,11 @@ public class GuiManager {
 
     /**
      * Switches to the {@link client.GUIGameList} view from the {@link client.GUInitialWindow}.
-     *
-     * @param action The {@link server_store.StoreAction} that has caused this behavior.
      */
-    private void setAvailableGamesReaction() {
+    public void setAvailableGamesReaction() {
 
         this.guiGameList.setGameListContent(this.client.getAvailableGames());
-        if (!this.guiGameList.isVisible()){
+        if (!this.guiGameList.isVisible()) {
             this.mainFrame.remove(this.guiInitialWindow);
             this.guiGameList
                     .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
@@ -352,6 +333,8 @@ public class GuiManager {
 
 
     }
+    public void signalStartableGame(){
+        this.guiGameList.startableGame();
+    }
 
-}
 }

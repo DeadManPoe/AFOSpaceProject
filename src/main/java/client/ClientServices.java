@@ -6,13 +6,12 @@ import factories.GalileiGameMapFactory;
 import factories.GalvaniGameMapFactory;
 import factories.GameMapFactory;
 import it.polimi.ingsw.cg_19.GameMap;
-import it.polimi.ingsw.cg_19.Player;
 import it.polimi.ingsw.cg_19.PlayerType;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by giorgiopea on 25/04/17.
@@ -21,7 +20,7 @@ public class ClientServices {
     private Client client;
     private final CommunicationHandler communicationHandler;
     private final ServerMethodsNameProvider serverMethodsNameProvider;
-    private final GuiInteractionManager guiInteractionManager;
+    private final GuiManager guiInteractionManager;
     private static ClientServices instance = new ClientServices();
 
     public static ClientServices getInstance(){
@@ -31,7 +30,7 @@ public class ClientServices {
     private ClientServices(){
         this.communicationHandler = CommunicationHandler.getInstance();
         this.serverMethodsNameProvider = ServerMethodsNameProvider.getInstance();
-        this.guiInteractionManager = GuiInteractionManager.getInstance();
+        this.guiInteractionManager = GuiManager.getInstance();
 
     }
 
@@ -61,8 +60,10 @@ public class ClientServices {
         parameters.add(gameMapName);
         parameters.add(playerName);
         try {
-            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("joinNewGame", parameters));
+            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.joinNewGame(), parameters));
             this.processRemoteInvocation(methodCall);
+            RRClientNotification clientNotification = this.client.getCurrentRrNotification();
+            this.guiInteractionManager.displayResponseMsg(clientNotification.getMessage());
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         } catch (IOException e1) {
@@ -83,7 +84,7 @@ public class ClientServices {
         parameters.add(gameId);
         parameters.add(playerName);
         try {
-            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("joinGame", parameters));
+            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.joinGame(), parameters));
             this.processRemoteInvocation(methodCall);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
@@ -101,6 +102,7 @@ public class ClientServices {
      */
     private void publishChatMsg(String msg) {
        // this.clientStore.dispatchAction(new ClientSetCurrentChatMessage(msg));
+        this.guiInteractionManager.publishChatMessage(msg);
     }
 
 
@@ -120,28 +122,24 @@ public class ClientServices {
         try {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
             this.processRemoteInvocation(methodCall);
+            RRClientNotification clientNotification = this.client.getCurrentRrNotification();
+            this.guiInteractionManager.displayResponseMsg(clientNotification.getMessage());
+            if (clientNotification.getActionResult()){
+                this.client.move(coordinate);
+                this.guiInteractionManager.moveToSectorReaction();
+                List<Card> drawnCards = clientNotification.getDrawnCards();
+                if (drawnCards.size() == 1) {
+                    this.guiInteractionManager.setDrawnSectorObjectCardReaction(null,(SectorCard) drawnCards.get(0));
+                } else if (drawnCards.size() == 2) {
+                    this.client.getPrivateDeck().addCard((ObjectCard) drawnCards.get(1));
+                    this.guiInteractionManager.setDrawnSectorObjectCardReaction((ObjectCard) drawnCards.get(1),(SectorCard) drawnCards.get(0));
+                }
+            }
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         } catch (IOException e1) {
-            //If connection is down
-            //this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
+            this.guiInteractionManager.setConnectionActiveReaction(false);
         }
-        boolean isActionServerValidated = this.client.getCurrentNotification().getActionResult();
-        //List<Card> drawnCards = this.clientStore.getState().currentReqRespNotification.getDrawnCards();
-        //this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector, isActionServerValidated));
-       /* if (isActionServerValidated) {
-            if (drawnCards.size() == 1) {
-                this.clientStore.dispatchAction(
-                        new ClientSetDrawnSectorObjectCard(
-                                (SectorCard) drawnCards.get(0), null, true));
-            } else if (drawnCards.size() == 2) {
-                this.clientStore.dispatchAction(
-                        new ClientSetDrawnSectorObjectCard(
-                                (SectorCard) drawnCards.get(0),
-                                (ObjectCard) drawnCards.get(1), true));
-            }
-        }*/
-
     }
 
     /**
@@ -149,6 +147,7 @@ public class ClientServices {
      * This method is invoked indirectly using reflection.
      */
     private void signalStartableGame() {
+        this.guiInteractionManager.signalStartableGame();
         //this.clientStore.dispatchAction(new ClientStartableGameAction());
     }
 
@@ -161,33 +160,39 @@ public class ClientServices {
         //Player player = this.clientStore.getState().player;
         if (this.client.getPrivateDeck().getContent().contains(objectCard)) {
             if (objectCard instanceof LightsObjectCard) {
+                this.guiInteractionManager.askForSectorToLightReaction();
                 //this.clientStore.dispatchAction(new ClientAskSectorToLightAction(true));
             } else if (objectCard instanceof AttackObjectCard) {
+                this.guiInteractionManager.askForSectorToAttackReaction();
                 //this.clientStore.dispatchAction(new ClientAskAttackAction(true));
             } else {
                 ArrayList<Object> parameters = new ArrayList<>();
                 Action action = new UseObjAction(objectCard);
                 parameters.add(action);
                 parameters.add(this.client.getToken());
-                RemoteMethodCall methodCall = null;
                 try {
-                    methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
+                    RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
                     this.processRemoteInvocation(methodCall);
+                    this.guiInteractionManager.displayResponseMsg(this.client.getCurrentRrNotification().getMessage());
                 } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     e.printStackTrace();
                 } catch (IOException e1) {
                     //If connection is down
 
                 }
-                boolean isActionServerValidated = this.client.getCurrentNotification().getActionResult();
+                boolean isActionServerValidated = this.client.getCurrentRrNotification().getActionResult();
                 //this.clientStore.dispatchAction(new ClientUseObjectCard(objectCard, isActionServerValidated));
                 if (isActionServerValidated) {
+                    this.client.getPrivateDeck().removeCard(objectCard);
+                    this.guiInteractionManager.useObjectCardReaction(objectCard);
                     if (objectCard instanceof TeleportObjectCard) {
-                        //this.clientStore.dispatchAction(new ClientTeleportToStartingSectorAction());
+                        this.guiInteractionManager.teleportToStartingSectorReaction();
+                        this.client.teleport();
                     } else if (objectCard instanceof SuppressorObjectCard) {
+                        //client set is suppressed
                         //this.clientStore.dispatchAction(new ClientSuppressAction(true));
                     } else if (objectCard instanceof AdrenalineObjectCard) {
-                        //this.clientStore.dispatchAction(new ClientAdrenlineAction());
+                        //client set is adrenalided;
                     }
                 }
 
@@ -224,6 +229,11 @@ public class ClientServices {
             try {
                 RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
                 this.processRemoteInvocation(methodCall);
+                this.guiInteractionManager.displayResponseMsg(this.client.getCurrentRrNotification().getMessage());
+                if (this.client.getCurrentRrNotification().getActionResult()){
+                    this.guiInteractionManager.setDrawnSectorObjectCardReaction(null,null);
+                }
+
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e1) {
@@ -244,27 +254,24 @@ public class ClientServices {
      * @param coordinate The coordinates of the sector for the ligths object card effect
      */
     public void lights(Coordinate coordinate) {
-        Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
+        Sector targetSector = this.client.getGameMap().getSectorByCoords(coordinate);
         if (targetSector != null) {
             ObjectCard lightsCard = new LightsObjectCard(targetSector);
             ArrayList<Object> parameters = new ArrayList<>();
-            StoreAction action = new UseObjAction(lightsCard);
+            Action action = new UseObjAction(lightsCard);
             parameters.add(action);
-            parameters.add(this.clientStore.getState().player.playerToken);
-            RemoteMethodCall remoteMethodCall = null;
+            parameters.add(this.client.getToken());
             try {
-                remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
+                RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
                 this.processRemoteInvocation(remoteMethodCall);
+                this.guiInteractionManager.displayResponseMsg(this.client.getCurrentRrNotification().getMessage());
+                if (this.client.getCurrentRrNotification().getActionResult()){
+                    this.client.getPrivateDeck().removeCard(lightsCard);
+                    this.guiInteractionManager.useObjectCardReaction(lightsCard);
+                }
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e1) {
-                //If connection is down
-                this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
-            }
-            boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
-            this.clientStore.dispatchAction(new ClientUseObjectCard(lightsCard, isActionServerValidated));
-            if (isActionServerValidated) {
-                this.clientStore.dispatchAction(new ClientAskSectorToLightAction(false));
             }
         } else {
             throw new IllegalArgumentException(
@@ -278,27 +285,31 @@ public class ClientServices {
      */
     public void endTurn() {
         ArrayList<Object> parameters = new ArrayList<>();
-        StoreAction action = new EndTurnAction();
+        Action action = new EndTurnAction();
         parameters.add(action);
-        parameters.add(this.clientStore.getState().player.playerToken);
+        parameters.add(this.client.getToken());
         try {
             RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
             this.processRemoteInvocation(remoteMethodCall);
+            this.guiInteractionManager.displayResponseMsg(this.client.getCurrentRrNotification().getMessage());
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         } catch (IOException e) {
             //If connection is down
-            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
+            //this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
-        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
-        this.clientStore.dispatchAction(new ClientEndTurnAction(isActionServerValidated));
+        boolean isActionServerValidated = this.client.getCurrentRrNotification().getActionResult();
+        if (isActionServerValidated){
+            this.client.endTurn();
+            this.guiInteractionManager.endTurn();
+        }
+
     }
 
     private void forceEndTurn(){
-        RRClientNotification clientNotification = new RRClientNotification();
-        clientNotification.setMessage("You have taken too much to act, you will skip your turn");
-        this.clientStore.dispatchAction(new ClientSetCurrentReqRespNotificationAction(clientNotification));
-        this.clientStore.dispatchAction(new ClientEndTurnAction(true));
+        this.guiInteractionManager.displayResponseMsg("You have taken too much you will skip your turn");
+        this.client.endTurn();
+        this.guiInteractionManager.endTurn();
     }
 
     /**
@@ -307,23 +318,26 @@ public class ClientServices {
      * @param objectCard The object card to be discarded.
      */
     public void discardCard(ObjectCard objectCard) {
-        Player player = this.clientStore.getState().player;
-        if (player.privateDeck.getContent().contains(objectCard)) {
+        if (this.client.getPrivateDeck().getContent().contains(objectCard)) {
             ArrayList<Object> parameters = new ArrayList<>();
-            StoreAction action = new DiscardAction(objectCard);
+            Action action = new DiscardAction(objectCard);
             parameters.add(action);
-            parameters.add(player.playerToken);
+            parameters.add(this.client.getToken());
             try {
                 RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
                 this.processRemoteInvocation(remoteMethodCall);
+                this.guiInteractionManager.displayResponseMsg(this.client.getCurrentRrNotification().getMessage());
             } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             } catch (IOException e1) {
                 //If connection is down
-                this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
+                //this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
             }
-            boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
-            this.clientStore.dispatchAction(new ClientDiscardObjectCardAction(objectCard, isActionServerValidated));
+            boolean isActionServerValidated = this.client.getCurrentRrNotification().getActionResult();
+            if (isActionServerValidated){
+                this.client.getPrivateDeck().removeCard(objectCard);
+                this.guiInteractionManager.discardObjectCardReaction();
+            }
         }
     }
 
@@ -344,40 +358,13 @@ public class ClientServices {
                 .invoke(this, parameters.toArray());
     }
 
-    /**
-     * @see ClientRemoteServicesInterface#sendToken
-     * @throws IOException
-     *             signals a com. error
-     * @throws RemoteException
-     *             signals a com. error
-     */
-    public void sendToken(PlayerToken token) throws IOException,
-            RemoteException {
-        client.setToken(token);
-    }
-
-    /**
-     * @see ClientRemoteServicesInterface#sendAvailableGames
-     * @throws IOException
-     *             signals a com. error
-     * @throws RemoteException
-     *             signals a com. error
-     */
-    public void sendAvailableGames(ArrayList<GamePublicData> availableGames)
-            throws IOException, RemoteException {
-        client.setAvailableGames(availableGames);
-    }
-
-
-
-
     private void syncNotification(RRClientNotification clientNotification){
-        client.setNotification(clientNotification);
+        client.setCurrentRrNotification(clientNotification);
     }
 
 
     public void asyncNotification(PSClientNotification psNotification) {
-        client.psNotify(psNotification);
+        this.client.setPsNotification(psNotification);
     }
     /**
      *
@@ -406,8 +393,8 @@ public class ClientServices {
         } else {
             client.setCurrentSector(gameMap.getHumanSector());
         }
-        client.setGameStarted(true);
-        guiInteractionManager.initGame(this.client.getGameMap());
+        this.client.setGameStarted(true);
+        this.guiInteractionManager.startGameReaction();
     }
     /**
      * Makes the client send a chat message to the other players. This action is validated and registered by contacting the game server.
@@ -452,15 +439,19 @@ public class ClientServices {
             parameters.add(this.client.getToken());
         }
         try {
-            RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
+            RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
             this.processRemoteInvocation(remoteMethodCall);
+            this.guiInteractionManager.displayResponseMsg(this.client.getCurrentRrNotification().getMessage());
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         } catch (IOException e1) {
             //If connection is down
             //this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
-        boolean isActionServerValidated = this.client.getCurrentNotification().getActionResult();
+        boolean isActionServerValidated = this.client.getCurrentRrNotification().getActionResult();
+        if (isActionServerValidated){
+            this.guiInteractionManager.moveToSectorReaction();
+        }
         //this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector, isActionServerValidated));
 
     }
@@ -472,6 +463,7 @@ public class ClientServices {
      */
     private void setAvailableGames(ArrayList<GamePublicData> avGames) {
         this.client.setAvailableGames(avGames);
+        this.guiInteractionManager.setAvailableGamesReaction();
     }
 
     /**
@@ -489,9 +481,6 @@ public class ClientServices {
             RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(
                     new RemoteMethodCall(this.serverMethodsNameProvider.subscribe(),parameters));
             this.processRemoteInvocation(remoteMethodCall);
-            if (this.client.getCurrentNotification().getActionResult()){
-
-            }
         } catch (IOException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }

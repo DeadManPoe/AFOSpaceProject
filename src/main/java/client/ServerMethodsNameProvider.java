@@ -25,4 +25,11 @@ public class ServerMethodsNameProvider {
     public String makeAction() {
         return "makeAction";
     }
+
+    public String joinNewGame() {
+        return "joinNewGame";
+    }
+    public String joinGame(){
+        return "joinGame";
+    }
 }
