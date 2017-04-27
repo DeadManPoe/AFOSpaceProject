@@ -53,7 +53,7 @@ public class GuiManager {
      * Shows on the {@link GUIMap} the new position of the client.
      */
     private void updatePosition() {
-        Coordinate newCoordinates = this.client.getCurrentSector().getCoordinate();
+        Coordinate newCoordinates = this.client.getPlayer().getCurrentSector().getCoordinate();
         String playerName = /*name*/"";
         this.guiGamePane.getMapPane().delightAllSectors();
         this.guiGamePane.getMapPane().lightSector(newCoordinates, "Y",
@@ -71,7 +71,7 @@ public class GuiManager {
      * card in the client's private deck, so that the client is forced to discard or use one of those.
      */
     private void manyCardHandler() {
-        PlayerType playerType = this.client.getToken().getPlayerType();
+        PlayerType playerType = this.client.getPlayer().getPlayerToken().getPlayerType();
         if (playerType.equals(PlayerType.HUMAN)) {
             this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_DISC_MENU);
         } else {
@@ -110,7 +110,7 @@ public class GuiManager {
      * This reaction includes updating card/map menus, refreshing the object cards panel and displaying some messages.
      */
     private void setPlayerStateReaction() {
-        PlayerState playerState = this.client.getPlayerState();
+        PlayerState playerState = this.client.getPlayer().getPlayerState();
         PSClientNotification psClientNotification = this.client.getCurrentPubSubNotification();
         if (playerState.equals(PlayerState.ESCAPED)) {
             this.guiGamePane.setStateMessage("You've ESCAPED!");
@@ -141,7 +141,7 @@ public class GuiManager {
      */
     public void startTurn() {
         String message;
-        PlayerType playerType = this.client.getToken().getPlayerType();
+        PlayerType playerType = this.client.getPlayer().getPlayerToken().getPlayerType();
         if (playerType.equals(PlayerType.ALIEN)) {
             message = /*name*/" now is your turn: move or attack";
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.ALIEN_INITIAL);
@@ -172,7 +172,7 @@ public class GuiManager {
      * This reaction includes refreshing the object card panel.
      */
     public void discardObjectCardReaction() {
-        this.guiGamePane.refreshCardPanel(this.client.getPrivateDeck().getContent());
+        this.guiGamePane.refreshCardPanel(this.client.getPlayer().getPrivateDeck().getContent());
     }
 
     /**
@@ -181,7 +181,7 @@ public class GuiManager {
      */
     public void teleportToStartingSectorReaction() {
         this.guiGamePane.getMapPane().delightAllSectors();
-        this.guiGamePane.getMapPane().lightSector(this.client.getCurrentSector().getCoordinate(), "Y", ""/*name*/);
+        this.guiGamePane.getMapPane().lightSector(this.client.getPlayer().getCurrentSector().getCoordinate(), "Y", ""/*name*/);
     }
 
     /**
@@ -217,7 +217,7 @@ public class GuiManager {
                 this.guiGamePane.getMapPane().lightSector(sector.getCoordinate(), "A", "Here there's an alien");
             }
         }
-        this.guiGamePane.refreshCardPanel(this.client.getPrivateDeck().getContent());
+        this.guiGamePane.refreshCardPanel(this.client.getPlayer().getPrivateDeck().getContent());
     }
 
     /**
@@ -241,7 +241,7 @@ public class GuiManager {
     public void setDrawnSectorObjectCardReaction(ObjectCard drawnObjectCard, SectorCard drawnSectorCard) {
         CardSplashScreen cardSplashScreen = new CardSplashScreen(this.mainFrame);
         cardSplashScreen.showCards(drawnSectorCard, drawnObjectCard);
-        PrivateDeck clientPrivateDeck = this.client.getPrivateDeck();
+        PrivateDeck clientPrivateDeck = this.client.getPlayer().getPrivateDeck();
         //The action has not been validated by the server so only a message is shown
 
         if (drawnSectorCard instanceof GlobalNoiseSectorCard) {
@@ -285,7 +285,7 @@ public class GuiManager {
      */
     public void startGameReaction() {
         String characterInfoMsg;
-        if (this.client.getToken().getPlayerType().equals(PlayerType.ALIEN)) {
+        if (this.client.getPlayer().getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
             characterInfoMsg = /*name*/"" + " | ALIEN";
             this.guiGamePane.setSectorMenu(MenuType.ALIEN_INITIAL);
         } else {
@@ -298,7 +298,7 @@ public class GuiManager {
         this.guiGamePane.setVisible(true);
         this.guiGamePane.setInfoMsg(characterInfoMsg);
         this.guiGamePane.getMapPane().lightSector(
-                this.client.getCurrentSector().getCoordinate(), "Y", /*name*/"");
+                this.client.getPlayer().getCurrentSector().getCoordinate(), "Y", /*name*/"");
         this.mainFrame.validate();
         this.mainFrame.repaint();
     }

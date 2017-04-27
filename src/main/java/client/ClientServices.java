@@ -15,6 +15,7 @@ import java.util.List;
 
 /**
  * Created by giorgiopea on 25/04/17.
+ *
  */
 public class ClientServices {
     private final Client client;

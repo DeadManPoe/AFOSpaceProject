@@ -15,6 +15,7 @@ public class CommunicationHandler {
     private final ClientMethodsNamesProvider clientMethodsNamesProvider;
     private final int TCP_PORT;
     private final String HOST;
+    private final Client client;
     private static CommunicationHandler instance = new CommunicationHandler();
     private Socket socket;
     private ObjectInputStream inputStream;
@@ -29,6 +30,7 @@ public class CommunicationHandler {
         this.clientMethodsNamesProvider = ClientMethodsNamesProvider.getInstance();
         this.TCP_PORT = 29999;
         this.HOST = "localhost";
+        this.client = Client.getInstance();
     }
 
     /**
@@ -43,18 +45,22 @@ public class CommunicationHandler {
      * @throws ClassNotFoundException Reflection problems
      */
     public RemoteMethodCall newComSession(RemoteMethodCall remoteMethodCall) throws IOException, ClassNotFoundException {
+        RemoteMethodCall receivedRemoteMethodCall = null;
         this.socket = new Socket(this.HOST, this.TCP_PORT);
         this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
         this.outputStream.flush();
         this.inputStream = new ObjectInputStream(this.socket.getInputStream());
         this.sendData(remoteMethodCall);
         if (remoteMethodCall.getMethodName().equals(this.clientMethodsNamesProvider.subscribe())) {
-            //
+            PubSubHandler pubSubHandler = new PubSubHandler(socket,inputStream);
+            this.client.setPubSubHandler(pubSubHandler);
+            pubSubHandler.start();
         }
         else {
+            receivedRemoteMethodCall = this.receiveData(inputStream);
             this.closeDataFlow();
         }
-        return remoteMethodCall;
+        return receivedRemoteMethodCall;
     }
 
     /**
@@ -92,5 +98,4 @@ public class CommunicationHandler {
         return (RemoteMethodCall) inputStream
                 .readObject();
     }
-}
 }

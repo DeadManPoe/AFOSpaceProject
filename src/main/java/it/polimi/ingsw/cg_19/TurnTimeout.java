@@ -1,10 +1,7 @@
 package it.polimi.ingsw.cg_19;
 
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
-
-import client.ClientLogger;
 
 /**
  * Represents a thread that waits for a given time(in seconds)

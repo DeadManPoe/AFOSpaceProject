@@ -229,4 +229,8 @@ public class Client {
     public Player getPlayer() {
         return this.player;
     }
+
+    public void setPubSubHandler(PubSubHandler pubSubHandler) {
+        this.pubSubHandler = pubSubHandler;
+    }
 }
