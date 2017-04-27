@@ -47,9 +47,6 @@ public class GUIGamePane extends JPanel {
     private JPopupMenu humanUseDiscCardMenu = new JPopupMenu();
     private JPopupMenu alienCardMenu = new JPopupMenu();
     private JPopupMenu emptyMenu = new JPopupMenu();
-    private JPopupMenu attackMenu = new JPopupMenu();
-    private final GuiManager guiManager = GuiManager.getInstance();
-
     private JPopupMenu currentCardMenu = new JPopupMenu();
 
     private ObjectCard selectedObjectCard;
