@@ -1,50 +1,50 @@
 package it.polimi.ingsw.cg_19;
 
-import java.io.Serializable;
-
 import common.PlayerToken;
 import common.PrivateDeck;
 import common.Sector;
 
 /**
  * Represents a generic player in the game
- * 
+ *
  * @author Andrea Sessa
  * @author Giorgio Pea
  */
 public class Player {
-	private int speed;
-	private PlayerToken playerToken;
-	// Player's current sector
-	private Sector currentSector;
-	// Player's state
-	private PlayerState playerState;
-	// Player's public deck
-	private PrivateDeck privateDeck;
-	private volatile boolean isSedated;
-	private volatile boolean isAdrenalined;
-	private volatile boolean hasMoved;
-	private volatile String name;
+    private int speed;
+    private PlayerToken playerToken;
+    // Player's current sector
+    private Sector currentSector;
+    // Player's state
+    private PlayerState playerState;
+    // Player's public deck
+    private PrivateDeck privateDeck;
+    private volatile boolean isSedated;
+    private volatile boolean isAdrenalined;
+    private volatile boolean hasMoved;
+    private volatile String name;
 
 
-	public Player(String name, PlayerToken playerToken) {
-		if (playerToken != null){
-			if (playerToken.getPlayerType() == PlayerType.HUMAN) {
-				this.speed = 1;
-			} else {
-				this.speed = 2;
-			}
-		}
-		this.playerState = PlayerState.ALIVE;
-		this.privateDeck = new PrivateDeck();
-		this.isAdrenalined = false;
-		this.isSedated = false;
-		this.currentSector = null;
-		this.name = name;
-		this.hasMoved = false;
-		this.playerToken = playerToken;
-	}
+    public Player(String name) {
+        if (playerToken != null) {
+            if (playerToken.getPlayerType() == PlayerType.HUMAN) {
+                this.speed = 1;
+            } else {
+                this.speed = 2;
+            }
+        }
+        this.playerState = PlayerState.ALIVE;
+        this.privateDeck = new PrivateDeck();
+        this.isAdrenalined = false;
+        this.isSedated = false;
+        this.currentSector = null;
+        this.name = name;
+        this.hasMoved = false;
+    }
 
+    public void setPlayerToken(PlayerToken playerToken) {
+        this.playerToken = playerToken;
+    }
 
     public int getSpeed() {
         return speed;

@@ -17,7 +17,7 @@ import java.util.List;
  * Created by giorgiopea on 25/04/17.
  */
 public class ClientServices {
-    private Client client;
+    private final Client client;
     private final CommunicationHandler communicationHandler;
     private final ServerMethodsNameProvider serverMethodsNameProvider;
     private final GuiManager guiInteractionManager;
@@ -28,26 +28,12 @@ public class ClientServices {
     }
 
     private ClientServices(){
+        this.client = Client.getInstance();
         this.communicationHandler = CommunicationHandler.getInstance();
         this.serverMethodsNameProvider = ServerMethodsNameProvider.getInstance();
         this.guiInteractionManager = GuiManager.getInstance();
 
     }
-
-    public void init(Client client){
-        this.client = client;
-    }
-
-
-    /**
-     * Makes the game associated to this client start. This method is invoked indirectly using reflection.
-     *
-     * @param mapName The name of the game map.
-     */
-    private void setMapAndStartGame(String mapName) {
-
-    }
-
     /**
      * Requests to the server the creation of a new game with a given map.
      *
@@ -55,7 +41,6 @@ public class ClientServices {
      * @param playerName  The name of the client in the game.
      */
     public void joinNewGame(String gameMapName, String playerName) {
-        //this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName, null));
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(gameMapName);
         parameters.add(playerName);
@@ -78,8 +63,8 @@ public class ClientServices {
      * @param gameId     The id of the game to join.
      * @param playerName The name of the client in the game.
      */
-    public void joinGame(Integer gameId, String playerName) {
-        //this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName, null));
+    public void joinGame(int gameId, String playerName) {
+        this.client.setPlayer(playerName);
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(gameId);
         parameters.add(playerName);
@@ -114,11 +99,10 @@ public class ClientServices {
      */
     public void moveToSector(Coordinate coordinate) {
         Sector targetSector = this.client.getGameMap().getSectorByCoords(coordinate);
-        //this.clientStore.dispatchAction(new ClientAskAttackAction(false));
         ArrayList<Object> parameters = new ArrayList<>();
         Action action = new MoveAction(targetSector);
         parameters.add(action);
-        parameters.add(this.client.getToken());
+        parameters.add(this.client.getPlayer().getPlayerToken());
         try {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
             this.processRemoteInvocation(methodCall);
@@ -131,7 +115,7 @@ public class ClientServices {
                 if (drawnCards.size() == 1) {
                     this.guiInteractionManager.setDrawnSectorObjectCardReaction(null,(SectorCard) drawnCards.get(0));
                 } else if (drawnCards.size() == 2) {
-                    this.client.getPrivateDeck().addCard((ObjectCard) drawnCards.get(1));
+                    this.client.getPlayer().getPrivateDeck().addCard((ObjectCard) drawnCards.get(1));
                     this.guiInteractionManager.setDrawnSectorObjectCardReaction((ObjectCard) drawnCards.get(1),(SectorCard) drawnCards.get(0));
                 }
             }
@@ -148,7 +132,6 @@ public class ClientServices {
      */
     private void signalStartableGame() {
         this.guiInteractionManager.signalStartableGame();
-        //this.clientStore.dispatchAction(new ClientStartableGameAction());
     }
 
     /**
@@ -158,7 +141,7 @@ public class ClientServices {
      */
     public void useObjCard(ObjectCard objectCard) {
         //Player player = this.clientStore.getState().player;
-        if (this.client.getPrivateDeck().getContent().contains(objectCard)) {
+        if (this.client.getPlayer().getPrivateDeck().getContent().contains(objectCard)) {
             if (objectCard instanceof LightsObjectCard) {
                 this.guiInteractionManager.askForSectorToLightReaction();
                 //this.clientStore.dispatchAction(new ClientAskSectorToLightAction(true));
@@ -169,7 +152,7 @@ public class ClientServices {
                 ArrayList<Object> parameters = new ArrayList<>();
                 Action action = new UseObjAction(objectCard);
                 parameters.add(action);
-                parameters.add(this.client.getToken());
+                parameters.add(this.client.getPlayer().getPlayerToken());
                 try {
                     RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
                     this.processRemoteInvocation(methodCall);
@@ -183,16 +166,15 @@ public class ClientServices {
                 boolean isActionServerValidated = this.client.getCurrentRrNotification().getActionResult();
                 //this.clientStore.dispatchAction(new ClientUseObjectCard(objectCard, isActionServerValidated));
                 if (isActionServerValidated) {
-                    this.client.getPrivateDeck().removeCard(objectCard);
+                    this.client.getPlayer().getPrivateDeck().removeCard(objectCard);
                     this.guiInteractionManager.useObjectCardReaction(objectCard);
                     if (objectCard instanceof TeleportObjectCard) {
                         this.guiInteractionManager.teleportToStartingSectorReaction();
                         this.client.teleport();
                     } else if (objectCard instanceof SuppressorObjectCard) {
-                        //client set is suppressed
-                        //this.clientStore.dispatchAction(new ClientSuppressAction(true));
+                        this.client.getPlayer().setSedated(true);
                     } else if (objectCard instanceof AdrenalineObjectCard) {
-                        //client set is adrenalided;
+                        this.client.getPlayer().setAdrenalined(true);
                     }
                 }
 
@@ -225,7 +207,7 @@ public class ClientServices {
             ArrayList<Object> parameters = new ArrayList<>();
             Action action = new UseSectorCardAction(globalNoiseCard);
             parameters.add(action);
-            parameters.add(this.client.getToken());
+            parameters.add(this.client.getPlayer().getPlayerToken());
             try {
                 RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
                 this.processRemoteInvocation(methodCall);
@@ -260,13 +242,13 @@ public class ClientServices {
             ArrayList<Object> parameters = new ArrayList<>();
             Action action = new UseObjAction(lightsCard);
             parameters.add(action);
-            parameters.add(this.client.getToken());
+            parameters.add(this.client.getPlayer().getPlayerToken());
             try {
                 RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
                 this.processRemoteInvocation(remoteMethodCall);
                 this.guiInteractionManager.displayResponseMsg(this.client.getCurrentRrNotification().getMessage());
                 if (this.client.getCurrentRrNotification().getActionResult()){
-                    this.client.getPrivateDeck().removeCard(lightsCard);
+                    this.client.getPlayer().getPrivateDeck().removeCard(lightsCard);
                     this.guiInteractionManager.useObjectCardReaction(lightsCard);
                 }
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
@@ -287,7 +269,7 @@ public class ClientServices {
         ArrayList<Object> parameters = new ArrayList<>();
         Action action = new EndTurnAction();
         parameters.add(action);
-        parameters.add(this.client.getToken());
+        parameters.add(this.client.getPlayer().getPlayerToken());
         try {
             RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
             this.processRemoteInvocation(remoteMethodCall);
@@ -295,8 +277,7 @@ public class ClientServices {
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            //If connection is down
-            //this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
+
         }
         boolean isActionServerValidated = this.client.getCurrentRrNotification().getActionResult();
         if (isActionServerValidated){
@@ -318,11 +299,11 @@ public class ClientServices {
      * @param objectCard The object card to be discarded.
      */
     public void discardCard(ObjectCard objectCard) {
-        if (this.client.getPrivateDeck().getContent().contains(objectCard)) {
+        if (this.client.getPlayer().getPrivateDeck().getContent().contains(objectCard)) {
             ArrayList<Object> parameters = new ArrayList<>();
             Action action = new DiscardAction(objectCard);
             parameters.add(action);
-            parameters.add(this.client.getToken());
+            parameters.add(this.client.getPlayer().getPlayerToken());
             try {
                 RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
                 this.processRemoteInvocation(remoteMethodCall);
@@ -330,18 +311,15 @@ public class ClientServices {
             } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             } catch (IOException e1) {
-                //If connection is down
-                //this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
+
             }
             boolean isActionServerValidated = this.client.getCurrentRrNotification().getActionResult();
             if (isActionServerValidated){
-                this.client.getPrivateDeck().removeCard(objectCard);
+                this.client.getPlayer().getPrivateDeck().removeCard(objectCard);
                 this.guiInteractionManager.discardObjectCardReaction();
             }
         }
     }
-
-
 
 
     public void processRemoteInvocation(RemoteMethodCall remoteClientInvocation)
@@ -364,11 +342,8 @@ public class ClientServices {
 
 
     public void asyncNotification(PSClientNotification psNotification) {
-        this.client.setPsNotification(psNotification);
+        this.client.setCurrentPubSubNotification(psNotification);
     }
-    /**
-     *
-     */
     public void setGameMapAndStart(String mapName) {
         GameMap gameMap;
         GameMapFactory factory;
@@ -386,12 +361,11 @@ public class ClientServices {
                 throw new IllegalArgumentException("The type of map is undefined");
         }
         gameMap = factory.makeMap();
-        client.setGameMap(gameMap);
-        client.setPrivateDeck(new PrivateDeck());
-        if (client.getToken().getPlayerType().equals(PlayerType.ALIEN)) {
-            client.setCurrentSector(gameMap.getAlienSector());
+        this.client.setGameMap(gameMap);
+        if (this.client.getPlayer().getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
+            this.client.getPlayer().setCurrentSector(gameMap.getAlienSector());
         } else {
-            client.setCurrentSector(gameMap.getHumanSector());
+            this.client.getPlayer().setCurrentSector(gameMap.getHumanSector());
         }
         this.client.setGameStarted(true);
         this.guiInteractionManager.startGameReaction();
@@ -404,7 +378,7 @@ public class ClientServices {
     public void sendMessage(String message) {
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(message);
-        parameters.add(this.client.getToken());
+        parameters.add(this.client.getPlayer().getPlayerToken());
         try {
             RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("publishGlobalMessage", parameters));
             this.processRemoteInvocation(remoteMethodCall);
@@ -412,8 +386,7 @@ public class ClientServices {
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            //If connection is down
-            //this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
+
         }
     }
     /**
@@ -422,8 +395,7 @@ public class ClientServices {
      * @param coordinate The coordinates of the sector to be attacked.
      */
     public void attack(Coordinate coordinate) {
-        //Player player = this.clientStore.getState().player;
-        boolean humanAttack = this.client.getToken().getPlayerType().equals(PlayerType.HUMAN);
+        boolean humanAttack = this.client.getPlayer().getPlayerToken().getPlayerType().equals(PlayerType.HUMAN);
         Sector targetSector = this.client.getGameMap().getSectorByCoords(coordinate);
         ArrayList<Object> parameters = new ArrayList<>();
         AttackObjectCard card;
@@ -431,29 +403,27 @@ public class ClientServices {
             card = new AttackObjectCard(targetSector);
             Action action = new UseObjAction(card);
             parameters.add(action);
-            parameters.add(this.client.getToken());
+            parameters.add(this.client.getPlayer().getPlayerToken());
 
         } else {
             Action action = new MoveAttackAction(targetSector);
             parameters.add(action);
-            parameters.add(this.client.getToken());
+            parameters.add(this.client.getPlayer().getPlayerToken());
         }
         try {
-            RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
+            RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(
+                    new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
             this.processRemoteInvocation(remoteMethodCall);
             this.guiInteractionManager.displayResponseMsg(this.client.getCurrentRrNotification().getMessage());
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         } catch (IOException e1) {
-            //If connection is down
-            //this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
+
         }
         boolean isActionServerValidated = this.client.getCurrentRrNotification().getActionResult();
         if (isActionServerValidated){
             this.guiInteractionManager.moveToSectorReaction();
         }
-        //this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector, isActionServerValidated));
-
     }
     /**
      * Sets the games that are running of waiting to be run on the game server.
@@ -474,7 +444,7 @@ public class ClientServices {
      * @param playerToken The client's identification token
      */
     private void setPlayerTokenAndSubscribe(PlayerToken playerToken) {
-        this.client.setToken(playerToken);
+        this.client.getPlayer().setPlayerToken(playerToken);
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(playerToken);
         try {
@@ -504,7 +474,7 @@ public class ClientServices {
      */
     public void onDemandGameStart() {
         ArrayList<Object> parameters = new ArrayList<>();
-        parameters.add(this.client.getToken());
+        parameters.add(this.client.getPlayer().getPlayerToken());
         try {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(
                     new RemoteMethodCall(this.serverMethodsNameProvider.onDemandGameStart(), parameters));
