@@ -32,4 +32,8 @@ public class ServerMethodsNameProvider {
     public String joinGame(){
         return "joinGame";
     }
+
+    public String publishChatMsg() {
+        return "publishChatMessage";
+    }
 }
