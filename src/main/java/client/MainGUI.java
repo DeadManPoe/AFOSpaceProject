@@ -14,13 +14,9 @@ public class MainGUI {
 			
 			public void run() {
 
-				GuiInteractionManager sm;
-				ClientConnection connection = new ClientConnection(29999,
-						"localhost", "GAME");
-				Client client = new Client(connection);
-				sm = GuiInteractionManager.init(client);
 
-				JFrame frame = sm.getFrame();
+				GuiManager guiManager = GuiManager.getInstance();
+				JFrame frame = guiManager.getFrame();
 
 				// Ensures JVM closes after frame(s) closed and
 				// all non-daemon threads are finished

@@ -1,20 +1,17 @@
 package client;
 
+import common.RemoteMethodCall;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
-import java.util.logging.Level;
-
-import common.RemoteMethodCall;
 
 /**
  * Represents a thread that handles async messages from the server in the logic
  * of the pub/sub pattern(the client is the subscriber)
  *
  * @author Andrea Sessa
- * @author Giorgio Pea
- * @see ClientRemoteServices
  */
 public class PubSubHandler extends Thread {
 
