@@ -11,8 +11,6 @@ import java.util.TimerTask;
  * @author Giorgio Pea
  */
 public class GamePollingThread extends TimerTask {
-
-
 	/**
 	 * Updates the JTable with the list of games
 	 */

@@ -6,14 +6,16 @@ import it.polimi.ingsw.cg_19.PlayerType;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.Timer;
 
 /**
  * Created by giorgiopea on 25/04/17.
  *
  */
 public class GuiManager {
-
+    private final int GAME_LIST_REFRESH_RATE = 3000;
+    private final java.util.Timer gameListRefreshTimer;
     private static GuiManager instance = new GuiManager();
     private final Client client;
     private GUInitialWindow guiInitialWindow;
@@ -27,6 +29,7 @@ public class GuiManager {
 
     private GuiManager() {
         this.client = Client.getInstance();
+        this.gameListRefreshTimer = new Timer();
     }
 
     /**
@@ -285,6 +288,7 @@ public class GuiManager {
      */
     public void startGameReaction() {
         String characterInfoMsg;
+        this.gameListRefreshTimer.cancel();
         if (this.client.getPlayer().getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
             characterInfoMsg = /*name*/"" + " | ALIEN";
             this.guiGamePane.setSectorMenu(MenuType.ALIEN_INITIAL);
@@ -317,9 +321,9 @@ public class GuiManager {
      * Switches to the {@link client.GUIGameList} view from the {@link client.GUInitialWindow}.
      */
     public void setAvailableGamesReaction() {
-
         this.guiGameList.setGameListContent(this.client.getAvailableGames());
         if (!this.guiGameList.isVisible()) {
+            this.gameListRefreshTimer.scheduleAtFixedRate(new GamePollingThread(),0,this.GAME_LIST_REFRESH_RATE);
             this.mainFrame.remove(this.guiInitialWindow);
             this.guiGameList
                     .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
