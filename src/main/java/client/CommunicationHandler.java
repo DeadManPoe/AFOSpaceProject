@@ -20,6 +20,7 @@ public class CommunicationHandler {
     private Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
+    private PubSubHandler pubSubHandler;
 
 
     public static CommunicationHandler getInstance() {
@@ -52,9 +53,8 @@ public class CommunicationHandler {
         this.inputStream = new ObjectInputStream(this.socket.getInputStream());
         this.sendData(remoteMethodCall);
         if (remoteMethodCall.getMethodName().equals(this.clientMethodsNamesProvider.subscribe())) {
-            PubSubHandler pubSubHandler = new PubSubHandler(socket,inputStream);
-            this.client.setPubSubHandler(pubSubHandler);
-            pubSubHandler.start();
+            this.pubSubHandler = new PubSubHandler(socket,inputStream);
+            this.pubSubHandler.start();
         }
         else {
             receivedRemoteMethodCall = this.receiveData(inputStream);
@@ -97,5 +97,9 @@ public class CommunicationHandler {
     private RemoteMethodCall receiveData(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
         return (RemoteMethodCall) inputStream
                 .readObject();
+    }
+
+    public PubSubHandler getPubSubHandler(){
+        return this.pubSubHandler;
     }
 }

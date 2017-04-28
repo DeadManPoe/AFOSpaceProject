@@ -15,7 +15,8 @@ import java.util.Timer;
  */
 public class GuiManager {
     private final int GAME_LIST_REFRESH_RATE = 3000;
-    private final java.util.Timer gameListRefreshTimer;
+    private final Timer gameListRefreshTimer;
+    private final ClientServices clientServices;
     private static GuiManager instance = new GuiManager();
     private final Client client;
     private GUInitialWindow guiInitialWindow;
@@ -30,6 +31,7 @@ public class GuiManager {
     private GuiManager() {
         this.client = Client.getInstance();
         this.gameListRefreshTimer = new Timer();
+        this.clientServices = ClientServices.getInstance();
     }
 
     /**
@@ -89,7 +91,7 @@ public class GuiManager {
      * A reaction to the fact that either humans or aliens or both have won the game.
      * This reaction includes displaying some messages, updating card/map menus and disabling the 'end turn' button.
      */
-    private void setWinnersReaction(boolean humansHaveWon, boolean aliensHaveWon) {
+    public void setWinnersReaction(boolean humansHaveWon, boolean aliensHaveWon) {
         if (humansHaveWon && aliensHaveWon) {
             this.guiGamePane.setStateMessage("Aliens and Humans have won");
         } else if (humansHaveWon) {
@@ -112,9 +114,9 @@ public class GuiManager {
      * A reaction to some changes in the game state of the client.
      * This reaction includes updating card/map menus, refreshing the object cards panel and displaying some messages.
      */
-    private void setPlayerStateReaction() {
+    public void setPlayerStateReaction() {
         PlayerState playerState = this.client.getPlayer().getPlayerState();
-        PSClientNotification psClientNotification = this.client.getCurrentPubSubNotification();
+        PSClientNotification psClientNotification = this.clientServices.getCurrentPsNotification();
         if (playerState.equals(PlayerState.ESCAPED)) {
             this.guiGamePane.setStateMessage("You've ESCAPED!");
             this.guiGamePane.changeCardMenu(MenuType.EMPTY);
@@ -216,7 +218,7 @@ public class GuiManager {
             this.guiGamePane.setStateMessage("You have succesfully defended from an attack");
         }
         if (objectCard instanceof LightsObjectCard) {
-            for (Sector sector : this.client.getCurrentRrNotification().getLightedSectors()) {
+            for (Sector sector : this.clientServices.getCurrentRrNotification().getLightedSectors()) {
                 this.guiGamePane.getMapPane().lightSector(sector.getCoordinate(), "A", "Here there's an alien");
             }
         }
@@ -268,7 +270,7 @@ public class GuiManager {
                 this.guiGamePane.showEndTurnButton(true);
             }
         } else {
-            this.guiGamePane.setStateMessage(this.client.getCurrentRrNotification().getMessage());
+            this.guiGamePane.setStateMessage(this.clientServices.getCurrentRrNotification().getMessage());
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
             if (clientPrivateDeck.getSize() > 3) {
                 this.manyCardHandler();
@@ -321,7 +323,7 @@ public class GuiManager {
      * Switches to the {@link client.GUIGameList} view from the {@link client.GUInitialWindow}.
      */
     public void setAvailableGamesReaction() {
-        this.guiGameList.setGameListContent(this.client.getAvailableGames());
+        this.guiGameList.setGameListContent(this.clientServices.getAvailableGames());
         if (!this.guiGameList.isVisible()) {
             this.gameListRefreshTimer.scheduleAtFixedRate(new GamePollingThread(),0,this.GAME_LIST_REFRESH_RATE);
             this.mainFrame.remove(this.guiInitialWindow);

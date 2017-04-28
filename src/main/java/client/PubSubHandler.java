@@ -27,7 +27,7 @@ public class PubSubHandler extends Thread {
         this.clientServices = ClientServices.getInstance();
     }
 
-    private void setListeningFlag(boolean listeningFlag) {
+    public void setListeningFlag(boolean listeningFlag) {
         this.listeningFlag = listeningFlag;
     }
 
