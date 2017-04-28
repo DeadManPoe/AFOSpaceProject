@@ -26,7 +26,6 @@ public class TurnTimeout extends TimerTask {
 		try {
 			game.timeoutUpdate();
 		} catch (InstantiationException | IllegalAccessException e) {
-			ClientLogger.getLogger().log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 }

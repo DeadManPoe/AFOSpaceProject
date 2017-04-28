@@ -16,6 +16,7 @@ public class MainGUI {
 
 
 				GuiManager guiManager = GuiManager.getInstance();
+				guiManager.initGuiComponents();
 				JFrame frame = guiManager.getFrame();
 
 				// Ensures JVM closes after frame(s) closed and

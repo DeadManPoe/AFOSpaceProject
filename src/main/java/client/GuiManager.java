@@ -17,7 +17,7 @@ public class GuiManager {
     private final int GAME_LIST_REFRESH_RATE = 3000;
     private final Timer gameListRefreshTimer;
     private final ClientServices clientServices;
-    private static GuiManager instance = new GuiManager();
+    private static GuiManager instance;
     private final Client client;
     private GUInitialWindow guiInitialWindow;
     private GUIGameList guiGameList;
@@ -25,6 +25,9 @@ public class GuiManager {
     private JFrame mainFrame;
 
     public static GuiManager getInstance() {
+        if (instance == null){
+            instance = new GuiManager();
+        }
         return instance;
     }
 

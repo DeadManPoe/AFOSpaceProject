@@ -11,7 +11,6 @@ import common.ObjectCard;
  * @version 1.0
  */
 public class ObjectCardLabel extends JLabel {
-	private static final long serialVersionUID = 1L;
 	private ObjectCard objectCard;
 
 	/**

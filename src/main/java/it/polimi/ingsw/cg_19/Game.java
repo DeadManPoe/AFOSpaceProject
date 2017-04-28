@@ -170,7 +170,8 @@ public class Game extends Observable {
     public synchronized PlayerToken addPlayer(String playerName) {
         PlayerType playerType = assignTypeToPlayer(players.size() + 1);
         PlayerToken playerToken = new PlayerToken(playerType, this.gamePublicData.getId());
-        Player player = new Player(playerName, playerToken);
+        Player player = new Player(playerName);
+        player.setPlayerToken(playerToken);
         players.add(player);
         gamePublicData.addPlayer();
         if (currentPlayer == null) {
