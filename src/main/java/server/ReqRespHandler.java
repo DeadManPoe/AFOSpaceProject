@@ -55,15 +55,12 @@ public class ReqRespHandler extends Thread {
                 .getMethodParameters();
         Class<?>[] parametersClasses = new Class[parameters.size()];
         for (int i = 0; i < parameters.size(); i++) {
-            if (parameters.get(i).getClass().getName().contains("Action")
-                    || parameters.get(i).getClass().getName()
-                    .contains("ClientNotification")) {
+            if (parameters.get(i).getClass().getName().contains("Action")) {
                 parametersClasses[i] = parameters.get(i).getClass()
                         .getSuperclass();
             } else {
                 parametersClasses[i] = parameters.get(i).getClass();
             }
-
         }
         this.getClass().getDeclaredMethod(methodName, parametersClasses)
                 .invoke(this, parameters.toArray());
@@ -80,9 +77,9 @@ public class ReqRespHandler extends Thread {
     }
 
     /**
-     * A service that sends to the client/player the list of all available games
+     * A service that sends to the client/player the list of all available games.
      *
-     * @throws IOException
+     * @throws IOException Communication problem.
      */
     private void getGames() throws IOException {
         ArrayList<GamePublicData> gamesList = new ArrayList<GamePublicData>();
@@ -139,7 +136,8 @@ public class ReqRespHandler extends Thread {
         if (game.getPlayers().size() == 2){
             for (PubSubHandler _pubSubHandler : game.getPubSubHandlers()){
                 if (_pubSubHandler.getPlayerToken().equals(game.getCurrentPlayer().getPlayerToken())){
-                    _pubSubHandler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.signalStartableGame(), new ArrayList<>()));
+                    _pubSubHandler.queueNotification(new RemoteMethodCall(
+                            this.clientMethodsNamesProvider.signalStartableGame(), new ArrayList<>()));
                     break;
                 }
             }
@@ -184,14 +182,14 @@ public class ReqRespHandler extends Thread {
      *                be delivered the text message, is derived.
      * @throws IOException
      */
-    public void publishGlobalMessage(String message,
+    public void publishChatMsg(String message,
                                      PlayerToken playerToken) throws IOException {
         Game game = this.gameManager.getGame(playerToken.getGameId());
         Player player = game.getPlayer(playerToken);
         ArrayList<Object> parameters = new ArrayList<>();
         for (PubSubHandler handler : game.getPubSubHandlers()){
             parameters.add(player.getName()+" says: "+message);
-            handler.queueNotification(new RemoteMethodCall("publishChatMsg",parameters));
+            handler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.chatMessage(),parameters));
         }
         parameters.clear();
         parameters.add(new RRClientNotification(true,null,null,null));

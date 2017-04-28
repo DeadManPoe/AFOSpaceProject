@@ -44,4 +44,8 @@ public class ClientMethodsNamesProvider {
     public String subscribe() {
         return "setPlayerTokenAndSubscribe";
     }
+
+    public String chatMessage() {
+        return "publishChatMsg";
+    }
 }

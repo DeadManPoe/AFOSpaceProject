@@ -69,7 +69,9 @@ public class MoveActionEffect extends ActionEffect {
 				} else if (targetSector.getSectorType() == SectorType.OPEN_RESCUE) {
 					DrawRescueCardEffect.executeEffect(game,rrClientNotification,psClientNotification);
 				}
-				game.setLastAction(action);
+				else {
+					game.setLastAction(action);
+				}
 				currentPlayer.setHasMoved(true);
 				return true;
 			}

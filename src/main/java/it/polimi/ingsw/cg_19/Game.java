@@ -146,7 +146,7 @@ public class Game{
             }
         }
         // Init of the first game turn
-        if (currentPlayer.getPlayerToken().getPlayerType() == PlayerType.HUMAN) {
+        if (currentPlayer.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
             this.nextActions = HumanTurn.getInitialActions();
         } else {
             this.nextActions = AlienTurn.getInitialActions();
@@ -530,16 +530,8 @@ public class Game{
         throw new NoSuchElementException("No player matches the given token");
     }
 
-    public void setNextActions(List<Class<? extends Action>> nextActions) {
-        this.nextActions = nextActions;
-    }
-
     public void setCurrentPlayer(Player currentPlayer) {
         this.currentPlayer = currentPlayer;
-    }
-
-    public Player getPreviousPlayer() {
-        return previousPlayer;
     }
 
     public void setPreviousPlayer(Player previousPlayer) {
