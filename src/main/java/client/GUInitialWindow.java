@@ -52,6 +52,6 @@ public class GUInitialWindow extends JPanel {
 		});
 	}
 	public void alertConnectionProblem(boolean visibility){
-		this.connectionProblemLabel.setVisible(visibility);
+		this.connectionProblemLabel.setVisible(!visibility);
 	}
 }

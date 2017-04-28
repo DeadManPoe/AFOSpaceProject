@@ -17,19 +17,6 @@ public class MainGUI {
 
 				GuiManager guiManager = GuiManager.getInstance();
 				guiManager.initGuiComponents();
-				JFrame frame = guiManager.getFrame();
-
-				// Ensures JVM closes after frame(s) closed and
-				// all non-daemon threads are finished
-				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				frame.setLocationByPlatform(true);
-
-				// ensures the frame is the minimum size it needs to be
-				// in order display the components within it
-				frame.pack();
-				frame.setExtendedState(frame.getExtendedState()
-						| JFrame.MAXIMIZED_BOTH);
-				frame.setVisible(true);
 
 			}
 		};

@@ -21,13 +21,16 @@ public class ClientServices {
     private final Client client;
     private final CommunicationHandler communicationHandler;
     private final ServerMethodsNameProvider serverMethodsNameProvider;
-    private final GuiManager guiInteractionManager;
-    private static ClientServices instance = new ClientServices();
+    private GuiManager guiInteractionManager;
+    private static ClientServices instance;
     private List<GamePublicData> availableGames;
     private RRClientNotification currentRrNotification;
     private PSClientNotification currentPsNotification;
 
     public static ClientServices getInstance(){
+        if (instance == null){
+            instance = new ClientServices();
+        }
         return instance;
     }
 
@@ -35,7 +38,9 @@ public class ClientServices {
         this.client = Client.getInstance();
         this.communicationHandler = CommunicationHandler.getInstance();
         this.serverMethodsNameProvider = ServerMethodsNameProvider.getInstance();
-        this.guiInteractionManager = GuiManager.getInstance();
+    }
+    public void initWithGuiManager(GuiManager guiManager){
+        this.guiInteractionManager = guiManager;
     }
     /**
      * Requests to the server the creation of a new game with a given map.

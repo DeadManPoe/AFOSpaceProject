@@ -301,6 +301,6 @@ public class GUIGamePane extends JPanel {
 	}
 
 	public void alertConnectionProblem(boolean isConnectionActive) {
-		this.connectionAlert.setVisible(isConnectionActive);
+		this.connectionAlert.setVisible(!isConnectionActive);
 	}
 }
