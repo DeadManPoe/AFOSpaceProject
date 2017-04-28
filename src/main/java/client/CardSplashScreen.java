@@ -24,6 +24,12 @@ public class CardSplashScreen extends JWindow {
         });
     }
 
+    /**
+     * Pops up the panel represented by this class, showing the images associated with the given cards. If no cards
+     * are given, the panel is not shown.
+     * @param sectorCard The {@link SectorCard} whose associated image must be shown.
+     * @param objectCard The {@link ObjectCard} whose associated image must be shown.
+     */
     public void showCards(SectorCard sectorCard, ObjectCard objectCard) {
         if (sectorCard != null) {
             ResourceMapper mapper = new ResourceMapper();
