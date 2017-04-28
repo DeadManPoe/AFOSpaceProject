@@ -2,6 +2,7 @@ package client;
 
 /**
  * Created by giorgiopea on 25/04/17.
+ *
  */
 public class ServerMethodsNameProvider {
 

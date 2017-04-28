@@ -48,5 +48,11 @@ public class PubSubHandler extends Thread {
                 }
             }
         }
+        try {
+            this.inputStream.close();
+            this.socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
