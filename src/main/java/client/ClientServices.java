@@ -368,19 +368,23 @@ public class ClientServices {
         if (psNotification.getHumanWins() || psNotification.getAlienWins()) {
             this.guiInteractionManager.setWinnersReaction(psNotification.getHumanWins(),psNotification.getAlienWins());
             this.communicationHandler.getPubSubHandler().setListeningFlag(false);
+            this.client.setGameStarted(false);
         }
         if (psNotification.getEscapedPlayer() != null) {
             if (psNotification.getEscapedPlayer().equals(this.client.getPlayer().getPlayerToken())){
                 this.guiInteractionManager.setPlayerStateReaction();
+                this.client.setGameStarted(false);
             }
         }
         if (psNotification.getDeadPlayers().contains(this.client.getPlayer().getPlayerToken())) {
             this.guiInteractionManager.setPlayerStateReaction();
+            this.client.setGameStarted(false);
         } else if (psNotification.getAttackedPlayers().contains(this.client.getPlayer().getPlayerToken())) {
             this.guiInteractionManager.useObjectCardReaction(new DefenseObjectCard());
         }
     }
     public void setGameMapAndStart(String mapName) {
+        this.client.setGameStarted(true);
         GameMap gameMap;
         GameMapFactory factory;
         switch (mapName) {

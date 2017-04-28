@@ -1,38 +1,9 @@
 package client;
 
-import it.polimi.ingsw.cg_19.GameMap;
-
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.Socket;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-
-import common.Action;
-import common.AttackObjectCard;
 import common.Coordinate;
-import common.DefenseObjectCard;
-import common.DiscardAction;
-import common.GamePublicData;
-import common.GlobalNoiseSectorCard;
-import common.LightsObjectCard;
-import common.MoveAttackAction;
-import common.ObjectCard;
-import common.PSClientNotification;
-import common.PlayerToken;
-import common.PrivateDeck;
-import common.RRClientNotification;
 import common.Sector;
-import common.SectorCard;
-import common.TeleportObjectCard;
-import common.UseObjAction;
-import common.UseSectorCardAction;
+import it.polimi.ingsw.cg_19.GameMap;
 import it.polimi.ingsw.cg_19.Player;
-import it.polimi.ingsw.cg_19.PlayerState;
 import it.polimi.ingsw.cg_19.PlayerType;
 
 /**
@@ -47,7 +18,6 @@ public class Client {
     private GameMap gameMap;
     private boolean isGameStarted;
     private boolean isMyTurn;
-    private boolean isGameEnded;
 
     private static Client instance = new Client();
 
@@ -67,14 +37,6 @@ public class Client {
 
     public void setGameStarted(boolean gameStarted) {
         this.isGameStarted = gameStarted;
-    }
-
-    public boolean isGameEnded() {
-        return this.isGameEnded;
-    }
-
-    public void setGameEnded(boolean gameEnded) {
-        this.isGameEnded = gameEnded;
     }
 
     public GameMap getGameMap() {
