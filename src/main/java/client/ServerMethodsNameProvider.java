@@ -37,4 +37,8 @@ public class ServerMethodsNameProvider {
     public String publishChatMsg() {
         return "publishChatMessage";
     }
+
+    public String getGames() {
+        return "getGames";
+    }
 }

@@ -85,7 +85,7 @@ public class ReqRespHandler extends Thread {
      * @throws IOException
      */
     private void getGames() throws IOException {
-        List<GamePublicData> gamesList = new ArrayList<GamePublicData>();
+        ArrayList<GamePublicData> gamesList = new ArrayList<GamePublicData>();
         for (Game game : this.gameManager.getGames()) {
             gamesList.add(game.getPublicData());
         }

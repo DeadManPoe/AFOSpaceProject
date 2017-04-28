@@ -511,7 +511,7 @@ public class ClientServices {
      */
     public void getGames() {
         try {
-            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("getGames", new ArrayList<>()));
+            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.getGames(), new ArrayList<>()));
             this.processRemoteInvocation(methodCall);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();

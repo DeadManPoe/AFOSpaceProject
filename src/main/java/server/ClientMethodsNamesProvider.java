@@ -15,7 +15,7 @@ public class ClientMethodsNamesProvider {
     }
 
     public String sendAvailableGames(){
-        return "sendAvailableGames";
+        return "setAvailableGames";
     }
     public String syncNotification(){
         return "syncNotification";
