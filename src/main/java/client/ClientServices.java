@@ -56,11 +56,14 @@ public class ClientServices {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.joinNewGame(), parameters));
             this.processRemoteInvocation(methodCall);;
             this.guiInteractionManager.setConnectionActiveReaction(true);
-            this.guiInteractionManager.displayResponseMsg(this.currentRrNotification.getMessage());
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         } catch (IOException e1) {
             this.guiInteractionManager.setConnectionActiveReaction(false);
+        }
+        boolean isActionServerValidated = this.currentRrNotification.getActionResult();
+        if (isActionServerValidated){
+            this.setPlayerTokenAndSubscribe(this.currentRrNotification.getPlayerToken());
         }
     }
 
@@ -83,6 +86,10 @@ public class ClientServices {
             e.printStackTrace();
         } catch (IOException e1) {
             this.guiInteractionManager.setConnectionActiveReaction(false);
+        }
+        boolean isActionServerValidated = this.currentRrNotification.getActionResult();
+        if (isActionServerValidated){
+            this.setPlayerTokenAndSubscribe(this.currentRrNotification.getPlayerToken());
         }
     }
 

@@ -42,6 +42,6 @@ public class ClientMethodsNamesProvider {
     }
 
     public String subscribe() {
-        return "subscribe";
+        return "setPlayerTokenAndSubscribe";
     }
 }

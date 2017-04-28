@@ -123,7 +123,7 @@ public class ReqRespHandler extends Thread {
      * @param playerName the client/player unique identifier
      * @throws IOException
      */
-    private void joinGame(int gameId, String playerName) throws IOException {
+    private void joinGame(Integer gameId, String playerName) throws IOException {
         Game game = this.gameManager.getGame(gameId);
         PlayerToken playerToken = game.addPlayer(playerName);
         ArrayList<Object> parameters = new ArrayList<Object>();

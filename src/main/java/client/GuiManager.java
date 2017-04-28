@@ -14,7 +14,7 @@ import java.util.Timer;
  *
  */
 public class GuiManager {
-    private final int GAME_LIST_REFRESH_RATE = 3000;
+    private final int GAME_LIST_REFRESH_RATE = 10000;
     private final Timer gameListRefreshTimer;
     private final ClientServices clientServices;
     private static GuiManager instance = new GuiManager();
@@ -326,7 +326,7 @@ public class GuiManager {
     public void setAvailableGamesReaction() {
         this.guiGameList.setGameListContent(this.clientServices.getAvailableGames());
         if (!this.guiGameList.isVisible()) {
-            this.gameListRefreshTimer.scheduleAtFixedRate(new GamePollingThread(),0,this.GAME_LIST_REFRESH_RATE);
+            this.gameListRefreshTimer.scheduleAtFixedRate(new GamePollingThread(),1000,this.GAME_LIST_REFRESH_RATE);
             this.mainFrame.remove(this.guiInitialWindow);
             this.guiGameList
                     .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
