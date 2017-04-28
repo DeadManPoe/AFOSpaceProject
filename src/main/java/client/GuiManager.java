@@ -324,12 +324,11 @@ public class GuiManager {
      * Switches to the {@link client.GUIGameList} view from the {@link client.GUInitialWindow}.
      */
     public void setAvailableGamesReaction() {
-        this.guiGameList.setGameListContent(this.clientServices.getAvailableGames());
         if (!this.guiGameList.isVisible()) {
             this.gameListRefreshTimer.scheduleAtFixedRate(new GamePollingThread(),1000,this.GAME_LIST_REFRESH_RATE);
             this.mainFrame.remove(this.guiInitialWindow);
             this.guiGameList
-                    .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
+                   .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
             this.guiGameList.setBackground(Color.BLACK);
             this.guiGameList.load();
             mainFrame.getContentPane().add(this.guiGameList);
@@ -337,6 +336,11 @@ public class GuiManager {
             this.mainFrame.validate();
             this.mainFrame.repaint();
         }
+        else {
+            this.guiGameList.setGameListContent(this.clientServices.getAvailableGames());
+        }
+
+
 
 
     }

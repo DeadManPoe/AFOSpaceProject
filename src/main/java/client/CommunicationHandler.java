@@ -12,7 +12,7 @@ import java.net.Socket;
  * Created by giorgiopea on 25/04/17.
  */
 public class CommunicationHandler {
-    private final ClientMethodsNamesProvider clientMethodsNamesProvider;
+    private final ServerMethodsNameProvider serverMethodsNameProvider;
     private final int TCP_PORT;
     private final String HOST;
     private final Client client;
@@ -28,7 +28,7 @@ public class CommunicationHandler {
     }
 
     private CommunicationHandler() {
-        this.clientMethodsNamesProvider = ClientMethodsNamesProvider.getInstance();
+        this.serverMethodsNameProvider = ServerMethodsNameProvider.getInstance();
         this.TCP_PORT = 29999;
         this.HOST = "localhost";
         this.client = Client.getInstance();
@@ -52,7 +52,7 @@ public class CommunicationHandler {
         this.outputStream.flush();
         this.inputStream = new ObjectInputStream(this.socket.getInputStream());
         this.sendData(remoteMethodCall);
-        if (remoteMethodCall.getMethodName().equals(this.clientMethodsNamesProvider.subscribe())) {
+        if (remoteMethodCall.getMethodName().equals(this.serverMethodsNameProvider.subscribe())) {
             this.pubSubHandler = new PubSubHandler(socket,inputStream);
             this.pubSubHandler.start();
         }

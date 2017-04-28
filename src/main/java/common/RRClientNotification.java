@@ -53,7 +53,7 @@ public class RRClientNotification extends ClientNotification {
 	 */
 	public RRClientNotification() {
 		super("");
-		this.drawedCards = new ArrayList<Card>();
+		this.drawedCards = new ArrayList<>();
 		this.lightedSectors = new ArrayList<>();
         this.playerToken = null;
 	}

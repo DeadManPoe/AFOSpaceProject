@@ -136,13 +136,10 @@ public class ReqRespHandler extends Thread {
         PubSubHandler pubSubHandler = new PubSubHandler(this.objectOutputStream, playerToken);
         game.addPubSubHandler(pubSubHandler);
         this.communicationHandler.addPubSubHandler(pubSubHandler);
-        ArrayList<Object> parameters = new ArrayList<>();
-        parameters.add(new RRClientNotification(true,null,null,null));
-        this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));
         if (game.getPlayers().size() == 2){
             for (PubSubHandler _pubSubHandler : game.getPubSubHandlers()){
                 if (_pubSubHandler.getPlayerToken().equals(game.getCurrentPlayer().getPlayerToken())){
-                    _pubSubHandler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.signalStartableGame(), new ArrayList<Object>()));
+                    _pubSubHandler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.signalStartableGame(), new ArrayList<>()));
                     break;
                 }
             }
@@ -156,6 +153,7 @@ public class ReqRespHandler extends Thread {
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(new RRClientNotification(true,null,null,null));
         this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));
+        this.closeDataFlow();
         game.startGame();
     }
     /**
@@ -170,7 +168,7 @@ public class ReqRespHandler extends Thread {
     public void makeAction(Action action, PlayerToken playerToken) throws IOException {
         Game game = this.gameManager.getGame(playerToken.getGameId());
         ArrayList<Object> parameters = new ArrayList<>();
-        parameters.add((RRClientNotification) game.makeAction(action,playerToken));
+        parameters.add(game.makeAction(action,playerToken));
         this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(),parameters));
         this.closeDataFlow();
     }

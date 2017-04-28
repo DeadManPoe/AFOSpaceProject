@@ -26,13 +26,6 @@ public class Player {
 
 
     public Player(String name) {
-        if (playerToken != null) {
-            if (playerToken.getPlayerType() == PlayerType.HUMAN) {
-                this.speed = 1;
-            } else {
-                this.speed = 2;
-            }
-        }
         this.playerState = PlayerState.ALIVE;
         this.privateDeck = new PrivateDeck();
         this.isAdrenalined = false;
@@ -44,6 +37,12 @@ public class Player {
 
     public void setPlayerToken(PlayerToken playerToken) {
         this.playerToken = playerToken;
+        if (this.playerToken.getPlayerType().equals(PlayerType.HUMAN)){
+            this.speed = 1;
+        }
+        else {
+            this.speed = 2;
+        }
     }
 
     public int getSpeed() {

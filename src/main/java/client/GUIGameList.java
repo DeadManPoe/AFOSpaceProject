@@ -39,7 +39,7 @@ public class GUIGameList extends JPanel {
      */
     public void load() {
         add(this.connectionAlert);
-        stateMessage.setFont(new Font("Arial", Font.BOLD, 22));
+        stateMessage.setFont(new Font("Arial", Font.BOLD, 15));
         stateMessage.setForeground(Color.WHITE);
         stateMessage.setAlignmentX(CENTER_ALIGNMENT);
 

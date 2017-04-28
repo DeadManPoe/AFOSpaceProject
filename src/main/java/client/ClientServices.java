@@ -63,6 +63,7 @@ public class ClientServices {
         }
         boolean isActionServerValidated = this.currentRrNotification.getActionResult();
         if (isActionServerValidated){
+            this.client.setPlayer(playerName);
             this.setPlayerTokenAndSubscribe(this.currentRrNotification.getPlayerToken());
         }
     }
@@ -89,6 +90,7 @@ public class ClientServices {
         }
         boolean isActionServerValidated = this.currentRrNotification.getActionResult();
         if (isActionServerValidated){
+            this.client.setPlayer(playerName);
             this.setPlayerTokenAndSubscribe(this.currentRrNotification.getPlayerToken());
         }
     }
@@ -395,7 +397,7 @@ public class ClientServices {
             this.guiInteractionManager.useObjectCardReaction(new DefenseObjectCard());
         }
     }
-    public void setGameMapAndStart(String mapName) {
+    public void setMapAndStartGame(String mapName) {
         this.client.setGameStarted(true);
         GameMap gameMap;
         GameMapFactory factory;
@@ -502,11 +504,10 @@ public class ClientServices {
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(playerToken);
         try {
-            RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(
+            this.communicationHandler.newComSession(
                     new RemoteMethodCall(this.serverMethodsNameProvider.subscribe(),parameters));
-            this.processRemoteInvocation(remoteMethodCall);
             this.guiInteractionManager.setConnectionActiveReaction(true);
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             this.guiInteractionManager.setConnectionActiveReaction(false);
@@ -537,8 +538,6 @@ public class ClientServices {
                     new RemoteMethodCall(this.serverMethodsNameProvider.onDemandGameStart(), parameters));
             this.processRemoteInvocation(methodCall);
             this.guiInteractionManager.setConnectionActiveReaction(true);
-            this.guiInteractionManager.setConnectionActiveReaction(true);
-
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         } catch (IOException e) {

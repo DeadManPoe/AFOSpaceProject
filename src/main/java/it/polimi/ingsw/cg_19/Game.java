@@ -158,6 +158,12 @@ public class Game extends Observable {
         this.timer.schedule(timeout, TURN_TIMEOUT);
         // Notification to the subscribers
         this.notifySubscribers(new RemoteMethodCall(this.clientMethodsNamesProvider.sendMapAndStartGame(), parameters));
+        for (PubSubHandler handler : this.pubSubHandlers){
+            if (handler.getPlayerToken().equals(this.currentPlayer.getPlayerToken())){
+                handler.queueNotification(new RemoteMethodCall("startTurn",new ArrayList<>()));
+                break;
+            }
+        }
     }
 
     /**
@@ -321,13 +327,11 @@ public class Game extends Observable {
         PSClientNotification psNotification = new PSClientNotification();
         Player actualPlayer = this.getPlayer(playerToken);
         boolean actionResult = false;
-        // if(turn.getInitialAction().contains(action.class)) &&
         if (!currentPlayer.equals(actualPlayer)) {
             clientNotification.setActionResult(false);
         } else {
             // If the player is ok then checks if the action is ok
             if (nextActions.contains(action.getClass())) {
-                Class<? extends ActionEffect> effect = actionMapper.getEffect(action.getClass());
                 try {
                     Method executeMethod = ActionMapper.getInstance().getEffect(action.getClass())
                             .getMethod("executeEffect", Game.class, RRClientNotification.class,
