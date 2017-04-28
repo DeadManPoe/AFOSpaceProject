@@ -28,7 +28,7 @@ import factories.*;
  * @author Giorgio Pea
  * @version 1.0
  */
-public class Game extends Observable {
+public class Game{
     private final static long TURN_TIMEOUT = 10 * 60 * 1000;
     private static int counter = 0;
 
@@ -365,11 +365,12 @@ public class Game extends Observable {
                         // Reset the timeout
 
                         timer.cancel();
+                        timer = new Timer();
                         timeout = new TurnTimeout(this);
                         timer.schedule(timeout, TURN_TIMEOUT);
                         for (PubSubHandler pubSubHandler : this.pubSubHandlers){
                             if (!pubSubHandler.getPlayerToken().equals(previousPlayer.getPlayerToken())){
-                                pubSubHandler.queueNotification(new RemoteMethodCall("allowTurn", new ArrayList<>()));
+                                pubSubHandler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.startTurn(), new ArrayList<>()));
                             }
                         }
                     }
@@ -396,7 +397,12 @@ public class Game extends Observable {
                     parameters.add(psNotification);
                     this.notifySubscribers(new RemoteMethodCall(this.clientMethodsNamesProvider.asyncNotification(), parameters));
                 }
+                else {
+                    clientNotification.setActionResult(false);
+                    clientNotification.setMessage("The action cannot be performed");
+                }
             } else {
+                clientNotification.setMessage("The action cannot be performed");
                 clientNotification.setActionResult(false);
             }
 

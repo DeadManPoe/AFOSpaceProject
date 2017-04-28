@@ -40,12 +40,13 @@ public class PubSubHandler extends Thread {
             } catch (IOException | ClassNotFoundException | NoSuchMethodException |
                     IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
-                /*try {
-                    //this.inputStream.close();
-                    //this.socket.close();
+                try {
+                    this.inputStream.close();
+                    this.socket.close();
+                    this.listeningFlag = false;
                 } catch (IOException e1) {
                     e1.printStackTrace();
-                }*/
+                }
             }
         }
         try {
