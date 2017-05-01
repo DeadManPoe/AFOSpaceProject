@@ -369,7 +369,7 @@ public class Game{
                         timeout = new TurnTimeout(this);
                         timer.schedule(timeout, TURN_TIMEOUT);
                         for (PubSubHandler pubSubHandler : this.pubSubHandlers){
-                            if (!pubSubHandler.getPlayerToken().equals(previousPlayer.getPlayerToken())){
+                            if (pubSubHandler.getPlayerToken().equals(currentPlayer.getPlayerToken())){
                                 pubSubHandler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.startTurn(), new ArrayList<>()));
                             }
                         }

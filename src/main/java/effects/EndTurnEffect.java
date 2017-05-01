@@ -1,14 +1,8 @@
 package effects;
 
-import java.util.ArrayList;
-
 import common.*;
-import it.polimi.ingsw.cg_19.AlienTurn;
 import it.polimi.ingsw.cg_19.Game;
-import it.polimi.ingsw.cg_19.HumanTurn;
 import it.polimi.ingsw.cg_19.Player;
-import it.polimi.ingsw.cg_19.PlayerState;
-import it.polimi.ingsw.cg_19.PlayerType;
 
 /**
  * Represents the effect associated to the action of ending a turn.
@@ -34,7 +28,7 @@ public class EndTurnEffect extends ActionEffect {
                 + currentPlayer.getName()
                 + " has ended its turn.\n[GLOBAL MESSAGE]: ");
 
-        shiftCurrentplayer(game);
+        shiftCurrentPlayer(game);
         psNotification.setMessage(psNotification.getMessage() + currentPlayer.getName() + " now is your turn");
         // Notify the client
         game.setLastAction(castedAction);
@@ -42,15 +36,24 @@ public class EndTurnEffect extends ActionEffect {
         return true;
     }
 
-    private static void shiftCurrentplayer(Game game) {
-        int currentPlayerIndex = game.getPlayers().indexOf(game.getCurrentPlayer());
-        do {
-            currentPlayerIndex++;
-            if (currentPlayerIndex == game.getPlayers().size())
-                currentPlayerIndex = 0;
-        } while (game.getPlayers().get(currentPlayerIndex).getPlayerState().equals(PlayerState.DEAD));
+    private static void shiftCurrentPlayer(Game game) {
+        int size = game.getPlayers().size();
+        int index = 0;
+        while (index != size){
+            Player current = game.getPlayers().get(index);
+            if (current.equals(game.getCurrentPlayer())){
+                if ( index == size - 1){
+                    index = 0;
+                    break;
+                }
+                else {
+                    index++;
+                    break;
+                }
+            }
+        }
         game.setPreviousPlayer(game.getCurrentPlayer());
-        game.setCurrentPlayer(game.getPlayers().get(currentPlayerIndex));
+        game.setCurrentPlayer(game.getPlayers().get(index));
     }
 
 

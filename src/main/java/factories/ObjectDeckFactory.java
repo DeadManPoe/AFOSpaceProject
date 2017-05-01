@@ -27,9 +27,9 @@ public class ObjectDeckFactory extends DeckFactory {
 		deck.add(new AttackObjectCard(null));
 		deck.add(new AttackObjectCard(null));
 		deck.add(new TeleportObjectCard());
-		deck.add(new AdrenalineObjectCard());
-		deck.add(new AdrenalineObjectCard());
-		deck.add(new AdrenalineObjectCard());
+		//deck.add(new AdrenalineObjectCard());
+		//deck.add(new AdrenalineObjectCard());
+		//deck.add(new AdrenalineObjectCard());
 		deck.add(new SuppressorObjectCard());
 		deck.add(new SuppressorObjectCard());
 		deck.add(new SuppressorObjectCard());

@@ -31,13 +31,13 @@ public class SectorDeckFactory extends DeckFactory {
 			deck.add(new GlobalNoiseSectorCard(true, null));
 		}
 		for (int i = 0; i < 6; i++) {
-			deck.add(new GlobalNoiseSectorCard(false, null));
+			deck.add(new GlobalNoiseSectorCard(true, null));
 		}
 		for (int i = 0; i < 4; i++) {
 			deck.add(new LocalNoiseSectorCard(true));
 		}
 		for (int i = 0; i < 6; i++) {
-			deck.add(new LocalNoiseSectorCard(false));
+			deck.add(new LocalNoiseSectorCard(true));
 		}
 		// Deck shuffling
 		long seed = System.nanoTime();
