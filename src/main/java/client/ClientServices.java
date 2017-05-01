@@ -287,7 +287,7 @@ public class ClientServices {
         parameters.add(action);
         parameters.add(this.client.getPlayer().getPlayerToken());
         try {
-            RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
+            RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
             this.processRemoteInvocation(remoteMethodCall);
             this.guiInteractionManager.setConnectionActiveReaction(true);
             this.guiInteractionManager.displayResponseMsg(this.currentRrNotification.getMessage());
@@ -478,6 +478,7 @@ public class ClientServices {
         }
         boolean isActionServerValidated = this.currentRrNotification.getActionResult();
         if (isActionServerValidated){
+            this.client.move(coordinate);
             this.guiInteractionManager.moveToSectorReaction();
         }
     }
