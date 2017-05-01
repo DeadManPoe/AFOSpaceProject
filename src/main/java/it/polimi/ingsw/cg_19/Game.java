@@ -29,7 +29,7 @@ import factories.*;
  * @version 1.0
  */
 public class Game{
-    private final static long TURN_TIMEOUT = 10 * 60 * 1000;
+    private final static long TURN_TIMEOUT = 10 * 1000;
     private static int counter = 0;
 
     private volatile List<Player> players;
@@ -422,9 +422,9 @@ public class Game{
         PSClientNotification psClientNotification = new PSClientNotification();
         RRClientNotification rrClientNotification = new RRClientNotification();
         EndTurnEffect.executeEffect(this, rrClientNotification, psClientNotification,null);
-        ArrayList<Object> parameters = new ArrayList<>();
         this.timer.schedule(new TurnTimeout(this), TURN_TIMEOUT);
         for (PubSubHandler handler : this.pubSubHandlers) {
+            ArrayList<Object> parameters = new ArrayList<>();
             if (handler.getPlayerToken().equals(this.currentPlayer.getPlayerToken())) {
                 handler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.startTurn(), new ArrayList<>()));
             }
