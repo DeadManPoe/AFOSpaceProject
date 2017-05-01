@@ -31,10 +31,6 @@ public class Client {
         this.isMyTurn = false;
     }
 
-    public boolean isGameStarted() {
-        return isGameStarted;
-    }
-
     public void setGameStarted(boolean gameStarted) {
         this.isGameStarted = gameStarted;
     }
@@ -43,16 +39,9 @@ public class Client {
         return this.gameMap;
     }
 
-
     public void setGameMap(GameMap map) {
         this.gameMap = map;
     }
-
-
-    public boolean getIsMyTurn() {
-        return isMyTurn;
-    }
-
 
     public void setIsMyTurn(boolean isMyTurn) {
         this.isMyTurn = isMyTurn;

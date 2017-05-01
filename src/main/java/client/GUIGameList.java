@@ -90,13 +90,22 @@ public class GUIGameList extends JPanel {
             }
         });
 
-        JButton newButton = new JButton("New");
+        final JButton newButton = new JButton("New");
         newButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
         buttonPanel.add(newButton);
+        final JButton refreshButton = new JButton("Refresh");
+        refreshButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
+        buttonPanel.add(refreshButton);
         newButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 newGame();
+            }
+        });
+        refreshButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                clientServices.getGames();
             }
         });
 
@@ -177,6 +186,7 @@ public class GUIGameList extends JPanel {
                 if(mapName != null){
                     stateMessage.setText("Waiting for others players...");
                     this.clientServices.joinNewGame(mapName.toUpperCase(),playerName);
+                    this.clientServices.getGames();
                     buttonPanel.setVisible(false);
                 }
 

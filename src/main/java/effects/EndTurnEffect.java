@@ -46,11 +46,10 @@ public class EndTurnEffect extends ActionEffect {
                     index = 0;
                     break;
                 }
-                else {
-                    index++;
-                    break;
-                }
+                index++;
+                break;
             }
+            index++;
         }
         game.setPreviousPlayer(game.getCurrentPlayer());
         game.setCurrentPlayer(game.getPlayers().get(index));

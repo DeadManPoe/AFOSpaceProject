@@ -325,7 +325,7 @@ public class GuiManager {
      */
     public void setAvailableGamesReaction() {
         if (!this.guiGameList.isVisible()) {
-            this.gameListRefreshTimer.scheduleAtFixedRate(new GamePollingThread(),1000,this.GAME_LIST_REFRESH_RATE);
+            //this.gameListRefreshTimer.scheduleAtFixedRate(new GamePollingThread(),1000,this.GAME_LIST_REFRESH_RATE);
             this.mainFrame.remove(this.guiInitialWindow);
             this.guiGameList
                    .setLayout(new BoxLayout(this.guiGameList, BoxLayout.Y_AXIS));
