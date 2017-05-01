@@ -186,12 +186,12 @@ public class ReqRespHandler extends Thread {
                                      PlayerToken playerToken) throws IOException {
         Game game = this.gameManager.getGame(playerToken.getGameId());
         Player player = game.getPlayer(playerToken);
-        ArrayList<Object> parameters = new ArrayList<>();
         for (PubSubHandler handler : game.getPubSubHandlers()){
+            ArrayList<Object> parameters = new ArrayList<>();
             parameters.add(player.getName()+" says: "+message);
             handler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.chatMessage(),parameters));
         }
-        parameters.clear();
+        ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(new RRClientNotification(true,null,null,null));
         this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));
         this.closeDataFlow();

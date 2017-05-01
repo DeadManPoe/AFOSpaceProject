@@ -1,5 +1,6 @@
 package effects;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import common.*;
@@ -19,21 +20,36 @@ public class LightsObjectCardEffect extends ObjectCardEffect {
 	public static boolean executeEffect(Game game,
 								 RRClientNotification rrNotification,
 								 PSClientNotification psNotification, ObjectCard objectCard) {
-		LightsObjectCard lightsObjectCard = (LightsObjectCard) objectCard;
+		LightsObjectCard castedObjectCard = (LightsObjectCard) objectCard;
+		Sector targetSector = castedObjectCard.getTarget();
 		List<Sector> neighboorSectors = game.getMap().getSearchableGraph()
-				.neighborListOf(lightsObjectCard.getTarget());
-		String playerName;
+				.neighborListOf(targetSector);
+		neighboorSectors.add(targetSector);
+		List<Sector> incriminatedSectors = new ArrayList<>();
 		String globalMessage = "\n[GLOBAL MESSAGE]: Players spotted:";
+		String msg = "";
 		for (Sector sector : neighboorSectors) {
-			for (Player player : sector.getPlayers()) {
-				playerName = player.getName();
-				globalMessage += " " + playerName;
+			if (!sector.getPlayers().isEmpty()){
+				incriminatedSectors.add(sector);
+				rrNotification.addSector(sector);
 			}
-			rrNotification.addSector(sector);
 		}
-		if (globalMessage.equals("\n[GLOBAL MESSAGE]: Players spotted:"))
-			globalMessage += " none";
-		psNotification.setMessage(psNotification.getMessage() + globalMessage);
+		for (Sector sector : incriminatedSectors){
+			for (Player player : sector.getPlayers()){
+				if (msg.equals("")){
+					msg += player.getName() + " in sector "+sector.getCoordinate().toString();
+				}
+				else {
+					msg += ", "+player.getName() + " in sector "+sector.getCoordinate().toString();
+				}
+
+			}
+		}
+		if ( msg.equals("")){
+			msg = "none";
+		}
+		rrNotification.setMessage(rrNotification.getMessage()+". Players spotted: "+msg);
+		psNotification.setMessage(psNotification.getMessage() + globalMessage+msg);
 		return true;
 	}
 }

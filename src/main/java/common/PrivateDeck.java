@@ -1,5 +1,6 @@
 package common;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  * @author Giorgio Pea
  * @version 1.0
  */
-public class PrivateDeck {
+public class PrivateDeck implements Serializable{
 	// The set of object cards contained in the private deck
 	private volatile List<ObjectCard> content;
 

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.cg_19;
 
+import java.io.Serializable;
+
 /**
  * Represent the status of a player
  * 
