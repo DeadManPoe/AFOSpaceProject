@@ -470,7 +470,9 @@ public class ClientServices {
                     new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
             this.processRemoteInvocation(remoteMethodCall);
             this.guiInteractionManager.setConnectionActiveReaction(true);
-            this.guiInteractionManager.displayResponseMsg(this.currentRrNotification.getMessage());
+            if (client.isGameStarted()){
+                this.guiInteractionManager.displayResponseMsg(this.currentRrNotification.getMessage());
+            }
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         } catch (IOException e1) {

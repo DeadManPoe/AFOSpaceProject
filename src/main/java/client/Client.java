@@ -30,7 +30,9 @@ public class Client {
         this.isGameStarted = false;
         this.isMyTurn = false;
     }
-
+    public boolean isGameStarted(){
+        return isGameStarted;
+    }
     public void setGameStarted(boolean gameStarted) {
         this.isGameStarted = gameStarted;
     }

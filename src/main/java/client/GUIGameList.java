@@ -27,6 +27,7 @@ public class GUIGameList extends JPanel {
     private final GuiManager guiManager = GuiManager.getInstance();
     private JLabel stateMessage = new JLabel("");
     private JButton startButton = new JButton("Start Game");
+    private final JButton joinButton = new JButton("Join");
     private JPanel buttonPanel;
     private DefaultTableModel gameList;
     private JTable gameTables;
@@ -67,7 +68,6 @@ public class GUIGameList extends JPanel {
 
         buttonPanel = new JPanel();
 
-        final JButton joinButton = new JButton("Join");
         joinButton.setEnabled(false);
         joinButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
         buttonPanel.add(joinButton);
@@ -211,6 +211,7 @@ public class GUIGameList extends JPanel {
         for (int i = 0; i < this.gameList.getRowCount(); i++) {
             this.gameList.removeRow(i);
         }
+        this.joinButton.setEnabled(false);
         stateMessage.setText("");
         this.startButton.setVisible(false);
         this.buttonPanel.setVisible(true);

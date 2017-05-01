@@ -14,7 +14,7 @@ import java.util.Timer;
  *
  */
 public class GuiManager {
-    private final long DELAY_RETURN_TO_GAME_LIST = 5000;
+    private final long DELAY_RETURN_TO_GAME_LIST = 10000;
     private final Timer gameListRefreshTimer;
     private final ClientServices clientServices;
     private static GuiManager instance = new GuiManager();
