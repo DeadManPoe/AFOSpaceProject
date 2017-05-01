@@ -207,4 +207,12 @@ public class GUIGameList extends JPanel {
     public void alertConnectionProblem(boolean isConnectionActive) {
         this.connectionAlert.setVisible(!isConnectionActive);
     }
+    public void reset(){
+        for (int i = 0; i < this.gameList.getRowCount(); i++) {
+            this.gameList.removeRow(i);
+        }
+        stateMessage.setText("");
+        this.startButton.setVisible(false);
+        this.buttonPanel.setVisible(true);
+    }
 }

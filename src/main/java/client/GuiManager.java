@@ -14,7 +14,7 @@ import java.util.Timer;
  *
  */
 public class GuiManager {
-    private final int GAME_LIST_REFRESH_RATE = 10000;
+    private final long DELAY_RETURN_TO_GAME_LIST = 5000;
     private final Timer gameListRefreshTimer;
     private final ClientServices clientServices;
     private static GuiManager instance = new GuiManager();
@@ -104,11 +104,7 @@ public class GuiManager {
         this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
         this.guiGamePane.refreshCardPanel(new ArrayList<ObjectCard>());
         this.guiGamePane.showEndTurnButton(false);
-        this.mainFrame.remove(this.guiGamePane);
-        this.mainFrame.add(this.guiGameList);
-        this.guiGameList.setVisible(true);
-        this.mainFrame.validate();
-        this.mainFrame.repaint();
+        (new Timer()).schedule(new EndGameTimeout(),DELAY_RETURN_TO_GAME_LIST);
     }
 
     /**
@@ -299,6 +295,7 @@ public class GuiManager {
             characterInfoMsg = /*name*/"" + " | HUMAN";
             this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
         }
+        this.guiGameList.reset();
         this.mainFrame.remove(this.guiGameList);
         this.guiGamePane.load(this.client.getGameMap());
         this.mainFrame.add(this.guiGamePane);
@@ -348,4 +345,11 @@ public class GuiManager {
         this.guiGameList.startableGame();
     }
 
+    public void returnToGameList() {
+        this.mainFrame.remove(this.guiGamePane);
+        this.mainFrame.add(this.guiGameList);
+        this.guiGameList.setVisible(true);
+        this.mainFrame.validate();
+        this.mainFrame.repaint();
+    }
 }
