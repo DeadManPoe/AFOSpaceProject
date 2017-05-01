@@ -4,13 +4,15 @@ import common.PlayerToken;
 import common.PrivateDeck;
 import common.Sector;
 
+import java.io.Serializable;
+
 /**
  * Represents a generic player in the game
  *
  * @author Andrea Sessa
  * @author Giorgio Pea
  */
-public class Player {
+public class Player implements Serializable {
     private int speed;
     private PlayerToken playerToken;
     // Player's current sector

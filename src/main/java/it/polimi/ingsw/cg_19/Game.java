@@ -355,7 +355,7 @@ public class Game{
                         }
 
                     } else {
-                        if (this.currentPlayer.getPlayerToken().equals(PlayerType.ALIEN)) {
+                        if (this.currentPlayer.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
                             nextActions = AlienTurn.getInitialActions();
                         } else {
                             nextActions = HumanTurn.getInitialActions();
