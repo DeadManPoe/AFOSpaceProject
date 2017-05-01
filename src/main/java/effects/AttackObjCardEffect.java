@@ -13,7 +13,7 @@ import it.polimi.ingsw.cg_19.Game;
  * @version 1.0
  */
 public class AttackObjCardEffect extends ObjectCardEffect {
-	public boolean executeEffect(Game game,
+	public static boolean executeEffect(Game game,
 								 RRClientNotification rrNotification,
 								 PSClientNotification psNotification, ObjectCard objectCard) {
 

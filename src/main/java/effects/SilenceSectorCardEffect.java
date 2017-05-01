@@ -17,7 +17,7 @@ import common.SilenceSectorCard;
  *
  */
 public class SilenceSectorCardEffect extends SectorCardEffect {
-	public boolean executeEffect(Game game,
+	public static boolean executeEffect(Game game,
 								 RRClientNotification rrNotification,
 								 PSClientNotification psNotification, SectorCard sectorCard) {
 		rrNotification.setMessage("You've said SILENCE");
