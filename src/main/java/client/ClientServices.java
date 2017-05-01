@@ -453,7 +453,7 @@ public class ClientServices {
         boolean humanAttack = this.client.getPlayer().getPlayerToken().getPlayerType().equals(PlayerType.HUMAN);
         Sector targetSector = this.client.getGameMap().getSectorByCoords(coordinate);
         ArrayList<Object> parameters = new ArrayList<>();
-        AttackObjectCard card;
+        AttackObjectCard card = null;
         if (humanAttack) {
             card = new AttackObjectCard(targetSector);
             Action action = new UseObjAction(card);
@@ -479,6 +479,9 @@ public class ClientServices {
         boolean isActionServerValidated = this.currentRrNotification.getActionResult();
         if (isActionServerValidated){
             this.client.move(coordinate);
+            if (humanAttack){
+                this.guiInteractionManager.useObjectCardReaction(card);
+            }
             this.guiInteractionManager.moveToSectorReaction();
         }
     }
