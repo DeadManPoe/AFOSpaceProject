@@ -5,12 +5,7 @@ import it.polimi.ingsw.cg_19.*;
 
 /**
  * Represents the effect of the moving a player
- * 
- * @see ActionEffect
- * @see MoveAction
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.1
+ *
  */
 public class MoveActionEffect extends ActionEffect {
 	private static boolean verifyMoveLegality(Sector source, Sector target, PlayerType playerType){

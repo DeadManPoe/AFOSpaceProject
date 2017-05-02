@@ -7,12 +7,7 @@ import it.polimi.ingsw.cg_19.Player;
 
 /**
  * Represents the effect of a teleport object card
- * 
- * @see ObjectCardEffect
- * @see TeleportObjectCard
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class TeleportObjCardEffect extends ObjectCardEffect {
 

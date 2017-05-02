@@ -1,20 +1,14 @@
 package effects;
 
 import common.ObjectCard;
-import it.polimi.ingsw.cg_19.Game;
-import it.polimi.ingsw.cg_19.Player;
-import common.AdrenalineObjectCard;
 import common.PSClientNotification;
 import common.RRClientNotification;
+import it.polimi.ingsw.cg_19.Game;
+import it.polimi.ingsw.cg_19.Player;
 
 /**
  * Represents the effect of the adrenaline object card
- * 
- * @see ObjectCardEffect
- * @see AdrenalineObjCardEffect
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class AdrenalineObjCardEffect extends ObjectCardEffect {
 	public static boolean executeEffect(Game game,

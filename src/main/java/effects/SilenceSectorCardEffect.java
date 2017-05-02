@@ -8,12 +8,7 @@ import common.SilenceSectorCard;
 
 /**
  * Represents the effect of silence sector card
- * 
- * @see SectorCardEffect
- * @see SilenceSectorCard
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  *
  */
 public class SilenceSectorCardEffect extends SectorCardEffect {

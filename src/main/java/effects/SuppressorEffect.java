@@ -9,12 +9,7 @@ import common.SuppressorObjectCard;
 
 /**
  * Represents the effect of a suppressor object card
- * 
- * @see ObjectCardEffect
- * @see SuppressorObjectCard
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class SuppressorEffect extends ObjectCardEffect {
 	public static boolean executeEffect(Game game,

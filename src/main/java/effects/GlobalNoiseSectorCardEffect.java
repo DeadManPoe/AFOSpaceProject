@@ -5,12 +5,7 @@ import it.polimi.ingsw.cg_19.Game;
 
 /**
  * Represents the effect associated with a global noise sector card
- * 
- * @see SectorCardEffect
- * @see GlobalNoiseSectorCard
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class GlobalNoiseSectorCardEffect extends SectorCardEffect {
 

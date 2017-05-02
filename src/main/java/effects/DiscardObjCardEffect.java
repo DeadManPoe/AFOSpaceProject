@@ -7,12 +7,7 @@ import decks.ObjectDeck;
 
 /**
  * Represents the effect of discarding an object card
- * 
- * @see ActionEffect
- * @see DiscardAction
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.2
+ *
  */
 public class DiscardObjCardEffect extends ActionEffect {
 	public static boolean executeEffect(Game game,

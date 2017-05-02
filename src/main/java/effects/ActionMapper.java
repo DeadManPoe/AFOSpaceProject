@@ -18,12 +18,7 @@ import common.UseSectorCardAction;
  * been defined due to the fact that the client exchanges with the server plain
  * action objects that don't embed any logic, so an association has to be made
  * between these objects and their logic/effects.
- * 
- * @see Action
- * @see ActionEffect
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class ActionMapper {
 
@@ -40,7 +35,7 @@ public class ActionMapper {
 	 * Constructs a action-effect mapper. This mapper is implemented as an hash
 	 * map that maps action class types to action-effect class types, then,
 	 * using reflection, from an action is possible to get an actual
-	 * action-effect object
+	 * action-effect object.
 	 */
 	private ActionMapper() {
 		// Mapper init
@@ -63,11 +58,11 @@ public class ActionMapper {
 	}
 
 	/**
-	 * Produces the action effect mapped to an action
+	 * Produces the action effect mapped to an action.
 	 * 
 	 * @param actionClass
 	 *            the action for which retrieve the effect
-	 * @return the effect associated with the action
+	 * @return The effect associated with the action.
 	 */
 	public Class<? extends ActionEffect> getEffect(Class<? extends Action> actionClass){
         return this.fromActionToActionEffect.get(actionClass);

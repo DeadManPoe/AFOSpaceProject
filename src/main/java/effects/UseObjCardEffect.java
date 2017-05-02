@@ -11,11 +11,6 @@ import it.polimi.ingsw.cg_19.Game;
 /**
  * This class represents the effect associated to a use object action
  *
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
- * @see ActionEffect
- * @see UseObjAction
  */
 public class UseObjCardEffect extends ActionEffect {
     /**

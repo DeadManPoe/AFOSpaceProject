@@ -9,12 +9,7 @@ import it.polimi.ingsw.cg_19.Player;
 
 /**
  * This class represents the effect of a lights effect
- * 
- * @see ObjectCardEffect
- * @see LightsObjectCard
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.1
+ *
  */
 public class LightsObjectCardEffect extends ObjectCardEffect {
 	public static boolean executeEffect(Game game,

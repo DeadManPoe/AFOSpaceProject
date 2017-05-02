@@ -15,11 +15,6 @@ import common.SectorType;
  * Represents the effect associated to the action of drawing a rescue card from
  * the deck containing rescue cards
  *
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
- * @see ActionEffect
- * @see DrawRescueCardAction
  */
 public class DrawRescueCardEffect extends ActionEffect {
 

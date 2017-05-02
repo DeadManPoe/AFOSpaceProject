@@ -7,11 +7,6 @@ import it.polimi.ingsw.cg_19.Player;
 /**
  * Represents the effect associated to the action of ending a turn.
  *
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.1
- * @see ActionEffect
- * @see EndTurnAction
  */
 
 public class EndTurnEffect extends ActionEffect {

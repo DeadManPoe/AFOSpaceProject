@@ -5,12 +5,7 @@ import it.polimi.ingsw.cg_19.Game;
 
 /**
  * Represents the effect of the attack object card
- * 
- * @see ObjectCardEffect
- * @see AttackObjectCard
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class AttackObjCardEffect extends ObjectCardEffect {
 	public static boolean executeEffect(Game game,

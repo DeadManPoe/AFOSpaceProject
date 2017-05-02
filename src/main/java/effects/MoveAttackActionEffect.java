@@ -11,12 +11,7 @@ import it.polimi.ingsw.cg_19.*;
  * Represents the effect of moving a player and attacking the sector in which
  * the player has arrived. It is important that after the move the current
  * player doesn't draw any cards
- * 
- * @see ActionEffect
- * @see MoveAttackAction
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class MoveAttackActionEffect extends ActionEffect {
 

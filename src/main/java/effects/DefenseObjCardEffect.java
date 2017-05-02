@@ -8,12 +8,7 @@ import common.RRClientNotification;
 
 /**
  * Represents the effect of a defense card
- * 
- * @see ObjectCardEffect
- * @see DefenseObjectCard
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class DefenseObjCardEffect extends ObjectCardEffect {
 	public static boolean executeEffect(Game game,

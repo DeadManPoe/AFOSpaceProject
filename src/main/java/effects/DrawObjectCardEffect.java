@@ -10,12 +10,7 @@ import it.polimi.ingsw.cg_19.Game;
 /**
  * Represents the effect of drawing an object card from the deck containing
  * object cards
- * 
- * @see ActionEffect
- * @see DrawObjectCardAction
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.1
+ *
  */
 public class DrawObjectCardEffect extends ActionEffect {
 	public static boolean executeEffect(Game game,

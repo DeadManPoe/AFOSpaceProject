@@ -7,12 +7,7 @@ import it.polimi.ingsw.cg_19.Game;
 /**
  * This class represents the effect associated to a draw action from the sector
  * cards deck
- * 
- * @see ActionEffect
- * @see DrawSectorCardAction
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class DrawSectorCardEffect extends ActionEffect {
 	public static boolean executeEffect(Game game,

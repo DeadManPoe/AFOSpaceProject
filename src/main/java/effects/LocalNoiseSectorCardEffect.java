@@ -5,11 +5,7 @@ import it.polimi.ingsw.cg_19.Game;
 
 /**
  * Represents the effect associated with a local noise sector card
- * 
- * @see SectorCardEffect
- * @see LocalNoiseSectorCard
- * @author Andrea Sessa
- * @author Giorgio Pea
+ *
  */
 public class LocalNoiseSectorCardEffect extends SectorCardEffect {
 	public static boolean executeEffect(Game game,

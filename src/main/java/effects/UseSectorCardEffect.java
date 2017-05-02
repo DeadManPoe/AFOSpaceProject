@@ -10,12 +10,7 @@ import java.util.logging.Level;
 
 /**
  * Represents the effect of using a sector card
- * 
- * @see ActionEffect
- * @see UseSectorCardAction
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class UseSectorCardEffect extends ActionEffect {
 

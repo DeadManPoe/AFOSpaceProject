@@ -14,11 +14,6 @@ import common.SilenceSectorCard;
  * plain sector cards that don't embed any logic, so an association has to be
  * made between these objects and their logic/effects.
  *
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
- * @see SectorCard
- * @see SectorCardEffect
  */
 public class SectorCardsMapper {
 
