@@ -6,18 +6,11 @@ import it.polimi.ingsw.cg_19.GameMap;
 import it.polimi.ingsw.cg_19.Player;
 import it.polimi.ingsw.cg_19.PlayerType;
 
-/**
- * Represents a client in the client server communication layer of the
- * application
- *
- * @author Andrea Sessa
- * @author Giorgio Pea
- */
+
 public class Client {
     private Player player;
     private GameMap gameMap;
     private boolean isGameStarted;
-    private boolean isMyTurn;
 
     private static Client instance = new Client();
 
@@ -28,7 +21,6 @@ public class Client {
 
     private Client() {
         this.isGameStarted = false;
-        this.isMyTurn = false;
     }
     public boolean isGameStarted(){
         return isGameStarted;
@@ -43,10 +35,6 @@ public class Client {
 
     public void setGameMap(GameMap map) {
         this.gameMap = map;
-    }
-
-    public void setIsMyTurn(boolean isMyTurn) {
-        this.isMyTurn = isMyTurn;
     }
 
     /**
@@ -67,7 +55,6 @@ public class Client {
         this.player.setSedated(false);
         this.player.setAdrenalined(false);
         this.player.setHasMoved(false);
-        this.isMyTurn = false;
     }
 
 

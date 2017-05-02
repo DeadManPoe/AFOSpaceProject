@@ -125,6 +125,7 @@ public class GUIGameList extends JPanel {
                 clientServices.onDemandGameStart();
             }
         });
+
     }
 
     public void setGameListContent(List<GamePublicData> gamePublicDataList) {

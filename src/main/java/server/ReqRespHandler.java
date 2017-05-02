@@ -10,7 +10,6 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by giorgiopea on 19/04/17.
@@ -40,16 +39,34 @@ public class ReqRespHandler extends Thread {
         }
     }
 
+    /**
+     * Reads as a {@link RemoteMethodCall} the current object sent by the client.
+     * @return The {@link RemoteMethodCall} the client has just sent.
+     * @throws IOException Networking problem.
+     * @throws ClassNotFoundException Object casting problem.
+     */
     private RemoteMethodCall receiveData() throws IOException, ClassNotFoundException {
         return (RemoteMethodCall) this.objectInputStream.readObject();
     }
 
+    /**
+     * Sends to the client a {@link RemoteMethodCall}.
+     * @param remoteMethodCall The {@link RemoteMethodCall} to be sent to the client.
+     * @throws IOException Networking problem.
+     */
     private void sendData(RemoteMethodCall remoteMethodCall) throws IOException {
         this.objectOutputStream.writeObject(remoteMethodCall);
         this.objectOutputStream.flush();
     }
 
-    private void performReceivedMethodCall(RemoteMethodCall remoteMethodCall) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InvocationTargetException {
+    /**
+     * Parses a {@link RemoteMethodCall} and invokes a method defined in this class (if it exists).
+     * @param remoteMethodCall The {@link RemoteMethodCall} to be parsed.
+     * @throws NoSuchMethodException Reflection problem.
+     * @throws IllegalAccessException Reflection problem.
+     * @throws InvocationTargetException Reflection problem.
+     */
+    private void performReceivedMethodCall(RemoteMethodCall remoteMethodCall) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         String methodName = remoteMethodCall.getMethodName();
         ArrayList<Object> parameters = remoteMethodCall
                 .getMethodParameters();
@@ -66,6 +83,10 @@ public class ReqRespHandler extends Thread {
                 .invoke(this, parameters.toArray());
     }
 
+    /**
+     * Closes all the stream associated with the socket associated with this class.
+     * This socket is then closed too.
+     */
     private void closeDataFlow() {
         try {
             this.objectOutputStream.close();
@@ -161,9 +182,9 @@ public class ReqRespHandler extends Thread {
      * @param action      the action sent by the client/player to be performed on the
      *                    game
      * @param playerToken the client/player unique identifier
-     * @throws IOException
+     * @throws IOException Networking problem
      */
-    public void makeAction(Action action, PlayerToken playerToken) throws IOException {
+    private void makeAction(Action action, PlayerToken playerToken) throws IOException {
         Game game = this.gameManager.getGame(playerToken.getGameId());
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(game.makeAction(action,playerToken));
@@ -180,9 +201,9 @@ public class ReqRespHandler extends Thread {
      * @param playerToken   the token of the player who wants to send the text message.
      *                From this token the topic(a game), whose subscribers have to
      *                be delivered the text message, is derived.
-     * @throws IOException
+     * @throws IOException Networking problem
      */
-    public void publishChatMsg(String message,
+    private void publishChatMsg(String message,
                                      PlayerToken playerToken) throws IOException {
         Game game = this.gameManager.getGame(playerToken.getGameId());
         Player player = game.getPlayer(playerToken);

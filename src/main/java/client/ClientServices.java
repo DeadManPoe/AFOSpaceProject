@@ -182,8 +182,8 @@ public class ClientServices {
                     this.client.getPlayer().getPrivateDeck().removeCard(objectCard);
                     this.guiInteractionManager.useObjectCardReaction(objectCard);
                     if (objectCard instanceof TeleportObjectCard) {
-                        this.guiInteractionManager.teleportToStartingSectorReaction();
                         this.client.teleport();
+                        this.guiInteractionManager.teleportToStartingSectorReaction();
                     } else if (objectCard instanceof SuppressorObjectCard) {
                         this.client.getPlayer().setSedated(true);
                     } else if (objectCard instanceof AdrenalineObjectCard) {
@@ -380,9 +380,9 @@ public class ClientServices {
         this.currentPsNotification = psNotification;
         this.guiInteractionManager.publishChatMessage(psNotification.getMessage());
         if (psNotification.getHumanWins() || psNotification.getAlienWins()) {
+            this.client.setGameStarted(false);
             this.guiInteractionManager.setWinnersReaction(psNotification.getHumanWins(),psNotification.getAlienWins());
             this.communicationHandler.getPubSubHandler().setListeningFlag(false);
-            this.client.setGameStarted(false);
         }
         if (psNotification.getEscapedPlayer() != null) {
             if (psNotification.getEscapedPlayer().equals(this.client.getPlayer().getPlayerToken())){

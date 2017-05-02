@@ -51,8 +51,8 @@ public class GUIMap extends JLayeredPane {
 
 	public GUIMap() {
 
-		sectorsList = new ArrayList<SectorLabel>();
-		lightedSectors = new ArrayList<SectorLabel>();
+		sectorsList = new ArrayList<>();
+		lightedSectors = new ArrayList<>();
 
 		JMenuItem alienMoveItem = new JMenuItem("Move");
 		JMenuItem attackItem = new JMenuItem("Attack");
