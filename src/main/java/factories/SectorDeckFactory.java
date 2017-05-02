@@ -13,11 +13,7 @@ import decks.*;
 
 /**
  * Represents a factory of sector card's decks
- * 
- * @see DeckFactory
- * @see ObjectDeck
- * @author Andrea Sessa
- * @author Giorgio Pea
+ *
  */
 public class SectorDeckFactory extends DeckFactory {
 	@Override

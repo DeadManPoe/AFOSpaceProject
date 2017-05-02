@@ -3,10 +3,8 @@ package factories;
 import decks.Deck;
 
 /**
- * Represents a factory of game's deck
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
+ * Represents a factory of game's decks
+ *
  */
 public abstract class DeckFactory {
 	/**

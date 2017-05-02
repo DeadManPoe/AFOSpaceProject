@@ -13,16 +13,10 @@ import decks.RescueDeck;
 
 /**
  * Represents a factory of rescue card's decks
- * 
- * @see DeckFactory
- * @see ObjectDeck
- * @author Andrea Sessa
- * @author Giorgio Pea
+ *
  */
 public class RescueDeckFactory extends DeckFactory {
-	/**
-	 * @see DeckFactory#makeDeck
-	 */
+
 	@Override
 	public Deck makeDeck() {
 		List<Card> deck = new ArrayList<Card>();

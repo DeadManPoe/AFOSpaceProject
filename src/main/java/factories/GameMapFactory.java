@@ -1,30 +1,23 @@
 package factories;
 
+import common.Coordinate;
+import common.Sector;
+import common.SectorType;
 import it.polimi.ingsw.cg_19.GameMap;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
-import common.Coordinate;
-import common.Sector;
-import common.SectorType;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a factory of generic game maps
- * 
- * @see GameMap
- * @author Andrea Sessa
- * @author Giorgio Pea
+ *
  */
 public abstract class GameMapFactory {
 	/**
@@ -106,8 +99,6 @@ public abstract class GameMapFactory {
 				}
 			}
 			fileReaderBuffer.close();
-		} catch (FileNotFoundException e) {
-            e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -155,8 +146,6 @@ public abstract class GameMapFactory {
 				}
 				j++;
 			}
-		} catch (FileNotFoundException e) {
-            e.printStackTrace();
 		} catch (IOException e) {
             e.printStackTrace();
 		}
