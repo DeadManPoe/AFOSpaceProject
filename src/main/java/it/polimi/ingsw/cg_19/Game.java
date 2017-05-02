@@ -1,32 +1,27 @@
 package it.polimi.ingsw.cg_19;
 
-import java.awt.*;
+import common.*;
+import decks.ObjectDeck;
+import decks.RescueDeck;
+import decks.SectorDeck;
+import effects.ActionMapper;
+import effects.EndTurnEffect;
+import factories.*;
+import server.ClientMethodsNamesProvider;
+import server.GameManager;
+import server.GameStatus;
+import server.PubSubHandler;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
-
-import effects.EndTurnEffect;
-import server.*;
-import common.Action;
-import common.ClientNotification;
-import common.EndTurnAction;
-import common.GamePublicData;
-import common.PSClientNotification;
-import common.PlayerToken;
-import common.RRClientNotification;
-import common.RemoteMethodCall;
-import decks.*;
-import effects.ActionEffect;
-import effects.ActionMapper;
-import factories.*;
+import java.util.NoSuchElementException;
+import java.util.Timer;
 
 /**
- * Represents a generic game(non-immutable class)
+ * Represents a generic game.
  *
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
  */
 public class Game{
     private final static long TURN_TIMEOUT = 5 * 60 * 1000;
@@ -42,7 +37,6 @@ public class Game{
     private volatile SectorDeck sectorDeck;
     private volatile GameMap gameMap;
     private volatile Player currentPlayer;
-    private volatile Player previousPlayer;
     private volatile int turnNumber;
 
     private volatile List<Class<? extends Action>> nextActions;
@@ -412,9 +406,10 @@ public class Game{
     }
 
     /**
-     * This method is called by the timeout thread when the current player has
-     * not concluded its turn in time
-     *
+     * Makes the current player end his turn in response to a notification
+     * from {@link TurnTimeout}
+     * @throws InstantiationException Reflection problem
+     * @throws IllegalAccessException Reflection problem
      */
     public void timeoutUpdate() throws InstantiationException,
             IllegalAccessException {
@@ -437,10 +432,10 @@ public class Game{
     }
 
     /**
-     * Notifies the game's subscribers with a remote method call that has to be
-     * performed on them
+     * Notifies the game's subscribers with a {@link RemoteMethodCall} that has to be
+     * performed on them.
      *
-     * @param remoteMethodCall the remote method call to be performed on the game's
+     * @param remoteMethodCall The {@link RemoteMethodCall} to be performed on the game's
      *                         subscribers
      */
     public synchronized void notifySubscribers(RemoteMethodCall remoteMethodCall) {
@@ -449,21 +444,16 @@ public class Game{
         }
     }
 
-    /**
-     * Gets the game's id
-     *
-     * @return the game's id
-     */
     public int getId() {
         return this.gamePublicData.getId();
     }
 
 
     /**
-     * Checks if the game has finished
+     * Checks if the game has finished.
      *
-     * @return true if someone(Alien, Human or both) has won the game and the
-     * game has ended, false otherwise
+     * @return True if someone(Alien, Human or both) has won the game and the
+     * game has ended, false otherwise.
      */
     public boolean checkWinConditions(PlayerType playerType) {
         boolean allDeadHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.DEAD);
@@ -492,12 +482,11 @@ public class Game{
     }
 
     /**
-     * Checks if all the players of a given player's type are in the given state
+     * Checks if all the players of a given {@link PlayerType} are in the given {@link PlayerState}.
      *
-     * @param playerType  the player's type to be considered for the checking
-     * @param playerState the state of a player to be consider for the checking
-     * @return true if all the players of a given player type are in the given
-     * state
+     * @param playerType  The player's type to be considered for the checking.
+     * @param playerState The state of a player to be consider for the checking.
+     * @return True if all the players of a given player type are in the given {@link PlayerState}
      */
     private boolean checkStateAll(PlayerType playerType, PlayerState playerState) {
         for (Player player : players) {
@@ -534,7 +523,4 @@ public class Game{
         this.currentPlayer = currentPlayer;
     }
 
-    public void setPreviousPlayer(Player previousPlayer) {
-        this.previousPlayer = previousPlayer;
-    }
 }

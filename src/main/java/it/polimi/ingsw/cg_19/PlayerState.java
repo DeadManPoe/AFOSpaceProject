@@ -1,14 +1,7 @@
 package it.polimi.ingsw.cg_19;
 
-import java.io.Serializable;
-
 /**
- * Represent the status of a player
- * 
- * @see Player
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ * Represents the state of a {@link Player}.
  */
 public enum PlayerState {
 

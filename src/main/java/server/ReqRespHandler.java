@@ -13,8 +13,8 @@ import java.util.ArrayList;
 
 /**
  * Created by giorgiopea on 19/04/17.
- * <p>
- * Contains methods to be used to communicate with a client given a correspondent socket.
+ *
+ * Manages a connection with the client in a request response fashion.
  */
 public class ReqRespHandler extends Thread {
 

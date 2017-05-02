@@ -8,6 +8,9 @@ import java.util.concurrent.Executors;
 
 /**
  * Created by giorgiopea on 19/04/17.
+ *
+ * Manages the network communication between the client and the server by spawning threads
+ * as necessary.
  */
 public class CommunicationHandler {
     private final ExecutorService reqRespThreadPool;
@@ -26,6 +29,12 @@ public class CommunicationHandler {
         this.listeningFlag = true;
     }
 
+    /**
+     * Inits listening on the wire on the given port and start spawning threads to manage
+     * incoming requests.
+     * @param tcpPort The port to list on the wire.
+     * @throws IOException Networking problem.
+     */
     public void init(int tcpPort) throws IOException {
         ServerSocket serverSocket = new ServerSocket(tcpPort);
         Socket socket;

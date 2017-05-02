@@ -8,9 +8,6 @@ import java.io.Serializable;
 
 /**
  * Represents a generic player in the game
- *
- * @author Andrea Sessa
- * @author Giorgio Pea
  */
 public class Player implements Serializable {
     private int speed;
@@ -107,7 +104,4 @@ public class Player implements Serializable {
         this.hasMoved = hasMoved;
     }
 
-    public void setPrivateDeck(PrivateDeck privateDeck) {
-        this.privateDeck = privateDeck;
-    }
 }

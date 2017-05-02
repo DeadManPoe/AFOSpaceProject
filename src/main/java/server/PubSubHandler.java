@@ -5,11 +5,12 @@ import common.RemoteMethodCall;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by giorgiopea on 19/04/17.
+ *
+ * Manages a persistent connection with a client in the logic of the publisher/subscriber pattern
  */
 public class PubSubHandler extends Thread {
 
@@ -39,11 +40,11 @@ public class PubSubHandler extends Thread {
     }
 
     /**
-     * Performs a remote method call on the subscriber
+     * Performs a remote method call on the subscriber.
      *
      * @param remoteMethodCall
-     *            the remote method call to be performed on the subscriber
-     * @throws IOException
+     *            the remote method call to be performed on the subscriber.
+     * @throws IOException Networking problem.
      */
     private void perform(RemoteMethodCall remoteMethodCall) throws IOException {
         this.objectOutputStream.writeObject(remoteMethodCall);
@@ -60,10 +61,10 @@ public class PubSubHandler extends Thread {
      */
     public void run() {
         while (this.runningFlag) {
-            RemoteMethodCall remotheMethodCall = buffer.poll();
-            if (remotheMethodCall != null)
+            RemoteMethodCall remoteMethodCall = buffer.poll();
+            if (remoteMethodCall != null)
                 try {
-                    this.perform(remotheMethodCall);
+                    this.perform(remoteMethodCall);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

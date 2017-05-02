@@ -1,11 +1,8 @@
 package it.polimi.ingsw.cg_19;
 
 /**
- * Represent the type of a rescue card
- * 
- * @see RescueCard
- * @author Andrea Sessa
- * @author Giorgio Pea
+ * Represent the type of a {@link common.RescueCard}
+ *
  */
 public enum RescueType {
 

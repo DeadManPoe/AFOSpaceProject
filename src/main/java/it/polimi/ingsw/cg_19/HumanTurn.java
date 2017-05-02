@@ -8,9 +8,6 @@ import common.*;
 /**
  * Represents a human turn in the game
  *
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
  */
 public class HumanTurn {
 
