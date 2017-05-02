@@ -2,10 +2,7 @@ package common;
 
 /**
  * Represents the action of using a sector card in the game
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class UseSectorCardAction extends Action {
 	// A field automatically created for serialization purposes

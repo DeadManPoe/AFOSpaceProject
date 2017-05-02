@@ -8,7 +8,6 @@ import javax.swing.*;
 
 /**
  * Represents the initial window of the GUI in which the user can choose the type of connection
- * @author Andrea Sessa
  *
  */
 public class GUInitialWindow extends JPanel {

@@ -2,9 +2,7 @@ package common;
 
 /**
  * Represents a move action in the game
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
+ *
  */
 public class MoveAction extends Action {
 	private static final long serialVersionUID = 1L;

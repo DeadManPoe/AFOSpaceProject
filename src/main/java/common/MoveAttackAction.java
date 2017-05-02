@@ -2,11 +2,7 @@ package common;
 
 /**
  * Represents a move action combined with an attack
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
- * @see Action
+ *
  */
 public class MoveAttackAction extends Action {
 	private static final long serialVersionUID = 1L;

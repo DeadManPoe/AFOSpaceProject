@@ -2,11 +2,7 @@ package common;
 
 /**
  * Represents the action of using an object card in the game
- * 
- * @see Action
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class UseObjAction extends Action {
 	// A field automatically created for serialization purposes

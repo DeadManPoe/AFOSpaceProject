@@ -1,11 +1,8 @@
 package common;
 
 /**
- * Represents a the type of a sector
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ * Represents the possible type of a {@link Sector}
+ *
  */
 public enum SectorType {
 

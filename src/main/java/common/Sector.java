@@ -9,10 +9,7 @@ import java.util.List;
 
 /**
  * Represents a sector in the game
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class Sector implements Serializable {
 	private static final long serialVersionUID = 1L;

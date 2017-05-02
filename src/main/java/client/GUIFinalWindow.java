@@ -17,9 +17,7 @@ import javax.swing.JWindow;
 /**
  * Represents the panel that is displayed when the game ends, with a different
  * image for each situation
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
+ *
  */
 public class GUIFinalWindow extends JWindow {
 	private static final long serialVersionUID = 1L;

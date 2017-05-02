@@ -5,10 +5,7 @@ import java.io.Serializable;
 /**
  * Represents a generic coordinate in the game. In the game a generic coordinate
  * is a pair: character, integer
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 
 public class Coordinate implements Serializable {

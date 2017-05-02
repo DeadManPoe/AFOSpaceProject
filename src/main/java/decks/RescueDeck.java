@@ -7,9 +7,7 @@ import common.RescueCard;
 
 /**
  * Represents a deck containing rescue cards
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
+ *
  */
 public class RescueDeck extends Deck {
 	/**
@@ -22,11 +20,6 @@ public class RescueDeck extends Deck {
 		super(content);
 	}
 
-	/**
-	 * @see Deck#popCard
-	 * @author Andrea Sessa
-	 * @author Giorgio Pea
-	 */
 	@Override
 	public Card popCard() {
 		if (!this.content.isEmpty()) {

@@ -5,10 +5,7 @@ import java.io.Serializable;
 /**
  * Represents a card in the game This class is empty because is only used for
  * polymorphism
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class Card implements Serializable {
 	// A field automatically created for serialization purposes

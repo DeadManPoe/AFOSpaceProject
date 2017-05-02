@@ -4,10 +4,7 @@ import it.polimi.ingsw.cg_19.RescueType;
 
 /**
  * Represents a rescue card in the game
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class RescueCard extends Card {
 	// A field automatically created for serialization purposes

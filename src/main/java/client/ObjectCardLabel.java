@@ -5,10 +5,7 @@ import common.ObjectCard;
 
 /**
  * Represents an object card label displayed in the gui
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class ObjectCardLabel extends JLabel {
 	private ObjectCard objectCard;

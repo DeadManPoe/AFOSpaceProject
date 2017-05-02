@@ -24,9 +24,6 @@ import factories.GameMapFactory;
 /**
  * Represents the panel in which is displayed the game map
  *
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
  */
 public class GUIMap extends JLayeredPane {
 	static final long serialVersionUID = 1L;

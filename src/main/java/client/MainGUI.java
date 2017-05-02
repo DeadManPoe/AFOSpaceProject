@@ -5,7 +5,6 @@ import javax.swing.SwingUtilities;
 
 /**
  * Starts and display the GUI
- * @author andrea
  *
  */
 public class MainGUI {

@@ -7,11 +7,7 @@ import java.util.List;
 /**
  * Represents a notification to be delivered to all the subscribers of a topic
  * in the logic of the publisher-subscriber pattern.
- * 
- * @see ClientNotification
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 
 public class PSClientNotification extends ClientNotification implements
@@ -87,10 +83,10 @@ public class PSClientNotification extends ClientNotification implements
 	/**
 	 * Adds a new player to the list of dead players
 	 * 
-	 * @param deadPlayers
+	 * @param deadPlayer
 	 *            the player to add to the list
 	 * @throws IllegalArgumentException
-	 *             if deadPlayer is null
+	 *             If the argument is null
 	 */
 	public void addDeadPlayers(PlayerToken deadPlayer) {
 		if (deadPlayer == null)
@@ -110,9 +106,8 @@ public class PSClientNotification extends ClientNotification implements
 	/**
 	 * Adds a new player to the list of the attacked player
 	 * 
-	 * @param attackedPlayers
-	 * @throws IllegalArgumentExceptio
-	 *             if attackedPlayer is null
+	 * @param attackedPlayer
+	 * @throws IllegalArgumentException If the argument is null
 	 */
 	public void addAttackedPlayers(PlayerToken attackedPlayer) {
 		if (attackedPlayer == null)

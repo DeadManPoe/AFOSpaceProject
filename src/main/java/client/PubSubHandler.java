@@ -11,7 +11,6 @@ import java.net.Socket;
  * Represents a thread that handles async messages from the server in the logic
  * of the pub/sub pattern(the client is the subscriber)
  *
- * @author Andrea Sessa
  */
 public class PubSubHandler extends Thread {
 

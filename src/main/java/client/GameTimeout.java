@@ -8,9 +8,7 @@ import it.polimi.ingsw.cg_19.Game;
 
 /**
  * Represents the timeout for a generic game It is a one time execution timer
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
+ *
  */
 public class GameTimeout extends TimerTask {
 	private Game game;

@@ -6,10 +6,7 @@ import java.util.List;
 /**
  * Represents a notification to be delivered to a single client in response to
  * one of its game actions.
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class RRClientNotification extends ClientNotification {
 	// A field automatically created for serialization purposes

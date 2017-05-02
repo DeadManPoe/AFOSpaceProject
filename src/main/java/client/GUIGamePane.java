@@ -15,9 +15,6 @@ import java.util.List;
  * Represents the main window in which are the map, log, cards, etc... are
  * displayed
  *
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
  */
 public class GUIGamePane extends JPanel {
 

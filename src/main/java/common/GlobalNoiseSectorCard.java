@@ -2,9 +2,7 @@ package common;
 
 /**
  * Represents a global noise sector card
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
+ *
  *
  */
 public class GlobalNoiseSectorCard extends SectorCard {

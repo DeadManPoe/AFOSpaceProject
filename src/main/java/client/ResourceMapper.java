@@ -8,10 +8,7 @@ import common.Card;
 
 /**
  * Represents a mapper that maps a card in the game with its image(filename)
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class ResourceMapper {
 	private Map<String, String> cardMapper;

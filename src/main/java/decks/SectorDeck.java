@@ -63,9 +63,6 @@ public class SectorDeck extends Deck {
 		this.discardDeck.addCard(card);
 	}
 
-	/**
-	 * @see Deck#popCard
-	 */
 
 	@Override
 	public Card popCard() {
@@ -81,7 +78,7 @@ public class SectorDeck extends Deck {
 		Card card = this.content.get(0);
 		this.discardDeck.addCard(card);
 		this.content.remove(0);
-		return (SectorCard) card;
+		return card;
 
 	}
 

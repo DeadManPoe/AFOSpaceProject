@@ -17,8 +17,6 @@ import common.GamePublicData;
 /**
  * Represents the panel that shows the list of available games
  *
- * @author Andrea Sessa
- * @author Giorgio Pea
  */
 public class GUIGameList extends JPanel {
 

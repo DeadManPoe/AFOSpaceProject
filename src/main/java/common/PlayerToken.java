@@ -8,10 +8,7 @@ import java.util.UUID;
 /**
  * Represents a token that identifies in an unique way a player and stores its
  * type.
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class PlayerToken implements Serializable {
 	// A field automatically created for serialization purposes
