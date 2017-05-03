@@ -80,7 +80,7 @@ public class ClientReducer implements Reducer {
     private State discardObjectCard(StoreAction action, ClientState state) {
         ClientDiscardObjectCardAction castedAction = (ClientDiscardObjectCardAction) action;
         if (castedAction.isActionServerValidated){
-            state.player.privateDeck.removeCard(castedAction.discardedObjectCard);
+            state.player.getPrivateDeck().removeCard(castedAction.discardedObjectCard);
         }
         return state;
     }
@@ -94,7 +94,7 @@ public class ClientReducer implements Reducer {
     private State setDrawnSectorObjectCard(StoreAction action, ClientState state) {
         ClientSetDrawnSectorObjectCard castedAction = (ClientSetDrawnSectorObjectCard) action;
         if (castedAction.drawnObjectCard != null && castedAction.isActionServerValidated){
-            state.player.privateDeck.addCard(castedAction.drawnObjectCard);
+            state.player.getPrivateDeck().addCard(castedAction.drawnObjectCard);
         }
         return state;
     }
@@ -166,14 +166,14 @@ public class ClientReducer implements Reducer {
 
     private State setPlayer(StoreAction action, ClientState state) {
         ClientSetPlayerAction castedAction = (ClientSetPlayerAction) action;
-        state.player = new Player(castedAction.playerName,castedAction.playerToken);
+        state.player = new Player(castedAction.playerName,castedAction.getPlayerToken());
         return state;
     }
 
     private State useObjectCard(StoreAction action, ClientState state) {
         ClientUseObjectCard castedAction = (ClientUseObjectCard) action;
         if ( castedAction.isServerValidated){
-            state.player.privateDeck.removeCard(castedAction.objectCard);
+            state.player.getPrivateDeck().removeCard(castedAction.objectCard);
         }
         return state;
     }
@@ -197,11 +197,12 @@ public class ClientReducer implements Reducer {
         Player player = state.player;
         GameMapFactory mapFactory = GameMapFactory.provideCorrectFactory(castedAction.gameMapName);
         state.gameMap = mapFactory.makeMap();
-        if (player.playerToken.playerType.equals(PlayerType.ALIEN)) {
-            player.currentSector = state.gameMap.getAlienSector();
+        if (player.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
+            player.setCurrentSector(state.gameMap.getAlienSector());
         } else {
-            player.currentSector = state.gameMap.getHumanSector();
+            player.setCurrentSector(state.gameMap.getHumanSector());
         }
+        state.isGameStarted = true;
         return state;
     }
 

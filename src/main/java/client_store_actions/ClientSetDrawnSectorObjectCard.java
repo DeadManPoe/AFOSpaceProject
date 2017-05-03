@@ -9,14 +9,20 @@ import server_store.StoreAction;
  */
 public class ClientSetDrawnSectorObjectCard extends StoreAction {
 
-    public final SectorCard drawnSectorCard;
-    public final ObjectCard drawnObjectCard;
-    public final boolean isActionServerValidated;
+    private final SectorCard drawnSectorCard;
+    private final ObjectCard drawnObjectCard;
 
-    public ClientSetDrawnSectorObjectCard(SectorCard drawnSectorCard, ObjectCard drawnObjectCard, boolean isActionServerValidated) {
+    public ClientSetDrawnSectorObjectCard(SectorCard drawnSectorCard, ObjectCard drawnObjectCard) {
         super("@CLIENT_SET_DRAWN_SECTOR_OBJECT_CARD");
         this.drawnSectorCard = drawnSectorCard;
         this.drawnObjectCard = drawnObjectCard;
-        this.isActionServerValidated = isActionServerValidated;
+    }
+
+    public SectorCard getDrawnSectorCard() {
+        return drawnSectorCard;
+    }
+
+    public ObjectCard getDrawnObjectCard() {
+        return drawnObjectCard;
     }
 }
