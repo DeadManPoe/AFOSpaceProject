@@ -335,6 +335,7 @@ public class ClientServices {
             try {
                 remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
                 this.processRemoteInvocation(remoteMethodCall);
+                this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(true));
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e1) {
@@ -342,8 +343,8 @@ public class ClientServices {
                 this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
             }
             boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
-            this.clientStore.dispatchAction(new ClientUseObjectCard(lightsCard, isActionServerValidated));
             if (isActionServerValidated) {
+                this.clientStore.dispatchAction(new ClientUseObjectCard(lightsCard));
                 this.clientStore.dispatchAction(new ClientAskSectorToLightAction(false));
             }
         } else {
@@ -364,6 +365,7 @@ public class ClientServices {
         try {
             RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
             this.processRemoteInvocation(remoteMethodCall);
+            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(true));
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -371,14 +373,16 @@ public class ClientServices {
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
         boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
-        this.clientStore.dispatchAction(new ClientEndTurnAction(isActionServerValidated));
+        if (isActionServerValidated){
+            this.clientStore.dispatchAction(new ClientEndTurnAction());
+        }
     }
 
     private void forceEndTurn(){
         RRClientNotification clientNotification = new RRClientNotification();
         clientNotification.setMessage("You have taken too much to act, you will skip your turn");
         this.clientStore.dispatchAction(new ClientSetCurrentReqRespNotificationAction(clientNotification));
-        this.clientStore.dispatchAction(new ClientEndTurnAction(true));
+        this.clientStore.dispatchAction(new ClientEndTurnAction());
     }
 
     /**

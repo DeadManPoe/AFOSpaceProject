@@ -8,10 +8,7 @@ import server_store.StoreAction;
  */
 public class ClientEndTurnAction extends StoreAction {
 
-    public final boolean isActionServerValidated;
-
-    public ClientEndTurnAction(boolean isActionServerValidated) {
+    public ClientEndTurnAction() {
         super("@CLIENT_END_TURN");
-        this.isActionServerValidated = isActionServerValidated;
     }
 }
