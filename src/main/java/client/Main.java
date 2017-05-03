@@ -5,7 +5,7 @@ import javax.swing.*;
 /**
  * Created by giorgiopea on 09/04/17.
  */
-public class ClientMain {
+public class Main {
 
     public static void main(String[] args){
         Runnable r = new Runnable() {
