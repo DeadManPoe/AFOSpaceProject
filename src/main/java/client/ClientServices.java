@@ -438,7 +438,7 @@ public class ClientServices {
         boolean humanAttack = player.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN);
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         ArrayList<Object> parameters = new ArrayList<>();
-        AttackObjectCard card;
+        AttackObjectCard card = null;
         if (humanAttack) {
             card = new AttackObjectCard(targetSector);
             StoreAction action = new UseObjAction(card);
@@ -453,7 +453,7 @@ public class ClientServices {
         try {
             RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
             this.processRemoteInvocation(remoteMethodCall);
-
+            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(true));
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         } catch (IOException e1) {
@@ -461,7 +461,12 @@ public class ClientServices {
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
         boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
-        this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector, isActionServerValidated));
+        if (isActionServerValidated){
+            this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector, isActionServerValidated));
+            if (humanAttack){
+                this.clientStore.dispatchAction(new ClientUseObjectCard(card));
+            }
+        }
 
     }
 

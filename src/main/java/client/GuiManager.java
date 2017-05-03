@@ -60,8 +60,8 @@ public class GuiManager implements Observer {
      * Shows on the {@link GUIMap} the new position of the client.
      */
     private void updatePosition() {
-        Coordinate newCoordinates = this.clientStore.getState().player.currentSector.getCoordinate();
-        String playerName = this.clientStore.getState().player.name;
+        Coordinate newCoordinates = this.clientStore.getState().player.getCurrentSector().getCoordinate();
+        String playerName = this.clientStore.getState().player.getName();
         this.guiGamePane.getMapPane().delightAllSectors();
         this.guiGamePane.getMapPane().lightSector(newCoordinates, "Y",
                 playerName);
@@ -145,7 +145,15 @@ public class GuiManager implements Observer {
             case "@CLIENT_STARTABLE_GAME":
                 this.guiGameList.startableGame();
                 break;
+            case "@CLIENT_SET_CURRENT_REQRESP_NOTIFICATION":
+                this.setCurrentReqRespNotificationReaction(action);
+                break;
         }
+    }
+
+    private void setCurrentReqRespNotificationReaction(StoreAction action) {
+        ClientSetCurrentReqRespNotificationAction castedAction = (ClientSetCurrentReqRespNotificationAction) action;
+        this.guiGamePane.setStateMessage(castedAction.rrClientNotification.getMessage());
     }
 
     /**
@@ -217,10 +225,10 @@ public class GuiManager implements Observer {
         Player player = this.clientStore.getState().player;
         String message;
         if (player.playerToken.playerType.equals(PlayerType.ALIEN)){
-            message = player.name + " now is your turn: move or attack";
+            message = player.getName() + " now is your turn: move or attack";
         }
         else {
-            message = player.name + "now is your turn: move or use an object card";
+            message = player.getName() + "now is your turn: move or use an object card";
         }
         this.guiGamePane.setStateMessage(message);
         if (player.playerToken.playerType.equals(PlayerType.ALIEN)) {
@@ -257,7 +265,7 @@ public class GuiManager implements Observer {
         ClientDiscardObjectCardAction castedAction = (ClientDiscardObjectCardAction) action;
         this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
         if (castedAction.isActionServerValidated) {
-            this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.privateDeck.getContent());
+            this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.getPrivateDeck().getContent());
         }
     }
 
@@ -268,7 +276,7 @@ public class GuiManager implements Observer {
     private void teleportToStartingSectorReaction() {
         Player player = this.clientStore.getState().player;
         this.guiGamePane.getMapPane().delightAllSectors();
-        this.guiGamePane.getMapPane().lightSector(player.currentSector.getCoordinate(), "Y", player.name);
+        this.guiGamePane.getMapPane().lightSector(player.getCurrentSector().getCoordinate(), "Y", player.getName());
     }
 
     /**
@@ -319,7 +327,7 @@ public class GuiManager implements Observer {
                     this.guiGamePane.getMapPane().lightSector(sector.getCoordinate(), "A", "Here there's an alien");
                 }
             }
-            this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.privateDeck.getContent());
+            this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.getPrivateDeck().getContent());
         }
     }
 
@@ -351,7 +359,7 @@ public class GuiManager implements Observer {
         ClientSetDrawnSectorObjectCard castedAction = (ClientSetDrawnSectorObjectCard) action;
         CardSplashScreen cardSplashScreen = new CardSplashScreen(this.mainFrame);
         cardSplashScreen.showCards(castedAction.drawnSectorCard, castedAction.drawnObjectCard);
-        PrivateDeck clientPrivateDeck = this.clientStore.getState().player.privateDeck;
+        PrivateDeck clientPrivateDeck = this.clientStore.getState().player.getPrivateDeck();
         //The action has not been validated by the server so only a message is shown
         if (!castedAction.isActionServerValidated) {
             this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
@@ -402,10 +410,10 @@ public class GuiManager implements Observer {
         Player player = this.clientStore.getState().player;
         String characterInfoMsg;
         if (player.playerToken.playerType.equals(PlayerType.ALIEN)) {
-            characterInfoMsg = player.name + " | ALIEN";
+            characterInfoMsg = player.getName() + " | ALIEN";
             this.guiGamePane.setSectorMenu(MenuType.ALIEN_INITIAL);
         } else {
-            characterInfoMsg = player.name + " | HUMAN";
+            characterInfoMsg = player.getName() + " | HUMAN";
             this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
         }
         this.mainFrame.remove(this.guiGameList);
@@ -414,7 +422,7 @@ public class GuiManager implements Observer {
         this.guiGamePane.setVisible(true);
         this.guiGamePane.setInfoMsg(characterInfoMsg);
         this.guiGamePane.getMapPane().lightSector(
-                player.currentSector.getCoordinate(), "Y", player.name);
+                player.getCurrentSector().getCoordinate(), "Y", player.getName());
         this.mainFrame.validate();
         this.mainFrame.repaint();
     }
