@@ -8,11 +8,15 @@ import server_store.StoreAction;
  */
 public class ClientSetPlayerState extends StoreAction {
 
-    public final PlayerState playerState;
+    private final PlayerState playerState;
 
     public ClientSetPlayerState(PlayerState playerState)
     {
         super("@CLIENT_SET_PLAYER_STATE");
         this.playerState = playerState;
+    }
+
+    public PlayerState getPlayerState() {
+        return playerState;
     }
 }

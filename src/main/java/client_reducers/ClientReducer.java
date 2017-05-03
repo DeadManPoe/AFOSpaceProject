@@ -2,6 +2,7 @@ package client_reducers;
 
 import client.ClientState;
 import client_store_actions.*;
+import common.PlayerState;
 import common.StatefulTimer;
 import factories.GameMapFactory;
 import common.PlayerType;
@@ -73,7 +74,10 @@ public class ClientReducer implements Reducer {
 
     private State setPlayerState(StoreAction action, ClientState state) {
         ClientSetPlayerState castedAction = (ClientSetPlayerState) action;
-        state.player.playerState = castedAction.playerState;
+        state.player.setPlayerState(castedAction.getPlayerState());
+        if (state.player.getPlayerState().equals(PlayerState.DEAD) ||  state.player.getPlayerState().equals(PlayerState.ESCAPED)){
+            state.isGameStarted = false;
+        }
         return state;
     }
 
@@ -166,7 +170,9 @@ public class ClientReducer implements Reducer {
 
     private State setPlayer(StoreAction action, ClientState state) {
         ClientSetPlayerAction castedAction = (ClientSetPlayerAction) action;
-        state.player = new Player(castedAction.playerName,castedAction.getPlayerToken());
+        Player player = new Player(castedAction.getPlayerName());
+        player.setPlayerToken(castedAction.getPlayerToken());
+        state.player = player;
         return state;
     }
 

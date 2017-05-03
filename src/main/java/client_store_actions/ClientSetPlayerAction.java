@@ -8,12 +8,20 @@ import server_store.StoreAction;
  */
 public class ClientSetPlayerAction extends StoreAction {
 
-    public final String playerName;
-    public final PlayerToken playerToken;
+    private final String playerName;
+    private final PlayerToken playerToken;
 
     public ClientSetPlayerAction(String playerName, PlayerToken playerToken) {
         super("@CLIENT_SET_PLAYER");
         this.playerName = playerName;
         this.playerToken = playerToken;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public PlayerToken getPlayerToken() {
+        return playerToken;
     }
 }

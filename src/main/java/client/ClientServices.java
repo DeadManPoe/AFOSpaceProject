@@ -55,11 +55,9 @@ public class ClientServices {
      * Handles an asynchronous notification that has been produced by the server.
      * This method is invoked indirectly using reflection.
      *
-     * @param psNotification The produced notification
-     * @see PubSubHandler
+     * @param notification The produced notification.
      */
-    private void asyncNotification(PSClientNotification psNotification) {
-        PSClientNotification notification = (PSClientNotification) psNotification;
+    private void asyncNotification(PSClientNotification notification) {
         Player player = this.clientStore.getState().player;
         if (notification.getHumanWins() || notification.getAlienWins()) {
             this.clientStore.dispatchAction(new ClientSetWinnersAction(notification.getAlienWins(), notification.getHumanWins()));
@@ -74,7 +72,7 @@ public class ClientServices {
         if (notification.getDeadPlayers().contains(player.getPlayerToken())) {
             this.clientStore.dispatchAction(new ClientSetPlayerState(PlayerState.DEAD));
         } else if (notification.getAttackedPlayers().contains(player.getPlayerToken())) {
-            this.clientStore.dispatchAction(new ClientUseObjectCard(new DefenseObjectCard(), true));
+            this.clientStore.dispatchAction(new ClientUseObjectCard(new DefenseObjectCard()));
         }
 
     }
@@ -92,7 +90,7 @@ public class ClientServices {
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(playerToken);
         try {
-            this.communicationHandler.newComSession(new RemoteMethodCall("subscribe", parameters));
+            this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.subscribe(), parameters));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -110,6 +108,7 @@ public class ClientServices {
         try {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("onDemandGameStart", parameters));
             this.processRemoteInvocation(methodCall);
+            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
 
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
@@ -135,7 +134,6 @@ public class ClientServices {
      * @param playerName  The name of the client in the game.
      */
     public void joinNewGame(String gameMapName, String playerName) {
-        this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName, null));
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(gameMapName);
         parameters.add(playerName);
@@ -152,7 +150,7 @@ public class ClientServices {
         RRClientNotification currentNotification = this.clientStore.getState().currentReqRespNotification;
         boolean isActionServerValidated = currentNotification.getActionResult();
         if (isActionServerValidated){
-            this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName, null));
+            this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName, currentNotification.getPlayerToken()));
             this.setPlayerTokenAndSubscribe(currentNotification.getPlayerToken());
         }
     }
@@ -181,7 +179,7 @@ public class ClientServices {
         RRClientNotification currentNotification = this.clientStore.getState().currentReqRespNotification;
         boolean isActionServerValidated = currentNotification.getActionResult();
         if (isActionServerValidated){
-            this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName, null));
+            this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName, currentNotification.getPlayerToken()));
             this.setPlayerTokenAndSubscribe(currentNotification.getPlayerToken());
         }
     }
