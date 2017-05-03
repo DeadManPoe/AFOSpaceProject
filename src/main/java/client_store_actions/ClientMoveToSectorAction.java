@@ -8,12 +8,14 @@ import server_store.StoreAction;
  */
 public class ClientMoveToSectorAction extends StoreAction {
 
-    public final Sector targetSector;
-    public final boolean isServerValidated;
+    private final Sector targetSector;
 
-    public ClientMoveToSectorAction(Sector targetSector, boolean isServerValidated) {
+    public ClientMoveToSectorAction(Sector targetSector) {
         super("@CLIENT_MOVE_TO_SECTOR");
         this.targetSector = targetSector;
-        this.isServerValidated = isServerValidated;
+    }
+
+    public Sector getTargetSector() {
+        return targetSector;
     }
 }

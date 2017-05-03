@@ -8,12 +8,14 @@ import server_store.StoreAction;
  */
 public class ClientDiscardObjectCardAction extends StoreAction {
 
-    public final ObjectCard discardedObjectCard;
-    public final boolean isActionServerValidated;
+    private final ObjectCard discardedObjectCard;
 
-    public ClientDiscardObjectCardAction(ObjectCard objectCard, boolean isActionServerValidated) {
+    public ClientDiscardObjectCardAction(ObjectCard objectCard) {
         super("@CLIENT_DISCARD_OBJECT_CARD");
         this.discardedObjectCard = objectCard;
-        this.isActionServerValidated = isActionServerValidated;
+    }
+
+    public ObjectCard getDiscardedObjectCard() {
+        return discardedObjectCard;
     }
 }

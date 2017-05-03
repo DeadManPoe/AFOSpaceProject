@@ -396,6 +396,7 @@ public class ClientServices {
             try {
                 RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
                 this.processRemoteInvocation(remoteMethodCall);
+                this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(true));
             } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             } catch (IOException e1) {
@@ -403,7 +404,9 @@ public class ClientServices {
                 this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
             }
             boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
-            this.clientStore.dispatchAction(new ClientDiscardObjectCardAction(objectCard, isActionServerValidated));
+            if (isActionServerValidated){
+                this.clientStore.dispatchAction(new ClientDiscardObjectCardAction(objectCard));
+            }
         }
     }
 
@@ -419,7 +422,7 @@ public class ClientServices {
         try {
             RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("publishGlobalMessage", parameters));
             this.processRemoteInvocation(remoteMethodCall);
-
+            this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(true));
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -462,7 +465,7 @@ public class ClientServices {
         }
         boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
         if (isActionServerValidated){
-            this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector, isActionServerValidated));
+            this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector));
             if (humanAttack){
                 this.clientStore.dispatchAction(new ClientUseObjectCard(card));
             }
