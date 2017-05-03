@@ -3,6 +3,7 @@ package client;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.*;
 
@@ -25,7 +26,7 @@ public class GUInitialWindow extends JPanel {
 		setBackground(Color.BLACK);
 
 		JLabel title = new JLabel();
-		title.setIcon(new ImageIcon("mainImg.jpg"));
+		title.setIcon(new ImageIcon("maps"+ File.separator+"mainImg.jpg"));
 		title.setAlignmentX(JLabel.CENTER_ALIGNMENT);
 		add(title);
 
