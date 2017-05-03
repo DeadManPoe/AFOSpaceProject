@@ -1,7 +1,6 @@
 package client_reducers;
 
 import client.ClientState;
-import client.GamePollingThread;
 import client_store_actions.*;
 import common.StatefulTimer;
 import factories.GameMapFactory;
@@ -10,8 +9,6 @@ import server_store.Player;
 import server_store.Reducer;
 import server_store.State;
 import server_store.StoreAction;
-
-import java.util.Timer;
 
 /**
  * Created by giorgiopea on 25/03/17.

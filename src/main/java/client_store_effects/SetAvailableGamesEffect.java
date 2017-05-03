@@ -1,6 +1,5 @@
 package client_store_effects;
 
-import client.GamePollingThread;
 import client.ClientState;
 import server_store.Effect;
 import server_store.State;
