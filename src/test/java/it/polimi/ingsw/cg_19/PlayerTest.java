@@ -6,7 +6,7 @@ import org.junit.Test;
 import common.Coordinate;
 import common.Sector;
 import common.SectorType;
-import server_store.Player;
+import common.Player;
 
 */
 /**

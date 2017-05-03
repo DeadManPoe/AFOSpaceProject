@@ -1,9 +1,6 @@
 package effects;
 
-import common.ObjectCard;
-import common.Sector;
-import common.TeleportObjectCard;
-import it.polimi.ingsw.cg_19.GameMap;
+import common.*;
 import server_store.Game;
 
 /**
@@ -19,7 +16,7 @@ public class TeleportObjCardEffect extends ObjectCardEffect {
 
 	public static boolean executeEffect(Game game, ObjectCard card) {
 		GameMap map = game.gameMap;
-		server_store.Player curr = game.currentPlayer;
+		Player curr = game.currentPlayer;
 		Sector humanSector = map.getHumanSector();
 
 		// Move the player(can be only human) to the starting sector

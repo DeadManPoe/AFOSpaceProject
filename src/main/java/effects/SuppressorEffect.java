@@ -3,7 +3,7 @@ package effects;
 import common.ObjectCard;
 import common.SuppressorObjectCard;
 import server_store.Game;
-import server_store.Player;
+import common.Player;
 
 /**
  * Represents the effect of a suppressor object card

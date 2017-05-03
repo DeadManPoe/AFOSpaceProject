@@ -3,9 +3,9 @@ package client;
 import client_store.ClientStore;
 import client_store_actions.*;
 import common.*;
-import it.polimi.ingsw.cg_19.PlayerState;
-import it.polimi.ingsw.cg_19.PlayerType;
-import server_store.Player;
+import common.PlayerState;
+import common.PlayerType;
+import common.Player;
 import server_store.StoreAction;
 
 import javax.swing.*;

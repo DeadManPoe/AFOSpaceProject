@@ -1,6 +1,6 @@
 package client_store_actions;
 
-import it.polimi.ingsw.cg_19.PlayerState;
+import common.PlayerState;
 import server_store.StoreAction;
 
 /**

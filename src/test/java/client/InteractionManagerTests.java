@@ -1,11 +1,9 @@
 package client;
 
 import client_store.ClientStore;
-import common.EndTurnAction;
 import common.RRClientNotification;
 import common.RemoteMethodCall;
 import org.junit.Test;
-import server_store.StoreAction;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,8 +32,8 @@ public class InteractionManagerTests {
             e.printStackTrace();
         }
         ClientStore.getInstance().getState().isMyTurn = true;
-        InteractionManager interactionManager = new InteractionManager(communicationHandler);
-        interactionManager.endTurn();
+        ClientServices clientServices = new ClientServices(communicationHandler);
+        clientServices.endTurn();
         assertFalse(ClientStore.getInstance().getState().isMyTurn);
     }
 

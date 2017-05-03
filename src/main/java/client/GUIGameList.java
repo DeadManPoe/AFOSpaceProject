@@ -21,7 +21,7 @@ import common.GamePublicData;
 public class GUIGameList extends JPanel {
 
     private final JLabel connectionAlert = new JLabel("The connection with the server is not active");
-    private final InteractionManager clientServices = InteractionManager.getInstance();
+    private final ClientServices clientServices = ClientServices.getInstance();
     private final GuiManager guiManager = GuiManager.getInstance();
     private JLabel stateMessage = new JLabel("");
     private JButton startButton = new JButton("Start Game");

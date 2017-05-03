@@ -3,7 +3,7 @@ package effects;
 import common.EndTurnAction;
 import common.PSClientNotification;
 import common.RRClientNotification;
-import it.polimi.ingsw.cg_19.PlayerState;
+import common.PlayerState;
 import server_store.Game;
 import server_store.StoreAction;
 

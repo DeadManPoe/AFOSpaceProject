@@ -3,9 +3,9 @@ package client;
 import client_store.ClientStore;
 import client_store_actions.*;
 import common.*;
-import it.polimi.ingsw.cg_19.PlayerState;
-import it.polimi.ingsw.cg_19.PlayerType;
-import server_store.Player;
+import common.PlayerState;
+import common.PlayerType;
+import common.Player;
 import server_store.StoreAction;
 
 import java.io.IOException;
@@ -14,29 +14,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by giorgiopea on 25/03/17.
- * A manager that acts as MODEL/CONTROLLER along with the {@link ClientStore}.
+ * A manager that acts as CONTROLLER along with the {@link ClientStore}.
  * The gui components of this application signal various user interactions to this manager,
  * and this manager implements the business logic of the application by dispatching actions
  * to the {@link ClientStore}.
  */
-public class InteractionManager {
+public class ClientServices {
 
-    private static final InteractionManager instance = new InteractionManager();
+    private static ClientServices instance;
     private final ClientStore clientStore;
     private final CommunicationHandler communicationHandler;
+    private final ServerMethodsNameProvider serverMethodsNameProvider;
 
-    public static InteractionManager getInstance() {
+
+    public static ClientServices getInstance(){
+        if (instance == null){
+            instance = new ClientServices();
+        }
         return instance;
     }
 
-    private InteractionManager() {
+    private ClientServices() {
         this.clientStore = ClientStore.getInstance();
         this.communicationHandler = CommunicationHandler.getInstance();
-    }
-    public InteractionManager(CommunicationHandler communicationHandler){
-        this.clientStore = ClientStore.getInstance();
-        this.communicationHandler = communicationHandler;
+        this.serverMethodsNameProvider = ServerMethodsNameProvider.getInstance();
     }
 
     /**
@@ -66,13 +67,13 @@ public class InteractionManager {
         }
         this.clientStore.dispatchAction(new ClientSetCurrentChatMessage(notification.getMessage()));
         if (notification.getEscapedPlayer() != null) {
-            if (notification.getEscapedPlayer().equals(player.playerToken)) {
+            if (notification.getEscapedPlayer().equals(player.getPlayerToken())) {
                 this.clientStore.dispatchAction(new ClientSetPlayerState(PlayerState.ESCAPED));
             }
         }
-        if (notification.getDeadPlayers().contains(player.playerToken)) {
+        if (notification.getDeadPlayers().contains(player.getPlayerToken())) {
             this.clientStore.dispatchAction(new ClientSetPlayerState(PlayerState.DEAD));
-        } else if (notification.getAttackedPlayers().contains(player.playerToken)) {
+        } else if (notification.getAttackedPlayers().contains(player.getPlayerToken())) {
             this.clientStore.dispatchAction(new ClientUseObjectCard(new DefenseObjectCard(), true));
         }
 
@@ -86,7 +87,7 @@ public class InteractionManager {
      * @param playerToken The client's identification token
      */
     private void setPlayerTokenAndSubscribe(PlayerToken playerToken) {
-        String playerName = this.clientStore.getState().player.name;
+        String playerName = this.clientStore.getState().player.getName();
         this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName, playerToken));
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(playerToken);
@@ -105,7 +106,7 @@ public class InteractionManager {
      */
     public void onDemandGameStart() {
         ArrayList<Object> parameters = new ArrayList<>();
-        parameters.add(ClientStore.getInstance().getState().player.playerToken);
+        parameters.add(ClientStore.getInstance().getState().player.getPlayerToken());
         try {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("onDemandGameStart", parameters));
             this.processRemoteInvocation(methodCall);
@@ -194,7 +195,7 @@ public class InteractionManager {
         ArrayList<Object> parameters = new ArrayList<>();
         StoreAction action = new MoveAction(targetSector);
         parameters.add(action);
-        parameters.add(this.clientStore.getState().player.playerToken);
+        parameters.add(this.clientStore.getState().player.getPlayerToken());
         try {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
             this.processRemoteInvocation(methodCall);
@@ -237,7 +238,7 @@ public class InteractionManager {
      */
     public void useObjCard(ObjectCard objectCard) {
         Player player = this.clientStore.getState().player;
-        if (player.privateDeck.getContent().contains(objectCard)) {
+        if (player.getPrivateDeck().getContent().contains(objectCard)) {
             if (objectCard instanceof LightsObjectCard) {
                 this.clientStore.dispatchAction(new ClientAskSectorToLightAction(true));
             } else if (objectCard instanceof AttackObjectCard) {
@@ -246,7 +247,7 @@ public class InteractionManager {
                 ArrayList<Object> parameters = new ArrayList<>();
                 StoreAction action = new UseObjAction(objectCard);
                 parameters.add(action);
-                parameters.add(player.playerToken);
+                parameters.add(player.getPlayerToken());
                 RemoteMethodCall methodCall = null;
                 try {
                     methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
@@ -298,7 +299,7 @@ public class InteractionManager {
             ArrayList<Object> parameters = new ArrayList<>();
             StoreAction action = new UseSectorCardAction(globalNoiseCard);
             parameters.add(action);
-            parameters.add(this.clientStore.getState().player.playerToken);
+            parameters.add(this.clientStore.getState().player.getPlayerToken());
             try {
                 RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
                 this.processRemoteInvocation(methodCall);
@@ -329,7 +330,7 @@ public class InteractionManager {
             ArrayList<Object> parameters = new ArrayList<>();
             StoreAction action = new UseObjAction(lightsCard);
             parameters.add(action);
-            parameters.add(this.clientStore.getState().player.playerToken);
+            parameters.add(this.clientStore.getState().player.getPlayerToken());
             RemoteMethodCall remoteMethodCall = null;
             try {
                 remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
@@ -359,7 +360,7 @@ public class InteractionManager {
         ArrayList<Object> parameters = new ArrayList<>();
         StoreAction action = new EndTurnAction();
         parameters.add(action);
-        parameters.add(this.clientStore.getState().player.playerToken);
+        parameters.add(this.clientStore.getState().player.getPlayerToken());
         try {
             RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
             this.processRemoteInvocation(remoteMethodCall);
@@ -387,11 +388,11 @@ public class InteractionManager {
      */
     public void discardCard(ObjectCard objectCard) {
         Player player = this.clientStore.getState().player;
-        if (player.privateDeck.getContent().contains(objectCard)) {
+        if (player.getPrivateDeck().getContent().contains(objectCard)) {
             ArrayList<Object> parameters = new ArrayList<>();
             StoreAction action = new DiscardAction(objectCard);
             parameters.add(action);
-            parameters.add(player.playerToken);
+            parameters.add(player.getPlayerToken());
             try {
                 RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
                 this.processRemoteInvocation(remoteMethodCall);
@@ -414,7 +415,7 @@ public class InteractionManager {
     public void sendMessage(String message) {
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(message);
-        parameters.add(this.clientStore.getState().player.playerToken);
+        parameters.add(this.clientStore.getState().player.getPlayerToken());
         try {
             RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("publishGlobalMessage", parameters));
             this.processRemoteInvocation(remoteMethodCall);
@@ -434,7 +435,7 @@ public class InteractionManager {
      */
     public void attack(Coordinate coordinate) {
         Player player = this.clientStore.getState().player;
-        boolean humanAttack = player.playerToken.playerType.equals(PlayerType.HUMAN);
+        boolean humanAttack = player.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN);
         Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
         ArrayList<Object> parameters = new ArrayList<>();
         AttackObjectCard card;
@@ -442,16 +443,17 @@ public class InteractionManager {
             card = new AttackObjectCard(targetSector);
             StoreAction action = new UseObjAction(card);
             parameters.add(action);
-            parameters.add(player.playerToken);
+            parameters.add(player.getPlayerToken());
 
         } else {
             StoreAction action = new MoveAttackAction(targetSector);
             parameters.add(action);
-            parameters.add(player.playerToken);
+            parameters.add(player.getPlayerToken());
         }
         try {
             RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("makeAction", parameters));
             this.processRemoteInvocation(remoteMethodCall);
+
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         } catch (IOException e1) {
@@ -478,42 +480,38 @@ public class InteractionManager {
      */
     public void getGames() {
         try {
-            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("getGames", new ArrayList<>()));
+            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.getGames(), new ArrayList<>()));
             this.processRemoteInvocation(methodCall);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         } catch (IOException e1) {
-            //If connection is down
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
     }
 
     /**
-     * Invokes via reflection a method with a name and arguments described in the given
-     * {@link RemoteMethodCall} object.
+     * Invokes a method on instances of this class from the given {@link RemoteMethodCall} using reflection.
      *
-     * @param remoteClientInvocation An object that describes the method to be invoked on the client along with its
-     *                               arguments.
-     * @throws IllegalAccessException    reflection exception
-     * @throws IllegalArgumentException  reflection exception
-     * @throws InvocationTargetException reflection exception
-     * @throws NoSuchMethodException     reflection exception
-     * @throws SecurityException         reflection exception
+     * @param remoteClientInvocation A description of what method with what arguments
+     *                               need to be invoked on instances of this class
+     * @throws IllegalAccessException Reflection related exception.
+     * @throws IllegalArgumentException Reflection related exception.
+     * @throws InvocationTargetException Reflection related exception.
+     * @throws NoSuchMethodException Reflection related exception.
+     * @throws SecurityException Reflection related exception.
      */
     public void processRemoteInvocation(RemoteMethodCall remoteClientInvocation)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException, SecurityException {
-        if (remoteClientInvocation != null) {
-            String methodName = remoteClientInvocation.getMethodName();
-            ArrayList<Object> parameters = remoteClientInvocation
-                    .getMethodParameters();
-            Class<?>[] parametersClasses = new Class[parameters.size()];
-            for (int i = 0; i < parameters.size(); i++) {
-                parametersClasses[i] = parameters.get(i).getClass();
-            }
-            this.getClass().getDeclaredMethod(methodName, parametersClasses)
-                    .invoke(this, parameters.toArray());
+        String methodName = remoteClientInvocation.getMethodName();
+        ArrayList<Object> parameters = remoteClientInvocation
+                .getMethodParameters();
+        Class<?>[] parametersClasses = new Class[parameters.size()];
+        for (int i = 0; i < parameters.size(); i++) {
+            parametersClasses[i] = parameters.get(i).getClass();
         }
+        this.getClass().getDeclaredMethod(methodName, parametersClasses)
+                .invoke(this, parameters.toArray());
 
     }
 

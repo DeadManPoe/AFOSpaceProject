@@ -2,6 +2,7 @@ package it.polimi.ingsw.cg_19;
 
 import static org.junit.Assert.*;
 
+import common.GameMap;
 import org.junit.Test;
 import org.jgrapht.*;
 import org.jgrapht.graph.*;

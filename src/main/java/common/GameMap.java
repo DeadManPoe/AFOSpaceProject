@@ -1,4 +1,4 @@
-package it.polimi.ingsw.cg_19;
+package common;
 
 import java.util.*;
 

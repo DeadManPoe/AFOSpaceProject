@@ -1,12 +1,11 @@
 package effects;
 
 import common.*;
-import it.polimi.ingsw.cg_19.PlayerState;
-import it.polimi.ingsw.cg_19.PlayerType;
-import it.polimi.ingsw.cg_19.SectorLegality;
+import common.PlayerState;
+import common.PlayerType;
+import common.SectorLegality;
 import server_store.Game;
-import server_store.Player;
-import server_store.ServerState;
+import common.Player;
 import server_store.StoreAction;
 
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ public class MoveAttackActionEffect extends ActionEffect {
         Sector sourceSector = game.currentPlayer.currentSector;
         Sector targetSector = game.gameMap.getSectorByCoords(
                 castedAction.payload.getCoordinate());
-        server_store.Player currentPlayer = game.currentPlayer;
+        Player currentPlayer = game.currentPlayer;
         String rrMessage = "";
         String psMessage = "";
         List<Player> deadPlayers = new ArrayList<>();

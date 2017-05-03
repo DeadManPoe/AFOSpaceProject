@@ -11,7 +11,7 @@ import common.RRClientNotification;
 import effects.AdrenalineObjCardEffect;
 import server_store.*;
 import server_store.Game;
-import server_store.Player;
+import common.Player;
 
 */
 /**
@@ -36,7 +36,7 @@ public class AdrenalineObjCardEffectTest {
 		AdrenalineObjCardEffect effect = new AdrenalineObjCardEffect(card);
 
 		Game game = new Game("GALILEI");
-		server_store.Player p = new Player(PlayerType.HUMAN, "Andrea",null);
+		common.Player p = new Player(PlayerType.HUMAN, "Andrea",null);
 		game.players.add(p);
 		assertTrue(effect.executeEffect(game, n1, n2));
 		assertTrue(p.isAdrenalined);

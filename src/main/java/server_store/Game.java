@@ -4,7 +4,7 @@ import common.*;
 import decks.ObjectDeck;
 import decks.RescueDeck;
 import decks.SectorDeck;
-import it.polimi.ingsw.cg_19.GameMap;
+import common.GameMap;
 
 import java.util.*;
 
@@ -16,12 +16,12 @@ public class Game {
     // Communication related stuff
     public static int counter = 0;
 
-    public List<server_store.Player> players;
+    public List<Player> players;
     public ObjectDeck objectDeck;
     public RescueDeck rescueDeck;
     public SectorDeck sectorDeck;
-    public server_store.Player currentPlayer;
-    public server_store.Player previousPlayer;
+    public Player currentPlayer;
+    public Player previousPlayer;
     public int turnNumber;
     public GamePublicData gamePublicData;
     public String mapName;

@@ -1,7 +1,5 @@
 package common;
 
-import it.polimi.ingsw.cg_19.RescueType;
-
 /**
  * Represents a rescue card in the game
  * 

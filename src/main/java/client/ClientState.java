@@ -1,14 +1,12 @@
 package client;
 
 import common.*;
-import it.polimi.ingsw.cg_19.GameMap;
-import server_store.Player;
-import client.PubSubHandler;
+import common.GameMap;
+import common.Player;
 import server_store.State;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Timer;
 
 /**
  * Created by giorgiopea on 24/03/17.

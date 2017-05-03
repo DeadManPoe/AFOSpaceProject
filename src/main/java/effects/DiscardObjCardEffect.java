@@ -2,11 +2,9 @@ package effects;
 
 import common.DiscardAction;
 import common.ObjectCard;
-import common.PSClientNotification;
-import common.RRClientNotification;
 import decks.ObjectDeck;
 import server_store.Game;
-import server_store.Player;
+import common.Player;
 import server_store.StoreAction;
 
 /**

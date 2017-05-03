@@ -20,20 +20,20 @@ public class PubSubHandler extends Thread {
     private final Socket socket;
     private final ObjectInputStream inputStream;
     private final ClientStore clientStore;
-    private final InteractionManager interactionManager;
+    private final ClientServices clientServices;
 
     public PubSubHandler(Socket socket, ObjectInputStream inputStream) {
         this.socket = socket;
         this.inputStream = inputStream;
         this.clientStore = ClientStore.getInstance();
-        this.interactionManager = InteractionManager.getInstance();
+        this.clientServices = ClientServices.getInstance();
     }
     @Override
     public void run() {
         while (this.clientStore.getState().currentPubSubHandler != null) {
             try {
                 RemoteMethodCall methodCall = (RemoteMethodCall) this.inputStream.readObject();
-                this.interactionManager.processRemoteInvocation(methodCall);
+                this.clientServices.processRemoteInvocation(methodCall);
             }
             catch (IOException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e){
                 try {

@@ -2,7 +2,7 @@ package factories;
 
 import java.io.File;
 
-import it.polimi.ingsw.cg_19.GameMap;
+import common.GameMap;
 
 /**
  * Represents a factory of Galilei game maps

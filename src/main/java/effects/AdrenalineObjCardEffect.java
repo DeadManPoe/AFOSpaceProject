@@ -2,6 +2,7 @@ package effects;
 
 
 import common.ObjectCard;
+import common.Player;
 import server_store.Game;
 
 /**
@@ -16,7 +17,7 @@ import server_store.Game;
 public class AdrenalineObjCardEffect extends ObjectCardEffect {
 
 	public static boolean executeEffect(Game game, ObjectCard card) {
-		server_store.Player currentPlayer = game.currentPlayer;
+		Player currentPlayer = game.currentPlayer;
 		// Notifications setting
 		game.lastRRclientNotification.setMessage("You will moveToSector by two sector this turn\n");
 		game.lastPSclientNotification.setMessage("[GLOBAL MESSAGE]: "

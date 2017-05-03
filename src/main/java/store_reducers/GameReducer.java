@@ -1,16 +1,11 @@
 package store_reducers;
 
-import common.EndTurnAction;
-import common.PSClientNotification;
-import common.PlayerToken;
-import common.RRClientNotification;
+import common.*;
 import decks.ObjectDeck;
 import decks.RescueDeck;
 import decks.SectorDeck;
 import effects.EndTurnEffect;
 import factories.*;
-import it.polimi.ingsw.cg_19.PlayerState;
-import it.polimi.ingsw.cg_19.PlayerType;
 import server.GameStatus;
 import server_store.*;
 import store_actions.*;
@@ -193,7 +188,7 @@ public class GameReducer implements Reducer {
             if (game.gamePublicData.getId() == castedAction.getPayload().getGameId()) {
                 PlayerType playerType = assignTypeToPlayer(game.players.size() + 1);
                 playerToken = new PlayerToken(playerType, castedAction.getPayload().getGameId());
-                server_store.Player player = new server_store.Player(castedAction.getPayload().getPlayerName(),playerToken);
+                Player player = new Player(castedAction.getPayload().getPlayerName(),playerToken);
                 game.players.add(player);
                 game.gamePublicData.addPlayer();
                 if (game.currentPlayer == null) {

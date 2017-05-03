@@ -15,7 +15,7 @@ import javax.swing.*;
 public class GUInitialWindow extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	private final InteractionManager interactionManager = InteractionManager.getInstance();
+	private final ClientServices clientServices = ClientServices.getInstance();
 
 	private JLabel connectionProblemLabel;
 	/**
@@ -48,7 +48,7 @@ public class GUInitialWindow extends JPanel {
 		connectButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-               interactionManager.getGames();
+               clientServices.getGames();
             }
 		});
 	}

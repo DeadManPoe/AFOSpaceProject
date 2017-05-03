@@ -1,8 +1,8 @@
 package effects;
 
 import common.*;
-import it.polimi.ingsw.cg_19.PlayerState;
-import it.polimi.ingsw.cg_19.RescueType;
+import common.PlayerState;
+import common.RescueType;
 import server_store.Game;
 
 /**

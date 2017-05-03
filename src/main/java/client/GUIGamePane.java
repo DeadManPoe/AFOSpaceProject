@@ -1,7 +1,7 @@
 package client;
 
 import common.ObjectCard;
-import it.polimi.ingsw.cg_19.GameMap;
+import common.GameMap;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,7 +21,7 @@ public class GUIGamePane extends JPanel {
 
     private final JLabel connectionAlert = new JLabel("The connection with the server is not active");;
     private final JLabel infoMsg = new JLabel();
-    private final InteractionManager interactionManager = InteractionManager.getInstance();
+    private final ClientServices clientServices = ClientServices.getInstance();
 
 
     private DefaultListModel<String> logModel;
@@ -83,14 +83,14 @@ public class GUIGamePane extends JPanel {
         endTurnButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                interactionManager.endTurn();
+                clientServices.endTurn();
             }
         });
 
         msgButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                interactionManager.sendMessage(chatTextField.getText());
+                clientServices.sendMessage(chatTextField.getText());
                 chatTextField.setText("");
             }
         });
@@ -99,7 +99,7 @@ public class GUIGamePane extends JPanel {
         useCardItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                interactionManager.useObjCard(selectedObjectCard);
+                clientServices.useObjCard(selectedObjectCard);
             }
         });
         humanUseOnlyItem.addActionListener(useCardItem.getActionListeners()[0]);
@@ -107,7 +107,7 @@ public class GUIGamePane extends JPanel {
         alienDiscardItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                interactionManager.discardCard(selectedObjectCard);
+                clientServices.discardCard(selectedObjectCard);
             }
         });
         humanDiscardItem.addActionListener(alienDiscardItem

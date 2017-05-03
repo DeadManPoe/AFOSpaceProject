@@ -1,12 +1,11 @@
 package effects;
 
 import common.*;
-import it.polimi.ingsw.cg_19.GameMap;
-import it.polimi.ingsw.cg_19.PlayerType;
-import it.polimi.ingsw.cg_19.SectorLegality;
+import common.GameMap;
+import common.PlayerType;
+import common.SectorLegality;
 import server_store.Game;
-import server_store.Player;
-import server_store.ServerState;
+import common.Player;
 import server_store.StoreAction;
 
 /**

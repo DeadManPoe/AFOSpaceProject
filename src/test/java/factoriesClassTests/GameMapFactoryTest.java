@@ -1,7 +1,7 @@
 package factoriesClassTests;
 
 import static org.junit.Assert.*;
-import it.polimi.ingsw.cg_19.GameMap;
+import common.GameMap;
 
 import java.io.File;
 import java.util.Iterator;

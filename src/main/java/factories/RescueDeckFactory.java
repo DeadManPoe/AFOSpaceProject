@@ -1,6 +1,6 @@
 package factories;
 
-import it.polimi.ingsw.cg_19.RescueType;
+import common.RescueType;
 
 import java.util.ArrayList;
 import java.util.List;

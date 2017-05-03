@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import it.polimi.ingsw.cg_19.GameMap;
+import common.GameMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -19,7 +19,6 @@ import javax.swing.JPopupMenu;
 import common.Coordinate;
 import common.Sector;
 import common.SectorType;
-import factories.GameMapFactory;
 
 /**
  * Represents the panel in which is displayed the game map
@@ -27,7 +26,7 @@ import factories.GameMapFactory;
  */
 public class GUIMap extends JLayeredPane {
 	static final long serialVersionUID = 1L;
-	private final InteractionManager interactionManager = InteractionManager.getInstance();
+	private final ClientServices clientServices = ClientServices.getInstance();
 	private transient List<SectorLabel> sectorsList;
 	private transient List<SectorLabel> lightedSectors;
 
@@ -72,7 +71,7 @@ public class GUIMap extends JLayeredPane {
 		alienMoveItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				interactionManager.moveToSector(selectedSector.getCoordinate());
+				clientServices.moveToSector(selectedSector.getCoordinate());
 			}
 		});
 
@@ -81,27 +80,27 @@ public class GUIMap extends JLayeredPane {
 		attackItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				interactionManager.attack(selectedSector.getCoordinate());
+				clientServices.attack(selectedSector.getCoordinate());
 			}
 		});
 		humanAttack.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				interactionManager.attack(selectedSector.getCoordinate());
+				clientServices.attack(selectedSector.getCoordinate());
 			}
 		});
 
 		noiseItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				interactionManager.globalNoise(selectedSector.getCoordinate(), true);
+				clientServices.globalNoise(selectedSector.getCoordinate(), true);
 			}
 		});
 
 		lightItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-                interactionManager.lights(selectedSector.getCoordinate());
+                clientServices.lights(selectedSector.getCoordinate());
 			}
 		});
 
