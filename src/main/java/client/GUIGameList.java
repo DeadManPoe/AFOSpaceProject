@@ -17,20 +17,19 @@ import common.GamePublicData;
 /**
  * Represents the panel that shows the list of available games
  *
- * @author Andrea Sessa
- * @author Giorgio Pea
  */
 public class GUIGameList extends JPanel {
 
     private final JLabel connectionAlert = new JLabel("The connection with the server is not active");
-    private final InteractionManager interactionManager = InteractionManager.getInstance();
+    private final InteractionManager clientServices = InteractionManager.getInstance();
+    private final GuiManager guiManager = GuiManager.getInstance();
     private JLabel stateMessage = new JLabel("");
     private JButton startButton = new JButton("Start Game");
+    private final JButton joinButton = new JButton("Join");
     private JPanel buttonPanel;
     private DefaultTableModel gameList;
     private JTable gameTables;
 
-    private transient final GuiManager guiManager = GuiManager.getInstance();
     /**
      * Loads the information on the panel that shows the list of available
      * games, and allows the player to join an existing game or to join a new
@@ -39,7 +38,7 @@ public class GUIGameList extends JPanel {
      */
     public void load() {
         add(this.connectionAlert);
-        stateMessage.setFont(new Font("Arial", Font.BOLD, 22));
+        stateMessage.setFont(new Font("Arial", Font.BOLD, 15));
         stateMessage.setForeground(Color.WHITE);
         stateMessage.setAlignmentX(CENTER_ALIGNMENT);
 
@@ -67,7 +66,6 @@ public class GUIGameList extends JPanel {
 
         buttonPanel = new JPanel();
 
-        final JButton joinButton = new JButton("Join");
         joinButton.setEnabled(false);
         joinButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
         buttonPanel.add(joinButton);
@@ -90,13 +88,22 @@ public class GUIGameList extends JPanel {
             }
         });
 
-        JButton newButton = new JButton("New");
+        final JButton newButton = new JButton("New");
         newButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
         buttonPanel.add(newButton);
+        final JButton refreshButton = new JButton("Refresh");
+        refreshButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
+        buttonPanel.add(refreshButton);
         newButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 newGame();
+            }
+        });
+        refreshButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                clientServices.getGames();
             }
         });
 
@@ -113,9 +120,11 @@ public class GUIGameList extends JPanel {
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               interactionManager.onDemandGameStart();
+                clientServices.onDemandGameStart();
             }
         });
+        this.clientServices.getGames();
+
     }
 
     public void setGameListContent(List<GamePublicData> gamePublicDataList) {
@@ -135,25 +144,25 @@ public class GUIGameList extends JPanel {
      *
      */
     private void joinGame(){
-            // A box for the name
-            String playerName = (String) JOptionPane.showInputDialog(this.getParent(),
-                    "Insert your name for the game: ",
-                    "Name insert",
-                    JOptionPane.OK_CANCEL_OPTION, null, null, "");
-            if (playerName != null){
-                if (!("").equals(playerName)) {
-                    int gameId = (Integer) gameTables.getValueAt(
-                            gameTables.getSelectedRow(), 0);
-                    stateMessage.setText("Waiting for others players...");
-                    interactionManager.joinGame(gameId, playerName);
-                    buttonPanel.setVisible(false);
-                } else {
-                    JOptionPane.showMessageDialog(guiManager.getFrame(),
-                            "Please insert a valid name",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
+        // A box for the name
+        String playerName = (String) JOptionPane.showInputDialog(this.getParent(),
+                "Insert your name for the game: ",
+                "Name insert",
+                JOptionPane.OK_CANCEL_OPTION, null, null, "");
+        if (playerName != null){
+            if (!("").equals(playerName)) {
+                int gameId = (Integer) gameTables.getValueAt(
+                        gameTables.getSelectedRow(), 0);
+                stateMessage.setText("Waiting for others players...");
+                clientServices.joinGame(gameId, playerName);
+                buttonPanel.setVisible(false);
+            } else {
+                JOptionPane.showMessageDialog(guiManager.getFrame(),
+                        "Please insert a valid name",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
+        }
 
     }
 
@@ -176,7 +185,8 @@ public class GUIGameList extends JPanel {
                         "Galilei");
                 if(mapName != null){
                     stateMessage.setText("Waiting for others players...");
-                    this.interactionManager.joinNewGame(mapName.toUpperCase(),playerName);
+                    this.clientServices.joinNewGame(mapName.toUpperCase(),playerName);
+                    this.clientServices.getGames();
                     buttonPanel.setVisible(false);
                 }
 
@@ -195,6 +205,15 @@ public class GUIGameList extends JPanel {
     }
 
     public void alertConnectionProblem(boolean isConnectionActive) {
-        this.connectionAlert.setVisible(isConnectionActive);
+        this.connectionAlert.setVisible(!isConnectionActive);
+    }
+    public void reset(){
+        for (int i = 0; i < this.gameList.getRowCount(); i++) {
+            this.gameList.removeRow(i);
+        }
+        this.joinButton.setEnabled(false);
+        stateMessage.setText("");
+        this.startButton.setVisible(false);
+        this.buttonPanel.setVisible(true);
     }
 }
