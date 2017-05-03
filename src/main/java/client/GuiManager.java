@@ -78,7 +78,7 @@ public class GuiManager implements Observer {
      * card in the client's private deck, so that the client is forced to discard or use one of those.
      */
     private void manyCardHandler() {
-        PlayerType playerType = this.clientStore.getState().player.playerToken.playerType;
+        PlayerType playerType = this.clientStore.getState().player.getPlayerToken().getPlayerType();
         if (playerType.equals(PlayerType.HUMAN)) {
             this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_DISC_MENU);
         } else {
@@ -191,13 +191,13 @@ public class GuiManager implements Observer {
     private void setPlayerStateReaction(StoreAction action) {
         ClientSetPlayerState castedAction = (ClientSetPlayerState) action;
         PSClientNotification psClientNotification = this.clientStore.getState().currentPubSubNotification;
-        if (castedAction.playerState.equals(PlayerState.ESCAPED)) {
+        if (castedAction.getPlayerState().equals(PlayerState.ESCAPED)) {
             this.guiGamePane.setStateMessage("You've ESCAPED!");
             this.guiGamePane.changeCardMenu(MenuType.EMPTY);
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
             this.guiGamePane.refreshCardPanel(new ArrayList<ObjectCard>());
             this.guiGamePane.showEndTurnButton(false);
-        } else if (castedAction.playerState.equals(PlayerState.DEAD) && !(psClientNotification.getAlienWins() || psClientNotification.getHumanWins())) {
+        } else if (castedAction.getPlayerState().equals(PlayerState.DEAD) && !(psClientNotification.getAlienWins() || psClientNotification.getHumanWins())) {
             this.guiGamePane.setStateMessage("You're DEAD!");
             this.guiGamePane.changeCardMenu(MenuType.EMPTY);
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
@@ -224,14 +224,14 @@ public class GuiManager implements Observer {
     private void startTurnReaction() {
         Player player = this.clientStore.getState().player;
         String message;
-        if (player.playerToken.playerType.equals(PlayerType.ALIEN)){
+        if (player.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)){
             message = player.getName() + " now is your turn: move or attack";
         }
         else {
             message = player.getName() + "now is your turn: move or use an object card";
         }
         this.guiGamePane.setStateMessage(message);
-        if (player.playerToken.playerType.equals(PlayerType.ALIEN)) {
+        if (player.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.ALIEN_INITIAL);
         } else {
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.HUMAN_INITIAL);
@@ -247,12 +247,9 @@ public class GuiManager implements Observer {
      */
     private void endTurnReaction(StoreAction action) {
         ClientEndTurnAction castedAction = (ClientEndTurnAction) action;
-        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        if (castedAction.isActionServerValidated) {
-            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-            this.guiGamePane.changeCardMenu(MenuType.EMPTY);
-            this.guiGamePane.showEndTurnButton(false);
-        }
+        this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+        this.guiGamePane.changeCardMenu(MenuType.EMPTY);
+        this.guiGamePane.showEndTurnButton(false);
     }
 
     /**
@@ -263,10 +260,7 @@ public class GuiManager implements Observer {
      */
     private void discardObjectCardReaction(StoreAction action) {
         ClientDiscardObjectCardAction castedAction = (ClientDiscardObjectCardAction) action;
-        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        if (castedAction.isActionServerValidated) {
-            this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.getPrivateDeck().getContent());
-        }
+        this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.getPrivateDeck().getContent());
     }
 
     /**
@@ -317,18 +311,16 @@ public class GuiManager implements Observer {
      */
     private void useObjectCardReaction(StoreAction action) {
         ClientUseObjectCard castedAction = (ClientUseObjectCard) action;
-        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        if (castedAction.isServerValidated) {
-            if (castedAction.objectCard instanceof DefenseObjectCard) {
-                this.guiGamePane.setStateMessage("You have succesfully defended from an attack");
-            }
-            if (castedAction.objectCard instanceof LightsObjectCard) {
-                for (Sector sector : this.clientStore.getState().currentReqRespNotification.getLightedSectors()) {
-                    this.guiGamePane.getMapPane().lightSector(sector.getCoordinate(), "A", "Here there's an alien");
-                }
-            }
-            this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.getPrivateDeck().getContent());
+        if (castedAction.getObjectCard() instanceof DefenseObjectCard) {
+            this.guiGamePane.setStateMessage("You have succesfully defended from an attack");
         }
+        if (castedAction.getObjectCard() instanceof LightsObjectCard) {
+            for (Sector sector : this.clientStore.getState().currentReqRespNotification.getLightedSectors()) {
+                this.guiGamePane.getMapPane().lightSector(sector.getCoordinate(), "A", "Here there's an alien");
+            }
+        }
+        this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.getPrivateDeck().getContent());
+
     }
 
     /**
@@ -340,12 +332,9 @@ public class GuiManager implements Observer {
      */
     private void moveToSectorReaction(StoreAction action) {
         ClientMoveToSectorAction castedAction = (ClientMoveToSectorAction) action;
-        this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-        if (castedAction.isServerValidated) {
-            this.updatePosition();
-            this.guiGamePane.showEndTurnButton(true);
-            this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
-        }
+        this.updatePosition();
+        this.guiGamePane.showEndTurnButton(true);
+        this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
     }
 
     /**
@@ -358,28 +347,24 @@ public class GuiManager implements Observer {
     private void setDrawnSectorObjectCardReaction(StoreAction action) {
         ClientSetDrawnSectorObjectCard castedAction = (ClientSetDrawnSectorObjectCard) action;
         CardSplashScreen cardSplashScreen = new CardSplashScreen(this.mainFrame);
-        cardSplashScreen.showCards(castedAction.drawnSectorCard, castedAction.drawnObjectCard);
+        cardSplashScreen.showCards(castedAction.getDrawnSectorCard(), castedAction.getDrawnObjectCard());
         PrivateDeck clientPrivateDeck = this.clientStore.getState().player.getPrivateDeck();
-        //The action has not been validated by the server so only a message is shown
-        if (!castedAction.isActionServerValidated) {
-            this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
-            return;
-        }
 
-        if (castedAction.drawnSectorCard instanceof GlobalNoiseSectorCard) {
+
+        if (castedAction.getDrawnSectorCard() instanceof GlobalNoiseSectorCard) {
             this.guiGamePane
                     .setStateMessage("Select a sector for the global noise card");
             this.guiGamePane.getMapPane().changeMapMenu(
                     MenuType.NOISE_MENU);
             this.guiGamePane.showEndTurnButton(false);
-        } else if (castedAction.drawnSectorCard instanceof LocalNoiseSectorCard) {
+        } else if (castedAction.getDrawnSectorCard() instanceof LocalNoiseSectorCard) {
             this.guiGamePane.setStateMessage("You will make noise in your sector");
             if (clientPrivateDeck.getSize() > 3) {
                 this.manyCardHandler();
             } else {
                 this.guiGamePane.showEndTurnButton(true);
             }
-        } else if (castedAction.drawnSectorCard instanceof SilenceSectorCard) {
+        } else if (castedAction.getDrawnSectorCard() instanceof SilenceSectorCard) {
             this.guiGamePane.setStateMessage("You will make no noise");
             if (clientPrivateDeck.getSize() > 3) {
                 this.manyCardHandler();
@@ -395,8 +380,8 @@ public class GuiManager implements Observer {
                 this.guiGamePane.showEndTurnButton(true);
             }
         }
-        if (castedAction.drawnObjectCard != null) {
-            this.guiGamePane.addCardToPanel(castedAction.drawnObjectCard);
+        if (castedAction.getDrawnObjectCard() != null) {
+            this.guiGamePane.addCardToPanel(castedAction.getDrawnObjectCard());
         }
 
     }
@@ -409,7 +394,7 @@ public class GuiManager implements Observer {
         ClientStartGameAction castedAction = (ClientStartGameAction) action;
         Player player = this.clientStore.getState().player;
         String characterInfoMsg;
-        if (player.playerToken.playerType.equals(PlayerType.ALIEN)) {
+        if (player.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
             characterInfoMsg = player.getName() + " | ALIEN";
             this.guiGamePane.setSectorMenu(MenuType.ALIEN_INITIAL);
         } else {
@@ -417,7 +402,7 @@ public class GuiManager implements Observer {
             this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
         }
         this.mainFrame.remove(this.guiGameList);
-        this.guiGamePane.load(castedAction.gameMapName);
+        this.guiGamePane.load(this.clientStore.getState().gameMap);
         this.mainFrame.add(this.guiGamePane);
         this.guiGamePane.setVisible(true);
         this.guiGamePane.setInfoMsg(characterInfoMsg);
