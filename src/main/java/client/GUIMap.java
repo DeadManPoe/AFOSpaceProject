@@ -23,10 +23,7 @@ import factories.GameMapFactory;
 
 /**
  * Represents the panel in which is displayed the game map
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class GUIMap extends JLayeredPane {
 	static final long serialVersionUID = 1L;
@@ -265,25 +262,6 @@ public class GUIMap extends JLayeredPane {
 				lightedSectors.add(light);
 				add(light);
 				setLayer(light, UP_SELECT_LAYER);
-				break;
-			}
-		}
-		this.repaint();
-	}
-
-	/**
-	 * Delight (on the GUI) the sector specified by coords, resets the
-	 * appearance of the given sectors if the specified sector doesn't exist the
-	 * map appearance is unchanged
-	 * 
-	 * @param coords
-	 *            The coordinates of the sector to delight
-	 */
-	public void delightSector(Coordinate coords) {
-		for (SectorLabel s : lightedSectors) {
-			if (s.getCoordinate().equals(coords)) {
-				remove(s);
-				lightedSectors.remove(lightedSectors.indexOf(s));
 				break;
 			}
 		}
