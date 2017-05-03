@@ -27,12 +27,6 @@ public class CommunicationReducer implements Reducer {
     }
 
     private State removePubSubHandler(ClientState state) {
-        try {
-            state.currentPubSubHandler.inputStream.close();
-            state.currentPubSubHandler.socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         state.currentPubSubHandler = null;
         return state;
 

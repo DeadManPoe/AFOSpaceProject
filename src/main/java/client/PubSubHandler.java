@@ -1,6 +1,7 @@
 package client;
 
 import client_store.ClientStore;
+import client_store_actions.ClientRemovePubSubHandlerAction;
 import client_store_actions.ClientSetConnectionActiveAction;
 import common.RemoteMethodCall;
 
@@ -10,33 +11,38 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 
 /**
- * Created by giorgiopea on 25/03/17.
- * A thread that listens for incoming data from a given socket input stream.
- * This data is always supposed to be a {@link RemoteMethodCall} object, which embeds
- * a method name and a list of arguments, so that a method that matches them can be invoked
- * in the context of the {@link InteractionManager}.
+ * Represents a thread that handles async messages from the server, in the logic
+ * of the pub/sub pattern(the client is the subscriber).
+ *
  */
 public class PubSubHandler extends Thread {
 
-    public Socket socket;
-    public ObjectInputStream inputStream;
+    private final Socket socket;
+    private final ObjectInputStream inputStream;
+    private final ClientStore clientStore;
 
     public PubSubHandler(Socket socket, ObjectInputStream inputStream) {
         this.socket = socket;
         this.inputStream = inputStream;
+        this.clientStore = ClientStore.getInstance();
     }
     @Override
     public void run() {
-        while (ClientStore.getInstance().getState().currentPubSubHandler != null) {
+        while (this.clientStore.getState().currentPubSubHandler != null) {
             try {
                 RemoteMethodCall methodCall = (RemoteMethodCall) this.inputStream.readObject();
                 InteractionManager.getInstance().processRemoteInvocation(methodCall);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
             }
-            catch (IOException e){
-                //The connection is down
-                ClientStore.getInstance().dispatchAction(new ClientSetConnectionActiveAction(false));
+            catch (IOException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e){
+                try {
+                    this.inputStream.close();
+                    this.socket.close();
+                    this.clientStore.dispatchAction(new ClientRemovePubSubHandlerAction());
+                    this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
             }
         }
     }
