@@ -7,10 +7,14 @@ import server_store.StoreAction;
  */
 public class ClientSuppressAction extends StoreAction {
 
-    public final boolean isSuppressed;
+    private final boolean isSedated;
 
-    public ClientSuppressAction(boolean isSuppressed) {
+    public ClientSuppressAction(boolean isSedated) {
         super("@CLIENT_SUPPRESS");
-        this.isSuppressed = isSuppressed;
+        this.isSedated = isSedated;
+    }
+
+    public boolean isSedated() {
+        return isSedated;
     }
 }

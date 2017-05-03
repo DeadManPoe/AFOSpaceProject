@@ -83,22 +83,20 @@ public class ClientReducer implements Reducer {
 
     private State discardObjectCard(StoreAction action, ClientState state) {
         ClientDiscardObjectCardAction castedAction = (ClientDiscardObjectCardAction) action;
-        if (castedAction.isActionServerValidated){
-            state.player.getPrivateDeck().removeCard(castedAction.discardedObjectCard);
-        }
+        state.player.getPrivateDeck().removeCard(castedAction.getDiscardedObjectCard());
         return state;
     }
 
     private State adrenaline(ClientState state) {
-        state.player.isAdrenalined = true;
+        state.player.setAdrenalined(true);
         return state;
     }
 
 
     private State setDrawnSectorObjectCard(StoreAction action, ClientState state) {
         ClientSetDrawnSectorObjectCard castedAction = (ClientSetDrawnSectorObjectCard) action;
-        if (castedAction.drawnObjectCard != null && castedAction.isActionServerValidated){
-            state.player.getPrivateDeck().addCard(castedAction.drawnObjectCard);
+        if (castedAction.getDrawnObjectCard() != null){
+            state.player.getPrivateDeck().addCard(castedAction.getDrawnObjectCard());
         }
         return state;
     }
@@ -111,7 +109,7 @@ public class ClientReducer implements Reducer {
 
     private State suppress(StoreAction action, ClientState state) {
         ClientSuppressAction castedAction = (ClientSuppressAction) action;
-        state.player.isSedated = castedAction.isSuppressed;
+        state.player.setSedated(castedAction.isSedated());
         return state;
     }
 
@@ -156,15 +154,12 @@ public class ClientReducer implements Reducer {
     }
 
     private State endTurn(StoreAction action, ClientState state) {
-        ClientEndTurnAction castedAction = (ClientEndTurnAction) action;
-        if (castedAction.isActionServerValidated){
-            state.isMyTurn = false;
-            state.player.hasMoved = false;
-            state.player.isAdrenalined = false;
-            state.player.isSedated = false;
-            state.askAttack = false;
-            state.askLights = false;
-        }
+        state.isMyTurn = false;
+        state.player.setHasMoved(false);
+        state.player.setAdrenalined(false);
+        state.player.setSedated(false);
+        state.askAttack = false;
+        state.askLights = false;
         return state;
     }
 
@@ -178,23 +173,19 @@ public class ClientReducer implements Reducer {
 
     private State useObjectCard(StoreAction action, ClientState state) {
         ClientUseObjectCard castedAction = (ClientUseObjectCard) action;
-        if ( castedAction.isServerValidated){
-            state.player.getPrivateDeck().removeCard(castedAction.objectCard);
-        }
+        state.player.getPrivateDeck().removeCard(castedAction.getObjectCard());
         return state;
     }
 
     private State teleportToStartingSector(StoreAction action, ClientState state) {
-        state.player.currentSector = state.gameMap.getHumanSector();
+        state.player.setCurrentSector(state.gameMap.getHumanSector());
         return state;
     }
 
     private State moveToSector(StoreAction action, ClientState state) {
         ClientMoveToSectorAction castedAction = (ClientMoveToSectorAction) action;
-        if (castedAction.isServerValidated){
-            state.player.hasMoved = !castedAction.targetSector.equals(state.player.currentSector);
-            state.player.currentSector = castedAction.targetSector;
-        }
+        state.player.setHasMoved(!castedAction.getTargetSector().equals(state.player.getCurrentSector()));
+        state.player.setCurrentSector(castedAction.getTargetSector());
         return state;
     }
 
