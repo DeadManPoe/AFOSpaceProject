@@ -130,15 +130,11 @@ public class GUIMap extends JLayeredPane {
 	 * then adds the proper SectorLabel to the panel in order to display it on
 	 * the GUI
 	 */
-	public void displayGameMap(String mapName) {
+	public void displayGameMap(GameMap gameMap) {
 		JLabel backgroundLabel = new JLabel(new ImageIcon("back.png"));
 		backgroundLabel.setBounds(0, 0, 800, 600);
 		add(backgroundLabel);
 		this.setLayer(backgroundLabel, LAYER_BACKGROUND);
-		GameMapFactory factory = GameMapFactory.provideCorrectFactory(mapName);
-
-		// Load the map from the correspondent file
-		GameMap map = factory.makeMap();
 
 		// Some offset to optimize the appearance of the sectors on the map
 		// panel
@@ -154,7 +150,7 @@ public class GUIMap extends JLayeredPane {
 		for (int i = 97; i < 120; i++) {
 			for (int j = 1; j < 15; j++) {
 				boolean label = false;
-				Sector sect = map
+				Sector sect = gameMap
 						.getSectorByCoords(new Coordinate((char) i, j));
 				if (sect != null) {
 					if (sect.getSectorType() == SectorType.SAFE) {

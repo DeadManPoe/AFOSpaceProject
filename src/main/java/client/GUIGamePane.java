@@ -1,6 +1,7 @@
 package client;
 
 import common.ObjectCard;
+import it.polimi.ingsw.cg_19.GameMap;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,9 +15,6 @@ import java.util.List;
  * Represents the main window in which are the map, log, cards, etc... are
  * displayed
  *
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
  */
 public class GUIGamePane extends JPanel {
 
@@ -130,10 +128,10 @@ public class GUIGamePane extends JPanel {
     /**
      * Inits the gui for the user displaying the mapName game map
      */
-    public void load(String mapName) {
+    public void load(GameMap map) {
         add(this.connectionAlert);
         this.connectionAlert.setVisible(false);
-        mapPanel.displayGameMap(mapName);
+        mapPanel.displayGameMap(map);
 
         GridBagConstraints c = new GridBagConstraints();
 
