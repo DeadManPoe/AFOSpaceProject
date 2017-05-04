@@ -1,7 +1,7 @@
 package effects;
 
 import common.*;
-import server_store.Game;
+import server.Game;
 import server_store.StoreAction;
 
 import java.lang.reflect.InvocationTargetException;

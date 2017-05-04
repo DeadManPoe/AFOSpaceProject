@@ -2,7 +2,7 @@ package effects;
 
 import common.*;
 import decks.SectorDeck;
-import server_store.Game;
+import server.Game;
 
 /**
  * This class represents the effect associated to a draw action from the sector

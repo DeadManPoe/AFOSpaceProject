@@ -1,5 +1,9 @@
 package server_store;
 
+import server.Game;
+import server.PubSubHandler;
+import server.ReqRespHandler;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,26 +14,35 @@ import java.util.List;
  */
 public class ServerState extends State implements Serializable {
 
-    private List<server_store.Game> games;
+    private List<Game> games;
     private List<ReqRespHandler> reqRespHandlers;
     private List<PubSubHandler> pubSubHandlers;
-    private Integer tcp_port;
-    private Integer turnTimeout;
-
+    private int tcpPort;
+    private long turnTimeout;
+    private boolean isServerListening;
 
     public ServerState() {
         this.games = new ArrayList<>();
         this.reqRespHandlers = new ArrayList<>();
         this.pubSubHandlers = new ArrayList<>();
-        this.tcp_port = null;
-        this.turnTimeout = 10*1000;
+        this.tcpPort = 29999;
+        this.turnTimeout = 5*60*1000;
+        this.isServerListening = true;
     }
 
-    public List<server_store.Game> getGames() {
+    public boolean isServerListening() {
+        return isServerListening;
+    }
+
+    public void setServerListening(boolean serverListening) {
+        isServerListening = serverListening;
+    }
+
+    public List<Game> getGames() {
         return games;
     }
 
-    public void setGames(List<server_store.Game> games) {
+    public void setGames(List<Game> games) {
         this.games = games;
     }
 
@@ -49,25 +62,16 @@ public class ServerState extends State implements Serializable {
         this.pubSubHandlers = pubSubHandlers;
     }
 
-    public Integer getTcp_port() {
-        return tcp_port;
+    public Integer getTcpPort() {
+        return tcpPort;
     }
 
-    public void setTcp_port(Integer tcp_port) {
-        this.tcp_port = tcp_port;
+    public void setTcpPort(int tcpPort) {
+        this.tcpPort = tcpPort;
     }
 
-    public Integer getTurnTimeout() {
+    public long getTurnTimeout() {
         return turnTimeout;
     }
 
-    @Override
-    public String toString() {
-        return "ServerState{" +
-                "games=" + games +
-                ", reqRespHandlers=" + reqRespHandlers +
-                ", pubSubHandlers=" + pubSubHandlers +
-                ", tcp_port=" + tcp_port +
-                '}';
-    }
 }

@@ -1,6 +1,6 @@
 package store_actions;
 
-import server_store.Game;
+import server.Game;
 import server_store.StoreAction;
 
 /**

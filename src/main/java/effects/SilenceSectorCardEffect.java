@@ -3,8 +3,7 @@ package effects;
 
 import common.SectorCard;
 import common.SilenceSectorCard;
-import server_store.Game;
-import server_store.ServerState;
+import server.Game;
 
 /**
  * Represents the effect of silence sector card

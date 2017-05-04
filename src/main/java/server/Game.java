@@ -1,10 +1,11 @@
-package server_store;
+package server;
 
 import common.*;
 import decks.ObjectDeck;
 import decks.RescueDeck;
 import decks.SectorDeck;
 import common.GameMap;
+import server_store.StoreAction;
 
 import java.util.*;
 

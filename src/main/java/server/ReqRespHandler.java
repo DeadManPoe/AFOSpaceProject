@@ -1,6 +1,8 @@
-package server_store;
+package server;
 
 import common.*;
+import server_store.ServerStore;
+import server_store.StoreAction;
 import store_actions.*;
 
 import java.io.IOException;
@@ -95,9 +97,9 @@ public class ReqRespHandler extends Thread {
      * @throws IOException
      */
     private void getGames() throws IOException {
-        List<server_store.Game> games = this.serverStore.getState().getGames();
+        List<Game> games = this.serverStore.getState().getGames();
         List<GamePublicData> gamesList = new ArrayList<GamePublicData>();
-        for (server_store.Game game : games) {
+        for (Game game : games) {
             gamesList.add(game.gamePublicData);
         }
         ArrayList<Object> parameters = new ArrayList<Object>();
@@ -117,7 +119,7 @@ public class ReqRespHandler extends Thread {
      */
     public void joinNewGame(String gameMapName, String playerName)
             throws IOException {
-        server_store.Game game = new server_store.Game(gameMapName);
+        Game game = new Game(gameMapName);
         this.serverStore.dispatchAction(new GamesAddGameAction(game));
         this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, game.gamePublicData.getId(),playerName));
         this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));

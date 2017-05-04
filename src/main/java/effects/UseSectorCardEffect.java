@@ -2,12 +2,11 @@ package effects;
 
 import common.SectorCard;
 import common.UseSectorCardAction;
-import server_store.Game;
+import server.Game;
 import server_store.StoreAction;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.logging.Level;
 
 /**
  * Represents the effect of using a sector card

@@ -2,7 +2,7 @@ package effects;
 
 import common.ObjectCard;
 import common.SuppressorObjectCard;
-import server_store.Game;
+import server.Game;
 import common.Player;
 
 /**

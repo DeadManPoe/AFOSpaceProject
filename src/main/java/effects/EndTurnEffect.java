@@ -4,7 +4,7 @@ import common.EndTurnAction;
 import common.PSClientNotification;
 import common.RRClientNotification;
 import common.PlayerState;
-import server_store.Game;
+import server.Game;
 import server_store.StoreAction;
 
 /**

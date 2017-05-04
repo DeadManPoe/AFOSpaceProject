@@ -1,4 +1,4 @@
-package server_store;
+package server;
 
 import common.PlayerToken;
 import common.RemoteMethodCall;

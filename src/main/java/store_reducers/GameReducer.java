@@ -7,6 +7,9 @@ import decks.SectorDeck;
 import effects.EndTurnEffect;
 import factories.*;
 import common.GameStatus;
+import server.AlienTurn;
+import server.Game;
+import server.HumanTurn;
 import server_store.*;
 import store_actions.*;
 

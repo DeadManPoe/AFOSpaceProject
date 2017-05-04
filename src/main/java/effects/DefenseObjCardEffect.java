@@ -2,7 +2,7 @@ package effects;
 
 import common.DefenseObjectCard;
 import common.ObjectCard;
-import server_store.Game;
+import server.Game;
 
 /**
  * Represents the effect of a defense card

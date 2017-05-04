@@ -3,7 +3,7 @@ package effects;
 import common.DiscardAction;
 import common.ObjectCard;
 import decks.ObjectDeck;
-import server_store.Game;
+import server.Game;
 import common.Player;
 import server_store.StoreAction;
 

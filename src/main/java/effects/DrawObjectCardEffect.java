@@ -2,7 +2,7 @@ package effects;
 
 import common.DrawObjectCardAction;
 import common.ObjectCard;
-import server_store.Game;
+import server.Game;
 
 /**
  * Represents the effect of drawing an object card from the deck containing

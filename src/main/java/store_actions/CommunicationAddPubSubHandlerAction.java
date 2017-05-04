@@ -1,6 +1,6 @@
 package store_actions;
 
-import server_store.PubSubHandler;
+import server.PubSubHandler;
 import server_store.StoreAction;
 
 /**
@@ -8,14 +8,14 @@ import server_store.StoreAction;
  */
 public class CommunicationAddPubSubHandlerAction extends StoreAction {
 
-    private PubSubHandler payload;
+    private final PubSubHandler pubSubHandler;
 
     public CommunicationAddPubSubHandlerAction(PubSubHandler pubSubHandler) {
         super("@COMMUNICATION_ADD_PUBSUB_HANDLER");
-        this.payload = pubSubHandler;
+        this.pubSubHandler = pubSubHandler;
     }
 
-    public PubSubHandler getPayload() {
-        return this.payload;
+    public PubSubHandler getPubSubHandler() {
+        return this.pubSubHandler;
     }
 }

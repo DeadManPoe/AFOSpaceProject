@@ -3,7 +3,7 @@ package effects;
 import common.*;
 import common.PlayerState;
 import common.RescueType;
-import server_store.Game;
+import server.Game;
 
 /**
  * Represents the effect associated to the action of drawing a rescue card from

@@ -1,6 +1,8 @@
-package server_store;
+package server;
 
 import common.*;
+import server.Turn;
+import server_store.StoreAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,7 @@ import java.util.List;
 /**
  * Created by giorgiopea on 13/03/17.
  */
-public class HumanTurn extends Turn {
+public class HumanTurn {
 
     private static List<String> initialActions;
     public static List<String> getInitialActions(){
@@ -25,10 +27,10 @@ public class HumanTurn extends Turn {
         // Actions to be set after a moveToSector action
         if (action.type.equals("@GAMEACTION_MOVE")) {
             MoveAction move = (MoveAction) action;
-            SectorType sectorType = move.payload.getSectorType();
+            SectorType sectorType = move.getTargetSector().getSectorType();
 
             if (sectorType == SectorType.DANGEROUS) {
-                if (!currentPlayer.isSedated) {
+                if (!currentPlayer.isSedated()) {
                     nextActions.add("@GAMEACTION_DRAW_SECTOR_CARD");
                 }
                 nextActions.add("@GAMEACTION_USE_OBJ_CARD");
@@ -46,10 +48,10 @@ public class HumanTurn extends Turn {
         }
         // Actions to be set after a use sector card action
         else if (action.type.equals("@GAMEACTION_USE_SECTOR_CARD")) {
-            SectorCard card = ((UseSectorCardAction) action).payload;
+            SectorCard card = ((UseSectorCardAction) action).getSectorCard();
             // If the sector card used has an object
             if (card.hasObjectAssociated()) {
-                if (currentPlayer.privateDeck.getSize() == 4) {
+                if (currentPlayer.getPrivateDeck().getSize() == 4) {
                     nextActions.add("@GAMEACTION_DISCARD_OBJ_CARD");
                 } else {
                     nextActions.add("@GAMEACTION_END_TURN");
@@ -67,10 +69,10 @@ public class HumanTurn extends Turn {
         }
         // Actions to be set after a use object card action
         else if (action.type.equals("@GAMEACTION_USE_OBJ_CARD")) {
-            if (currentPlayer.privateDeck.getSize() > 0) {
+            if (currentPlayer.getPrivateDeck().getSize() > 0) {
                 nextActions.add("@GAMEACTION_USE_OBJ_CARD");
             }
-            if (!currentPlayer.hasMoved) {
+            if (!currentPlayer.isHasMoved()) {
                 nextActions.add("@GAMEACTION_MOVE");
             } else {
                 nextActions.add("@GAMEACTION_END_TURN");
@@ -79,7 +81,7 @@ public class HumanTurn extends Turn {
             nextActions.add("@GAMEACTION_END_TURN");
             nextActions.add("@GAMEACTION_USE_OBJ_CARD");
         } else if (action.type.equals("@GAMEACTION_MOVE_ATTACK")) {
-            if (currentPlayer.privateDeck.getSize() > 0) {
+            if (currentPlayer.getPrivateDeck().getSize() > 0) {
                 nextActions.add("@GAMEACTION_USE_OBJ_CARD");
             }
             nextActions.add("@GAMEACTION_END_TURN");

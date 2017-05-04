@@ -1,7 +1,7 @@
 package effects;
 
 import common.*;
-import server_store.Game;
+import server.Game;
 
 /**
  * Represents the effect of a teleport object card

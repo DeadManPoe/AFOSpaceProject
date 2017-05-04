@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import common.*;
-import server_store.Game;
+import server.Game;
 import common.Player;
 
 /**

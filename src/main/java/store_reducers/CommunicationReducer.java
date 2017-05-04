@@ -1,5 +1,7 @@
 package store_reducers;
 
+import server.PubSubHandler;
+import server.ReqRespHandler;
 import server_store.*;
 import store_actions.*;
 import server_store.Reducer;
@@ -39,7 +41,7 @@ public class CommunicationReducer implements Reducer {
      * Removes a ReqResp handler from the list of ReqResp handlers in the app's state
      * @param action The action that has triggered this task, see {@link store_actions.CommunicationRemoveReqRespHandlerAction}
      * @param state The current app's state
-     * @see server_store.ReqRespHandler
+     * @see ReqRespHandler
      * @return The app's new state
      */
     private ServerState removeReqRespHandler(StoreAction action, ServerState state) {
@@ -57,7 +59,7 @@ public class CommunicationReducer implements Reducer {
      * Removes a PubSub handler from the list of ReqResp handlers in the app's state
      * @param action The action that has triggered this task, see {@link store_actions.CommunicationRemovePubSubHandlerAction}
      * @param state The current app's state
-     * @see server_store.PubSubHandler
+     * @see PubSubHandler
      * @return The app's new state
      */
     private ServerState removePubSubHandler(StoreAction action, ServerState state) {
@@ -79,14 +81,14 @@ public class CommunicationReducer implements Reducer {
      */
     private ServerState setTcpPort(StoreAction action, ServerState state){
         CommunicationSetTcpPortAction castedAction = (CommunicationSetTcpPortAction) action;
-        state.setTcp_port(castedAction.getPayload());
+        state.setTcpPort(castedAction.getPayload());
         return state;
     }
     /**
      * Adds a ReqResp handler from the list of ReqResp handlers in the app's state
      * @param action The action that has triggered this task, see {@link store_actions.CommunicationAddReqRespHandlerAction}
      * @param state The current app's state
-     * @see server_store.ReqRespHandler
+     * @see ReqRespHandler
      * @return The app's new state
      */
     private ServerState addReqRespHandlerAction(StoreAction action, ServerState state){
@@ -98,7 +100,7 @@ public class CommunicationReducer implements Reducer {
      * Adds a PubSun handler from the list of ReqResp handlers in the app's state
      * @param action The action that has triggered this task, see {@link store_actions.CommunicationAddPubSubHandlerAction}
      * @param state The current app's state
-     * @see server_store.PubSubHandler
+     * @see PubSubHandler
      * @return The app's new state
      */
     private ServerState addPubSubHandler(StoreAction action, ServerState state){

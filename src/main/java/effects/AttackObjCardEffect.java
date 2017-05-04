@@ -4,7 +4,7 @@ import common.AttackObjectCard;
 import common.MoveAttackAction;
 import common.ObjectCard;
 import common.Sector;
-import server_store.Game;
+import server.Game;
 
 /**
  * Represents the effect of the attack object card

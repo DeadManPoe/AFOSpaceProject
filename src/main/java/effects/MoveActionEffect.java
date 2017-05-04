@@ -4,7 +4,7 @@ import common.*;
 import common.GameMap;
 import common.PlayerType;
 import common.SectorLegality;
-import server_store.Game;
+import server.Game;
 import common.Player;
 import server_store.StoreAction;
 

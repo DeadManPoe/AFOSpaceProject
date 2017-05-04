@@ -3,7 +3,7 @@ package effects;
 
 import common.ObjectCard;
 import common.Player;
-import server_store.Game;
+import server.Game;
 
 /**
  * Represents the effect of the adrenaline object card

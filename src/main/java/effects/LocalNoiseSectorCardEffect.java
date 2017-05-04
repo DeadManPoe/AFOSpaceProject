@@ -3,7 +3,7 @@ package effects;
 import common.LocalNoiseSectorCard;
 import common.Sector;
 import common.SectorCard;
-import server_store.Game;
+import server.Game;
 
 /**
  * Represents the effect associated with a local noise sector card

@@ -1,5 +1,8 @@
-package server_store;
+package server;
 
+import server_store.ServerState;
+import server_store.ServerStore;
+import server_store.StoreAction;
 import store_actions.*;
 
 import java.io.IOException;
@@ -11,41 +14,43 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Created by giorgiopea on 11/03/17.
- *
+ * Manages the network communication between the client and the server by spawning threads
+ * as necessary.
  */
 public class CommunicationHandler implements Observer {
 
     private final ServerStore serverStore;
-    private final Integer tcp_port;
     private final ExecutorService reqRespThreadPool;
     private final ExecutorService pubSubThreadPool;
 
+    private static final CommunicationHandler instance = new CommunicationHandler();
 
-    public CommunicationHandler(int tcp_port) {
+    public static CommunicationHandler getInstance(){
+        return instance;
+    }
+
+    private CommunicationHandler() {
         this.serverStore = ServerStore.getInstance();
-        this.tcp_port = tcp_port;
         this.reqRespThreadPool = Executors.newCachedThreadPool();
         this.pubSubThreadPool = Executors.newCachedThreadPool();
         this.serverStore.observeState(this);
     }
-
-    private void setConnection(){
-        this.serverStore.dispatchAction(new CommunicationSetTcpPortAction(this.tcp_port));
-    }
-    private void initConnection() throws IOException {
-        ServerSocket serverSocket = new ServerSocket(this.tcp_port);
+    /**
+     * Inits listening on the wire on the given port and start spawning threads to manage
+     * incoming requests.
+     *
+     * @throws IOException Networking problem.
+     */
+    public void init() throws IOException {
+        ServerState serverState = this.serverStore.getState();
+        ServerSocket serverSocket = new ServerSocket(serverState.getTcpPort());
         Socket socket;
-        while(true){
+        while(serverState.isServerListening()){
             socket = serverSocket.accept();
             ReqRespHandler reqRespHandler = new ReqRespHandler(socket);
             this.serverStore.dispatchAction(new CommunicationAddReqRespHandlerAction(reqRespHandler));
             this.reqRespThreadPool.submit(reqRespHandler);
         }
-    }
-    public void runServer() throws IOException {
-        this.setConnection();
-        this.initConnection();
     }
 
     @Override
@@ -53,7 +58,7 @@ public class CommunicationHandler implements Observer {
         StoreAction lastAction = (StoreAction) arg;
         if(lastAction.type.equals("@COMMUNICATION_ADD_PUBSUB_HANDLER")){
             CommunicationAddPubSubHandlerAction castedAction = (CommunicationAddPubSubHandlerAction) lastAction;
-            this.pubSubThreadPool.submit(castedAction.getPayload());
+            this.pubSubThreadPool.submit(castedAction.getPubSubHandler());
         }
     }
 }

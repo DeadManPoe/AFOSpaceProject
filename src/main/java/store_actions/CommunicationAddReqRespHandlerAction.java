@@ -1,6 +1,6 @@
 package store_actions;
 
-import server_store.ReqRespHandler;
+import server.ReqRespHandler;
 import server_store.StoreAction;
 
 /**
