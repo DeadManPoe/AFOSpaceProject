@@ -253,24 +253,6 @@ public class ReqRespHandler extends Thread {
      */
     public void publishChatMsg(String message,
                                PlayerToken playerToken) throws IOException {
-        /**for (Game game : this.serverStore.getState().getGames()) {
-            if (game.getGamePublicData().getId() == playerToken.getGameId()) {
-                for (Player player : game.getPlayers()) {
-                    if (player.getPlayerToken().equals(playerToken)) {
-                        playerName = player.getName();
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-        for (PubSubHandler handler : this.serverStore.getState().getPubSubHandlers()) {
-            if (handler.getPlayerToken().getGameId() == token.getGameId()) {
-                ArrayList<Object> parameters = new ArrayList<>();
-                parameters.add(playerName + " says: " + message);
-                handler.queueNotification(new RemoteMethodCall("publishChatMsg", parameters));
-            }
-        }**/
         for (Game game : this.serverStore.getState().getGames()){
             if (game.getGamePublicData().getId() == playerToken.getGameId()){
                 this.serverStore.dispatchAction(new GamePutChatMsg(message, playerToken));

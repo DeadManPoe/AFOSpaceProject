@@ -35,6 +35,7 @@ public class Game {
     private boolean lastActionResult;
     private boolean didAlienWin;
     private boolean didHumansWin;
+    private String lastChatMsg;
 
     public Game(String gameMapName) {
         counter++;
@@ -50,6 +51,7 @@ public class Game {
         this.lastActionResult = true;
         this.didHumansWin = false;
         this.didHumansWin = false;
+        this.lastChatMsg = "";
     }
 
     public List<Player> getPlayers() {
@@ -194,5 +196,13 @@ public class Game {
 
     public void setDidHumansWin(boolean didHumansWin) {
         this.didHumansWin = didHumansWin;
+    }
+
+    public void setLastChatMsg(String message) {
+        this.lastChatMsg = message;
+    }
+
+    public String getLastChatMsg() {
+        return lastChatMsg;
     }
 }

@@ -10,6 +10,7 @@ import common.GameStatus;
 import server.AlienTurn;
 import server.Game;
 import server.HumanTurn;
+import server.PubSubHandler;
 import server_store.*;
 import store_actions.*;
 
@@ -31,19 +32,29 @@ public class GameReducer implements Reducer {
         ServerState castedState = (ServerState) state;
         switch (action.type) {
             case "@GAME_ADD_PLAYER":
-                this.addPlayer(action, castedState);
-                break;
+                return this.addPlayer(action, castedState);
             case "@GAME_MAKE_ACTION":
-                this.makeAction(action, castedState);
-                break;
+                return  this.makeAction(action, castedState);
             case "@GAME_START_GAME":
-                this.startGame(action, castedState);
-                break;
+                return this.startGame(action, castedState);
             case "@GAME_TURNTIMEOUT_EXPIRED":
-                this.turnTimeoutExpired(action, castedState);
+                return this.turnTimeoutExpired(action, castedState);
+            case  "@GAME_PUT_CHAT_MSG":
+                return this.putChatMsg(action,castedState);
         }
         return castedState;
 
+    }
+
+    private ServerState putChatMsg(StoreAction action, ServerState castedState) {
+        GamePutChatMsg castedAction = (GamePutChatMsg) action;
+        for (Game game : castedState.getGames()){
+            if (game.getGamePublicData().getId() == castedAction.getPlayerToken().getGameId()){
+                game.setLastRRclientNotification(new RRClientNotification(true,null,null,null));
+                break;
+            }
+        }
+        return castedState;
     }
 
     /**
@@ -57,7 +68,7 @@ public class GameReducer implements Reducer {
     private ServerState turnTimeoutExpired(StoreAction action, ServerState state) {
         GameTurnTimeoutExpiredAction castedAction = (GameTurnTimeoutExpiredAction) action;
         for (Game game : state.getGames()) {
-            if (game.gamePublicData.getId() == castedAction.getPayload()) {
+            if (game.getGamePublicData().getId() == castedAction.getPayload()) {
                 EndTurnEffect.executeEffect(game, new EndTurnAction());
                 game.currentTimer.cancel();
                 game.currentTimer = new Timer();
@@ -80,7 +91,7 @@ public class GameReducer implements Reducer {
         GameStartGameAction castedAction = (GameStartGameAction) action;
         Integer gameId = castedAction.getPayload();
         for (Game game : state.getGames()) {
-            if (game.gamePublicData.getId() == gameId) {
+            if (game.getGamePublicData().getId() == gameId) {
                 DeckFactory deckFactory = new ObjectDeckFactory();
                 game.objectDeck = (ObjectDeck) deckFactory.makeDeck();
                 deckFactory = new SectorDeckFactory();
@@ -104,7 +115,7 @@ public class GameReducer implements Reducer {
                 } else {
                     game.nextActions = AlienTurn.getInitialActions();
                 }
-                game.gamePublicData.setStatus(GameStatus.CLOSED);
+                game.getGamePublicData().setStatus(GameStatus.CLOSED);
                 game.currentTimer = new Timer();
                 return state;
             }
@@ -126,7 +137,7 @@ public class GameReducer implements Reducer {
         GameMakeActionAction castedAction = (GameMakeActionAction) action;
         StoreAction gameAction = castedAction.payload.action;
         for (Game game : state.getGames()) {
-            if (game.gamePublicData.getId() == castedAction.payload.playerToken.gameId) {
+            if (game.getGamePublicData().getId() == castedAction.payload.playerToken.gameId) {
                 game.lastPSclientNotification = new PSClientNotification();
                 game.lastRRclientNotification = new RRClientNotification();
                 Player actualPlayer = null;
@@ -188,12 +199,12 @@ public class GameReducer implements Reducer {
         GameAddPlayerAction castedAction = (GameAddPlayerAction) action;
         PlayerToken playerToken;
         for (Game game : state.getGames()) {
-            if (game.gamePublicData.getId() == castedAction.getPayload().getGameId()) {
+            if (game.getGamePublicData().getId() == castedAction.getPayload().getGameId()) {
                 PlayerType playerType = assignTypeToPlayer(game.players.size() + 1);
                 playerToken = new PlayerToken(playerType, castedAction.getPayload().getGameId());
                 Player player = new Player(castedAction.getPayload().getPlayerName(),playerToken);
                 game.players.add(player);
-                game.gamePublicData.addPlayer();
+                game.getGamePublicData().addPlayer();
                 if (game.currentPlayer == null) {
                     game.currentPlayer = player;
                 }
