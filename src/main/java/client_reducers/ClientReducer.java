@@ -60,9 +60,16 @@ public class ClientReducer implements Reducer {
                 return this.setPlayerState(action, castedState);
             case "@CLIENT_SET_WINNERS":
                 return this.setWinners(action, castedState);
+            case "@CLIENT_STARTABLE_GAME":
+                return this.startableGame(action,castedState);
 
         }
         return state;
+    }
+
+    private State startableGame(StoreAction action, ClientState castedState) {
+        castedState.setStartableGame(true);
+        return castedState;
     }
 
     private State setWinners(StoreAction action, ClientState state) {

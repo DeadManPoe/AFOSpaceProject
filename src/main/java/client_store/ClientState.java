@@ -26,7 +26,6 @@ public class ClientState extends State implements Serializable {
     private RRClientNotification currentReqRespNotification;
     private boolean askLights;
     private boolean askAttack;
-    private StatefulTimer gamePollingTimer;
     private String lastChatMessage;
     private PSClientNotification currentPubSubNotification;
     private long delayReturnToGameList;
@@ -135,14 +134,6 @@ public class ClientState extends State implements Serializable {
 
     public void setAskAttack(boolean askAttack) {
         this.askAttack = askAttack;
-    }
-
-    public StatefulTimer getGamePollingTimer() {
-        return gamePollingTimer;
-    }
-
-    public void setGamePollingTimer(StatefulTimer gamePollingTimer) {
-        this.gamePollingTimer = gamePollingTimer;
     }
 
     public String getLastChatMessage() {
