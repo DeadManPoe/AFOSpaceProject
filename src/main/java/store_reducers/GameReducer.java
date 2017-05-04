@@ -135,50 +135,65 @@ public class GameReducer implements Reducer {
      */
     private ServerState makeAction(StoreAction action, ServerState state) {
         GameMakeActionAction castedAction = (GameMakeActionAction) action;
-        StoreAction gameAction = castedAction.payload.action;
+        StoreAction gameAction = castedAction.getAction();
         for (Game game : state.getGames()) {
-            if (game.getGamePublicData().getId() == castedAction.payload.playerToken.gameId) {
-                game.lastPSclientNotification = new PSClientNotification();
-                game.lastRRclientNotification = new RRClientNotification();
+            if (game.getGamePublicData().getId() == castedAction.getPlayerToken().getGameId()) {
+                game.setLastPSclientNotification(new PSClientNotification());
+                game.setLastRRclientNotification(new RRClientNotification());
                 Player actualPlayer = null;
-                for (Player player : game.players) {
-                    if (player.playerToken.equals(castedAction.payload.playerToken)) {
+                for (Player player : game.getPlayers()) {
+                    if (player.getPlayerToken().equals(castedAction.getPlayerToken())) {
                         actualPlayer = player;
                         break;
                     }
                 }
-                if (!game.currentPlayer.equals(actualPlayer)) {
-                    game.lastRRclientNotification.setActionResult(false);
+                if (!game.getCurrentPlayer().equals(actualPlayer)) {
+                    game.getLastRRclientNotification().setActionResult(false);
                 } else {
                     // If the player is ok then check if the action is ok
-                    if (game.nextActions.contains(gameAction.type)) {
+                    if (game.getNextActions().contains(gameAction.type)) {
 
                         // Executes the action's associated logic and get the result
                         ServerStore.getInstance().dispatchAction(new GameActionAction(gameAction, game));
-                        if (game.lastActionResult) {
-                            if (!game.lastAction.getClass().equals(EndTurnAction.class)) {
-                                if (actualPlayer.playerToken.playerType.equals(PlayerType.HUMAN)) {
-                                    game.nextActions = HumanTurn.nextAction(game.lastAction, actualPlayer);
+                        if (game.isLastActionResult()) {
+                            if (!game.getLastAction().type.equals("@GAMEACTION_END_TURN")) {
+                                if (game.getCurrentPlayer().getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
+                                    game.setNextActions(HumanTurn.nextAction(game.getLastAction(), game.getCurrentPlayer()));
                                 } else {
-                                    game.nextActions = AlienTurn.nextAction(game.lastAction, actualPlayer);
+                                    game.setNextActions(AlienTurn.nextAction(game.getLastAction(), actualPlayer));
                                 }
 
                             } else {
-                                if (actualPlayer.playerToken.playerType.equals(PlayerType.HUMAN)) {
-                                    game.nextActions = AlienTurn.getInitialActions();
+                                if (game.getCurrentPlayer().getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
+                                    game.setNextActions(AlienTurn.getInitialActions());
                                 } else {
-                                    game.nextActions = HumanTurn.getInitialActions();
+                                    game.setNextActions(HumanTurn.getInitialActions());
                                 }
-                                game.turnNumber++;
+                                game.setTurnNumber(game.getTurnNumber()+1);
                             }
-                            game.didHumansWin = checkWinConditions(PlayerType.HUMAN, game);
-                            game.didAlienWin = checkWinConditions(PlayerType.ALIEN, game);
-                            game.currentTimer.cancel();
-                            game.currentTimer = new Timer();
-                            game.lastRRclientNotification.setActionResult(true);
+                            game.setDidHumansWin(checkWinConditions(PlayerType.HUMAN, game));
+                            game.setDidAlienWin(checkWinConditions(PlayerType.ALIEN, game));
+                            game.getCurrentTimer().cancel();
+                            game.setCurrentTimer(new Timer());
+                            game.getLastRRclientNotification().setActionResult(true);
+                            if (game.isDidHumansWin()) {
+                                game.getLastPSclientNotification()
+                                        .setMessage(game.getLastPSclientNotification().getMessage()
+                                                + "\n[GLOBAL MESSAGE]: The game has ended, HUMANS WIN!");
+                            }
+                            if (game.isDidAlienWin()) {
+                                game.getLastPSclientNotification()
+                                        .setMessage(game.getLastPSclientNotification().getMessage()
+                                                + "\n[GLOBAL MESSAGE]: The game has ended, ALIENS WIN!");
+
+                            }
+                            if (game.isDidAlienWin() || game.isDidHumansWin()) {
+                                game.getLastPSclientNotification().setAlienWins(game.isDidAlienWin());
+                                game.getLastPSclientNotification().setHumanWins(game.isDidHumansWin());
+                            }
                         }
                     } else {
-                        game.lastRRclientNotification.setActionResult(false);
+                        game.getLastRRclientNotification().setActionResult(false);
                     }
 
                 }

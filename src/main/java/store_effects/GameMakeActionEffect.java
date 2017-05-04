@@ -1,10 +1,7 @@
 package store_effects;
 
 import common.RemoteMethodCall;
-import server.Game;
-import server.PubSubHandler;
-import server.ReqRespHandler;
-import server.TurnTimeout;
+import server.*;
 import server_store.*;
 import store_actions.GameMakeActionAction;
 import store_actions.GamesEndGameAction;
@@ -29,49 +26,28 @@ public class GameMakeActionEffect implements Effect {
         GameMakeActionAction castedAction = (GameMakeActionAction) action;
         Game game = null;
         for (Game c_game : castedState.getGames()) {
-            if (c_game.gamePublicData.getId() == castedAction.payload.playerToken.gameId) {
+            if (c_game.getGamePublicData().getId() == castedAction.getPlayerToken().getGameId()) {
                 game = c_game;
                 break;
             }
         }
         if (game != null) {
-            if (game.didHumansWin) {
-                game.lastPSclientNotification
-                        .setMessage(game.lastPSclientNotification.getMessage()
-                                + "\n[GLOBAL MESSAGE]: The game has ended, HUMANS WIN!");
-                game.lastPSclientNotification.setHumanWins(true);
-            }
-            if (game.didAlienWin) {
-                game.lastPSclientNotification
-                        .setMessage(game.lastPSclientNotification.getMessage()
-                                + "\n[GLOBAL MESSAGE]: The game has ended, ALIENS WIN!");
-                game.lastPSclientNotification.setAlienWins(true);
-
-            }
-            for (ReqRespHandler handler : castedState.getReqRespHandlers()) {
-                if (handler.getUuid().equals(castedAction.payload.reqRespHandlerUUID)) {
-                    ArrayList<Object> parameters = new ArrayList<>();
-                    parameters.add(game.lastRRclientNotification);
-                    handler.addRemoteMethodCallToQueue(new RemoteMethodCall("syncNotification", parameters));
-                    break;
-                }
-            }
             for (PubSubHandler handler : castedState.getPubSubHandlers()) {
-                if (handler.getPlayerToken().gameId == game.gamePublicData.getId()) {
+                if (handler.getPlayerToken().getGameId() == game.getGamePublicData().getId()) {
                     ArrayList<Object> parameters = new ArrayList<>();
-                    parameters.add(game.lastPSclientNotification);
-                    handler.queueNotification(new RemoteMethodCall("asyncNotification", parameters));
+                    parameters.add(game.getLastPSclientNotification());
+                    handler.queueNotification(new RemoteMethodCall(ClientMethodsNamesProvider.getInstance().asyncNotification(), parameters));
 
-                    if (castedAction.payload.action.type.equals("@GAMEACTION_END_TURN") && game.currentPlayer.playerToken.equals(handler.getPlayerToken())) {
-                        handler.queueNotification(new RemoteMethodCall("startTurn", new ArrayList<Object>()));
+                    if (castedAction.getAction().type.equals("@GAMEACTION_END_TURN") && game.getCurrentPlayer().getPlayerToken().equals(handler.getPlayerToken())) {
+                        handler.queueNotification(new RemoteMethodCall(ClientMethodsNamesProvider.getInstance().startTurn(), new ArrayList<>()));
                     }
 
                 }
             }
-            if (!game.didAlienWin && !game.didHumansWin) {
-                game.currentTimer.schedule(new TurnTimeout(castedAction.payload.playerToken.gameId), castedState.getTurnTimeout());
+            if (!game.isDidHumansWin() && !game.isDidAlienWin()) {
+                game.getCurrentTimer().schedule(new TurnTimeout(castedAction.getPlayerToken().getGameId()), castedState.getTurnTimeout());
             } else {
-                ServerStore.getInstance().dispatchAction(new GamesEndGameAction(game.gamePublicData.getId()));
+                ServerStore.getInstance().dispatchAction(new GamesEndGameAction(game.getGamePublicData().getId()));
             }
 
         }
