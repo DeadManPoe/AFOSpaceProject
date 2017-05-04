@@ -1,4 +1,4 @@
-package server;
+package common;
 
 /**
  * Represents the status of a game

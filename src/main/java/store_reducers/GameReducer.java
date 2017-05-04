@@ -6,7 +6,7 @@ import decks.RescueDeck;
 import decks.SectorDeck;
 import effects.EndTurnEffect;
 import factories.*;
-import server.GameStatus;
+import common.GameStatus;
 import server_store.*;
 import store_actions.*;
 

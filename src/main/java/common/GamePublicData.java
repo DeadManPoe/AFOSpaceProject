@@ -2,8 +2,6 @@ package common;
 
 import java.io.Serializable;
 
-import server.GameStatus;
-
 /**
  * Represents a container of public data concerning a game
  * 
