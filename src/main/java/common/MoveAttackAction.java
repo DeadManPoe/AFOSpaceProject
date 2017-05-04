@@ -12,10 +12,14 @@ import server_store.StoreAction;
  */
 public class MoveAttackAction extends StoreAction {
 
-    public Sector payload;
+    private final Sector targetSector;
 
 	public MoveAttackAction(Sector target) {
         super("@GAMEACTION_MOVE_ATTACK");
-        this.payload = target;
+        this.targetSector= target;
 	}
+
+    public Sector getTargetSector() {
+        return targetSector;
+    }
 }

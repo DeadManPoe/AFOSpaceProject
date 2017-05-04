@@ -14,8 +14,7 @@ import java.util.List;
  * @version 1.0
  */
 
-public class PSClientNotification extends ClientNotification implements
-		Serializable {
+public class PSClientNotification extends ClientNotification {
 	private static final long serialVersionUID = 1L;
 
 	private ArrayList<PlayerToken> deadPlayers;

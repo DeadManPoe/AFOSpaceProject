@@ -3,7 +3,6 @@ package client_reducers;
 import client_store.ClientState;
 import client_store_actions.*;
 import common.PlayerState;
-import common.StatefulTimer;
 import factories.GameMapFactory;
 import common.PlayerType;
 import common.Player;

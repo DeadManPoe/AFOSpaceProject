@@ -12,10 +12,14 @@ import server_store.StoreAction;
  */
 public class UseObjAction extends StoreAction {
 
-    public ObjectCard payload;
+    private final ObjectCard objectCard;
 
     public UseObjAction(ObjectCard objectCard) {
         super("@GAMEACTION_USE_OBJ_CARD");
-        this.payload = objectCard;
+        this.objectCard = objectCard;
+    }
+
+    public ObjectCard getObjectCard() {
+        return objectCard;
     }
 }

@@ -7,10 +7,7 @@ import java.util.ArrayList;
  * Represents a remote method call. This class groups the name of the method to
  * be invoked on the server/client and the parameters to be passed to this
  * method
- * 
- * @author Andrea Sessa
- * @author Giorgio Pea
- * @version 1.0
+ *
  */
 public class RemoteMethodCall implements Serializable {
 

@@ -152,11 +152,11 @@ public abstract class GameMapFactory {
 				j++;
 			}
 		} catch (IOException e) {
-
+			e.printStackTrace();
 		}
 		return graph;
 	}
-	public static GameMapFactory provideCorrectFactory(String factoryIdentifier){
+	public static GameMapFactory provideCorrectFactory(String factoryIdentifier) throws NoSuchMethodException{
 		switch (factoryIdentifier){
 			case "GALILEI":
 				return new GalileiGameMapFactory();
