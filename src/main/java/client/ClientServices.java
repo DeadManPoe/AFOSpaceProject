@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 /**
  * A manager that acts as CONTROLLER along with the {@link ClientStore}.
@@ -62,6 +63,7 @@ public class ClientServices {
         if (notification.getHumanWins() || notification.getAlienWins()) {
             this.clientStore.dispatchAction(new ClientSetWinnersAction(notification.getAlienWins(), notification.getHumanWins()));
             this.clientStore.dispatchAction(new ClientRemovePubSubHandlerAction());
+            (new Timer()).schedule(new EndGameTimeout(),this.clientStore.getState().delayReturnToGameList);
         }
         this.clientStore.dispatchAction(new ClientSetCurrentChatMessage(notification.getMessage()));
         if (notification.getEscapedPlayer() != null) {

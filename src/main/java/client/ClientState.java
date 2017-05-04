@@ -28,7 +28,7 @@ public class ClientState extends State implements Serializable {
     public StatefulTimer gamePollingTimer;
     public String lastChatMessage;
     public PSClientNotification currentPubSubNotification;
-    public long gameListPollingPeriod;
+    public long delayReturnToGameList;
     public boolean connectionActive;
     public SectorCard drawnSectorCard;
     public boolean aliensHaveWon;
@@ -37,8 +37,7 @@ public class ClientState extends State implements Serializable {
     public ClientState() {
         this.tcpPort = 29999;
         this.host = "localhost";
-        this.player = new Player(null,null);
-        this.gameListPollingPeriod = 10000;
+        this.delayReturnToGameList = 10000;
     }
 
     @Override
@@ -59,7 +58,7 @@ public class ClientState extends State implements Serializable {
                 ", gamePollingTimer=" + gamePollingTimer +
                 ", lastChatMessage='" + lastChatMessage + '\'' +
                 ", currentPubSubNotification=" + currentPubSubNotification +
-                ", gameListPollingPeriod=" + gameListPollingPeriod +
+                ", delayReturnToGameList=" + delayReturnToGameList +
                 ", connectionActive=" + connectionActive +
                 ", drawnSectorCard=" + drawnSectorCard +
                 ", aliensHaveWon=" + aliensHaveWon +

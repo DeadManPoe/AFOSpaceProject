@@ -13,7 +13,7 @@ public class SetAvailableGamesEffect implements Effect {
     public void apply(StoreAction action, State state) {
         ClientState castedState = (ClientState) state;
         if (!castedState.gamePollingTimer.isHasBeenScheduled()){
-            castedState.gamePollingTimer.scheduleAtFixedRateProxy(new GamePollingThread(),0,castedState.gameListPollingPeriod);
+            castedState.gamePollingTimer.scheduleAtFixedRateProxy(new GamePollingThread(),0,castedState.delayReturnToGameList);
         }
     }
 }

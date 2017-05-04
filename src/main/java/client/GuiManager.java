@@ -10,12 +10,9 @@ import server_store.StoreAction;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
 /**
- * Created by giorgiopea on 27/03/17.
  * A manager that orchestrates all the gui components of this application.
  * It observes the state of this application and implements view business logic in response to state changes.
  */
@@ -175,11 +172,7 @@ public class GuiManager implements Observer {
         this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
         this.guiGamePane.refreshCardPanel(new ArrayList<ObjectCard>());
         this.guiGamePane.showEndTurnButton(false);
-        this.mainFrame.remove(this.guiGamePane);
-        this.mainFrame.add(this.guiGameList);
-        this.guiGameList.setVisible(true);
-        this.mainFrame.validate();
-        this.mainFrame.repaint();
+
     }
 
     /**
@@ -226,17 +219,14 @@ public class GuiManager implements Observer {
         String message;
         if (player.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)){
             message = player.getName() + " now is your turn: move or attack";
+            this.guiGamePane.getMapPane().changeMapMenu(MenuType.ALIEN_INITIAL);
         }
         else {
             message = player.getName() + "now is your turn: move or use an object card";
-        }
-        this.guiGamePane.setStateMessage(message);
-        if (player.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
-            this.guiGamePane.getMapPane().changeMapMenu(MenuType.ALIEN_INITIAL);
-        } else {
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.HUMAN_INITIAL);
             this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_MENU);
         }
+        this.guiGamePane.setStateMessage(message);
     }
 
     /**
@@ -246,7 +236,6 @@ public class GuiManager implements Observer {
      * @param action The action that has triggered this reaction.
      */
     private void endTurnReaction(StoreAction action) {
-        ClientEndTurnAction castedAction = (ClientEndTurnAction) action;
         this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
         this.guiGamePane.changeCardMenu(MenuType.EMPTY);
         this.guiGamePane.showEndTurnButton(false);
@@ -261,6 +250,9 @@ public class GuiManager implements Observer {
     private void discardObjectCardReaction(StoreAction action) {
         ClientDiscardObjectCardAction castedAction = (ClientDiscardObjectCardAction) action;
         this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.getPrivateDeck().getContent());
+        this.guiGamePane.showEndTurnButton(true);
+        this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
+        this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_MENU);
     }
 
     /**
@@ -391,7 +383,6 @@ public class GuiManager implements Observer {
      * acts on this view in response to the starting of the game
      */
     private void startGameReaction(StoreAction action) {
-        ClientStartGameAction castedAction = (ClientStartGameAction) action;
         Player player = this.clientStore.getState().player;
         String characterInfoMsg;
         if (player.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
@@ -401,6 +392,7 @@ public class GuiManager implements Observer {
             characterInfoMsg = player.getName() + " | HUMAN";
             this.guiGamePane.setSectorMenu(MenuType.HUMAN_INITIAL);
         }
+        this.guiGameList.reset();
         this.mainFrame.remove(this.guiGameList);
         this.guiGamePane.load(this.clientStore.getState().gameMap);
         this.mainFrame.add(this.guiGamePane);
@@ -431,8 +423,6 @@ public class GuiManager implements Observer {
      * @param action The {@link server_store.StoreAction} that has caused this behavior.
      */
     private void setAvailableGamesReaction(StoreAction action) {
-        ClientSetAvailableGamesAction castedAction = (ClientSetAvailableGamesAction) action;
-        this.guiGameList.setGameListContent(castedAction.availableGames);
         if (!this.guiGameList.isVisible()){
             this.mainFrame.remove(this.guiInitialWindow);
             this.guiGameList
@@ -443,6 +433,10 @@ public class GuiManager implements Observer {
             this.guiGameList.setVisible(true);
             this.mainFrame.validate();
             this.mainFrame.repaint();
+        }
+        else {
+            ClientSetAvailableGamesAction castedAction = (ClientSetAvailableGamesAction) action;
+            this.guiGameList.setGameListContent(castedAction.availableGames);
         }
 
 
