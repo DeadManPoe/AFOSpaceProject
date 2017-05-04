@@ -2,7 +2,9 @@ package client_reducers;
 
 import client_store.ClientState;
 import client_store_actions.*;
+import common.GameMap;
 import common.PlayerState;
+import factories.GalileiGameMapFactory;
 import factories.GameMapFactory;
 import common.PlayerType;
 import common.Player;
@@ -195,8 +197,13 @@ public class ClientReducer implements Reducer {
     private State startGame(StoreAction action, ClientState state) {
         ClientStartGameAction castedAction = (ClientStartGameAction) action;
         Player player = state.getPlayer();
-        GameMapFactory mapFactory = GameMapFactory.provideCorrectFactory(castedAction.getGameMapName());
-        state.setGameMap( mapFactory.makeMap());
+        GameMap gameMap;
+        try {
+            gameMap = GameMapFactory.provideCorrectFactory(castedAction.getGameMapName()).makeMap();
+        } catch (NoSuchMethodException e) {
+            gameMap = new GalileiGameMapFactory().makeMap();
+        }
+        state.setGameMap( gameMap);
         if (player.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
             player.setCurrentSector(state.getGameMap().getAlienSector());
         } else {
