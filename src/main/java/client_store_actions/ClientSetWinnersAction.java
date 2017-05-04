@@ -8,12 +8,20 @@ import server_store.StoreAction;
 public class ClientSetWinnersAction extends StoreAction {
 
 
-    public final boolean aliensHaveWon;
-    public final boolean humansHaveWon;
+    private final boolean aliensHaveWon;
+    private final boolean humansHaveWon;
 
     public ClientSetWinnersAction(boolean aliensHaveWon, boolean humansHaveWon) {
         super("@CLIENT_SET_WINNNERS");
         this.aliensHaveWon = aliensHaveWon;
         this.humansHaveWon = humansHaveWon;
+    }
+
+    public boolean isAliensHaveWon() {
+        return aliensHaveWon;
+    }
+
+    public boolean isHumansHaveWon() {
+        return humansHaveWon;
     }
 }

@@ -59,11 +59,10 @@ public class ClientServices {
      * @param notification The produced notification.
      */
     private void asyncNotification(PSClientNotification notification) {
-        Player player = this.clientStore.getState().player;
+        Player player = this.clientStore.getState().getPlayer();
         if (notification.getHumanWins() || notification.getAlienWins()) {
             this.clientStore.dispatchAction(new ClientSetWinnersAction(notification.getAlienWins(), notification.getHumanWins()));
             this.clientStore.dispatchAction(new ClientRemovePubSubHandlerAction());
-            (new Timer()).schedule(new EndGameTimeout(),this.clientStore.getState().delayReturnToGameList);
         }
         this.clientStore.dispatchAction(new ClientSetCurrentChatMessage(notification.getMessage()));
         if (notification.getEscapedPlayer() != null) {
@@ -87,7 +86,7 @@ public class ClientServices {
      * @param playerToken The client's identification token
      */
     private void setPlayerTokenAndSubscribe(PlayerToken playerToken) {
-        String playerName = this.clientStore.getState().player.getName();
+        String playerName = this.clientStore.getState().getPlayer().getName();
         this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName, playerToken));
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(playerToken);
@@ -106,9 +105,9 @@ public class ClientServices {
      */
     public void onDemandGameStart() {
         ArrayList<Object> parameters = new ArrayList<>();
-        parameters.add(ClientStore.getInstance().getState().player.getPlayerToken());
+        parameters.add(ClientStore.getInstance().getState().getPlayer().getPlayerToken());
         try {
-            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("onDemandGameStart", parameters));
+            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.onDemandGameStart(), parameters));
             this.processRemoteInvocation(methodCall);
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
 
@@ -140,7 +139,7 @@ public class ClientServices {
         parameters.add(gameMapName);
         parameters.add(playerName);
         try {
-            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("joinNewGame", parameters));
+            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.joinNewGame(), parameters));
             this.processRemoteInvocation(methodCall);
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
@@ -149,7 +148,7 @@ public class ClientServices {
             //If connection is down
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
-        RRClientNotification currentNotification = this.clientStore.getState().currentReqRespNotification;
+        RRClientNotification currentNotification = this.clientStore.getState().getCurrentReqRespNotification();
         boolean isActionServerValidated = currentNotification.getActionResult();
         if (isActionServerValidated){
             this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName, currentNotification.getPlayerToken()));
@@ -168,7 +167,7 @@ public class ClientServices {
         parameters.add(gameId);
         parameters.add(playerName);
         try {
-            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall("joinGame", parameters));
+            RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.joinGame(), parameters));
             this.processRemoteInvocation(methodCall);
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
 
@@ -178,7 +177,7 @@ public class ClientServices {
             //If connection is down
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
-        RRClientNotification currentNotification = this.clientStore.getState().currentReqRespNotification;
+        RRClientNotification currentNotification = this.clientStore.getState().getCurrentReqRespNotification();
         boolean isActionServerValidated = currentNotification.getActionResult();
         if (isActionServerValidated){
             this.clientStore.dispatchAction(new ClientSetPlayerAction(playerName, currentNotification.getPlayerToken()));
@@ -204,12 +203,12 @@ public class ClientServices {
      * @param coordinate The coordinates of the sector to move to
      */
     public void moveToSector(Coordinate coordinate) {
-        Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
+        Sector targetSector = this.clientStore.getState().getGameMap().getSectorByCoords(coordinate);
         this.clientStore.dispatchAction(new ClientAskAttackAction(false));
         ArrayList<Object> parameters = new ArrayList<>();
         StoreAction action = new MoveAction(targetSector);
         parameters.add(action);
-        parameters.add(this.clientStore.getState().player.getPlayerToken());
+        parameters.add(this.clientStore.getState().getPlayer().getPlayerToken());
         try {
             RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
             this.processRemoteInvocation(methodCall);
@@ -220,9 +219,9 @@ public class ClientServices {
             //If connection is down
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
-        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
+        boolean isActionServerValidated = this.clientStore.getState().getCurrentReqRespNotification().getActionResult();
        if (isActionServerValidated) {
-           List<Card> drawnCards = this.clientStore.getState().currentReqRespNotification.getDrawnCards();
+           List<Card> drawnCards = this.clientStore.getState().getCurrentReqRespNotification().getDrawnCards();
            this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector));
            if (drawnCards.size() == 1) {
                 this.clientStore.dispatchAction(
@@ -252,7 +251,7 @@ public class ClientServices {
      * @param objectCard The object card to be used
      */
     public void useObjCard(ObjectCard objectCard) {
-        Player player = this.clientStore.getState().player;
+        Player player = this.clientStore.getState().getPlayer();
         if (player.getPrivateDeck().getContent().contains(objectCard)) {
             if (objectCard instanceof LightsObjectCard) {
                 this.clientStore.dispatchAction(new ClientAskSectorToLightAction(true));
@@ -273,7 +272,7 @@ public class ClientServices {
                     //If connection is down
                     this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
                 }
-                boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
+                boolean isActionServerValidated = this.clientStore.getState().getCurrentReqRespNotification().getActionResult();
                 if (isActionServerValidated) {
                     this.clientStore.dispatchAction(new ClientUseObjectCard(objectCard));
                     if (objectCard instanceof TeleportObjectCard) {
@@ -307,14 +306,14 @@ public class ClientServices {
      * @param hasObject  If there's an object card associated with the global noise sector card(irrelevant)
      */
     public void globalNoise(Coordinate coordinate, boolean hasObject) {
-        Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
+        Sector targetSector = this.clientStore.getState().getGameMap().getSectorByCoords(coordinate);
         if (targetSector != null) {
             SectorCard globalNoiseCard = new GlobalNoiseSectorCard(hasObject,
                     targetSector);
             ArrayList<Object> parameters = new ArrayList<>();
             StoreAction action = new UseSectorCardAction(globalNoiseCard);
             parameters.add(action);
-            parameters.add(this.clientStore.getState().player.getPlayerToken());
+            parameters.add(this.clientStore.getState().getPlayer().getPlayerToken());
             try {
                 RemoteMethodCall methodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
                 this.processRemoteInvocation(methodCall);
@@ -325,7 +324,7 @@ public class ClientServices {
                 //If connection is down
                 this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
             }
-            boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
+            boolean isActionServerValidated = this.clientStore.getState().getCurrentReqRespNotification().getActionResult();
             if (isActionServerValidated){
                 this.clientStore.dispatchAction(new ClientSetDrawnSectorObjectCard(null, null));
             }
@@ -343,13 +342,13 @@ public class ClientServices {
      * @param coordinate The coordinates of the sector for the ligths object card effect
      */
     public void lights(Coordinate coordinate) {
-        Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
+        Sector targetSector = this.clientStore.getState().getGameMap().getSectorByCoords(coordinate);
         if (targetSector != null) {
             ObjectCard lightsCard = new LightsObjectCard(targetSector);
             ArrayList<Object> parameters = new ArrayList<>();
             StoreAction action = new UseObjAction(lightsCard);
             parameters.add(action);
-            parameters.add(this.clientStore.getState().player.getPlayerToken());
+            parameters.add(this.clientStore.getState().getPlayer().getPlayerToken());
             RemoteMethodCall remoteMethodCall = null;
             try {
                 remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
@@ -361,7 +360,7 @@ public class ClientServices {
                 //If connection is down
                 this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
             }
-            boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
+            boolean isActionServerValidated = this.clientStore.getState().getCurrentReqRespNotification().getActionResult();
             if (isActionServerValidated) {
                 this.clientStore.dispatchAction(new ClientUseObjectCard(lightsCard));
                 this.clientStore.dispatchAction(new ClientAskSectorToLightAction(false));
@@ -380,7 +379,7 @@ public class ClientServices {
         ArrayList<Object> parameters = new ArrayList<>();
         StoreAction action = new EndTurnAction();
         parameters.add(action);
-        parameters.add(this.clientStore.getState().player.getPlayerToken());
+        parameters.add(this.clientStore.getState().getPlayer().getPlayerToken());
         try {
             RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.makeAction(), parameters));
             this.processRemoteInvocation(remoteMethodCall);
@@ -391,7 +390,7 @@ public class ClientServices {
             //If connection is down
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
-        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
+        boolean isActionServerValidated = this.clientStore.getState().getCurrentReqRespNotification().getActionResult();
         if (isActionServerValidated){
             this.clientStore.dispatchAction(new ClientEndTurnAction());
         }
@@ -410,7 +409,7 @@ public class ClientServices {
      * @param objectCard The object card to be discarded.
      */
     public void discardCard(ObjectCard objectCard) {
-        Player player = this.clientStore.getState().player;
+        Player player = this.clientStore.getState().getPlayer();
         if (player.getPrivateDeck().getContent().contains(objectCard)) {
             ArrayList<Object> parameters = new ArrayList<>();
             StoreAction action = new DiscardAction(objectCard);
@@ -426,7 +425,7 @@ public class ClientServices {
                 //If connection is down
                 this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
             }
-            boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
+            boolean isActionServerValidated = this.clientStore.getState().getCurrentReqRespNotification().getActionResult();
             if (isActionServerValidated){
                 this.clientStore.dispatchAction(new ClientDiscardObjectCardAction(objectCard));
             }
@@ -441,9 +440,9 @@ public class ClientServices {
     public void sendMessage(String message) {
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(message);
-        parameters.add(this.clientStore.getState().player.getPlayerToken());
+        parameters.add(this.clientStore.getState().getPlayer().getPlayerToken());
         try {
-            RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall("publishGlobalMessage", parameters));
+            RemoteMethodCall remoteMethodCall = this.communicationHandler.newComSession(new RemoteMethodCall(this.serverMethodsNameProvider.publishChatMsg(), parameters));
             this.processRemoteInvocation(remoteMethodCall);
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(true));
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
@@ -460,9 +459,9 @@ public class ClientServices {
      * @param coordinate The coordinates of the sector to be attacked.
      */
     public void attack(Coordinate coordinate) {
-        Player player = this.clientStore.getState().player;
+        Player player = this.clientStore.getState().getPlayer();
         boolean humanAttack = player.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN);
-        Sector targetSector = this.clientStore.getState().gameMap.getSectorByCoords(coordinate);
+        Sector targetSector = this.clientStore.getState().getGameMap().getSectorByCoords(coordinate);
         ArrayList<Object> parameters = new ArrayList<>();
         AttackObjectCard card = null;
         if (humanAttack) {
@@ -486,7 +485,7 @@ public class ClientServices {
             //If connection is down
             this.clientStore.dispatchAction(new ClientSetConnectionActiveAction(false));
         }
-        boolean isActionServerValidated = this.clientStore.getState().currentReqRespNotification.getActionResult();
+        boolean isActionServerValidated = this.clientStore.getState().getCurrentReqRespNotification().getActionResult();
         if (isActionServerValidated){
             this.clientStore.dispatchAction(new ClientMoveToSectorAction(targetSector));
             if (humanAttack){

@@ -7,10 +7,14 @@ import server_store.StoreAction;
  */
 public class ClientAskAttackAction extends StoreAction {
 
-    public final boolean toBeAsked;
+    private final boolean toBeAsked;
 
     public ClientAskAttackAction(boolean toBeAsked) {
         super("@CLIENT_ASK_FOR_SECTOR_TO_ATTACK");
         this.toBeAsked = toBeAsked;
+    }
+
+    public boolean isToBeAsked() {
+        return toBeAsked;
     }
 }

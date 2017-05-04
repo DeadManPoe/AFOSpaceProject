@@ -8,10 +8,14 @@ import server_store.StoreAction;
  */
 public class ClientSetCurrentReqRespNotificationAction extends StoreAction {
 
-    public final RRClientNotification rrClientNotification;
+    private final RRClientNotification rrClientNotification;
 
     public ClientSetCurrentReqRespNotificationAction(RRClientNotification rrClientNotification) {
         super("@CLIENT_SET_CURRENT_REQRESP_NOTIFICATION");
         this.rrClientNotification = rrClientNotification;
+    }
+
+    public RRClientNotification getRrClientNotification() {
+        return rrClientNotification;
     }
 }

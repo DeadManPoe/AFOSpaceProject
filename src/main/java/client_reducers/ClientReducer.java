@@ -1,6 +1,6 @@
 package client_reducers;
 
-import client.ClientState;
+import client_store.ClientState;
 import client_store_actions.*;
 import common.PlayerState;
 import common.StatefulTimer;
@@ -67,28 +67,28 @@ public class ClientReducer implements Reducer {
 
     private State setWinners(StoreAction action, ClientState state) {
         ClientSetWinnersAction castedAction = (ClientSetWinnersAction) action;
-        state.aliensHaveWon = castedAction.aliensHaveWon;
-        state.humansHaveWon = castedAction.humansHaveWon;
+        state.setAliensHaveWon(castedAction.isAliensHaveWon());
+        state.setHumansHaveWon(castedAction.isHumansHaveWon());
         return state;
     }
 
     private State setPlayerState(StoreAction action, ClientState state) {
         ClientSetPlayerState castedAction = (ClientSetPlayerState) action;
-        state.player.setPlayerState(castedAction.getPlayerState());
-        if (state.player.getPlayerState().equals(PlayerState.DEAD) ||  state.player.getPlayerState().equals(PlayerState.ESCAPED)){
-            state.isGameStarted = false;
+        state.getPlayer().setPlayerState(castedAction.getPlayerState());
+        if (state.getPlayer().getPlayerState().equals(PlayerState.DEAD) ||  state.getPlayer().getPlayerState().equals(PlayerState.ESCAPED)){
+            state.setGameStarted(false);
         }
         return state;
     }
 
     private State discardObjectCard(StoreAction action, ClientState state) {
         ClientDiscardObjectCardAction castedAction = (ClientDiscardObjectCardAction) action;
-        state.player.getPrivateDeck().removeCard(castedAction.getDiscardedObjectCard());
+        state.getPlayer().getPrivateDeck().removeCard(castedAction.getDiscardedObjectCard());
         return state;
     }
 
     private State adrenaline(ClientState state) {
-        state.player.setAdrenalined(true);
+        state.getPlayer().setAdrenalined(true);
         return state;
     }
 
@@ -96,43 +96,43 @@ public class ClientReducer implements Reducer {
     private State setDrawnSectorObjectCard(StoreAction action, ClientState state) {
         ClientSetDrawnSectorObjectCard castedAction = (ClientSetDrawnSectorObjectCard) action;
         if (castedAction.getDrawnObjectCard() != null){
-            state.player.getPrivateDeck().addCard(castedAction.getDrawnObjectCard());
+            state.getPlayer().getPrivateDeck().addCard(castedAction.getDrawnObjectCard());
         }
         return state;
     }
 
     private State setConnectionActive(StoreAction action, ClientState state) {
         ClientSetConnectionActiveAction castedAction = (ClientSetConnectionActiveAction) action;
-        state.connectionActive = castedAction.isConnectionActive;
+        state.setConnectionActive(castedAction.isConnectionActive());
         return state;
     }
 
     private State suppress(StoreAction action, ClientState state) {
         ClientSuppressAction castedAction = (ClientSuppressAction) action;
-        state.player.setSedated(castedAction.isSedated());
+        state.getPlayer().setSedated(castedAction.isSedated());
         return state;
     }
 
     private State askSectorToLight(StoreAction action, ClientState state) {
         ClientAskSectorToLightAction castedAction = (ClientAskSectorToLightAction) action;
-        state.askLights = castedAction.toBeAsked;
+        state.setAskAttack(castedAction.isToBeAsked());
         return state;
     }
     private State askAttack(StoreAction action, ClientState state){
         ClientAskAttackAction castedAction = (ClientAskAttackAction) action;
-        state.askAttack = castedAction.toBeAsked;
+        state.setAskAttack(castedAction.isToBeAsked());
         return state;
     }
 
     private State setPS(StoreAction action, ClientState state) {
         ClientSetCurrentPubSubNotificationAction castedAction = (ClientSetCurrentPubSubNotificationAction) action;
-        state.currentPubSubNotification = castedAction.psNotification;
+        state.setCurrentPubSubNotification(castedAction.getPsNotification());
         return state;
     }
 
     private State setRR(StoreAction action, ClientState state) {
         ClientSetCurrentReqRespNotificationAction castedAction = (ClientSetCurrentReqRespNotificationAction) action;
-        state.currentReqRespNotification = castedAction.rrClientNotification;
+        state.setCurrentReqRespNotification(castedAction.getRrClientNotification());
         return state;
     }
 
@@ -140,26 +140,23 @@ public class ClientReducer implements Reducer {
 
     private State publishMsg(StoreAction action, ClientState state) {
         ClientSetCurrentChatMessage castedAction = (ClientSetCurrentChatMessage) action;
-        state.lastChatMessage = castedAction.message;
+        state.setLastChatMessage(castedAction.getMessage());
         return state;
     }
 
     private State setAvailableGames(StoreAction action, ClientState state) {
         ClientSetAvailableGamesAction castedAction = (ClientSetAvailableGamesAction) action;
-        state.availableGames = castedAction.availableGames;
-        if (state.gamePollingTimer == null){
-            state.gamePollingTimer = new StatefulTimer();
-        }
+        state.setAvailableGames(castedAction.getAvailableGames());
         return state;
     }
 
     private State endTurn(StoreAction action, ClientState state) {
-        state.isMyTurn = false;
-        state.player.setHasMoved(false);
-        state.player.setAdrenalined(false);
-        state.player.setSedated(false);
-        state.askAttack = false;
-        state.askLights = false;
+        state.setMyTurn(false);
+        state.getPlayer().setHasMoved(false);
+        state.getPlayer().setAdrenalined(false);
+        state.getPlayer().setSedated(false);
+        state.setAskAttack(false);
+        state.setAskLights(false);
         return state;
     }
 
@@ -167,44 +164,44 @@ public class ClientReducer implements Reducer {
         ClientSetPlayerAction castedAction = (ClientSetPlayerAction) action;
         Player player = new Player(castedAction.getPlayerName());
         player.setPlayerToken(castedAction.getPlayerToken());
-        state.player = player;
+        state.setPlayer(player);
         return state;
     }
 
     private State useObjectCard(StoreAction action, ClientState state) {
         ClientUseObjectCard castedAction = (ClientUseObjectCard) action;
-        state.player.getPrivateDeck().removeCard(castedAction.getObjectCard());
+        state.getPlayer().getPrivateDeck().removeCard(castedAction.getObjectCard());
         return state;
     }
 
     private State teleportToStartingSector(StoreAction action, ClientState state) {
-        state.player.setCurrentSector(state.gameMap.getHumanSector());
+        state.getPlayer().setCurrentSector(state.getGameMap().getHumanSector());
         return state;
     }
 
     private State moveToSector(StoreAction action, ClientState state) {
         ClientMoveToSectorAction castedAction = (ClientMoveToSectorAction) action;
-        state.player.setHasMoved(!castedAction.getTargetSector().equals(state.player.getCurrentSector()));
-        state.player.setCurrentSector(castedAction.getTargetSector());
+        state.getPlayer().setHasMoved(!castedAction.getTargetSector().equals(state.getPlayer().getCurrentSector()));
+        state.getPlayer().setCurrentSector(castedAction.getTargetSector());
         return state;
     }
 
     private State startGame(StoreAction action, ClientState state) {
         ClientStartGameAction castedAction = (ClientStartGameAction) action;
-        Player player = state.player;
-        GameMapFactory mapFactory = GameMapFactory.provideCorrectFactory(castedAction.gameMapName);
-        state.gameMap = mapFactory.makeMap();
+        Player player = state.getPlayer();
+        GameMapFactory mapFactory = GameMapFactory.provideCorrectFactory(castedAction.getGameMapName());
+        state.setGameMap( mapFactory.makeMap());
         if (player.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
-            player.setCurrentSector(state.gameMap.getAlienSector());
+            player.setCurrentSector(state.getGameMap().getAlienSector());
         } else {
-            player.setCurrentSector(state.gameMap.getHumanSector());
+            player.setCurrentSector(state.getGameMap().getHumanSector());
         }
-        state.isGameStarted = true;
+        state.setGameStarted(true);
         return state;
     }
 
     private State startTurn(ClientState state){
-        state.isMyTurn = true;
+        state.setMyTurn(true);
         return state;
     }
 }

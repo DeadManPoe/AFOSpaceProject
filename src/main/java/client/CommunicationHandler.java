@@ -45,7 +45,7 @@ public class CommunicationHandler {
      */
     public RemoteMethodCall newComSession(RemoteMethodCall remoteMethodCall) throws IOException, ClassNotFoundException {
         RemoteMethodCall receivedRemoteMethodCall = null;
-        this.socket = new Socket(clientStore.getState().host, clientStore.getState().tcpPort);
+        this.socket = new Socket(clientStore.getState().getHost(), clientStore.getState().getTcpPort());
         this.outputStream = new ObjectOutputStream(this.socket.getOutputStream());
         this.outputStream.flush();
         this.inputStream = new ObjectInputStream(this.socket.getInputStream());

@@ -11,6 +11,7 @@ import server_store.StoreAction;
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
+import java.util.Timer;
 
 /**
  * A manager that orchestrates all the gui components of this application.
@@ -57,8 +58,8 @@ public class GuiManager implements Observer {
      * Shows on the {@link GUIMap} the new position of the client.
      */
     private void updatePosition() {
-        Coordinate newCoordinates = this.clientStore.getState().player.getCurrentSector().getCoordinate();
-        String playerName = this.clientStore.getState().player.getName();
+        Coordinate newCoordinates = this.clientStore.getState().getPlayer().getCurrentSector().getCoordinate();
+        String playerName = this.clientStore.getState().getPlayer().getName();
         this.guiGamePane.getMapPane().delightAllSectors();
         this.guiGamePane.getMapPane().lightSector(newCoordinates, "Y",
                 playerName);
@@ -75,7 +76,7 @@ public class GuiManager implements Observer {
      * card in the client's private deck, so that the client is forced to discard or use one of those.
      */
     private void manyCardHandler() {
-        PlayerType playerType = this.clientStore.getState().player.getPlayerToken().getPlayerType();
+        PlayerType playerType = this.clientStore.getState().getPlayer().getPlayerToken().getPlayerType();
         if (playerType.equals(PlayerType.HUMAN)) {
             this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_DISC_MENU);
         } else {
@@ -150,7 +151,7 @@ public class GuiManager implements Observer {
 
     private void setCurrentReqRespNotificationReaction(StoreAction action) {
         ClientSetCurrentReqRespNotificationAction castedAction = (ClientSetCurrentReqRespNotificationAction) action;
-        this.guiGamePane.setStateMessage(castedAction.rrClientNotification.getMessage());
+        this.guiGamePane.setStateMessage(castedAction.getRrClientNotification().getMessage());
     }
 
     /**
@@ -161,9 +162,9 @@ public class GuiManager implements Observer {
      */
     private void setWinnersReaction(StoreAction action) {
         ClientSetWinnersAction castedAction = (ClientSetWinnersAction) action;
-        if (castedAction.humansHaveWon && castedAction.aliensHaveWon) {
+        if (castedAction.isHumansHaveWon() && castedAction.isAliensHaveWon()) {
             this.guiGamePane.setStateMessage("Aliens and Humans have won");
-        } else if (castedAction.humansHaveWon) {
+        } else if (castedAction.isHumansHaveWon()) {
             this.guiGamePane.setStateMessage("Humans have won");
         } else {
             this.guiGamePane.setStateMessage("Aliens have won");
@@ -172,7 +173,7 @@ public class GuiManager implements Observer {
         this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
         this.guiGamePane.refreshCardPanel(new ArrayList<ObjectCard>());
         this.guiGamePane.showEndTurnButton(false);
-
+        (new Timer()).schedule(new EndGameTimeout(),this.clientStore.getState().getDelayReturnToGameList());
     }
 
     /**
@@ -183,7 +184,7 @@ public class GuiManager implements Observer {
      */
     private void setPlayerStateReaction(StoreAction action) {
         ClientSetPlayerState castedAction = (ClientSetPlayerState) action;
-        PSClientNotification psClientNotification = this.clientStore.getState().currentPubSubNotification;
+        PSClientNotification psClientNotification = this.clientStore.getState().getCurrentPubSubNotification();
         if (castedAction.getPlayerState().equals(PlayerState.ESCAPED)) {
             this.guiGamePane.setStateMessage("You've ESCAPED!");
             this.guiGamePane.changeCardMenu(MenuType.EMPTY);
@@ -207,7 +208,7 @@ public class GuiManager implements Observer {
      */
     private void publishChatMessageReaction(StoreAction action) {
         ClientSetCurrentChatMessage castedAction = (ClientSetCurrentChatMessage) action;
-        this.guiGamePane.appendMsg(castedAction.message);
+        this.guiGamePane.appendMsg(castedAction.getMessage());
     }
 
     /**
@@ -215,7 +216,7 @@ public class GuiManager implements Observer {
      * This reaction includes setting/resetting of cards/map menus.
      */
     private void startTurnReaction() {
-        Player player = this.clientStore.getState().player;
+        Player player = this.clientStore.getState().getPlayer();
         String message;
         if (player.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)){
             message = player.getName() + " now is your turn: move or attack";
@@ -249,7 +250,7 @@ public class GuiManager implements Observer {
      */
     private void discardObjectCardReaction(StoreAction action) {
         ClientDiscardObjectCardAction castedAction = (ClientDiscardObjectCardAction) action;
-        this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.getPrivateDeck().getContent());
+        this.guiGamePane.refreshCardPanel(this.clientStore.getState().getPlayer().getPrivateDeck().getContent());
         this.guiGamePane.showEndTurnButton(true);
         this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
         this.guiGamePane.changeCardMenu(MenuType.HUMAN_USE_MENU);
@@ -260,7 +261,7 @@ public class GuiManager implements Observer {
      * This reaction includes moving the client to his original sector.
      */
     private void teleportToStartingSectorReaction() {
-        Player player = this.clientStore.getState().player;
+        Player player = this.clientStore.getState().getPlayer();
         this.guiGamePane.getMapPane().delightAllSectors();
         this.guiGamePane.getMapPane().lightSector(player.getCurrentSector().getCoordinate(), "Y", player.getName());
     }
@@ -274,7 +275,7 @@ public class GuiManager implements Observer {
      */
     private void askForSectorToAttackReaction(StoreAction action) {
         ClientAskAttackAction castedAction = (ClientAskAttackAction) action;
-        if (castedAction.toBeAsked) {
+        if (castedAction.isToBeAsked()) {
             this.guiGamePane.setStateMessage("Indicate the sector to attack");
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.ATTACK_MENU);
         }
@@ -289,7 +290,7 @@ public class GuiManager implements Observer {
      */
     private void askForSectorToLightReaction(StoreAction action) {
         ClientAskSectorToLightAction castedAction = (ClientAskSectorToLightAction) action;
-        if (castedAction.toBeAsked) {
+        if (castedAction.isToBeAsked()) {
             this.guiGamePane.setStateMessage("Indicate the sector to light");
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.LIGHT_MENU);
         }
@@ -307,11 +308,11 @@ public class GuiManager implements Observer {
             this.guiGamePane.setStateMessage("You have succesfully defended from an attack");
         }
         if (castedAction.getObjectCard() instanceof LightsObjectCard) {
-            for (Sector sector : this.clientStore.getState().currentReqRespNotification.getLightedSectors()) {
+            for (Sector sector : this.clientStore.getState().getCurrentReqRespNotification().getLightedSectors()) {
                 this.guiGamePane.getMapPane().lightSector(sector.getCoordinate(), "A", "Here there's an alien");
             }
         }
-        this.guiGamePane.refreshCardPanel(this.clientStore.getState().player.getPrivateDeck().getContent());
+        this.guiGamePane.refreshCardPanel(this.clientStore.getState().getPlayer().getPrivateDeck().getContent());
 
     }
 
@@ -340,7 +341,7 @@ public class GuiManager implements Observer {
         ClientSetDrawnSectorObjectCard castedAction = (ClientSetDrawnSectorObjectCard) action;
         CardSplashScreen cardSplashScreen = new CardSplashScreen(this.mainFrame);
         cardSplashScreen.showCards(castedAction.getDrawnSectorCard(), castedAction.getDrawnObjectCard());
-        PrivateDeck clientPrivateDeck = this.clientStore.getState().player.getPrivateDeck();
+        PrivateDeck clientPrivateDeck = this.clientStore.getState().getPlayer().getPrivateDeck();
 
 
         if (castedAction.getDrawnSectorCard() instanceof GlobalNoiseSectorCard) {
@@ -364,7 +365,6 @@ public class GuiManager implements Observer {
                 this.guiGamePane.showEndTurnButton(true);
             }
         } else {
-            this.guiGamePane.setStateMessage(this.clientStore.getState().currentReqRespNotification.getMessage());
             this.guiGamePane.getMapPane().changeMapMenu(MenuType.EMPTY);
             if (clientPrivateDeck.getSize() > 3) {
                 this.manyCardHandler();
@@ -383,7 +383,7 @@ public class GuiManager implements Observer {
      * acts on this view in response to the starting of the game
      */
     private void startGameReaction(StoreAction action) {
-        Player player = this.clientStore.getState().player;
+        Player player = this.clientStore.getState().getPlayer();
         String characterInfoMsg;
         if (player.getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
             characterInfoMsg = player.getName() + " | ALIEN";
@@ -394,7 +394,7 @@ public class GuiManager implements Observer {
         }
         this.guiGameList.reset();
         this.mainFrame.remove(this.guiGameList);
-        this.guiGamePane.load(this.clientStore.getState().gameMap);
+        this.guiGamePane.load(this.clientStore.getState().getGameMap());
         this.mainFrame.add(this.guiGamePane);
         this.guiGamePane.setVisible(true);
         this.guiGamePane.setInfoMsg(characterInfoMsg);
@@ -412,9 +412,9 @@ public class GuiManager implements Observer {
      */
     private void setConnectionActiveReaction(StoreAction action) {
         ClientSetConnectionActiveAction castedAction = (ClientSetConnectionActiveAction) action;
-        this.guiInitialWindow.alertConnectionProblem(!castedAction.isConnectionActive);
-        this.guiGameList.alertConnectionProblem(!castedAction.isConnectionActive);
-        this.guiGamePane.alertConnectionProblem(!castedAction.isConnectionActive);
+        this.guiInitialWindow.alertConnectionProblem(!castedAction.isConnectionActive());
+        this.guiGameList.alertConnectionProblem(!castedAction.isConnectionActive());
+        this.guiGamePane.alertConnectionProblem(!castedAction.isConnectionActive());
     }
 
     /**
@@ -436,10 +436,17 @@ public class GuiManager implements Observer {
         }
         else {
             ClientSetAvailableGamesAction castedAction = (ClientSetAvailableGamesAction) action;
-            this.guiGameList.setGameListContent(castedAction.availableGames);
+            this.guiGameList.setGameListContent(castedAction.getAvailableGames());
         }
 
 
+    }
+    public void returnToGameList() {
+        this.mainFrame.remove(this.guiGamePane);
+        this.mainFrame.add(this.guiGameList);
+        this.guiGameList.setVisible(true);
+        this.mainFrame.validate();
+        this.mainFrame.repaint();
     }
 
 }

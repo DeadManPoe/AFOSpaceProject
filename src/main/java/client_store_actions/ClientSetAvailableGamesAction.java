@@ -10,10 +10,14 @@ import java.util.ArrayList;
  */
 public class ClientSetAvailableGamesAction extends StoreAction {
 
-    public final ArrayList<GamePublicData> availableGames;
+    private final ArrayList<GamePublicData> availableGames;
 
     public ClientSetAvailableGamesAction(ArrayList<GamePublicData> availableGames) {
         super("@CLIENT_SET_AVAILABLE_GAMES");
         this.availableGames = availableGames;
+    }
+
+    public ArrayList<GamePublicData> getAvailableGames() {
+        return availableGames;
     }
 }

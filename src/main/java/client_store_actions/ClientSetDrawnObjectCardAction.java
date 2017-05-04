@@ -8,10 +8,14 @@ import server_store.StoreAction;
  */
 public class ClientSetDrawnObjectCardAction extends StoreAction {
 
-    public final ObjectCard drawnObjectCard;
+    private final ObjectCard drawnObjectCard;
 
     public ClientSetDrawnObjectCardAction(ObjectCard objectCard) {
         super("@CLIENT_SET_DRAWN_OBJECT_CARD");
         this.drawnObjectCard = objectCard;
+    }
+
+    public ObjectCard getDrawnObjectCard() {
+        return drawnObjectCard;
     }
 }

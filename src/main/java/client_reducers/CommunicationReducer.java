@@ -1,13 +1,11 @@
 package client_reducers;
 
-import client.ClientState;
+import client_store.ClientState;
 import client.PubSubHandler;
 import client_store_actions.ClientAddPubSubHandlerAction;
 import server_store.Reducer;
 import server_store.State;
 import server_store.StoreAction;
-
-import java.io.IOException;
 
 /**
  * Created by giorgiopea on 25/03/17.
@@ -27,14 +25,14 @@ public class CommunicationReducer implements Reducer {
     }
 
     private State removePubSubHandler(ClientState state) {
-        state.currentPubSubHandler = null;
+        state.setCurrentPubSubHandler(null);
         return state;
 
     }
 
     private State addPubSubHandler(StoreAction action, ClientState state) {
         ClientAddPubSubHandlerAction castedAction = (ClientAddPubSubHandlerAction) action;
-        state.currentPubSubHandler = new PubSubHandler(castedAction.socket, castedAction.inputStream);
+        state.setCurrentPubSubHandler(new PubSubHandler(castedAction.getSocket(), castedAction.getInputStream()));
         return state;
     }
 }

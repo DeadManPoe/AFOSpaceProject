@@ -30,7 +30,7 @@ public class PubSubHandler extends Thread {
     }
     @Override
     public void run() {
-        while (this.clientStore.getState().currentPubSubHandler != null) {
+        while (this.clientStore.getState().getCurrentPubSubHandler() != null) {
             try {
                 RemoteMethodCall methodCall = (RemoteMethodCall) this.inputStream.readObject();
                 this.clientServices.processRemoteInvocation(methodCall);

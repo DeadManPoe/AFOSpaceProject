@@ -10,12 +10,20 @@ import java.net.Socket;
  */
 public class ClientAddPubSubHandlerAction extends StoreAction {
 
-    public final Socket socket;
-    public final ObjectInputStream inputStream;
+    private final Socket socket;
+    private final ObjectInputStream inputStream;
 
     public ClientAddPubSubHandlerAction(Socket socket, ObjectInputStream inputStream) {
         super("@COMMUNICATION_ADD_PUB_SUB_HANDLER");
         this.socket = socket;
         this.inputStream = inputStream;
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public ObjectInputStream getInputStream() {
+        return inputStream;
     }
 }

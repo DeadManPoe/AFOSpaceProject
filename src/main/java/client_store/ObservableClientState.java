@@ -1,6 +1,5 @@
 package client_store;
 
-import client.ClientState;
 import server_store.State;
 import server_store.StoreAction;
 

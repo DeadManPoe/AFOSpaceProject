@@ -8,6 +8,6 @@ import java.util.TimerTask;
 public class EndGameTimeout extends TimerTask {
     @Override
     public void run() {
-
+        GuiManager.getInstance().returnToGameList();
     }
 }

@@ -1,10 +1,7 @@
 package client_store;
 
-import client.ClientState;
 import client_reducers.ClientReducer;
 import client_store_effects.AddPubSubHandlerEffect;
-import client_store_effects.ClientStartGameEffect;
-import client_store_effects.SetAvailableGamesEffect;
 import server_store.*;
 
 import java.sql.Timestamp;
@@ -48,7 +45,7 @@ public class ClientStore {
         this.actionTypeToReducer.put(actionType, reducer);
     }
 
-    public void registerEffect(Effect effect, String actionType) {
+    private void registerEffect(Effect effect, String actionType) {
         this.actionTypeToEffect.put(actionType, effect);
     }
 
@@ -78,7 +75,7 @@ public class ClientStore {
         this.observableState.addObserver(observer);
     }
 
-    public void init(ClientState initialState) {
+    private void init(ClientState initialState) {
         this.observableState = new ObservableClientState(initialState);
     }
 
@@ -92,8 +89,6 @@ public class ClientStore {
     }
     private void registerEffects(){
         this.registerEffect(new AddPubSubHandlerEffect(),"@COMMUNICATION_ADD_PUB_SUB_HANDLER");
-        this.registerEffect(new SetAvailableGamesEffect(),"@CLIENT_SET_AVAILABLE_GAMES");
-        this.registerEffect(new ClientStartGameEffect(), "@CLIENT_START_GAME");
     }
 
 
