@@ -11,10 +11,20 @@ import java.util.UUID;
  */
 public class GameMakeActionAction extends StoreAction {
 
-    public GameMakeActionActionPayload payload;
+    private final PlayerToken playerToken;
+    private final StoreAction action;
 
-    public GameMakeActionAction(PlayerToken playerToken, UUID uuid, StoreAction action) {
+    public GameMakeActionAction(PlayerToken playerToken, StoreAction action) {
         super("@GAME_MAKE_ACTION");
-        this.payload = new GameMakeActionActionPayload(playerToken,uuid,action);
+        this.playerToken = playerToken;
+        this.action = action;
+    }
+
+    public PlayerToken getPlayerToken() {
+        return playerToken;
+    }
+
+    public StoreAction getAction() {
+        return action;
     }
 }

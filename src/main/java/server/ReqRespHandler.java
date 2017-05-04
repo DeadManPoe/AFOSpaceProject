@@ -128,15 +128,15 @@ public class ReqRespHandler extends Thread {
      * the client/player. A notification is sent to the client/player as well.
      * This method is invoked by reflection.
      *
-     * @param gameMapName the name of map to be associated with the new game.
-     * @param playerName  the client/player unique identifier.
+     * @param gameMapName The name of map to be associated with the new game.
+     * @param playerName  The client/player unique identifier.
      * @throws IOException Networking problem.
      */
     private void joinNewGame(String gameMapName, String playerName)
             throws IOException {
         Game game = new Game(gameMapName);
         this.serverStore.dispatchAction(new GamesAddGameAction(game));
-        this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, game.getGamePublicData().getId(), playerName));
+        this.serverStore.dispatchAction(new GameAddPlayerAction(game.getGamePublicData().getId(), playerName));
         //this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
         ArrayList<Object> parameters = new ArrayList<>();
         parameters.add(game.getLastRRclientNotification());
@@ -149,12 +149,12 @@ public class ReqRespHandler extends Thread {
      * game. A notification is sent to the client/player as well.
      * This method is invoked by reflection.
      *
-     * @param gameId     the id of game the client wants to join.
-     * @param playerName the client/player unique identifier.
+     * @param gameId     The id of game the client wants to join.
+     * @param playerName The client/player unique identifier.
      * @throws IOException Networking problem.
      */
     public void joinGame(Integer gameId, String playerName) throws IOException {
-        this.serverStore.dispatchAction(new GameAddPlayerAction(this.uuid, gameId, playerName));
+        this.serverStore.dispatchAction(new GameAddPlayerAction(gameId, playerName));
         //this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
         Game game = this.serverStore.getState().getGames().get(this.serverStore.getState().getGames().size() - 1);
         ArrayList<Object> parameters = new ArrayList<>();
@@ -206,11 +206,11 @@ public class ReqRespHandler extends Thread {
         for (Game game : games) {
             if (game.getGamePublicData().getId() == playerToken.getGameId()
                     && game.getCurrentPlayer().getPlayerToken().equals(playerToken)) {
+                ServerStore.getInstance().dispatchAction(new GameStartGameAction(game.getGamePublicData().getId()));
                 ArrayList<Object> parameters = new ArrayList<>();
                 parameters.add(game.getLastRRclientNotification());
                 this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));
                 this.closeDataFlow();
-                ServerStore.getInstance().dispatchAction(new GameStartGameAction(game.getGamePublicData().getId()));
                 //ServerStore.getInstance().dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
                 break;
             }
@@ -221,15 +221,15 @@ public class ReqRespHandler extends Thread {
      * A service that processes the specified action sent by the client/player
      * and notifies the client/player. This method is invoked by reflection.
      *
-     * @param action      the action sent by the client/player to be performed on the
+     * @param action      The action sent by the client/player to be performed on the
      *                    game.
-     * @param playerToken the client/player unique identifier.
+     * @param playerToken The client/player unique identifier.
      * @throws IOException Networking problem.
      */
     public void makeAction(StoreAction action, PlayerToken playerToken) throws IOException {
         for (Game game : this.serverStore.getState().getGames()) {
             if (game.getGamePublicData().getId() == playerToken.getGameId()) {
-                this.serverStore.dispatchAction(new GameMakeActionAction(playerToken, this.uuid, action));
+                this.serverStore.dispatchAction(new GameMakeActionAction(playerToken, action));
                 ArrayList<Object> parameters = new ArrayList<>();
                 parameters.add(game.getLastRRclientNotification());
                 this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));

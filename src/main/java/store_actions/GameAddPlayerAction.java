@@ -9,14 +9,20 @@ import java.util.UUID;
  */
 public class GameAddPlayerAction extends StoreAction {
 
-    private GameAddPlayerActionPayload payload;
+    private final int gameId;
+    private final String playerName;
 
-    public GameAddPlayerAction(UUID reqRespHandlerUUID, Integer gameId, String playerName) {
+    public GameAddPlayerAction(int gameId, String playerName) {
         super("@GAME_ADD_PLAYER");
-        this.payload = new GameAddPlayerActionPayload(reqRespHandlerUUID, gameId,playerName);
+        this.gameId = gameId;
+        this.playerName = playerName;
     }
 
-    public GameAddPlayerActionPayload getPayload() {
-        return payload;
+    public int getGameId() {
+        return gameId;
+    }
+
+    public String getPlayerName() {
+        return playerName;
     }
 }
