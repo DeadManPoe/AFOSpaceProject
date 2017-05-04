@@ -5,15 +5,16 @@ import store_actions.GameTurnTimeoutExpiredAction;
 
 import java.util.TimerTask;
 
+
 /**
- * Created by giorgiopea on 20/03/17.
+ * A thread that notifies an associated {@link Game}.
  */
 public class TurnTimeout extends TimerTask {
 
     private final ServerStore store = ServerStore.getInstance();
     private final Integer gameId;
 
-    public TurnTimeout(Integer gameId) {
+    public TurnTimeout(int gameId) {
         this.gameId = gameId;
     }
 
