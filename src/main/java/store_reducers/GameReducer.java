@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Timer;
 
 /**
- * Created by giorgiopea on 14/03/17.
  * <p>
  * Handles the logic related to the slice of the app's state
  * represented by a single game
@@ -70,8 +69,8 @@ public class GameReducer implements Reducer {
         for (Game game : state.getGames()) {
             if (game.getGamePublicData().getId() == castedAction.getPayload()) {
                 EndTurnEffect.executeEffect(game, new EndTurnAction());
-                game.currentTimer.cancel();
-                game.currentTimer = new Timer();
+                game.getCurrentTimer().cancel();
+                game.setCurrentTimer( new Timer());
             }
         }
         return state;
@@ -93,30 +92,34 @@ public class GameReducer implements Reducer {
         for (Game game : state.getGames()) {
             if (game.getGamePublicData().getId() == gameId) {
                 DeckFactory deckFactory = new ObjectDeckFactory();
-                game.objectDeck = (ObjectDeck) deckFactory.makeDeck();
+                game.setObjectDeck((ObjectDeck) deckFactory.makeDeck());
                 deckFactory = new SectorDeckFactory();
-                game.sectorDeck = (SectorDeck) deckFactory.makeDeck();
+                game.setSectorDeck((SectorDeck) deckFactory.makeDeck());
                 deckFactory = new RescueDeckFactory();
-                game.rescueDeck = (RescueDeck) deckFactory.makeDeck();
+                game.setRescueDeck((RescueDeck) deckFactory.makeDeck());
 
-                game.gameMap = GameMapFactory.provideCorrectFactory(game.mapName).makeMap();
+                try {
+                    game.setGameMap(GameMapFactory.provideCorrectFactory(game.getMapName()).makeMap());
+                } catch (NoSuchMethodException e) {
+                    game.setGameMap(new GalileiGameMapFactory().makeMap());
+                }
 
-                for (Player player : game.players) {
-                    if (player.playerToken.playerType.equals(PlayerType.HUMAN)) {
-                        player.currentSector = game.gameMap.getHumanSector();
-                        game.gameMap.getHumanSector().addPlayer(player);
+                for (Player player : game.getPlayers()) {
+                    if (player.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
+                        player.setCurrentSector( game.getGameMap().getHumanSector());
+                        game.getGameMap().getHumanSector().addPlayer(player);
                     } else {
-                        player.currentSector = game.gameMap.getAlienSector();
-                        game.gameMap.getAlienSector().addPlayer(player);
+                        player.setCurrentSector(game.getGameMap().getAlienSector());
+                        game.getGameMap().getAlienSector().addPlayer(player);
                     }
                 }
-                if (game.currentPlayer.playerToken.playerType.equals(PlayerType.HUMAN)) {
-                    game.nextActions = HumanTurn.getInitialActions();
+                if (game.getCurrentPlayer().getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
+                    game.setNextActions(HumanTurn.getInitialActions());
                 } else {
-                    game.nextActions = AlienTurn.getInitialActions();
+                    game.setNextActions(AlienTurn.getInitialActions());
                 }
                 game.getGamePublicData().setStatus(GameStatus.CLOSED);
-                game.currentTimer = new Timer();
+                game.setCurrentTimer( new Timer());
                 return state;
             }
         }
@@ -214,14 +217,15 @@ public class GameReducer implements Reducer {
         GameAddPlayerAction castedAction = (GameAddPlayerAction) action;
         PlayerToken playerToken;
         for (Game game : state.getGames()) {
-            if (game.getGamePublicData().getId() == castedAction.getPayload().getGameId()) {
-                PlayerType playerType = assignTypeToPlayer(game.players.size() + 1);
-                playerToken = new PlayerToken(playerType, castedAction.getPayload().getGameId());
-                Player player = new Player(castedAction.getPayload().getPlayerName(),playerToken);
-                game.players.add(player);
+            if (game.getGamePublicData().getId() == castedAction.getGameId()) {
+                PlayerType playerType = assignTypeToPlayer(game.getPlayers().size() + 1);
+                playerToken = new PlayerToken(playerType, castedAction.getGameId());
+                Player player = new Player(castedAction.getPlayerName());
+                player.setPlayerToken(playerToken);
+                game.getPlayers().add(player);
                 game.getGamePublicData().addPlayer();
-                if (game.currentPlayer == null) {
-                    game.currentPlayer = player;
+                if (game.getCurrentPlayer() == null) {
+                    game.setCurrentPlayer(player);
                 }
                 break;
             }
@@ -269,10 +273,10 @@ public class GameReducer implements Reducer {
      * @return True if the faction has won, false otherwise
      */
     private boolean checkWinConditions(PlayerType playerType, Game game) {
-        boolean allDeadHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.DEAD, game.players);
-        boolean allEscapedHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED, game.players);
-        boolean allDeadAliens = this.checkStateAll(PlayerType.ALIEN, PlayerState.DEAD, game.players);
-        boolean existEscapes = game.gameMap.existEscapes();
+        boolean allDeadHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.DEAD, game.getPlayers());
+        boolean allEscapedHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.ESCAPED, game.getPlayers());
+        boolean allDeadAliens = this.checkStateAll(PlayerType.ALIEN, PlayerState.DEAD, game.getPlayers());
+        boolean existEscapes = game.getGameMap().existEscapes();
         if (playerType == PlayerType.HUMAN) {
             // If all human players are escaped then Human wins!
             if (allEscapedHumans) {
@@ -285,7 +289,7 @@ public class GameReducer implements Reducer {
             // If all human player are all dead, alien wins!
             if (allDeadHumans) {
                 return true;
-            } else if (game.turnNumber == 39 && !allEscapedHumans) {
+            } else if (game.getTurnNumber() == 39 && !allEscapedHumans) {
                 return true;
             } else if (!allEscapedHumans && !existEscapes) {
                 return true;
@@ -304,8 +308,8 @@ public class GameReducer implements Reducer {
      */
     private boolean checkStateAll(PlayerType playerType, PlayerState state, List<Player> players) {
         for (Player player : players) {
-            if (!player.playerState.equals(state)
-                    && player.playerToken.playerType.equals(playerType))
+            if (!player.getPlayerState().equals(state)
+                    && player.getPlayerToken().getPlayerType().equals(playerType))
                 return false;
         }
         return true;
