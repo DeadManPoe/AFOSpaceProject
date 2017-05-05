@@ -1,6 +1,9 @@
 package server;
 
-import common.*;
+import common.GamePublicData;
+import common.PlayerToken;
+import common.RRClientNotification;
+import common.RemoteMethodCall;
 import server_store.ServerStore;
 import server_store.StoreAction;
 import store_actions.*;
@@ -10,8 +13,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  *
@@ -172,23 +176,12 @@ public class ReqRespHandler extends Thread {
         this.serverStore.dispatchAction(new CommunicationAddPubSubHandlerAction(new PubSubHandler(this.socket, this.objectOutputStream, playerToken)));
         //this.serverStore.dispatchAction(new GameStartGameAction(playerToken.gameId));
         //this.serverStore.dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
-        for (Game game : serverStore.getState().getGames()) {
-            if (game.getGamePublicData().getId() == playerToken.getGameId()) {
-                if (game.getPlayers().size() == 8) {
-                    this.serverStore.dispatchAction(new GameStartGameAction(playerToken.getGameId()));
-                    break;
-                } else if (game.getPlayers().size() == 2) {
-                    for (PubSubHandler handler : ServerStore.getInstance().getState().getPubSubHandlers()) {
-                        if (handler.getPlayerToken().equals(game.getCurrentPlayer().getPlayerToken())) {
-                            handler.queueNotification(new RemoteMethodCall(this.clientMethodsNamesProvider.signalStartableGame(), new ArrayList<>()));
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
+        Game game = this.getGameById(playerToken.getGameId(), this.serverStore.getState().getGames());
+        if (game.getPlayers().size() == 8) {
+            this.serverStore.dispatchAction(new GameStartGameAction(game));
+        } else if (game.getPlayers().size() == 2) {
+            this.serverStore.dispatchAction(new GameStartableGameAction(game,true));
         }
-
     }
 
     /**
@@ -199,19 +192,19 @@ public class ReqRespHandler extends Thread {
      * @throws IOException Networking problem.
      */
     private void onDemandGameStart(PlayerToken playerToken) throws IOException {
-        List<Game> games = ServerStore.getInstance().getState().getGames();
-        for (Game game : games) {
-            if (game.getGamePublicData().getId() == playerToken.getGameId()
-                    && game.getCurrentPlayer().getPlayerToken().equals(playerToken)) {
-                ServerStore.getInstance().dispatchAction(new GameStartGameAction(game.getGamePublicData().getId()));
-                ArrayList<Object> parameters = new ArrayList<>();
-                parameters.add(game.getLastRRclientNotification());
-                this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));
-                this.closeDataFlow();
-                //ServerStore.getInstance().dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
-                break;
-            }
+        Game game = this.getGameById(playerToken.getGameId(), this.serverStore.getState().getGames());
+        ArrayList<Object> parameters = new ArrayList<>();
+        if (game.getCurrentPlayer().getPlayerToken().equals(playerToken)){
+            ServerStore.getInstance().dispatchAction(new GameStartGameAction(game));
+            parameters.add(game.getLastRRclientNotification());
         }
+        else {
+            parameters.add(new RRClientNotification(false, null,null,null));
+        }
+        this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));
+        this.closeDataFlow();
+        //ServerStore.getInstance().dispatchAction(new CommunicationRemoveReqRespHandlerAction(this.uuid));
+
     }
 
     /**
@@ -245,16 +238,12 @@ public class ReqRespHandler extends Thread {
      */
     public void publishChatMsg(String message,
                                PlayerToken playerToken) throws IOException {
-        for (Game game : this.serverStore.getState().getGames()){
-            if (game.getGamePublicData().getId() == playerToken.getGameId()){
-                this.serverStore.dispatchAction(new GamePutChatMsg(message, playerToken));
-                ArrayList<Object> parameters = new ArrayList<>();
-                parameters.add(game.getLastRRclientNotification());
-                this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));
-                this.closeDataFlow();
-            }
-        }
-
+        Game game = this.getGameById(playerToken.getGameId(),this.serverStore.getState().getGames());
+        this.serverStore.dispatchAction(new GamePutChatMsg(game, message, playerToken));
+        ArrayList<Object> parameters = new ArrayList<>();
+        parameters.add(game.getLastRRclientNotification());
+        this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));
+        this.closeDataFlow();
     }
 
     /**

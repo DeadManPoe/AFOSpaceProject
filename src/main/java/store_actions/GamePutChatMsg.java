@@ -1,6 +1,7 @@
 package store_actions;
 
 import common.PlayerToken;
+import server.Game;
 import server_store.StoreAction;
 
 /**
@@ -8,12 +9,18 @@ import server_store.StoreAction;
  *
  */
 public class GamePutChatMsg extends StoreAction {
+    private final Game game;
     private final PlayerToken playerToken;
     private final String message;
-    public GamePutChatMsg(String message, PlayerToken playerToken) {
+    public GamePutChatMsg(Game game ,String message, PlayerToken playerToken) {
         super("@GAME_PUT_CHAT_MSG");
         this.message = message;
         this.playerToken = playerToken;
+        this.game = game;
+    }
+
+    public Game getGame() {
+        return game;
     }
 
     public PlayerToken getPlayerToken() {

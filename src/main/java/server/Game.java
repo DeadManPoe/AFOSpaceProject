@@ -35,6 +35,7 @@ public class Game {
     private boolean lastActionResult;
     private boolean didAlienWin;
     private boolean didHumansWin;
+    private boolean startableGame;
     private String lastChatMsg;
 
     public Game(String gameMapName) {
@@ -52,6 +53,14 @@ public class Game {
         this.didHumansWin = false;
         this.didHumansWin = false;
         this.lastChatMsg = "";
+    }
+
+    public boolean isStartableGame() {
+        return startableGame;
+    }
+
+    public void setStartableGame(boolean startableGame) {
+        this.startableGame = startableGame;
     }
 
     public List<Player> getPlayers() {

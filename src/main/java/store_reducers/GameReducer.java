@@ -41,20 +41,28 @@ public class GameReducer implements Reducer {
                 return this.turnTimeoutExpired(action, castedState);
             case  "@GAME_PUT_CHAT_MSG":
                 return this.putChatMsg(action,castedState);
+            case "@GAME_STARTABLE_GAME":
+                return this.startableGame(action, castedState);
         }
         return castedState;
 
     }
 
-    private ServerState putChatMsg(StoreAction action, ServerState castedState) {
+    private ServerState startableGame(StoreAction action, ServerState state) {
+        GameStartableGameAction castedAction = (GameStartableGameAction) action;
+        castedAction.getGame().setStartableGame(castedAction.isStartable());
+        return state;
+    }
+
+    private ServerState putChatMsg(StoreAction action, ServerState state) {
         GamePutChatMsg castedAction = (GamePutChatMsg) action;
-        for (Game game : castedState.getGames()){
+        for (Game game : state.getGames()){
             if (game.getGamePublicData().getId() == castedAction.getPlayerToken().getGameId()){
                 game.setLastRRclientNotification(new RRClientNotification(true,null,null,null));
                 break;
             }
         }
-        return castedState;
+        return state;
     }
 
     /**
@@ -89,41 +97,37 @@ public class GameReducer implements Reducer {
      */
     private ServerState startGame(StoreAction action, ServerState state) {
         GameStartGameAction castedAction = (GameStartGameAction) action;
-        Integer gameId = castedAction.getPayload();
-        for (Game game : state.getGames()) {
-            if (game.getGamePublicData().getId() == gameId) {
-                DeckFactory deckFactory = new ObjectDeckFactory();
-                game.setObjectDeck((ObjectDeck) deckFactory.makeDeck());
-                deckFactory = new SectorDeckFactory();
-                game.setSectorDeck((SectorDeck) deckFactory.makeDeck());
-                deckFactory = new RescueDeckFactory();
-                game.setRescueDeck((RescueDeck) deckFactory.makeDeck());
+        Game game = castedAction.getGame();
+        DeckFactory deckFactory = new ObjectDeckFactory();
+        game.setObjectDeck((ObjectDeck) deckFactory.makeDeck());
+        deckFactory = new SectorDeckFactory();
+        game.setSectorDeck((SectorDeck) deckFactory.makeDeck());
+        deckFactory = new RescueDeckFactory();
+        game.setRescueDeck((RescueDeck) deckFactory.makeDeck());
 
-                try {
-                    game.setGameMap(GameMapFactory.provideCorrectFactory(game.getMapName()).makeMap());
-                } catch (NoSuchMethodException e) {
-                    game.setGameMap(new GalileiGameMapFactory().makeMap());
-                }
+        try {
+            game.setGameMap(GameMapFactory.provideCorrectFactory(game.getMapName()).makeMap());
+        } catch (NoSuchMethodException e) {
+            game.setGameMap(new GalileiGameMapFactory().makeMap());
+        }
 
-                for (Player player : game.getPlayers()) {
-                    if (player.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
-                        player.setCurrentSector( game.getGameMap().getHumanSector());
-                        game.getGameMap().getHumanSector().addPlayer(player);
-                    } else {
-                        player.setCurrentSector(game.getGameMap().getAlienSector());
-                        game.getGameMap().getAlienSector().addPlayer(player);
-                    }
-                }
-                if (game.getCurrentPlayer().getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
-                    game.setNextActions(HumanTurn.getInitialActions());
-                } else {
-                    game.setNextActions(AlienTurn.getInitialActions());
-                }
-                game.getGamePublicData().setStatus(GameStatus.CLOSED);
-                game.setCurrentTimer( new Timer());
-                return state;
+        for (Player player : game.getPlayers()) {
+            if (player.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
+                player.setCurrentSector( game.getGameMap().getHumanSector());
+                game.getGameMap().getHumanSector().addPlayer(player);
+            } else {
+                player.setCurrentSector(game.getGameMap().getAlienSector());
+                game.getGameMap().getAlienSector().addPlayer(player);
             }
         }
+        if (game.getCurrentPlayer().getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
+            game.setNextActions(HumanTurn.getInitialActions());
+        } else {
+            game.setNextActions(AlienTurn.getInitialActions());
+        }
+        game.getGamePublicData().setStatus(GameStatus.CLOSED);
+        game.setCurrentTimer( new Timer());
+        game.setLastRRclientNotification(new RRClientNotification(true,null,null,null));
         return state;
     }
 
