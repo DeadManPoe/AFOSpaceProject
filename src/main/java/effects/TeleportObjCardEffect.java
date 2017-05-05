@@ -15,17 +15,17 @@ import server.Game;
 public class TeleportObjCardEffect extends ObjectCardEffect {
 
 	public static boolean executeEffect(Game game, ObjectCard card) {
-		GameMap map = game.gameMap;
-		Player curr = game.currentPlayer;
+		GameMap map = game.getGameMap();
+		Player curr = game.getCurrentPlayer();
 		Sector humanSector = map.getHumanSector();
 
 		// Move the player(can be only human) to the starting sector
-		curr.currentSector.removePlayer(curr);
-		curr.currentSector = humanSector;
+		curr.getCurrentSector().removePlayer(curr);
+		curr.setCurrentSector(humanSector);
 		humanSector.addPlayer(curr);
-		game.lastRRclientNotification.setMessage("You've teleported to the human sector");
-		game.lastPSclientNotification
-				.setMessage(game.lastPSclientNotification.getMessage()
+		game.getLastRRclientNotification().setMessage("You've teleported to the human sector");
+		game.getLastPSclientNotification()
+				.setMessage(game.getLastPSclientNotification().getMessage()
 						+ "\n[GLOBAL MESSAGE]: He/She will be teleported to the human sector");
 		return true;
 	}

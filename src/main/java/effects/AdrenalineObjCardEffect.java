@@ -17,13 +17,13 @@ import server.Game;
 public class AdrenalineObjCardEffect extends ObjectCardEffect {
 
 	public static boolean executeEffect(Game game, ObjectCard card) {
-		Player currentPlayer = game.currentPlayer;
+		Player currentPlayer = game.getCurrentPlayer();
 		// Notifications setting
-		game.lastRRclientNotification.setMessage("You will moveToSector by two sector this turn\n");
-		game.lastPSclientNotification.setMessage("[GLOBAL MESSAGE]: "
-				+ currentPlayer.name
+		game.getLastRRclientNotification().setMessage("You will moveToSector by two sector this turn\n");
+		game.getLastPSclientNotification().setMessage("[GLOBAL MESSAGE]: "
+				+ currentPlayer.getName()
 				+ " has used an adrenaline object card\n");
-		currentPlayer.isAdrenalined = true;
+		currentPlayer.setAdrenalined(true);
 		return true;
 	}
 }

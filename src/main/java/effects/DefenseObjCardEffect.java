@@ -16,7 +16,7 @@ import server.Game;
 public class DefenseObjCardEffect extends ObjectCardEffect {
 
 	public static boolean executeEffect(Game game, ObjectCard card) {
-		game.lastRRclientNotification.setMessage("You've defended from an attack");
+		game.getLastRRclientNotification().setMessage("You've defended from an attack");
 		return true;
 	}
 }

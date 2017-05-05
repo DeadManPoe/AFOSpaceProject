@@ -6,7 +6,7 @@ import common.RRClientNotification;
 import common.RemoteMethodCall;
 import server_store.ServerStore;
 import server_store.StoreAction;
-import store_actions.*;
+import server_store_actions.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

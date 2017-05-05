@@ -1,13 +1,12 @@
-package store_effects;
+package server_store_effects;
 
 
 import common.RemoteMethodCall;
 import server.ClientMethodsNamesProvider;
 import server.Game;
 import server.PubSubHandler;
-import server.TurnTimeout;
 import server_store.*;
-import store_actions.GameTurnTimeoutExpiredAction;
+import server_store_actions.GameTurnTimeoutExpiredAction;
 
 import java.util.ArrayList;
 import java.util.List;

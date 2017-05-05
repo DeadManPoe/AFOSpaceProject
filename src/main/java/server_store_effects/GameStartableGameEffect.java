@@ -1,4 +1,4 @@
-package store_effects;
+package server_store_effects;
 
 import common.PlayerToken;
 import common.RemoteMethodCall;
@@ -8,7 +8,7 @@ import server_store.Effect;
 import server_store.ServerState;
 import server_store.State;
 import server_store.StoreAction;
-import store_actions.GameStartableGameAction;
+import server_store_actions.GameStartableGameAction;
 
 import java.util.ArrayList;
 import java.util.List;

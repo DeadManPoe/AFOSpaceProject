@@ -1,11 +1,8 @@
-package store_actions;
+package server_store_actions;
 
-import common.Action;
 import common.PlayerToken;
 import server.Game;
 import server_store.StoreAction;
-
-import java.util.UUID;
 
 /**
  * Created by giorgiopea on 12/03/17.

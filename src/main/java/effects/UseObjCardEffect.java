@@ -49,28 +49,28 @@ public class UseObjCardEffect extends ActionEffect {
         RRClientNotification clientNotification = new RRClientNotification();
         PSClientNotification psNotification = new PSClientNotification();
         // Checks if the card can be played before moveToSector or after moveToSector
-        if (!game.currentPlayer.hasMoved) {
-            if (!beforeMoveCards.contains(castedAction.payload.getClass()))
+        if (!game.getCurrentPlayer().isHasMoved()) {
+            if (!beforeMoveCards.contains(castedAction.getObjectCard().getClass()))
                 return false;
         } else {
-            if (!afterMoveCards.contains(castedAction.payload.getClass()))
+            if (!afterMoveCards.contains(castedAction.getObjectCard().getClass()))
                 return false;
         }
 
         try {
             clientNotification.setMessage("You have used a "
-                    + castedAction.payload.toString());
+                    + castedAction.getObjectCard().toString());
             psNotification.setMessage("[GLOBAL MESSAGE]: "
-                    + game.currentPlayer.name + " has used a "
-                    + castedAction.payload.toString());
-            game.objectDeck.addToDiscard(castedAction.payload);
-            game.currentPlayer.privateDeck
-                    .removeCard(castedAction.payload);
-            game.lastAction = action;
-            game.lastRRclientNotification = clientNotification;
-            game.lastPSclientNotification = psNotification;
-            Method executeMethod = ObjectCardsMapper.getInstance().getEffect(castedAction.payload).getMethod("executeEffect", Game.class, ObjectCard.class);
-            return (boolean) executeMethod.invoke(null,game, castedAction.payload);
+                    + game.getCurrentPlayer().getName() + " has used a "
+                    + castedAction.getObjectCard().toString());
+            game.getObjectDeck().addToDiscard(castedAction.getObjectCard());
+            game.getCurrentPlayer().getPrivateDeck()
+                    .removeCard(castedAction.getObjectCard());
+            game.setLastAction(action);
+            game.setLastRRclientNotification(clientNotification);
+            game.setLastPSclientNotification(psNotification);
+            Method executeMethod = ObjectCardsMapper.getInstance().getEffect(castedAction.getObjectCard()).getMethod("executeEffect", Game.class, ObjectCard.class);
+            return (boolean) executeMethod.invoke(null,game, castedAction.getObjectCard());
 
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();

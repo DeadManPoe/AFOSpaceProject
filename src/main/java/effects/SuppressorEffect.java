@@ -17,12 +17,12 @@ import common.Player;
 public class SuppressorEffect extends ObjectCardEffect {
 
 	public static boolean executeEffect(Game game, ObjectCard objectCard) {
-		Player currentPlayer = game.currentPlayer;
-		currentPlayer.isSedated = true;
-		game.lastRRclientNotification
+		Player currentPlayer = game.getCurrentPlayer();
+		currentPlayer.setSedated(true);
+		game.getLastRRclientNotification()
 				.setMessage("You will not draw any sector card this turn");
-		game.lastPSclientNotification
-				.setMessage(game.lastPSclientNotification.getMessage()
+		game.getLastPSclientNotification()
+				.setMessage(game.getLastPSclientNotification().getMessage()
 						+ "\n[GLOBAL MESSAGE]: He/she will not draw any sector card this turn");
 		return true;
 	}

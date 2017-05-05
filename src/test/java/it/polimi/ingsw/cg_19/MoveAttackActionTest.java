@@ -23,6 +23,6 @@ public class MoveAttackActionTest {
 	public void testGetTarget() {
 		Sector s = new Sector(null, SectorType.SAFE);
 		MoveAttackAction action = new MoveAttackAction(s);
-		assertEquals(s, action.payload);
+		assertEquals(s, action.getTargetSector());
 	}
 }

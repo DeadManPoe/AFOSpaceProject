@@ -25,7 +25,7 @@ public class ObjectMapperTest {
 	@Test
 	public void testGetEffect() throws InstantiationException,
 			IllegalAccessException {
-		ObjectCardsMapper objectMapper = new ObjectCardsMapper();
+		ObjectCardsMapper objectMapper = ObjectCardsMapper.getInstance();
 
 		// Assert the correct binding between object and effects
 		//assertTrue(objectMapper.getEffect(new TeleportObjectCard()) instanceof TeleportObjCardEffect);

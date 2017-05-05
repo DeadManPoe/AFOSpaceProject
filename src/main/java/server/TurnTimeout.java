@@ -1,7 +1,7 @@
 package server;
 
 import server_store.ServerStore;
-import store_actions.GameTurnTimeoutExpiredAction;
+import server_store_actions.GameTurnTimeoutExpiredAction;
 
 import java.util.TimerTask;
 

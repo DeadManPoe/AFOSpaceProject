@@ -1,9 +1,9 @@
-package store_reducers;
+package server_store_reducers;
 
 import effects.GameActionMapper;
 import server.Game;
 import server_store.*;
-import store_actions.GameActionAction;
+import server_store_actions.GameActionAction;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

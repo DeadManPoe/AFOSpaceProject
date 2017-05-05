@@ -20,8 +20,8 @@ public class PlayerTokenTest {
 	@Test
 	public void testPlayerToken() {
 		PlayerType type = PlayerType.HUMAN;
-		PlayerToken token = new PlayerToken(type,null);
-		assertEquals(type, token.playerType);
+		PlayerToken token = new PlayerToken(type,1);
+		assertEquals(type, token.getPlayerType());
 	}
 
 	/**
@@ -29,9 +29,9 @@ public class PlayerTokenTest {
 	 */
 	@Test
 	public void testEqualsObject() {
-		PlayerToken token_1 = new PlayerToken(PlayerType.HUMAN,null);
-		PlayerToken token_2 = new PlayerToken(PlayerType.HUMAN,null);
-		PlayerToken token_3 = new PlayerToken(PlayerType.HUMAN,null);
+		PlayerToken token_1 = new PlayerToken(PlayerType.HUMAN,1);
+		PlayerToken token_2 = new PlayerToken(PlayerType.HUMAN,1);
+		PlayerToken token_3 = new PlayerToken(PlayerType.HUMAN,1);
 
 		assertTrue(token_2.equals(token_2));
 		assertFalse(token_1.equals(token_3));

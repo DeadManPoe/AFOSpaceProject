@@ -1,4 +1,4 @@
-package store_reducers;
+package server_store_reducers;
 
 import common.*;
 import decks.ObjectDeck;
@@ -10,9 +10,8 @@ import common.GameStatus;
 import server.AlienTurn;
 import server.Game;
 import server.HumanTurn;
-import server.PubSubHandler;
 import server_store.*;
-import store_actions.*;
+import server_store_actions.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -68,7 +67,7 @@ public class GameReducer implements Reducer {
      * Changes a game in the list of games in the app's state so that the turn of the current player ends because
      * he/she hasn't made an action within the turn's timeout
      *
-     * @param action The action that has triggered this task, see {@link store_actions.GameTurnTimeoutExpiredAction}
+     * @param action The action that has triggered this task, see {@link server_store_actions.GameTurnTimeoutExpiredAction}
      * @param state  The app's current state
      * @return The app's new state
      */
@@ -86,7 +85,7 @@ public class GameReducer implements Reducer {
      * starts. This includes the initialization of the game's associated decks and map, along with
      * a turn timer
      *
-     * @param action The action that has triggered this task, see {@link store_actions.GameStartGameAction}
+     * @param action The action that has triggered this task, see {@link server_store_actions.GameStartGameAction}
      * @param state  The current app's state
      * @return The app's new state
      */
@@ -132,7 +131,7 @@ public class GameReducer implements Reducer {
      * is allowed to be performed and if the action, once executed, causes the game to end. All the necessary textual
      * notification to be sent to players are produced too
      *
-     * @param action The action that has triggered this task, see {@link store_actions.GameMakeActionAction}
+     * @param action The action that has triggered this task, see {@link server_store_actions.GameMakeActionAction}
      * @param state  The app's current state
      * @return The app's new state
      */

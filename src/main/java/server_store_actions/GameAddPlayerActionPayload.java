@@ -1,4 +1,4 @@
-package store_actions;
+package server_store_actions;
 
 import java.util.UUID;
 

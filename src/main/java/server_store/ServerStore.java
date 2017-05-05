@@ -1,10 +1,10 @@
 package server_store;
 
-import store_effects.*;
-import store_reducers.CommunicationReducer;
-import store_reducers.GameActionReducer;
-import store_reducers.GameReducer;
-import store_reducers.GamesReducer;
+import server_store_effects.*;
+import server_store_reducers.CommunicationReducer;
+import server_store_reducers.GameActionReducer;
+import server_store_reducers.GameReducer;
+import server_store_reducers.GamesReducer;
 
 import java.sql.Timestamp;
 import java.util.*;

@@ -1,4 +1,4 @@
-package store_actions;
+package server_store_actions;
 
 import server.PubSubHandler;
 import server_store.StoreAction;

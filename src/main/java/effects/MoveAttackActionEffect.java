@@ -43,31 +43,31 @@ public class MoveAttackActionEffect extends ActionEffect {
     public static boolean executeEffect(Game game, StoreAction action) {
         MoveAttackAction castedAction = (MoveAttackAction) action;
 
-        Sector sourceSector = game.currentPlayer.currentSector;
-        Sector targetSector = game.gameMap.getSectorByCoords(
-                castedAction.payload.getCoordinate());
-        Player currentPlayer = game.currentPlayer;
+        Sector sourceSector = game.getCurrentPlayer().getCurrentSector();
+        Sector targetSector = game.getGameMap().getSectorByCoords(
+                castedAction.getTargetSector().getCoordinate());
+        Player currentPlayer = game.getCurrentPlayer();
         String rrMessage = "";
         String psMessage = "";
         List<Player> deadPlayers = new ArrayList<>();
         int adrenalineBooster = 0;
-        if (currentPlayer.isAdrenalined){
+        if (currentPlayer.isAdrenalined()){
             adrenalineBooster++;
         }
 
-        if (!sourceSector.equals(castedAction.payload)) {
-            if (game.gameMap.checkSectorAdiacency(sourceSector,targetSector,currentPlayer.speed+adrenalineBooster,currentPlayer.isAdrenalined)
-                    && verifyMoveLegality(sourceSector,targetSector,currentPlayer.playerToken.playerType)) {
+        if (!sourceSector.equals(castedAction.getTargetSector())) {
+            if (game.getGameMap().checkSectorAdiacency(sourceSector,targetSector,currentPlayer.getSpeed()+adrenalineBooster,currentPlayer.isAdrenalined())
+                    && verifyMoveLegality(sourceSector,targetSector,currentPlayer.getPlayerToken().getPlayerType())) {
 
                 // For each player contained in the target sector
                 for (Player player : targetSector.getPlayers()) {
-                    PrivateDeck playerPrivateDeck = player.privateDeck;
+                    PrivateDeck playerPrivateDeck = player.getPrivateDeck();
                     ArrayList<ObjectCard> privateDeckContent = new ArrayList<ObjectCard>(
                             playerPrivateDeck.getContent());
                     Iterator<ObjectCard> iterator = privateDeckContent
                             .iterator();
                     boolean defenseFound = false;
-                    if (player.playerToken.playerType == PlayerType.HUMAN) {
+                    if (player.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
                         while (iterator.hasNext()) {
                             ObjectCard objectCard = iterator.next();
                             if (objectCard instanceof DefenseObjectCard) {
@@ -79,35 +79,35 @@ public class MoveAttackActionEffect extends ActionEffect {
                     // If no defense card has been found for p, then p is dead
                     if (!defenseFound) {
                         deadPlayers.add(player);
-                        player.playerState = PlayerState.DEAD;
-                        player.currentSector = null;
+                        player.setPlayerState(PlayerState.DEAD);
+                        player.setCurrentSector(null);
                         // Notify the rest of the players
-                        game.lastPSclientNotification.addDeadPlayers(player.playerToken);
+                        game.getLastPSclientNotification().addDeadPlayers(player.getPlayerToken());
                         rrMessage += "You have attacked sector "
                                 + targetSector.getCoordinate().toString()
-                                + " and so " + player.name + " is dead.";
+                                + " and so " + player.getName() + " is dead.";
                         psMessage += "[GLOBAL MESSAGE]: "
-                                + currentPlayer.name
+                                + currentPlayer.getName()
                                 + " has attacked sector "
                                 + targetSector.getCoordinate().toString()
-                                + " and so " + player.name + " is dead.";
+                                + " and so " + player.getName() + " is dead.";
                     } else {
-                        if (game.currentPlayer.playerToken.playerType == PlayerType.ALIEN) {
-                            game.currentPlayer.speed = 3;
+                        if (game.getCurrentPlayer().getPlayerToken().getPlayerType().equals(PlayerType.ALIEN) ){
+                            game.getCurrentPlayer().setSpeed(3);
                         }
                         // Otherwise p has been attacked
-                        game.lastPSclientNotification.addAttackedPlayers(player.playerToken
+                        game.getLastPSclientNotification().addAttackedPlayers(player.getPlayerToken()
                         );
                         rrMessage += "You have attacked sector "
                                 + targetSector.getCoordinate().toString()
-                                + " and so " + player.name
+                                + " and so " + player.getName()
                                 + " has defended.";
 
                         psMessage += "[GLOBAL MESSAGE]: "
-                                + currentPlayer.name
+                                + currentPlayer.getName()
                                 + " has attacked sector "
                                 + targetSector.getCoordinate().toString()
-                                + " and so " + player.name
+                                + " and so " + player.getName()
                                 + " has defended.";
                     }
                 }
@@ -115,22 +115,22 @@ public class MoveAttackActionEffect extends ActionEffect {
                     rrMessage += "You have attacked sector "
                             + targetSector.getCoordinate().toString()
                             + " but it contained no players.";
-                    psMessage += "[GLOBAL MESSAGE]: " + currentPlayer.name
+                    psMessage += "[GLOBAL MESSAGE]: " + currentPlayer.getName()
                             + " has attacked sector "
                             + targetSector.getCoordinate().toString()
                             + " but it contained no players.";
                 }
-                game.lastRRclientNotification.setMessage(rrMessage);
-                game.lastPSclientNotification.setMessage(psMessage);
+                game.getLastRRclientNotification().setMessage(rrMessage);
+                game.getLastPSclientNotification().setMessage(psMessage);
                 for (Player player : deadPlayers){
                     targetSector.removePlayer(player);
                 }
                 // Move the player that has attacked to the target sector
                 sourceSector.removePlayer(currentPlayer);
-                currentPlayer.currentSector = targetSector;
+                currentPlayer.setCurrentSector(targetSector);
                 targetSector.addPlayer(currentPlayer);
-                game.lastAction = action;
-                currentPlayer.hasMoved = true;
+                game.setLastAction(action);
+                currentPlayer.setHasMoved(true);
                 return true;
             }
         }

@@ -20,7 +20,7 @@ public class LightObjectCardEffect extends ObjectCardEffect {
 	public static boolean executeEffect(Game game, ObjectCard objectCard) {
 		LightsObjectCard castedObjectCard = (LightsObjectCard) objectCard;
 		Sector targetSector = castedObjectCard.getTarget();
-		List<Sector> neighboorSectors = game.gameMap.getSearchableGraph()
+		List<Sector> neighboorSectors = game.getGameMap().getSearchableGraph()
 				.neighborListOf(targetSector);
 		neighboorSectors.add(targetSector);
 		List<Sector> incriminatedSectors = new ArrayList<>();
@@ -29,16 +29,16 @@ public class LightObjectCardEffect extends ObjectCardEffect {
 		for (Sector sector : neighboorSectors) {
 			if (!sector.getPlayers().isEmpty()){
                 incriminatedSectors.add(sector);
-                game.lastRRclientNotification.addSector(sector);
+                game.getLastRRclientNotification().addSector(sector);
             }
 		}
 		for (Sector sector : incriminatedSectors){
             for (Player player : sector.getPlayers()){
                 if (msg.equals("")){
-                    msg += player.name + " in sector "+sector.getCoordinate().toString();
+                    msg += player.getName() + " in sector "+sector.getCoordinate().toString();
                 }
                 else {
-                    msg += ", "+player.name + " in sector "+sector.getCoordinate().toString();
+                    msg += ", "+player.getName() + " in sector "+sector.getCoordinate().toString();
                 }
 
             }
@@ -46,8 +46,8 @@ public class LightObjectCardEffect extends ObjectCardEffect {
 		if ( msg.equals("")){
             msg = "none";
         }
-        game.lastRRclientNotification.setMessage(game.lastRRclientNotification.getMessage()+". Players spotted: "+msg);
-		game.lastPSclientNotification.setMessage(game.lastPSclientNotification.getMessage() + globalMessage+msg);
+        game.getLastRRclientNotification().setMessage(game.getLastRRclientNotification().getMessage()+". Players spotted: "+msg);
+		game.getLastPSclientNotification().setMessage(game.getLastPSclientNotification().getMessage() + globalMessage+msg);
 		return true;
 	}
 }

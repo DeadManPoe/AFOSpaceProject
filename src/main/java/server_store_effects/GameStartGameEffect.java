@@ -1,4 +1,4 @@
-package store_effects;
+package server_store_effects;
 
 import common.RemoteMethodCall;
 import server.ClientMethodsNamesProvider;
@@ -6,11 +6,10 @@ import server.Game;
 import server.PubSubHandler;
 import server.TurnTimeout;
 import server_store.*;
-import store_actions.GameStartGameAction;
+import server_store_actions.GameStartGameAction;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  *

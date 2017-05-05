@@ -15,12 +15,12 @@ import server.Game;
 public class GlobalNoiseSectorCardEffect extends SectorCardEffect {
 	public static boolean executeEffect(Game game, SectorCard sectorCard) {
 		// Notify all the player
-		String name = game.currentPlayer.name;
+		String name = game.getCurrentPlayer().getName();
 		Sector target = ((GlobalNoiseSectorCard) sectorCard).getSector();
-		game.lastRRclientNotification.setMessage("You've indicated the sector: "
+		game.getLastRRclientNotification().setMessage("You've indicated the sector: "
 				+ target.getCoordinate().toString());
-		game.lastPSclientNotification.setMessage("[GLOBAL MESSAGE]: "
-				+ game.lastPSclientNotification.getMessage() + name
+		game.getLastPSclientNotification().setMessage("[GLOBAL MESSAGE]: "
+				+ game.getLastPSclientNotification().getMessage() + name
 				+ " has made noise in sector "
 				+ target.getCoordinate().toString());
 		return true;

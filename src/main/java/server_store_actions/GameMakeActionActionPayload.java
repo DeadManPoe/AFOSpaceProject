@@ -1,6 +1,5 @@
-package store_actions;
+package server_store_actions;
 
-import common.Action;
 import common.PlayerToken;
 import server_store.StoreAction;
 

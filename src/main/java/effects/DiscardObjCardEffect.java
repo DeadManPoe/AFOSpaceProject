@@ -19,19 +19,19 @@ import server_store.StoreAction;
 public class DiscardObjCardEffect extends ActionEffect {
 	public static boolean executeEffect(Game game, StoreAction action) {
 		DiscardAction castedAction = (DiscardAction) action;
-		Player currentPlayer = game.currentPlayer;
-		ObjectDeck objectDeck = game.objectDeck;
+		Player currentPlayer = game.getCurrentPlayer();
+		ObjectDeck objectDeck = game.getObjectDeck();
 		ObjectCard discardedCard = castedAction.payload;
-		currentPlayer.privateDeck.removeCard(discardedCard);
+		currentPlayer.getPrivateDeck().removeCard(discardedCard);
 		objectDeck.addToDiscard(discardedCard);
 		objectDeck.refill();
 		// Notifications setting
-		game.lastRRclientNotification.setMessage("You have discarded a "
+		game.getLastRRclientNotification().setMessage("You have discarded a "
 				+ discardedCard.toString() + " object card");
-		game.lastPSclientNotification.setMessage("[GLOBAL MESSAGE]: "
-				+ currentPlayer.name + " has discarded an object card\n");
+		game.getLastPSclientNotification().setMessage("[GLOBAL MESSAGE]: "
+				+ currentPlayer.getName() + " has discarded an object card\n");
 		//
-		game.lastAction = castedAction;
+		game.setLastAction(castedAction);
 		return true;
 	}
 }

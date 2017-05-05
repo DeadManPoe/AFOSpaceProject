@@ -39,43 +39,42 @@ public class MoveActionEffect extends ActionEffect {
     public static boolean executeEffect(Game game, StoreAction action) {
         MoveAction moveAction = (MoveAction) action;
         // Retrieve a reference of the map
-        GameMap map = game.gameMap;
-        Player currentPlayer = game.currentPlayer;
+        GameMap map = game.getGameMap();
+        Player currentPlayer = game.getCurrentPlayer();
         int adrenalineBooster = 0;
-        if (currentPlayer.isAdrenalined){
+        if (currentPlayer.isAdrenalined()){
             adrenalineBooster++;
         }
         // Checks the source != target
-        if (!currentPlayer.currentSector.equals(moveAction.payload)) {
+        if (!currentPlayer.getCurrentSector().equals(moveAction.getTargetSector())) {
             // Retrieve the "true" reference of source and target
             Sector sourceSector = map.getSectorByCoords(currentPlayer
-                    .currentSector.getCoordinate());
-            Sector targetSector = map.getSectorByCoords(moveAction.payload
+                    .getCurrentSector().getCoordinate());
+            Sector targetSector = map.getSectorByCoords(moveAction.getTargetSector()
                     .getCoordinate());
             // Checks that source and target are adjacent according to the speed
             // of the player
             if (map.checkSectorAdiacency(sourceSector, targetSector,
-                    currentPlayer.speed+adrenalineBooster,currentPlayer.isAdrenalined)
-                    && verifyMoveLegality(sourceSector,targetSector,currentPlayer.playerToken.playerType) ) {
+                    currentPlayer.getSpeed()+adrenalineBooster,currentPlayer.isAdrenalined())
+                    && verifyMoveLegality(sourceSector,targetSector,currentPlayer.getPlayerToken().getPlayerType()) ) {
                 // This two lines implements the move
                 sourceSector.removePlayer(currentPlayer);
-                currentPlayer.currentSector = targetSector;
+                currentPlayer.setCurrentSector(targetSector);
                 targetSector.addPlayer(currentPlayer);
-                game.lastRRclientNotification.setMessage("You have moved to sector "
+                game.getLastRRclientNotification().setMessage("You have moved to sector "
                         + targetSector.getCoordinate().toString());
-                game.lastPSclientNotification.setMessage("[GLOBAL MESSAGE]: "
-                        + currentPlayer.name + " has moved.");
+                game.getLastPSclientNotification().setMessage("[GLOBAL MESSAGE]: "
+                        + currentPlayer.getName() + " has moved.");
                 // If the target sector is a dangerous sector continue the
                 // execution
                 // of the action
                 if (targetSector.getSectorType() == SectorType.DANGEROUS
-                        && !currentPlayer.isSedated) {
+                        && !currentPlayer.isSedated()) {
                     DrawSectorCardEffect.executeEffect(game, new DrawSectorCardAction());
                 } else if (targetSector.getSectorType() == SectorType.OPEN_RESCUE) {
                     DrawRescueCardEffect.executeEffect(game);
                 }
-                game.currentPlayer.hasMoved = true;
-                game.lastAction = moveAction;
+                game.getCurrentPlayer().setHasMoved(true);
                 return true;
             }
 

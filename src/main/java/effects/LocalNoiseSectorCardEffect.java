@@ -20,9 +20,9 @@ public class LocalNoiseSectorCardEffect extends SectorCardEffect {
 		// sector that is automatically
 		// indicated
 		// Notify all the player
-		String name = game.currentPlayer.name;
-		Sector target = game.currentPlayer.currentSector;
-		game.lastPSclientNotification.setMessage(game.lastPSclientNotification.getMessage()
+		String name = game.getCurrentPlayer().getName();
+		Sector target = game.getCurrentPlayer().getCurrentSector();
+		game.getLastPSclientNotification().setMessage(game.getLastPSclientNotification().getMessage()
 				+ "\n[GLOBAL MESSAGE]: " + name
 				+ " has made noise in sector "
 				+ target.getCoordinate().toString());

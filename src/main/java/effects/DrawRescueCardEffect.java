@@ -17,26 +17,26 @@ import server.Game;
  */
 public class DrawRescueCardEffect extends ActionEffect {
 	public static boolean executeEffect(Game game) {
-		RescueCard card = (RescueCard) game.rescueDeck.popCard();
+		RescueCard card = (RescueCard) game.getRescueDeck().popCard();
 		if (card.getType() == RescueType.GREEN) {
-			game.currentPlayer.playerState = PlayerState.ESCAPED;
-			game.currentPlayer.currentSector
+			game.getCurrentPlayer().setPlayerState(PlayerState.ESCAPED);
+			game.getCurrentPlayer().getCurrentSector()
 					.setSectorType(SectorType.CLOSED_RESCUE);
-			game.lastPSclientNotification.setMessage(game.lastPSclientNotification.getMessage()
+			game.getLastPSclientNotification().setMessage(game.getLastPSclientNotification().getMessage()
 					+ "\n[GLOBAL MESSAGE]: "
-					+ game.currentPlayer.name
+					+ game.getCurrentPlayer().getName()
 					+ " has escaped from aliens!");
-			game.lastRRclientNotification.addCard(card);
-			game.lastPSclientNotification.setEscapedPlayer(game.currentPlayer.playerToken);
+			game.getLastRRclientNotification().addCard(card);
+			game.getLastPSclientNotification().setEscapedPlayer(game.getCurrentPlayer().getPlayerToken());
 			EndTurnEffect.executeEffect(game, new EndTurnAction());
 			return true;
 		} else {
-			game.lastRRclientNotification.addCard(card);
-			game.currentPlayer.currentSector
+			game.getLastRRclientNotification().addCard(card);
+			game.getCurrentPlayer().getCurrentSector()
 					.setSectorType(SectorType.CLOSED_RESCUE);
-			game.lastPSclientNotification.setMessage(game.lastPSclientNotification.getMessage()
+			game.getLastPSclientNotification().setMessage(game.getLastPSclientNotification().getMessage()
 					+ "\n[GLOBAL MESSAGE]: "
-					+ game.currentPlayer.name
+					+ game.getCurrentPlayer().getName()
 					+ " has not escaped from aliens");
 			return false;
 		}

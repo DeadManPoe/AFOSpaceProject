@@ -19,17 +19,17 @@ public class DrawObjectCardEffect extends ActionEffect {
 
 	public static boolean executeEffect(Game game) {
 		// Get a new card from the correct deck
-		ObjectCard objectCard = (ObjectCard) game.objectDeck.popCard();
+		ObjectCard objectCard = (ObjectCard) game.getObjectDeck().popCard();
 		// Notify the client
 		if (objectCard == null) {
-			game.lastPSclientNotification.setMessage(game.lastPSclientNotification.getMessage()
+			game.getLastPSclientNotification().setMessage(game.getLastPSclientNotification().getMessage()
 					+ "\n[GLOBAL MESSAGE]: No more object cards");
 		} else {
-			game.lastRRclientNotification.addCard(objectCard);
-			game.currentPlayer.privateDeck.addCard(objectCard);
-			game.lastPSclientNotification.setMessage(game.lastPSclientNotification.getMessage()
+			game.getLastRRclientNotification().addCard(objectCard);
+			game.getCurrentPlayer().getPrivateDeck().addCard(objectCard);
+			game.getLastPSclientNotification().setMessage(game.getLastPSclientNotification().getMessage()
 					+ "\n[GLOBAL MESSAGE]: "
-					+ game.currentPlayer.name
+					+ game.getCurrentPlayer().getName()
 					+ " has drawn a object card");
 		}
 		return true;

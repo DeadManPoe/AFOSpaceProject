@@ -19,9 +19,9 @@ public class SilenceSectorCardEffect extends SectorCardEffect {
 
 
 	public static boolean executeEffect(Game game, SectorCard sectorCard) {
-		game.lastRRclientNotification.setMessage("You've said SILENCE");
-		game.lastPSclientNotification.setMessage(game.lastPSclientNotification.getMessage()
-				+ "\n[GLOBAL MESSAGE]: " + game.currentPlayer.name
+		game.getLastRRclientNotification().setMessage("You've said SILENCE");
+		game.getLastPSclientNotification().setMessage(game.getLastPSclientNotification().getMessage()
+				+ "\n[GLOBAL MESSAGE]: " + game.getCurrentPlayer().getName()
 				+ " says SILENCE!");
 		return true;
 	}

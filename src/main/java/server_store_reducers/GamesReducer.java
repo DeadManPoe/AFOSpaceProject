@@ -1,16 +1,12 @@
-package store_reducers;
+package server_store_reducers;
 
-import server.Game;
 import server.PubSubHandler;
 import server_store.ServerState;
 import server_store.State;
-import store_actions.GamesEndGameAction;
-import store_actions.GamesAddGameAction;
+import server_store_actions.GamesEndGameAction;
+import server_store_actions.GamesAddGameAction;
 import server_store.StoreAction;
 import server_store.Reducer;
-
-import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * Created by giorgiopea on 14/03/17.
@@ -38,7 +34,7 @@ public class GamesReducer implements Reducer {
 
     /**
      * Removes a game from the list of games in the app's state
-     * @param action The action that has triggered this task, see {@link store_actions.GamesEndGameAction}
+     * @param action The action that has triggered this task, see {@link server_store_actions.GamesEndGameAction}
      * @param state The current app's state
      * @return The app's new state
      */
@@ -56,7 +52,7 @@ public class GamesReducer implements Reducer {
     /**
      * Adds a game to the list of games in the app's state
      * @param action The action that has triggered this task
-     * @param state The current app's state, see {@link store_actions.GamesAddGameAction}
+     * @param state The current app's state, see {@link server_store_actions.GamesAddGameAction}
      * @return The app's new state
      */
     private ServerState addGame(StoreAction action, ServerState state){

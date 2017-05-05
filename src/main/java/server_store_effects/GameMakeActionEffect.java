@@ -1,10 +1,10 @@
-package store_effects;
+package server_store_effects;
 
 import common.RemoteMethodCall;
 import server.*;
 import server_store.*;
-import store_actions.GameMakeActionAction;
-import store_actions.GamesEndGameAction;
+import server_store_actions.GameMakeActionAction;
+import server_store_actions.GamesEndGameAction;
 
 import java.util.ArrayList;
 import java.util.List;

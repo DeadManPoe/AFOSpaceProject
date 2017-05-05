@@ -1,9 +1,6 @@
 package effects;
 
-import common.EndTurnAction;
-import common.PSClientNotification;
-import common.RRClientNotification;
-import common.PlayerState;
+import common.*;
 import server.Game;
 import server_store.StoreAction;
 
@@ -22,35 +19,37 @@ public class EndTurnEffect extends ActionEffect {
 
     public static boolean executeEffect(Game game, StoreAction action) {
         EndTurnAction castedAction = (EndTurnAction) action;
-        game.currentPlayer.isAdrenalined = false;
-        game.currentPlayer.isSedated = false;
-        game.currentPlayer.hasMoved = false;
-        // Set the new current player
-        game.lastRRclientNotification = new RRClientNotification();
-        game.lastPSclientNotification = new PSClientNotification();
-        game.lastRRclientNotification.setMessage("\nYou have ended your turn");
-        game.lastPSclientNotification = new PSClientNotification();
-        game.lastPSclientNotification.setMessage("\n[GLOBAL MESSAGE]: "
-                + game.currentPlayer.name
+        game.getCurrentPlayer().setAdrenalined(false);
+        game.getCurrentPlayer().setSedated(false);
+        game.getCurrentPlayer().setHasMoved(false);
+        game.getLastRRclientNotification().setMessage("\nYou have ended your turn");
+        game.getLastPSclientNotification().setMessage("\n[GLOBAL MESSAGE]: "
+                + game.getCurrentPlayer().getName()
                 + " has ended its turn.\n[GLOBAL MESSAGE]: ");
-
-        shiftCurrentplayer(game);
-        game.lastPSclientNotification.setMessage(game.lastPSclientNotification.getMessage() + game.currentPlayer.name + " now is your turn");
+        game.setPreviousPlayer(game.getCurrentPlayer());
+        shiftCurrentPlayer(game);
+        game.getLastPSclientNotification().setMessage(game.getLastPSclientNotification().getMessage() + game.getCurrentPlayer().getName() + " now is your turn");
         // Notify the client
-        game.lastAction = castedAction;
+        game.setLastAction(action);
         return true;
     }
 
-    private static void shiftCurrentplayer(Game game) {
-        int currentPlayerIndex = game.players.indexOf(game.currentPlayer);
-        do {
-            currentPlayerIndex++;
-            if (currentPlayerIndex == game.players.size())
-                currentPlayerIndex = 0;
-        } while (game.players.get(currentPlayerIndex).playerState == PlayerState.DEAD);
-
-        game.previousPlayer = game.currentPlayer;
-        game.currentPlayer = game.players.get(currentPlayerIndex);
+    private static void shiftCurrentPlayer(Game game) {
+        int size = game.getPlayers().size();
+        int index = 0;
+        while (index != size){
+            Player current = game.getPlayers().get(index);
+            if (current.equals(game.getCurrentPlayer())){
+                if ( index == size - 1){
+                    index = 0;
+                    break;
+                }
+                index++;
+                break;
+            }
+            index++;
+        }
+        game.setCurrentPlayer(game.getPlayers().get(index));
     }
 
 }
