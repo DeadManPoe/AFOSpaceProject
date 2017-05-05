@@ -28,24 +28,24 @@ public class GameTurnTimeoutExpiredEffect implements Effect {
         Game game_ = null;
         ArrayList<Object> parameters = new ArrayList<>();
         for (Game game : castedState.getGames()){
-            if (game.gamePublicData.getId() == castedAction.getPayload()){
-                parameters.add(game.lastPSclientNotification);
+            if (game.getGamePublicData().getId() == castedAction.getPayload()){
+                parameters.add(game.getLastPSclientNotification());
                 //The new timeout is set
-                game.currentTimer.schedule(new TurnTimeout(castedAction.getPayload()),castedState.getTurnTimeout());
+                game.getCurrentTimer().schedule(new TurnTimeout(castedAction.getPayload()),castedState.getTurnTimeout());
                 game_ = game;
             }
         }
         if (game_ != null){
             //Notification sending
             for (PubSubHandler handler : castedState.getPubSubHandlers()){
-                if (handler.getPlayerToken().gameId.equals(castedAction.
-                        getPayload())){
-                    if (handler.getPlayerToken().equals(game_.currentPlayer.playerToken)){
+                if (handler.getPlayerToken().getGameId()== castedAction.
+                        getPayload()){
+                    if (handler.getPlayerToken().equals(game_.getCurrentPlayer().getPlayerToken())){
                         handler.queueNotification(new RemoteMethodCall("startTurn", new ArrayList<>()));
                     }
-                    if (handler.getPlayerToken().equals(game_.previousPlayer.playerToken)){
+                    /**if (handler.getPlayerToken().equals(game_.g.playerToken)){
                         handler.queueNotification(new RemoteMethodCall("forceEndTurn", new ArrayList<>()));
-                    }
+                    }**/
                     handler.queueNotification(new RemoteMethodCall("asyncNotification",parameters));
 
                 }

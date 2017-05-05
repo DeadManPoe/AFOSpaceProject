@@ -2,6 +2,7 @@ package store_actions;
 
 import common.Action;
 import common.PlayerToken;
+import server.Game;
 import server_store.StoreAction;
 
 import java.util.UUID;
@@ -13,11 +14,13 @@ public class GameMakeActionAction extends StoreAction {
 
     private final PlayerToken playerToken;
     private final StoreAction action;
+    private final Game game;
 
-    public GameMakeActionAction(PlayerToken playerToken, StoreAction action) {
+    public GameMakeActionAction(Game game, PlayerToken playerToken, StoreAction action) {
         super("@GAME_MAKE_ACTION");
         this.playerToken = playerToken;
         this.action = action;
+        this.game = game;
     }
 
     public PlayerToken getPlayerToken() {
@@ -26,5 +29,9 @@ public class GameMakeActionAction extends StoreAction {
 
     public StoreAction getAction() {
         return action;
+    }
+
+    public Game getGame() {
+        return game;
     }
 }

@@ -10,10 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -227,17 +224,12 @@ public class ReqRespHandler extends Thread {
      * @throws IOException Networking problem.
      */
     public void makeAction(StoreAction action, PlayerToken playerToken) throws IOException {
-        for (Game game : this.serverStore.getState().getGames()) {
-            if (game.getGamePublicData().getId() == playerToken.getGameId()) {
-                this.serverStore.dispatchAction(new GameMakeActionAction(playerToken, action));
-                ArrayList<Object> parameters = new ArrayList<>();
-                parameters.add(game.getLastRRclientNotification());
-                this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));
-                this.closeDataFlow();
-                break;
-            }
-        }
-
+        Game game = this.getGameById(playerToken.getGameId(), this.serverStore.getState().getGames());
+        this.serverStore.dispatchAction(new GameMakeActionAction(game, playerToken, action));
+        ArrayList<Object> parameters = new ArrayList<>();
+        parameters.add(game.getLastRRclientNotification());
+        this.sendData(new RemoteMethodCall(this.clientMethodsNamesProvider.syncNotification(), parameters));
+        this.closeDataFlow();
     }
 
     /**
@@ -263,6 +255,21 @@ public class ReqRespHandler extends Thread {
             }
         }
 
+    }
+
+    /**
+     * Provides the game that has the given id.
+     * @param gameId The id of the game to be provided.
+     * @return The game that matches the given id.
+     * @throws NoSuchElementException If no game matches the given id.
+     */
+    private Game getGameById(int gameId, List<Game> games) throws NoSuchElementException{
+        for (Game game : games){
+            if (game.getGamePublicData().getId() == gameId){
+                return game;
+            }
+        }
+        throw new NoSuchElementException("No game matches the given id");
     }
 
 

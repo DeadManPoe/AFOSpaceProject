@@ -5,15 +5,24 @@ import server_store.StoreAction;
 
 /**
  * Created by giorgiopea on 21/03/17.
+ *
  */
 public class GameActionAction extends StoreAction {
 
-    public Game game;
-    public StoreAction action;
+    private final Game game;
+    private final StoreAction action;
 
     public GameActionAction(StoreAction action, Game game) {
         super(action.type);
         this.action = action;
         this.game = game;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public StoreAction getAction() {
+        return action;
     }
 }

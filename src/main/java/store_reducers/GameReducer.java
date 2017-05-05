@@ -15,6 +15,7 @@ import server_store.*;
 import store_actions.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Timer;
 
 /**
@@ -139,69 +140,57 @@ public class GameReducer implements Reducer {
     private ServerState makeAction(StoreAction action, ServerState state) {
         GameMakeActionAction castedAction = (GameMakeActionAction) action;
         StoreAction gameAction = castedAction.getAction();
-        for (Game game : state.getGames()) {
-            if (game.getGamePublicData().getId() == castedAction.getPlayerToken().getGameId()) {
-                game.setLastPSclientNotification(new PSClientNotification());
-                game.setLastRRclientNotification(new RRClientNotification());
-                Player actualPlayer = null;
-                for (Player player : game.getPlayers()) {
-                    if (player.getPlayerToken().equals(castedAction.getPlayerToken())) {
-                        actualPlayer = player;
-                        break;
-                    }
-                }
-                if (!game.getCurrentPlayer().equals(actualPlayer)) {
-                    game.getLastRRclientNotification().setActionResult(false);
-                } else {
-                    // If the player is ok then check if the action is ok
-                    if (game.getNextActions().contains(gameAction.type)) {
-
-                        // Executes the action's associated logic and get the result
-                        ServerStore.getInstance().dispatchAction(new GameActionAction(gameAction, game));
-                        if (game.isLastActionResult()) {
-                            if (!game.getLastAction().type.equals("@GAMEACTION_END_TURN")) {
-                                if (game.getCurrentPlayer().getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
-                                    game.setNextActions(HumanTurn.nextAction(game.getLastAction(), game.getCurrentPlayer()));
-                                } else {
-                                    game.setNextActions(AlienTurn.nextAction(game.getLastAction(), actualPlayer));
-                                }
-
-                            } else {
-                                if (game.getCurrentPlayer().getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
-                                    game.setNextActions(AlienTurn.getInitialActions());
-                                } else {
-                                    game.setNextActions(HumanTurn.getInitialActions());
-                                }
-                                game.setTurnNumber(game.getTurnNumber()+1);
-                            }
-                            game.setDidHumansWin(checkWinConditions(PlayerType.HUMAN, game));
-                            game.setDidAlienWin(checkWinConditions(PlayerType.ALIEN, game));
-                            game.getCurrentTimer().cancel();
-                            game.setCurrentTimer(new Timer());
-                            game.getLastRRclientNotification().setActionResult(true);
-                            if (game.isDidHumansWin()) {
-                                game.getLastPSclientNotification()
-                                        .setMessage(game.getLastPSclientNotification().getMessage()
-                                                + "\n[GLOBAL MESSAGE]: The game has ended, HUMANS WIN!");
-                            }
-                            if (game.isDidAlienWin()) {
-                                game.getLastPSclientNotification()
-                                        .setMessage(game.getLastPSclientNotification().getMessage()
-                                                + "\n[GLOBAL MESSAGE]: The game has ended, ALIENS WIN!");
-
-                            }
-                            if (game.isDidAlienWin() || game.isDidHumansWin()) {
-                                game.getLastPSclientNotification().setAlienWins(game.isDidAlienWin());
-                                game.getLastPSclientNotification().setHumanWins(game.isDidHumansWin());
-                            }
+        Game game = castedAction.getGame();
+        game.setLastPSclientNotification(new PSClientNotification());
+        game.setLastRRclientNotification(new RRClientNotification());
+        if (!game.getCurrentPlayer().getPlayerToken().equals(castedAction.getPlayerToken())) {
+            game.getLastRRclientNotification().setActionResult(false);
+        } else {
+            // If the player is ok then check if the action is ok
+            if (game.getNextActions().contains(gameAction.type)) {
+                // Executes the action's associated logic and get the result
+                ServerStore.getInstance().dispatchAction(new GameActionAction(gameAction, game));
+                if (game.isLastActionResult()) {
+                    if (!game.getLastAction().type.equals("@GAMEACTION_END_TURN")) {
+                        if (game.getCurrentPlayer().getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
+                            game.setNextActions(HumanTurn.nextAction(game.getLastAction(), game.getCurrentPlayer()));
+                        } else {
+                            game.setNextActions(AlienTurn.nextAction(game.getLastAction(), game.getCurrentPlayer()));
                         }
-                    } else {
-                        game.getLastRRclientNotification().setActionResult(false);
-                    }
 
+                    } else {
+                        if (game.getCurrentPlayer().getPlayerToken().getPlayerType().equals(PlayerType.ALIEN)) {
+                            game.setNextActions(AlienTurn.getInitialActions());
+                        } else {
+                            game.setNextActions(HumanTurn.getInitialActions());
+                        }
+                        game.setTurnNumber(game.getTurnNumber()+1);
+                    }
+                    game.setDidHumansWin(checkWinConditions(PlayerType.HUMAN, game));
+                    game.setDidAlienWin(checkWinConditions(PlayerType.ALIEN, game));
+                    game.getCurrentTimer().cancel();
+                    game.setCurrentTimer(new Timer());
+                    game.getLastRRclientNotification().setActionResult(true);
+                    if (game.isDidHumansWin()) {
+                        game.getLastPSclientNotification()
+                                .setMessage(game.getLastPSclientNotification().getMessage()
+                                        + "\n[GLOBAL MESSAGE]: The game has ended, HUMANS WIN!");
+                    }
+                    if (game.isDidAlienWin()) {
+                        game.getLastPSclientNotification()
+                                .setMessage(game.getLastPSclientNotification().getMessage()
+                                        + "\n[GLOBAL MESSAGE]: The game has ended, ALIENS WIN!");
+
+                    }
+                    if (game.isDidAlienWin() || game.isDidHumansWin()) {
+                        game.getLastPSclientNotification().setAlienWins(game.isDidAlienWin());
+                        game.getLastPSclientNotification().setHumanWins(game.isDidHumansWin());
+                    }
                 }
-                break;
+            } else {
+                game.getLastRRclientNotification().setActionResult(false);
             }
+
         }
         return state;
     }
@@ -313,5 +302,14 @@ public class GameReducer implements Reducer {
                 return false;
         }
         return true;
+    }
+
+    private Player getPlayerByToken(PlayerToken playerToken, List<Player> players) throws NoSuchElementException {
+        for (Player player : players) {
+            if (player.getPlayerToken().equals(playerToken)) {
+                return player;
+            }
+        }
+        throw new NoSuchElementException("No player matches the given player token");
     }
 }

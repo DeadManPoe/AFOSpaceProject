@@ -36,7 +36,7 @@ public class GamePutChatMsgEffect implements Effect {
         for (PubSubHandler pubSubHandler : castedState.getPubSubHandlers()){
             if (pubSubHandler.getPlayerToken().getGameId() == castedAction.getPlayerToken().getGameId()){
                 ArrayList<Object> parameters = new ArrayList<>();
-                parameters.add(playerName + " says: "+castedAction.getMessage())
+                parameters.add(playerName + " says: "+castedAction.getMessage());
                 pubSubHandler.queueNotification(new RemoteMethodCall(ClientMethodsNamesProvider.getInstance().chatMessage(),parameters));
             }
         }

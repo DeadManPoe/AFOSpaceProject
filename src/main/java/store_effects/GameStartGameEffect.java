@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 /**
- * Created by giorgiopea on 20/03/17.
  *
  * Handles the side-effects related to the start of a game
  */
@@ -30,18 +29,18 @@ public class GameStartGameEffect implements Effect {
         Game game = null;
         ArrayList<Object> parameters = new ArrayList<>();
         for (Game c_game : castedState.getGames()){
-            if (c_game.gamePublicData.getId() == gameId){
+            if (c_game.getGamePublicData().getId() == gameId){
                 game = c_game;
                 break;
             }
         }
         if (game != null){
-            game.currentTimer.schedule(new TurnTimeout(gameId),castedState.getTurnTimeout());
-            parameters.add(game.gameMap.getName());
+            game.getCurrentTimer().schedule(new TurnTimeout(gameId),castedState.getTurnTimeout());
+            parameters.add(game.getGameMap().getName());
             for (PubSubHandler handler : castedState.getPubSubHandlers()){
-                if (handler.getPlayerToken().gameId.equals(gameId)){
+                if (handler.getPlayerToken().getGameId() == gameId){
                     handler.queueNotification(new RemoteMethodCall("setMapAndStartGame",parameters));
-                    if (handler.getPlayerToken().equals(game.currentPlayer.playerToken)){
+                    if (handler.getPlayerToken().equals(game.getCurrentPlayer().getPlayerToken())){
                         handler.queueNotification(new RemoteMethodCall("startTurn", new ArrayList<Object>()));
                     }
                 }

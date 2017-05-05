@@ -9,7 +9,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * Created by giorgiopea on 21/03/17.
  *
  * Handles the logic related to the slice of the app's state represented by a single game,
  * in particular the logic related to in-game actions
@@ -27,7 +26,7 @@ public class GameActionReducer implements Reducer {
             //From the class of the effect associated with the in-game action, by using reflection, the executeEffect
             //method is invoked with the necessary arguments
             Method executeMethod = GameActionMapper.getInstance().getEffect(castedAction.type).getMethod("executeEffect", Game.class, StoreAction.class);
-            castedAction.game.lastActionResult = (boolean) executeMethod.invoke(null,castedAction.game, castedAction.action);
+            castedAction.getGame().setLastActionResult((boolean) executeMethod.invoke(null,castedAction.getGame(), castedAction.getAction()));
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }

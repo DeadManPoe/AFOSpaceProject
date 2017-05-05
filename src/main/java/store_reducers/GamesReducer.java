@@ -40,13 +40,13 @@ public class GamesReducer implements Reducer {
     private ServerState removeGame(StoreAction action, ServerState state) {
         GamesEndGameAction castedAction = (GamesEndGameAction) action;
         for(int i=0; i<state.getGames().size(); i++){
-            if(state.getGames().get(i).gamePublicData.getId() == castedAction.getPayload()){
+            if(state.getGames().get(i).getGamePublicData().getId() == castedAction.getPayload()){
                 state.getGames().remove(i);
                 break;
             }
         }
         for (int i=0; i<state.getPubSubHandlers().size(); i++){
-            if(state.getPubSubHandlers().get(i).getPlayerToken().gameId.equals(castedAction.getPayload())){
+            if(state.getPubSubHandlers().get(i).getPlayerToken().getGameId() == castedAction.getPayload()){
                 state.getPubSubHandlers().remove(i);
             }
         }
