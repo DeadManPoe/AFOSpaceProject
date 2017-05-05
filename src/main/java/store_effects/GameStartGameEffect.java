@@ -1,6 +1,7 @@
 package store_effects;
 
 import common.RemoteMethodCall;
+import server.ClientMethodsNamesProvider;
 import server.Game;
 import server.PubSubHandler;
 import server.TurnTimeout;
@@ -8,6 +9,7 @@ import server_store.*;
 import store_actions.GameStartGameAction;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -25,30 +27,26 @@ public class GameStartGameEffect implements Effect {
          */
         ServerState castedState = (ServerState) state;
         GameStartGameAction castedAction = (GameStartGameAction) action;
-        Integer gameId = castedAction.getPayload();
-        Game game = null;
+        Game game = castedAction.getGame();
+        game.getCurrentTimer().schedule(new TurnTimeout(game),castedState.getTurnTimeout());
         ArrayList<Object> parameters = new ArrayList<>();
-        for (Game c_game : castedState.getGames()){
-            if (c_game.getGamePublicData().getId() == gameId){
-                game = c_game;
-                break;
+        parameters.add(game.getGameMap().getName());
+        for (PubSubHandler handler : this.getHandlersByGameId(game.getGamePublicData().getId(),castedState.getPubSubHandlers())){
+            handler.queueNotification(new RemoteMethodCall(ClientMethodsNamesProvider.getInstance().sendMapAndStartGame(),parameters));
+            if (handler.getPlayerToken().equals(game.getCurrentPlayer().getPlayerToken())){
+                handler.queueNotification(new RemoteMethodCall(ClientMethodsNamesProvider.getInstance().startTurn(), new ArrayList<>()));
+
             }
-        }
-        if (game != null){
-            game.getCurrentTimer().schedule(new TurnTimeout(gameId),castedState.getTurnTimeout());
-            parameters.add(game.getGameMap().getName());
-            for (PubSubHandler handler : castedState.getPubSubHandlers()){
-                if (handler.getPlayerToken().getGameId() == gameId){
-                    handler.queueNotification(new RemoteMethodCall("setMapAndStartGame",parameters));
-                    if (handler.getPlayerToken().equals(game.getCurrentPlayer().getPlayerToken())){
-                        handler.queueNotification(new RemoteMethodCall("startTurn", new ArrayList<Object>()));
-                    }
-                }
-            }
-        }
-        else {
-            throw new NoSuchElementException("No game matches the given id");
         }
 
+    }
+    private List<PubSubHandler> getHandlersByGameId(int gameId, List<PubSubHandler> handlers){
+        List<PubSubHandler> handlersToReturn = new ArrayList<>();
+        for (PubSubHandler handler : handlers){
+            if (handler.getPlayerToken().getGameId() == gameId){
+                handlersToReturn.add(handler);
+            }
+        }
+        return handlersToReturn;
     }
 }

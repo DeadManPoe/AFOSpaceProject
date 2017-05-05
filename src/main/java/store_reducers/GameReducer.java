@@ -19,7 +19,6 @@ import java.util.NoSuchElementException;
 import java.util.Timer;
 
 /**
- * <p>
  * Handles the logic related to the slice of the app's state
  * represented by a single game
  */
@@ -34,13 +33,13 @@ public class GameReducer implements Reducer {
             case "@GAME_ADD_PLAYER":
                 return this.addPlayer(action, castedState);
             case "@GAME_MAKE_ACTION":
-                return  this.makeAction(action, castedState);
+                return this.makeAction(action, castedState);
             case "@GAME_START_GAME":
                 return this.startGame(action, castedState);
             case "@GAME_TURNTIMEOUT_EXPIRED":
                 return this.turnTimeoutExpired(action, castedState);
-            case  "@GAME_PUT_CHAT_MSG":
-                return this.putChatMsg(action,castedState);
+            case "@GAME_PUT_CHAT_MSG":
+                return this.putChatMsg(action, castedState);
             case "@GAME_STARTABLE_GAME":
                 return this.startableGame(action, castedState);
         }
@@ -56,9 +55,9 @@ public class GameReducer implements Reducer {
 
     private ServerState putChatMsg(StoreAction action, ServerState state) {
         GamePutChatMsg castedAction = (GamePutChatMsg) action;
-        for (Game game : state.getGames()){
-            if (game.getGamePublicData().getId() == castedAction.getPlayerToken().getGameId()){
-                game.setLastRRclientNotification(new RRClientNotification(true,null,null,null));
+        for (Game game : state.getGames()) {
+            if (game.getGamePublicData().getId() == castedAction.getPlayerToken().getGameId()) {
+                game.setLastRRclientNotification(new RRClientNotification(true, null, null, null));
                 break;
             }
         }
@@ -75,15 +74,11 @@ public class GameReducer implements Reducer {
      */
     private ServerState turnTimeoutExpired(StoreAction action, ServerState state) {
         GameTurnTimeoutExpiredAction castedAction = (GameTurnTimeoutExpiredAction) action;
-        for (Game game : state.getGames()) {
-            if (game.getGamePublicData().getId() == castedAction.getPayload()) {
-                EndTurnEffect.executeEffect(game, new EndTurnAction());
-                game.getCurrentTimer().cancel();
-                game.setCurrentTimer( new Timer());
-            }
-        }
+        Game game = castedAction.getGame();
+        EndTurnEffect.executeEffect(game, new EndTurnAction());
+        game.getCurrentTimer().cancel();
+        game.setCurrentTimer(new Timer());
         return state;
-
     }
 
     /**
@@ -113,7 +108,7 @@ public class GameReducer implements Reducer {
 
         for (Player player : game.getPlayers()) {
             if (player.getPlayerToken().getPlayerType().equals(PlayerType.HUMAN)) {
-                player.setCurrentSector( game.getGameMap().getHumanSector());
+                player.setCurrentSector(game.getGameMap().getHumanSector());
                 game.getGameMap().getHumanSector().addPlayer(player);
             } else {
                 player.setCurrentSector(game.getGameMap().getAlienSector());
@@ -126,8 +121,8 @@ public class GameReducer implements Reducer {
             game.setNextActions(AlienTurn.getInitialActions());
         }
         game.getGamePublicData().setStatus(GameStatus.CLOSED);
-        game.setCurrentTimer( new Timer());
-        game.setLastRRclientNotification(new RRClientNotification(true,null,null,null));
+        game.setCurrentTimer(new Timer());
+        game.setLastRRclientNotification(new RRClientNotification(true, null, null, null));
         return state;
     }
 
@@ -168,7 +163,7 @@ public class GameReducer implements Reducer {
                         } else {
                             game.setNextActions(HumanTurn.getInitialActions());
                         }
-                        game.setTurnNumber(game.getTurnNumber()+1);
+                        game.setTurnNumber(game.getTurnNumber() + 1);
                     }
                     game.setDidHumansWin(checkWinConditions(PlayerType.HUMAN, game));
                     game.setDidAlienWin(checkWinConditions(PlayerType.ALIEN, game));
@@ -202,9 +197,9 @@ public class GameReducer implements Reducer {
     /**
      * Changes a game in the list of games in the app's state so that a new player is added to this game
      *
-     * @param action The action that has triggered this task, see {@link store_actions.GameAddPlayerAction}
-     * @param state  The app's current state
-     * @return The app's new state
+     * @param action The {@link StoreAction} that has triggered this task.
+     * @param state  The app's current state.
+     * @return The app's new state.
      */
     private ServerState addPlayer(StoreAction action, ServerState state) {
         GameAddPlayerAction castedAction = (GameAddPlayerAction) action;
@@ -231,10 +226,10 @@ public class GameReducer implements Reducer {
      * Produces a player type based on the number of players already in game.
      * If the number of players already in game is even, the returned player
      * type is "HUMAN", otherwise is "ALIEN". This procedure is adopted in order
-     * to guarantee a balanced number of aliens and humans
+     * to guarantee a balanced number of aliens and humans.
      *
-     * @param numberOfPlayers The number of players already in game
-     * @return A player type, either "HUMAN" or "ALIEN"
+     * @param numberOfPlayers The number of players already in game.
+     * @return A player type, either "HUMAN" or "ALIEN".
      */
     private PlayerType assignTypeToPlayer(int numberOfPlayers) {
         if (numberOfPlayers % 2 == 0) {
@@ -261,9 +256,9 @@ public class GameReducer implements Reducer {
      * <li>At least one human has escaped but no more alive players exist</li>
      * </ul>
      *
-     * @param playerType The type of the faction we want to check if has won or not
-     * @param game       The game we are considering
-     * @return True if the faction has won, false otherwise
+     * @param playerType The type of the faction we want to check if has won or not.
+     * @param game       The game we are considering.
+     * @return True if the faction has won, false otherwise.
      */
     private boolean checkWinConditions(PlayerType playerType, Game game) {
         boolean allDeadHumans = this.checkStateAll(PlayerType.HUMAN, PlayerState.DEAD, game.getPlayers());
@@ -292,12 +287,12 @@ public class GameReducer implements Reducer {
     }
 
     /**
-     * Check if all the players of a given faction obey to a given status
+     * Check if all the players of a given faction obey to a given status.
      *
-     * @param playerType The faction we are interested in
-     * @param state      The status we are interested in
-     * @param players    All the players of all factions
-     * @return True if the players of the given faction obey to the given status, false otherwise
+     * @param playerType The faction we are interested in.
+     * @param state      The status we are interested in.
+     * @param players    All the players of all factions.
+     * @return True if the players of the given faction obey to the given status, false otherwise.
      */
     private boolean checkStateAll(PlayerType playerType, PlayerState state, List<Player> players) {
         for (Player player : players) {

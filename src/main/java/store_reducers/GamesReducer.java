@@ -1,11 +1,16 @@
 package store_reducers;
 
+import server.Game;
+import server.PubSubHandler;
 import server_store.ServerState;
 import server_store.State;
 import store_actions.GamesEndGameAction;
 import store_actions.GamesAddGameAction;
 import server_store.StoreAction;
 import server_store.Reducer;
+
+import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Created by giorgiopea on 14/03/17.
@@ -39,15 +44,11 @@ public class GamesReducer implements Reducer {
      */
     private ServerState removeGame(StoreAction action, ServerState state) {
         GamesEndGameAction castedAction = (GamesEndGameAction) action;
-        for(int i=0; i<state.getGames().size(); i++){
-            if(state.getGames().get(i).getGamePublicData().getId() == castedAction.getPayload()){
-                state.getGames().remove(i);
-                break;
-            }
-        }
-        for (int i=0; i<state.getPubSubHandlers().size(); i++){
-            if(state.getPubSubHandlers().get(i).getPlayerToken().getGameId() == castedAction.getPayload()){
-                state.getPubSubHandlers().remove(i);
+        state.getGames().remove(castedAction.getGame());
+        for (PubSubHandler handler : state.getPubSubHandlers()){
+            if (handler.getPlayerToken().getGameId() == castedAction.getGame().getGamePublicData().getId()){
+                handler.setRunningFlag(false);
+                state.getPubSubHandlers().remove(handler);
             }
         }
         return state;

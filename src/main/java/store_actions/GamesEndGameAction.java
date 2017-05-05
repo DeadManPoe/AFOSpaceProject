@@ -1,5 +1,6 @@
 package store_actions;
 
+import server.Game;
 import server_store.StoreAction;
 
 /**
@@ -7,14 +8,14 @@ import server_store.StoreAction;
  */
 public class GamesEndGameAction extends StoreAction {
 
-    Integer payload;
+    private final Game game;
 
-    public GamesEndGameAction(Integer gameId) {
+    public GamesEndGameAction(Game game) {
         super("@GAMES_END_GAME");
-        this.payload = gameId;
+        this.game = game;
     }
 
-    public Integer getPayload() {
-        return payload;
+    public Game getGame() {
+        return game;
     }
 }

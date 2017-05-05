@@ -12,14 +12,14 @@ import java.util.TimerTask;
 public class TurnTimeout extends TimerTask {
 
     private final ServerStore store = ServerStore.getInstance();
-    private final Integer gameId;
+    private final Game game;
 
-    public TurnTimeout(int gameId) {
-        this.gameId = gameId;
+    public TurnTimeout(Game game) {
+        this.game = game;
     }
 
     @Override
     public void run() {
-        store.dispatchAction(new GameTurnTimeoutExpiredAction(gameId));
+        store.dispatchAction(new GameTurnTimeoutExpiredAction(game));
     }
 }

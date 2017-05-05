@@ -46,13 +46,7 @@ public class CommunicationReducer implements Reducer {
      */
     private ServerState removeReqRespHandler(StoreAction action, ServerState state) {
         CommunicationRemoveReqRespHandlerAction castedAction = (CommunicationRemoveReqRespHandlerAction) action;
-
-        for (int i=0; i<state.getReqRespHandlers().size(); i++){
-            if(state.getReqRespHandlers().get(i).getUuid().equals(castedAction.getPayload())){
-                state.getReqRespHandlers().remove(i);
-                return state;
-            }
-        }
+        state.getReqRespHandlers().remove(castedAction.getHandler());
         return state;
     }
     /**
@@ -64,12 +58,7 @@ public class CommunicationReducer implements Reducer {
      */
     private ServerState removePubSubHandler(StoreAction action, ServerState state) {
         CommunicationRemovePubSubHandlerAction castedAction = (CommunicationRemovePubSubHandlerAction) action;
-        for (int i=0; i<state.getPubSubHandlers().size(); i++){
-            if(state.getPubSubHandlers().get(i).getPlayerToken().gameId.equals(castedAction.getPayload())){
-                state.getPubSubHandlers().remove(i);
-                return state;
-            }
-        }
+        state.getPubSubHandlers().remove(castedAction.getHandler());
         return state;
     }
 
@@ -105,7 +94,7 @@ public class CommunicationReducer implements Reducer {
      */
     private ServerState addPubSubHandler(StoreAction action, ServerState state){
         CommunicationAddPubSubHandlerAction castedAction = (CommunicationAddPubSubHandlerAction) action;
-        state.getPubSubHandlers().add(castedAction.getPayload());
+        state.getPubSubHandlers().add(castedAction.getPubSubHandler());
         return state;
     }
 }

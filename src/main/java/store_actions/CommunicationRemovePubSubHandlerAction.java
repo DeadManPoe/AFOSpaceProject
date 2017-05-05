@@ -1,5 +1,6 @@
 package store_actions;
 
+import server.PubSubHandler;
 import server_store.StoreAction;
 
 /**
@@ -7,14 +8,14 @@ import server_store.StoreAction;
  */
 public class CommunicationRemovePubSubHandlerAction extends StoreAction {
 
-    private Integer payload;
+    private final PubSubHandler handler;
 
-    public CommunicationRemovePubSubHandlerAction(Integer gameId) {
+    public CommunicationRemovePubSubHandlerAction(PubSubHandler handler) {
         super("@COMMUNICATION_REMOVE_PUBSUB_HANDLER");
-        this.payload = gameId;
+        this.handler =  handler;
     }
 
-    public Integer getPayload() {
-        return payload;
+    public PubSubHandler getHandler() {
+        return handler;
     }
 }

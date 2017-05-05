@@ -2,6 +2,7 @@ package store_effects;
 
 
 import common.RemoteMethodCall;
+import server.ClientMethodsNamesProvider;
 import server.Game;
 import server.PubSubHandler;
 import server.TurnTimeout;
@@ -9,10 +10,9 @@ import server_store.*;
 import store_actions.GameTurnTimeoutExpiredAction;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by giorgiopea on 20/03/17.
- *
  * Handles the side-effects related to the expiration of the game turn timeout.
  */
 public class GameTurnTimeoutExpiredEffect implements Effect {
@@ -25,32 +25,31 @@ public class GameTurnTimeoutExpiredEffect implements Effect {
          */
         ServerState castedState = (ServerState) state;
         GameTurnTimeoutExpiredAction castedAction = (GameTurnTimeoutExpiredAction) action;
-        Game game_ = null;
+        Game game = castedAction.getGame();
         ArrayList<Object> parameters = new ArrayList<>();
-        for (Game game : castedState.getGames()){
-            if (game.getGamePublicData().getId() == castedAction.getPayload()){
-                parameters.add(game.getLastPSclientNotification());
-                //The new timeout is set
-                game.getCurrentTimer().schedule(new TurnTimeout(castedAction.getPayload()),castedState.getTurnTimeout());
-                game_ = game;
-            }
-        }
-        if (game_ != null){
-            //Notification sending
-            for (PubSubHandler handler : castedState.getPubSubHandlers()){
-                if (handler.getPlayerToken().getGameId()== castedAction.
-                        getPayload()){
-                    if (handler.getPlayerToken().equals(game_.getCurrentPlayer().getPlayerToken())){
-                        handler.queueNotification(new RemoteMethodCall("startTurn", new ArrayList<>()));
-                    }
-                    /**if (handler.getPlayerToken().equals(game_.g.playerToken)){
-                        handler.queueNotification(new RemoteMethodCall("forceEndTurn", new ArrayList<>()));
-                    }**/
-                    handler.queueNotification(new RemoteMethodCall("asyncNotification",parameters));
+        parameters.add(game.getLastPSclientNotification());
+        //Notification sending
+        for (PubSubHandler handler : this.getHandlersByGameId(game.getGamePublicData().getId(), castedState.getPubSubHandlers())) {
 
-                }
+            if (handler.getPlayerToken().equals(game.getCurrentPlayer().getPlayerToken())) {
+                handler.queueNotification(new RemoteMethodCall(ClientMethodsNamesProvider.getInstance().startTurn(), new ArrayList<>()));
             }
+            if (handler.getPlayerToken().equals(game.getPreviousPlayer().getPlayerToken())) {
+                handler.queueNotification(new RemoteMethodCall(ClientMethodsNamesProvider.getInstance().forceEndTurn(), new ArrayList<>()));
+            }
+            handler.queueNotification(new RemoteMethodCall(ClientMethodsNamesProvider.getInstance().asyncNotification(), parameters));
+
         }
 
+    }
+
+    private List<PubSubHandler> getHandlersByGameId(int gameId, List<PubSubHandler> handlers) {
+        List<PubSubHandler> handlersToReturn = new ArrayList<>();
+        for (PubSubHandler handler : handlers) {
+            if (handler.getPlayerToken().getGameId() == gameId) {
+                handlersToReturn.add(handler);
+            }
+        }
+        return handlersToReturn;
     }
 }

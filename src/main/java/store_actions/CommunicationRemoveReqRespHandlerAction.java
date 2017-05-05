@@ -1,5 +1,6 @@
 package store_actions;
 
+import server.ReqRespHandler;
 import server_store.StoreAction;
 
 import java.util.UUID;
@@ -9,14 +10,13 @@ import java.util.UUID;
  */
 public class CommunicationRemoveReqRespHandlerAction extends StoreAction {
 
-    private UUID payload;
-
-    public CommunicationRemoveReqRespHandlerAction(UUID handlerUUID) {
+    private final ReqRespHandler handler;
+    public CommunicationRemoveReqRespHandlerAction(ReqRespHandler handler) {
         super("@COMMUNICATION_REMOVE_REQRESP_HANDLER");
-        this.payload = handlerUUID;
+        this.handler = handler;
     }
 
-    public UUID getPayload() {
-        return payload;
+    public ReqRespHandler getHandler() {
+        return handler;
     }
 }
